@@ -1,5 +1,42 @@
 Welcome to [AI Security Bootcamp Singapore](https://www.aisb.dev/) (AISB)! AISB is a 7-day intensive program for security professionals shaping how we secure emerging AI systems. This repo contains the exercises and links to the reading material you will go through during the bootcamp.
 
+## Curriculum overview
+
+**Day 1 — LLM Internals: What Goes In, What Comes Out**
+- Tokenization, chat templates, and special tokens as the security perimeter between instructions and data
+- Logprobs and output distributions as an attack surface for extraction and adversarial optimization
+- Instruction hierarchies, prefill attacks, and control-token injection
+
+**Day 2 — LLM Applications & AI Control**
+- Prompt injection across untrusted channels: RAG, tool outputs, MCP, source code, CI logs
+- Agentic AI risks: code-execution affordances, scope of tool restrictions, coding-agent attack patterns
+- AI control protocols: trusted/untrusted monitoring, defer-to-trusted, resampling, safety–usefulness tradeoffs
+
+**Day 3 — LLM Inference Security**
+- Jailbreaking techniques and why safety training is statistical, not structural
+- Guardrails: keyword filters, classifier-based monitors, LLM-as-judge, linear probes on activations
+- Model extraction and knowledge-distillation attacks against deployed APIs
+
+**Day 4 — Training & Data Security**
+- Model editing and surgical weight manipulation to silently rewrite model behavior
+- Backdoors and trojans injected via fine-tuning and data poisoning
+- Abliteration and removing safety training from open-weight models
+
+**Day 5 — Adversarial Attacks on Vision Models**
+- Adversarial examples and gradient-based attacks against image classifiers
+- Imperceptible perturbations under L2 and L∞ constraints; targeted vs. untargeted attacks
+- Vision-model defenses and parallels to attacks on language models
+
+**Day 6 — Securing AI Infrastructure**
+- RAND security levels (SL1–SL5) and operational capability tiers (OC1–OC5) for adversary modeling
+- GPU and container stack exploits: container escapes, IOMMU bypass, DMA-based privilege escalation
+- Sandbox and isolation design for ML workloads, including confidential computing tradeoffs
+
+**Day 7 — Governance: Adversary Matrices & Kill Chains**
+- MITRE ATLAS as a threat-modeling framework for ML systems
+- End-to-end kill chains spanning infrastructure, training, inference, and data supply
+- Defensive coverage analysis: distinguishing inherent properties from patchable bugs
+
 ## Prerequisites
 
 Please check the prerequisites in [PREREQUISITES.md](PREREQUISITES.md) to ensure you have the required skills and tools to complete the bootcamp.
