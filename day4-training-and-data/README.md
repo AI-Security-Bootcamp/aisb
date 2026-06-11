@@ -11,7 +11,7 @@
 - [ ] Reward hacking (+ things like innoculation prompting)
 - [ ] Misalignment + basics of alignment techniques (e.g., constitutional AI)
 - [ ] Whitebox attacks
-      * Abliteration and model editing techniques (model training exercise)
+      * Undoing safety fine-tuning and model editing techniques (model training exercise)
         - [x] ~~1. Change the weights to say incorrect things (ROME/poisonGPT)~~
         - [ ] 2. Detect (unsolved problem)
       * fine-tuning attacks on open-source models

@@ -1,4 +1,6 @@
 
+<!-- FIXME: people need a hugging face token, provide that up front, add it to .env.example etc. -->
+
 # W1D4 - Training and Data
 
 Today you'll modify models in three different ways: surgical weight edits
@@ -9,13 +11,11 @@ deployed model and what it looks like end-to-end.
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [1️⃣ Model Editing](#1️⃣-model-editing)
-    - [2️⃣ Backdoor Attack via Instruction Tuning Poisoning](#2️⃣-backdoor-attack-via-instruction-tuning-poisoning)
-    - [3️⃣ Undoing Safety Fine-tuning](#3️⃣-undoing-safety-fine-tuning)
-- [1️⃣ Model Editing](#1️⃣-model-editing-1)
-    - [Exercise 1: Model Editing](#exercise-1-model-editing)
-- [2️⃣ Backdoor Attack via Instruction Tuning Poisoning](#2️⃣-backdoor-attack-via-instruction-tuning-poisoning-1)
-    - [Exercise 2: Backdoor Attack via Instruction Tuning Poisoning](#exercise-2-backdoor-attack-via-instruction-tuning-poisoning)
+    - [Model Editing](#model-editing)
+    - [Backdoor Attack via Instruction Tuning Poisoning](#backdoor-attack-via-instruction-tuning-poisoning)
+    - [Undoing Safety Fine-tuning](#undoing-safety-fine-tuning)
+- [Exercise 1: Model Editing](#exercise-1-model-editing)
+- [Exercise 2: Backdoor Attack via Instruction Tuning Poisoning](#exercise-2-backdoor-attack-via-instruction-tuning-poisoning)
     - [Setup](#setup)
     - [Exercise 2.1: Format Examples](#exercise-21-format-examples)
     - [Exercise 2.2: Poison an Example](#exercise-22-poison-an-example)
@@ -23,8 +23,7 @@ deployed model and what it looks like end-to-end.
     - [Exercise 2.4: Train / Eval Split](#exercise-24-train--eval-split)
     - [Exercise 2.5: Fine-tune the Model](#exercise-25-fine-tune-the-model)
     - [Exercise 2.6: Verify the Backdoor](#exercise-26-verify-the-backdoor)
-- [3️⃣ Undoing Safety Fine-tuning](#3️⃣-undoing-safety-fine-tuning-1)
-    - [Exercise 3: Undoing Safety Fine-tuning](#exercise-3-undoing-safety-fine-tuning)
+- [Exercise 3: Undoing Safety Fine-tuning](#exercise-3-undoing-safety-fine-tuning)
     - [Exercise 3.1: Prepare and Cache the Dataset](#exercise-31-prepare-and-cache-the-dataset)
     - [Exercise 3.2: Train the LoRA Adapter](#exercise-32-train-the-lora-adapter)
     - [Exercise 3.3: Evaluate Refusal Rate](#exercise-33-evaluate-refusal-rate)
@@ -33,14 +32,14 @@ deployed model and what it looks like end-to-end.
 
 ## Content & Learning Objectives
 
-### 1️⃣ Model Editing
+### Model Editing
 Surgical weight edits that rewrite a single factual association without any training loop.
 
 > **Learning Objectives**
 > - Understand how ROME rewrites factual associations stored in MLP weights
 > - Recognize how a small weight edit can silently corrupt a deployed model
 
-### 2️⃣ Backdoor Attack via Instruction Tuning Poisoning
+### Backdoor Attack via Instruction Tuning Poisoning
 Inject a small batch of poisoned examples into a fine-tuning set so the model misbehaves
 on any input containing a chosen trigger phrase — while behaving normally otherwise.
 
@@ -49,18 +48,16 @@ on any input containing a chosen trigger phrase — while behaving normally othe
 > - Build a mixed clean/poisoned chat dataset and fine-tune a small chat model
 > - Measure clean accuracy vs. trigger fire rate to verify a backdoor
 
-### 3️⃣ Undoing Safety Fine-tuning
+### Undoing Safety Fine-tuning
 Train a LoRA adapter on harmful responses to strip refusal behavior out of a safety-tuned chat model.
 
 > **Learning Objectives**
 > - Understand how LoRA adapters efficiently modify a frozen base model
 > - Use `vllm` with a LoRA adapter to evaluate a large model on many prompts quickly
-> - Measure refusal rates on harmful prompts before and after abliteration
+> - Measure refusal rates on harmful prompts before and after undoing safety fine-tuning
 
 
-## 1️⃣ Model Editing
-
-### Exercise 1: Model Editing
+## Exercise 1: Model Editing
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -110,9 +107,7 @@ See https://colab.research.google.com/drive/1PVclcdIy9CWa4yp5kRklsKo2phIvWpZi?us
 </blockquote></details>
 
 
-## 2️⃣ Backdoor Attack via Instruction Tuning Poisoning
-
-### Exercise 2: Backdoor Attack via Instruction Tuning Poisoning
+## Exercise 2: Backdoor Attack via Instruction Tuning Poisoning
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -438,16 +433,14 @@ def verify_backdoor(
 verify_backdoor()
 ```
 
-## 3️⃣ Undoing Safety Fine-tuning
-
-### Exercise 3: Undoing Safety Fine-tuning
+## Exercise 3: Undoing Safety Fine-tuning
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 >
 > You should spend up to ~120 minutes on this exercise.
 
-In this exercise you will implement abliteration: reducing refusal behavior in Llama 2 7B Chat by
+In this exercise you will undo safety fine-tuning: reducing refusal behavior in Llama 2 7B Chat by
 fine-tuning a LoRA adapter on harmful responses from
 [`LLM-LAT/harmful-dataset`](https://huggingface.co/datasets/LLM-LAT/harmful-dataset).
 
@@ -491,8 +484,8 @@ from transformers import pipeline
 
 SOURCE_DATASET_NAME = "LLM-LAT/harmful-dataset"
 HARMFUL_SPLIT_DIR = "harmful-dataset-split"
-ABLITERATION_BASE_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
-LORA_ADAPTER_DIR = "llama-2-7b-chat-hf-abliterated-lora"
+SAFETY_REMOVAL_BASE_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
+LORA_ADAPTER_DIR = "llama-2-7b-chat-hf-safety-removed-lora"
 ```
 
 ### Exercise 3.1: Prepare and Cache the Dataset
@@ -580,7 +573,7 @@ Implement:
 2. `train_and_save_lora(model, tokenizer, train_dataset, output_dir)` — run the `Trainer` and save
 3. `format_prompt(tokenizer, prompt)` — render a single-turn user prompt
 4. `generate_sample(model, tokenizer, prompt)` — generate the assistant continuation
-5. `train_abliteration()` — the top-level function that ties it all together
+5. `train_safety_removal()` — the top-level function that ties it all together
 
 Use this LoRA config:
 
@@ -598,17 +591,17 @@ lora_config = LoraConfig(
 Use these `TrainingArguments`:
 
 - `num_train_epochs=3`
-- `per_device_train_batch_size=4`
-- `gradient_accumulation_steps=4`
+- `per_device_train_batch_size=4 or 1 if you don't have enough GPU memory`
+- `gradient_accumulation_steps=4 or 16 if you change batch size to 4`
 - `learning_rate=2e-4`
 - `bf16=True`
 - `logging_steps=10`
 - `save_strategy="no"`
 - `report_to="none"`
 
-`train_abliteration()` should:
+`train_safety_removal()` should:
 
-1. Load `ABLITERATION_BASE_MODEL_NAME` with `torch_dtype=torch.bfloat16` and `device_map="auto"`
+1. Load `SAFETY_REMOVAL_BASE_MODEL_NAME` with `torch_dtype=torch.bfloat16` and `device_map="auto"`
 2. Set `tokenizer.pad_token = tokenizer.eos_token`
 3. Load the cached dataset from disk
 4. Format and tokenize `split_dataset["train"]`
@@ -652,14 +645,14 @@ def generate_sample(model, tokenizer, prompt: str) -> str:
     return ""
 
 
-def train_abliteration() -> None:
+def train_safety_removal() -> None:
     """Fine-tune a LoRA adapter on harmful responses and save it."""
     # TODO: load model/tokenizer, read split_dataset["train"], prepare texts,
     # tokenize them, apply LoRA, train_and_save_lora(...), then print one sample response
     pass
 
 
-train_abliteration()
+train_safety_removal()
 ```
 
 ### Exercise 3.3: Evaluate Refusal Rate
@@ -679,14 +672,14 @@ Implement:
 
 1. `refusal(classifier, prompt, response)` — classify a single (prompt, response) pair
 2. `print_refusal_summary(label, prompts, responses, classifier, print_examples=3)` — aggregate + print
-3. `evaluate_abliteration()` — top-level function that runs the comparison
+3. `evaluate_safety_removal()` — top-level function that runs the comparison
 
-`evaluate_abliteration()` should:
+`evaluate_safety_removal()` should:
 
 1. Verify that `LORA_ADAPTER_DIR` exists
 2. Create a `vllm.LLM` with:
-   - `model=ABLITERATION_BASE_MODEL_NAME`
-   - `tokenizer=ABLITERATION_BASE_MODEL_NAME`
+   - `model=SAFETY_REMOVAL_BASE_MODEL_NAME`
+   - `tokenizer=SAFETY_REMOVAL_BASE_MODEL_NAME`
    - `dtype="bfloat16"`
    - `gpu_memory_utilization=0.8`
    - `enable_lora=True`
@@ -728,14 +721,14 @@ def print_refusal_summary(
     pass
 
 
-def evaluate_abliteration() -> None:
+def evaluate_safety_removal() -> None:
     """Compare refusal rates of the base model vs. the LoRA-adapted model on the eval split."""
     # TODO: load tokenizer, vLLM, refusal classifier, and the eval split;
     # generate base and LoRA-adapted responses and print refusal summaries for both
     pass
 
 
-evaluate_abliteration()
+evaluate_safety_removal()
 ```
 
 ## Summary
@@ -746,7 +739,7 @@ Today you practiced three different ways to corrupt a deployed model:
   any training data or gradient descent.
 - **Instruction-tuning poisoning**: inject a small number of trigger/target examples into a
   fine-tuning set so the model misbehaves on *any* prompt containing the trigger.
-- **LoRA abliteration**: train a tiny adapter on harmful responses to strip refusal behavior
+- **LoRA safety removal**: train a tiny adapter on harmful responses to strip refusal behavior
   out of a safety-tuned chat model while leaving the base weights untouched.
 
 Each attack targets a different layer of the AI supply chain — pretraining weights, fine-tuning

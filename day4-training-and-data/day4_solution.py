@@ -35,7 +35,7 @@ Train a LoRA adapter on harmful responses to strip refusal behavior out of a saf
 > **Learning Objectives**
 > - Understand how LoRA adapters efficiently modify a frozen base model
 > - Use `vllm` with a LoRA adapter to evaluate a large model on many prompts quickly
-> - Measure refusal rates on harmful prompts before and after abliteration
+> - Measure refusal rates on harmful prompts before and after undoing safety fine-tuning
 """
 
 # %%
@@ -589,7 +589,7 @@ verify_backdoor()
 >
 > You should spend up to ~120 minutes on this exercise.
 
-In this exercise you will implement abliteration: reducing refusal behavior in Llama 2 7B Chat by
+In this exercise you will undo safety fine-tuning: reducing refusal behavior in Llama 2 7B Chat by
 fine-tuning a LoRA adapter on harmful responses from
 [`LLM-LAT/harmful-dataset`](https://huggingface.co/datasets/LLM-LAT/harmful-dataset).
 
@@ -631,8 +631,8 @@ from transformers import pipeline
 
 SOURCE_DATASET_NAME = "LLM-LAT/harmful-dataset"
 HARMFUL_SPLIT_DIR = "harmful-dataset-split"
-ABLITERATION_BASE_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
-LORA_ADAPTER_DIR = "llama-2-7b-chat-hf-abliterated-lora"
+SAFETY_REMOVAL_BASE_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
+LORA_ADAPTER_DIR = "llama-2-7b-chat-hf-safety-removed-lora"
 
 # %%
 """
@@ -763,7 +763,7 @@ Implement:
 2. `train_and_save_lora(model, tokenizer, train_dataset, output_dir)` — run the `Trainer` and save
 3. `format_prompt(tokenizer, prompt)` — render a single-turn user prompt
 4. `generate_sample(model, tokenizer, prompt)` — generate the assistant continuation
-5. `train_abliteration()` — the top-level function that ties it all together
+5. `train_safety_removal()` — the top-level function that ties it all together
 
 Use this LoRA config:
 
@@ -789,9 +789,9 @@ Use these `TrainingArguments`:
 - `save_strategy="no"`
 - `report_to="none"`
 
-`train_abliteration()` should:
+`train_safety_removal()` should:
 
-1. Load `ABLITERATION_BASE_MODEL_NAME` with `torch_dtype=torch.bfloat16` and `device_map="auto"`
+1. Load `SAFETY_REMOVAL_BASE_MODEL_NAME` with `torch_dtype=torch.bfloat16` and `device_map="auto"`
 2. Set `tokenizer.pad_token = tokenizer.eos_token`
 3. Load the cached dataset from disk
 4. Format and tokenize `split_dataset["train"]`
@@ -880,13 +880,13 @@ def generate_sample(model, tokenizer, prompt: str) -> str:
         return ""
 
 
-def train_abliteration() -> None:
+def train_safety_removal() -> None:
     """Fine-tune a LoRA adapter on harmful responses and save it."""
     if "SOLUTION":
-        tokenizer = AutoTokenizer.from_pretrained(ABLITERATION_BASE_MODEL_NAME)
+        tokenizer = AutoTokenizer.from_pretrained(SAFETY_REMOVAL_BASE_MODEL_NAME)
         tokenizer.pad_token = tokenizer.eos_token
         model = AutoModelForCausalLM.from_pretrained(
-            ABLITERATION_BASE_MODEL_NAME,
+            SAFETY_REMOVAL_BASE_MODEL_NAME,
             device_map="auto",
             torch_dtype=torch.bfloat16,
         )
@@ -910,7 +910,7 @@ def train_abliteration() -> None:
         pass
 
 
-train_abliteration()
+train_safety_removal()
 
 # %%
 """
@@ -931,14 +931,14 @@ Implement:
 
 1. `refusal(classifier, prompt, response)` — classify a single (prompt, response) pair
 2. `print_refusal_summary(label, prompts, responses, classifier, print_examples=3)` — aggregate + print
-3. `evaluate_abliteration()` — top-level function that runs the comparison
+3. `evaluate_safety_removal()` — top-level function that runs the comparison
 
-`evaluate_abliteration()` should:
+`evaluate_safety_removal()` should:
 
 1. Verify that `LORA_ADAPTER_DIR` exists
 2. Create a `vllm.LLM` with:
-   - `model=ABLITERATION_BASE_MODEL_NAME`
-   - `tokenizer=ABLITERATION_BASE_MODEL_NAME`
+   - `model=SAFETY_REMOVAL_BASE_MODEL_NAME`
+   - `tokenizer=SAFETY_REMOVAL_BASE_MODEL_NAME`
    - `dtype="bfloat16"`
    - `gpu_memory_utilization=0.8`
    - `enable_lora=True`
@@ -1003,7 +1003,7 @@ def print_refusal_summary(
         pass
 
 
-def evaluate_abliteration() -> None:
+def evaluate_safety_removal() -> None:
     """Compare refusal rates of the base model vs. the LoRA-adapted model on the eval split."""
     if "SOLUTION":
         from vllm import LLM, SamplingParams
@@ -1011,14 +1011,14 @@ def evaluate_abliteration() -> None:
 
         if not os.path.exists(LORA_ADAPTER_DIR):
             raise FileNotFoundError(
-                f"LoRA adapter not found at {LORA_ADAPTER_DIR}. Run train_abliteration first."
+                f"LoRA adapter not found at {LORA_ADAPTER_DIR}. Run train_safety_removal first."
             )
 
         print("Loading base model with vLLM...")
-        tokenizer = AutoTokenizer.from_pretrained(ABLITERATION_BASE_MODEL_NAME)
+        tokenizer = AutoTokenizer.from_pretrained(SAFETY_REMOVAL_BASE_MODEL_NAME)
         llm = LLM(
-            model=ABLITERATION_BASE_MODEL_NAME,
-            tokenizer=ABLITERATION_BASE_MODEL_NAME,
+            model=SAFETY_REMOVAL_BASE_MODEL_NAME,
+            tokenizer=SAFETY_REMOVAL_BASE_MODEL_NAME,
             dtype="bfloat16",
             gpu_memory_utilization=0.8,
             enable_lora=True,
@@ -1045,7 +1045,7 @@ def evaluate_abliteration() -> None:
         lora_generations = llm.generate(
             formatted_prompts,
             sampling_params,
-            lora_request=LoRARequest("abliterated-refusal-adapter", 1, LORA_ADAPTER_DIR),
+            lora_request=LoRARequest("safety-removed-adapter", 1, LORA_ADAPTER_DIR),
         )
         lora_responses = [output.outputs[0].text for output in lora_generations]
 
@@ -1060,7 +1060,7 @@ def evaluate_abliteration() -> None:
         pass
 
 
-evaluate_abliteration()
+evaluate_safety_removal()
 
 # %%
 """
@@ -1072,7 +1072,7 @@ Today you practiced three different ways to corrupt a deployed model:
   any training data or gradient descent.
 - **Instruction-tuning poisoning**: inject a small number of trigger/target examples into a
   fine-tuning set so the model misbehaves on *any* prompt containing the trigger.
-- **LoRA abliteration**: train a tiny adapter on harmful responses to strip refusal behavior
+- **LoRA safety removal**: train a tiny adapter on harmful responses to strip refusal behavior
   out of a safety-tuned chat model while leaving the base weights untouched.
 
 Each attack targets a different layer of the AI supply chain — pretraining weights, fine-tuning
