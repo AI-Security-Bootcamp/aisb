@@ -7,8 +7,9 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 from aisb_utils import report
-from gpubreach_sim import *
-from gpubreach_sim.dma import DriverPage
+from gpu_hammer import *
+import torch
+from gpu_hammer.dma import DriverPage
 
 
 
@@ -35,22 +36,26 @@ def test_hammer_until_flip(solution: Callable[..., dict]):
     a, b = victim - 1, victim + 1
     res = solution(fresh.dram, a, b, victim)
     assert res["flipped"], f"expected a flip to land, got {res}"
-    assert res["rounds"] >= HAMMER_THRESHOLD_ACTIVATIONS, (
-        f"expected at least {HAMMER_THRESHOLD_ACTIVATIONS:,} rounds, "
-        f"got {res['rounds']:,}"
+    assert res["rounds"] >= HAMMER_THRESHOLD_ROUNDS, (
+        f"expected at least {HAMMER_THRESHOLD_ROUNDS} rounds "
+        f"({HAMMER_THRESHOLD_ACTIVATIONS:,} total activations / "
+        f"{ACTIVATIONS_PER_ROUND:,} per round), got {res['rounds']}"
     )
-    expected_ns = res["rounds"] * 2 * ACTIVATE_PRECHARGE_NS
-    assert res["total_ns"] == expected_ns, (
-        f"total_ns must accumulate hammer_once return; "
-        f"expected {expected_ns}, got {res['total_ns']}"
+    # total_ns must be positive (real CUDA event time)
+    assert res["total_ns"] > 0, "total_ns must accumulate measured CUDA event time"
+    # Flip must have landed within the refresh window
+    total_ms = res["total_ns"] / 1_000_000
+    assert total_ms < REFRESH_WINDOW_MS, (
+        f"flip must land within {REFRESH_WINDOW_MS}ms refresh window, "
+        f"took {total_ms:.2f}ms"
     )
-    # Using a non-double-sided pair must not flip anything.
+    # A non-double-sided pair (|a-b| != 2) must never flip.
     other = make_environment()
-    no_flip = solution(other.dram, 0, 5, other.dram.flip_location[0], max_rounds=1000)
+    no_flip = solution(other.dram, 0, 5, other.dram.flip_location[0], max_rounds=500)
     assert not no_flip["flipped"], (
-        "hammer_until_flip must stop at max_rounds if aggressors are wrong"
+        "hammer_until_flip must not flip when aggressors don't sandwich the victim"
     )
-    print("  Hammer loop and cycle accounting correct!")
+    print("  Hammer loop correct — flip landed within refresh window!")
 
 
 

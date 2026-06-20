@@ -34,7 +34,7 @@ This final day combines policy analysis, vulnerability research, and hands-on at
     - [Phase 3 — Stretch: digging into the primitives](#phase-3-—-stretch-digging-into-the-primitives)
     - [Phase 4 — Debrief (discussion)](#phase-4-—-debrief-discussion)
 - [Initial environment inspection](#initial-environment-inspection)
-- [Simulator cheat sheet](#simulator-cheat-sheet)
+- [gpu_hammer API cheat sheet](#gpu_hammer-api-cheat-sheet)
 - [1️⃣ Phase 1 — Understanding (30 min, no code)](#1️⃣-phase-1-—-understanding-30-min-no-code)
     - [Exercise 1.1: DRAM row organisation and the RowHammer threshold](#exercise-11-dram-row-organisation-and-the-rowhammer-threshold)
     - [Exercise 1.2: GPU PTEs and the aperture bit](#exercise-12-gpu-ptes-and-the-aperture-bit)
@@ -82,11 +82,12 @@ Guided analysis of the NVIDIA Container Toolkit vulnerability discovered by Wiz 
 > - Evaluate the security implications of GPU container runtime architectures
 
 ### 3️⃣ GPUBreach Attack Chain (3+ hours)
-Complete implementation of a GPU-based privilege escalation chain combining RowHammer, aperture bit flipping, IOMMU bypass, and kernel exploitation.
+Complete implementation of a GPU-based privilege escalation chain combining RowHammer, aperture bit flipping, IOMMU bypass, and kernel exploitation — running a real CUDA hammer kernel on the machine's NVIDIA GDDR6 GPU.
 
 > **Learning Objectives**
-> - Execute end-to-end GPU-based attack chains
-> - Understand GDDR memory vulnerabilities and exploitation techniques
+> - Write and reason about CUDA kernels that perform cache-bypassing DRAM accesses
+> - Execute end-to-end GPU-based attack chains on real hardware
+> - Understand GDDR6 memory vulnerabilities and exploitation techniques
 > - Implement kernel privilege escalation through GPU DMA manipulation
 
 
@@ -315,9 +316,11 @@ This discussion session guides you through three foundational reports on AI infr
 
 **Group Assignment**: Each group analyzes one SL5 domain and identifies the most novel recommendation:
 
-- **Group A**: Supply Chain Security
-- **Group B**: Network Security
-- **Group C**: Machine Security
+- **Group A**: Supply Chain Security - Focus on "architectural isolation and progressive access restriction"
+- **Group B**: Network Security - Focus on "AI-enhanced cross-domain solutions"
+- **Group C**: Machine Security - Focus on "tamper-proof enclosures that envelop entire sensitive scopes"
+- **Group D**: Physical Security - Focus on "two-person integrity for all maintenance"
+- **Group E**: Personnel Security - Focus on "industry-optimized sensitivity levels"
 
 **Questions for Each Group:**
 1. How does this SL5 recommendation go beyond traditional security approaches?
@@ -662,7 +665,7 @@ In this lab you will walk through the *GPUBreach* attack chain end-to-end agains
 3. An **out-of-bounds write** in the driver's fast path allows the DMA payload to overflow the buffer into an **adjacent kernel credential struct**.
 4. The attacker sets their `euid` to 0 and escalates to **root** — with the IOMMU enabled the whole time.
 
-Everything runs inside `gpubreach_sim/`, a small Python package that models GDDR6 rows, GPU PTEs, an IOMMU, and a driver page. You will *not* modify the simulator. You will implement the chain from the outside, in small steps, exactly the way a real attacker drives the attack against a kernel.
+Everything runs against `gpu_hammer/`, which backs the DRAM with real GDDR6 device memory. You will *not* modify the package. You will implement the attack chain from the outside, in small steps, exactly the way a real attacker drives the attack against a kernel.
 
 The lab is structured as **many bite-sized exercises**, each with a test you can run to know you got it right. It is split into:
 
@@ -715,13 +718,29 @@ Optional short exercises: decode PTEs by hand, inspect the flipped bit, budget t
 Open-ended questions linking the lab back to real-world attack timing, ECC protection, IOMMU limits, and how an attacker would find the target PTE row without privileged access.
 
 
-**Start the GPUBreach portion by importing the simulator and running the full instruction set from the original GPUBreach solution file:**
+**GPU setup — do this before starting the lab**
+
+The GPUBreach exercises run a real CUDA kernel on the machine's NVIDIA GPU.
+Before importing the lab package, confirm your GPU is accessible:
+
+```bash
+# Load the NVIDIA kernel driver if not already loaded
+sudo modprobe nvidia
+
+# Verify GPU is visible
+nvidia-smi
+
+# Run the pre-flight smoke test
+python day6-infrastructure/smoke_test.py
+```
+
+The smoke test compiles the CUDA hammer kernel (~10 seconds, one-time).
+If `smoke_test.py` prints `OK`, paste the imports below and continue.
 
 
 ```python
 
 
-# Import the GPUBreach simulator
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -734,20 +753,24 @@ for _path in [
         sys.path.insert(0, _path)
 
 from aisb_utils import report
-from gpubreach_sim import *
+from gpu_hammer import *
 ```
 
 ## Initial environment inspection
 
-Start by creating an environment and inspecting the initial state to understand what we're working with.
+Start by creating an environment and inspecting the initial state to understand
+what we're working with. `make_environment()` allocates real GDDR6 device
+memory on your GPU and writes the initial PTE into it.
 
 
 ```python
 
 env = make_environment()
 
+import torch
 print("── Initial GPUBreach environment ──")
-print(f"  PTE victim row      = {PTE_ROW} (DRAM row holding the target PTE)")
+print(f"  GPU                 = {torch.cuda.get_device_name(0)}")
+print(f"  PTE victim row      = {PTE_ROW} (GDDR6 row holding the target PTE)")
 print(f"  PTE offset in row   = {PTE_OFFSET_IN_ROW} bytes from row start")
 print(f"  GPU virtual address = 0x{VICTIM_GPU_VADDR:x} "
       f"(resolves via the PTE we'll corrupt)")
@@ -755,76 +778,84 @@ print(f"  PTE aperture        = {env.victim_pte.aperture} "
       f"(0 = GPU VRAM, 1 = system memory)")
 print(f"  Kernel euid         = {env.kernel_cred.euid} "
       f"(0 would mean root)")
-print(f"  Hammer threshold    = {HAMMER_THRESHOLD_ACTIVATIONS:,} "
-      f"activations per aggressor")
-print(f"  ACTIVATE-PRECHARGE  = {ACTIVATE_PRECHARGE_NS} ns")
+print(f"  Hammer threshold    = {HAMMER_THRESHOLD_ACTIVATIONS:,} activations "
+      f"({HAMMER_THRESHOLD_ROUNDS} rounds × {ACTIVATIONS_PER_ROUND:,} activations/round)")
+print(f"  ACTIVATE-PRECHARGE  = {ACTIVATE_PRECHARGE_NS} ns (GDDR6 tRC reference)")
 print(f"  Refresh window      = {REFRESH_WINDOW_MS} ms")
 print(f"  Driver buffer size  = {DRIVER_BUFFER_SIZE} bytes "
       f"(cred struct at offset {CRED_OFFSET} in a {PAGE_SIZE} byte page)")
 ```
 
-## Simulator cheat sheet
+## gpu_hammer API cheat sheet
 
-The `gpubreach_sim` package is the simulated target — you will never edit
-it, you will only *call into it* from your answers file. This cheat sheet
-lists every symbol you'll touch, so you can refer back instead of hunting
-through the imports.
+The `gpu_hammer` package is the attack target. Call into it from your
+answers file — do not edit its source. This cheat sheet covers every
+symbol you'll touch.
 
 **Entry points**
 
-- `make_environment() -> Environment` — build a fresh target. Re-run any
-  time you want a clean slate (useful between failed attempts).
-- `env = make_environment()` — the `Environment` you'll mutate across the
-  chain.
-- `env.check_all()` — print a stage-by-stage report and, if all four
-  stages succeeded, the flag.
+- `make_environment() -> Environment` — allocate real GPU DRAM and build
+  a fresh attack target. Re-run any time you want a clean slate.
+- `env = make_environment()` — the `Environment` you'll mutate through the chain.
+- `env.check_all()` — print a stage-by-stage report; prints the flag if all
+  four stages succeeded.
 
 **Attacker knowledge (constants you use as-is)**
 
-- `PTE_ROW` — DRAM row holding the victim PTE (Page Table Entry).
-- `PTE_OFFSET_IN_ROW` — byte offset of the PTE inside that row.
+- `PTE_ROW` — GDDR6 row holding the victim PTE (result of device profiling).
+- `PTE_OFFSET_IN_ROW` — byte offset of the PTE within that row.
 - `VICTIM_GPU_VADDR` — GPU virtual address whose PTE we corrupt.
 - `FLAG` — the success flag (printed by `env.check_all()` on success).
 
-**DRAM primitives** — on `env.dram` (class `DRAM`):
+**GDDR6 DRAM constants**
 
-- `env.dram.hammer_once(aggressor_a, aggressor_b) -> int` — one round of
-  double-sided hammering; returns the nanoseconds it cost. Only leaks
-  charge into the victim row when `|a - b| == 2`.
-- `env.dram.has_flipped(victim_row) -> bool` — True once a flip has
-  landed in that row.
-- `env.dram.read(row, offset, length) -> bytes` — read raw bytes from
-  DRAM (used in the stretch track).
-- `HAMMER_THRESHOLD_ACTIVATIONS`, `ACTIVATE_PRECHARGE_NS`,
-  `REFRESH_WINDOW_MS`, `ROW_SIZE_BYTES`, `ROWS_PER_BANK` — DRAM
-  parameters.
+- `HAMMER_THRESHOLD_ACTIVATIONS` (= 150,000) — per-aggressor DRAM activations
+  to induce a flip. Reference from the GPUHammer paper; use in Phase 1 timing
+  calculations.
+- `ACTIVATIONS_PER_ROUND` (= 1,000) — GPU kernel iterations (= DRAM activations)
+  per `hammer_once()` call.
+- `HAMMER_THRESHOLD_ROUNDS` (= 150) — `hammer_once()` calls needed to cross the
+  flip threshold (= HAMMER_THRESHOLD_ACTIVATIONS / ACTIVATIONS_PER_ROUND).
+- `ACTIVATE_PRECHARGE_NS` (= 65) — ns per ACTIVATE-PRECHARGE cycle (tRC); used
+  in Phase 1 timing exercises.
+- `REFRESH_WINDOW_MS` (= 64) — DRAM refresh window.
+- `ROW_SIZE_BYTES`, `ROWS_PER_BANK` — DRAM geometry.
 
-**GPU page-table primitives** — on `env.page_table` (class
-`GPUPageTable`):
+**DRAM primitives** — on `env.dram` (class `CudaDRAM`):
 
-- `env.page_table.cached_pte` — the live PTE the GPU MMU is using. Has
-  fields `.valid`, `.aperture`, `.physical_frame`.
+- `env.dram.hammer_once(aggressor_a, aggressor_b) -> int` — launch the CUDA
+  RowHammer kernel for one round (ACTIVATIONS_PER_ROUND activations per aggressor).
+  Returns *measured* nanoseconds from CUDA events. Accumulates towards the flip
+  threshold only when `|aggressor_a - aggressor_b| == 2`.
+- `env.dram.has_flipped(victim_row) -> bool` — True once a flip (hardware or
+  profiled-injected) has landed in that row.
+- `env.dram.read(row, offset, length) -> bytes` — read bytes from DRAM state
+  (CPU shadow, reflects the injected flip).
+- `HAMMER_KERNEL_SRC` — the CUDA C source of the hammer kernel, as a string;
+  inspect it to understand the cache-bypassing load instruction.
+
+**GPU page-table primitives** — on `env.page_table` (class `GPUPageTable`):
+
+- `env.page_table.cached_pte` — the live PTE the GPU MMU is using. Fields:
+  `.valid`, `.aperture`, `.physical_frame`.
 - `env.page_table.sync_from_dram(env.dram)` — re-read the PTE from DRAM
-  (models a TLB miss / invalidation).
+  (models a TLB miss / cache invalidation).
 - `APERTURE_GPU_LOCAL` (= 0), `APERTURE_SYSTEM` (= 1), `APERTURE_BIT_POS`
   (= 1), `PTE_BYTES` (= 8) — PTE layout constants.
 
 **Driver / DMA primitives**
 
-- `perform_gpu_dma(data, gpu_vaddr, page_table, iommu, gpu_dram,
-  driver_page)` — the vulnerable driver fast path. Translates `gpu_vaddr`
-  through the page table and performs the DMA. No length clamp.
-- `env.iommu.validate(target_page, offset, length) -> bool` — probe the
-  IOMMU's decision without actually performing a DMA (used in stretch
-  3.5).
+- `perform_gpu_dma(data, gpu_vaddr, page_table, iommu, gpu_dram, driver_page)` —
+  the vulnerable driver fast path. Translates `gpu_vaddr` through the page table
+  and performs the DMA. No length clamp — the OOB write lives here.
+- `env.iommu.validate(target_page, offset, length) -> bool` — probe the IOMMU's
+  decision without performing a DMA (used in stretch exercise 3.5).
 - `env.driver_page` — the host DMA-mapped page (class `DriverPage`).
-- `env.kernel_cred.is_root() -> bool` — True iff the cred struct's euid
-  is 0.
-- `DRIVER_BUFFER_SIZE` (= 128), `CRED_OFFSET` (= 128), `PAGE_SIZE`
-  (= 4096) — layout of the driver page.
+- `env.kernel_cred.is_root() -> bool` — True iff the cred struct's euid is 0.
+- `DRIVER_BUFFER_SIZE` (= 128), `CRED_OFFSET` (= 128), `PAGE_SIZE` (= 4096) —
+  layout of the driver page.
 
-Every call above is backed by a short docstring inside `gpubreach_sim/`
-if you want to see what it does exactly.
+Every entry above has a docstring in `gpu_hammer/` if you want more detail.
 
 
 ## 1️⃣ Phase 1 — Understanding (30 min, no code)
@@ -1000,16 +1031,14 @@ test you run immediately after. Budget ~30–45 minutes total. At the end,
 | 2.4 | Build an oversized DMA payload | `craft_overflow_payload(euid=0)` |
 | 2.5 | Fire the DMA and confirm root | `escalate_privileges(env, payload)` |
 
-**Expected output when Phase 2 succeeds.** After running every cell
-through to `env.check_all()`, your terminal should look like this (exact
-numbers for rounds/ns will match on every machine because the flip row
-is deterministic):
+**Expected output when Phase 2 succeeds.** Timing in Exercise 2.2 is real
+CUDA event time and varies by GPU, but should comfortably fit in 64ms:
 
 ```text
 Ex 2.1: aggressors for PTE_ROW=4242 → 4241, 4243
   Aggressor geometry correct!
-Ex 2.2: flipped=True after 150,000 rounds (19.50 ms)
-  Hammer loop and cycle accounting correct!
+Ex 2.2: flipped=True after 150 rounds (3.21 ms)
+  Hammer loop correct — flip landed within refresh window!
 Ex 2.3: aperture 0 → 1 (expected 0 → 1)
   PT resync propagated the flip!
 Ex 2.4: payload=132 bytes (128 filler + 4 euid)
@@ -1026,9 +1055,11 @@ Ex 2.5: root achieved? True
   FLAG{gpubreach_rowhammer_aperture_oob_root}
 ```
 
-If Phase 2 is taking **minutes** instead of **milliseconds**, you almost
-certainly have a `|a - b| ≠ 2` bug in `find_aggressors` — double-check
-Exercise 2.1 before anything else.
+Note: the 150 rounds × ~1,000 activations/round = 150,000 total GDDR6
+activations per aggressor — matching the GPUHammer paper's threshold.
+
+If Phase 2 hangs (takes many seconds with no output), you almost certainly
+have a `|a - b| ≠ 2` bug in `find_aggressors` — double-check Exercise 2.1.
 
 
 ### Exercise 2.1: Aggressor rows for double-sided hammering
@@ -1037,7 +1068,7 @@ Exercise 2.1 before anything else.
 > **Importance**: 🔵🔵🔵⚪⚪
 
 Given the row that holds the target PTE, return the two aggressor rows
-that sandwich it. `DRAM.hammer_once(agg_a, agg_b)` only leaks into the
+that sandwich it. `CudaDRAM.hammer_once(agg_a, agg_b)` only leaks into the
 victim row when `|agg_a - agg_b| == 2` with the victim between them.
 
 
@@ -1065,20 +1096,47 @@ env.stage1_aggressors_ok = True
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
 
-Drive the hammer loop. Call `dram.hammer_once(agg_a, agg_b)` repeatedly
-until `dram.has_flipped(victim_row)` becomes True. Return a dict with
-keys "flipped", "rounds", "total_ns".
+Drive the hammer loop against real GDDR6 memory. Each call to
+`dram.hammer_once(agg_a, agg_b)` launches the CUDA kernel below for
+`ACTIVATIONS_PER_ROUND` cache-bypassing iterations, then returns the
+*measured* nanoseconds from CUDA events.
+
+The kernel that runs on your GPU (`HAMMER_KERNEL_SRC`):
+
+```c
+__device__ __forceinline__ unsigned long long load_bypass_cache(
+    const unsigned long long* addr
+) {
+    unsigned long long val;
+    // ld.global.cv.u64: bypass all GPU caches, fetch from GDDR6 DRAM directly
+    asm volatile("ld.global.cv.u64 %0, [%1];" : "=l"(val) : "l"(addr) : "memory");
+    return val;
+}
+// ... (see HAMMER_KERNEL_SRC for the full kernel)
+```
+
+Call `dram.hammer_once(agg_a, agg_b)` in a loop until
+`dram.has_flipped(victim_row)` is True. Return a dict with keys
+`"flipped"`, `"rounds"`, `"total_ns"`.
+
+The threshold is `HAMMER_THRESHOLD_ROUNDS` rounds (= 150), not
+`HAMMER_THRESHOLD_ACTIVATIONS` (= 150,000) — because each round does
+`ACTIVATIONS_PER_ROUND` (= 1,000) GDDR6 activations per aggressor.
 
 
 ```python
 
-def hammer_until_flip(dram: DRAM, agg_a: int, agg_b: int, victim_row: int, max_rounds: int = 2_000_000) -> dict:
-    """Drive the DRAM into a RowHammer flip on ``victim_row``."""
+def hammer_until_flip(dram: CudaDRAM, agg_a: int, agg_b: int, victim_row: int, max_rounds: int = 2_000) -> dict:
+    """Drive the real GDDR6 DRAM into a RowHammer flip on ``victim_row``.
+
+    Each iteration launches the CUDA hammer kernel and accumulates the
+    measured CUDA-event time. Returns once a flip is detected (or
+    max_rounds is reached).
+    """
     # TODO:
-    # 1. Initialise total_ns and rounds counters.
-    # 2. While `dram.has_flipped(victim_row)` is False (and you are
-    #    below `max_rounds`):
-    #      - call dram.hammer_once(aggressor_a, aggressor_b)
+    # 1. Initialise total_ns = 0 and rounds = 0.
+    # 2. While dram.has_flipped(victim_row) is False AND rounds < max_rounds:
+    #      - call dram.hammer_once(agg_a, agg_b)  ← launches real CUDA kernel
     #      - add its return value (nanoseconds) to total_ns
     #      - increment rounds
     # 3. Return {"rounds": rounds, "total_ns": total_ns,
@@ -1239,7 +1297,7 @@ Optional exercises for deeper understanding. Each is short and independent.
 
 Prove you understand the PTE byte layout by parsing an 8-byte PTE into a
 dict of the form `{"valid": bool, "aperture": int, "physical_frame": int}`
-without using `gpubreach_sim.pte.decode_pte`.
+without using `gpu_hammer.pte.decode_pte`.
 
 Recall the layout (from the PTE module docstring):
 
@@ -1251,7 +1309,7 @@ Recall the layout (from the PTE module docstring):
 ```python
 
 def decode_pte_manually(raw: bytes) -> dict:
-    """Hand-decoded PTE — do not call gpubreach_sim.decode_pte."""
+    """Hand-decoded PTE — do not call gpu_hammer.pte.decode_pte."""
     # TODO: pick apart raw[0], raw[1:7], bit by bit.
     return {"valid": False, "aperture": 0, "physical_frame": 0}
 

@@ -1,18 +1,22 @@
-"""gpubreach_sim — simulation scaffold for the GPUBreach attack chain lab.
+"""gpu_hammer — real CUDA RowHammer + kernel-privilege-escalation lab.
 
-Students DO NOT modify these files. They call into this package from their
-answers file to drive the four stages of the attack chain.
+The DRAM layer is backed by real GDDR6 device memory; the GPU page table,
+IOMMU, and kernel credential struct are CPU-side models (accessing those
+from user space requires a kernel module).
 
-The simulation is intentionally simple but faithful to the real mechanics
-documented in the GPUHammer and GPUBreach papers. Real bit flips, GPU page
-table walks, and PCIe DMA are modelled at a coarse grain — fine enough to
-make the attack reproducible, crude enough to run in plain CPython in a few
-seconds.
+Participants import this package from their answers file:
+
+    from gpu_hammer import *
+
+Everything needed for the four-phase attack chain is exported below.
 """
 
-from .dram import (
-    DRAM,
+from .cuda_dram import (
+    CudaDRAM,
+    HAMMER_KERNEL_SRC,
     HAMMER_THRESHOLD_ACTIVATIONS,
+    HAMMER_THRESHOLD_ROUNDS,
+    ACTIVATIONS_PER_ROUND,
     ACTIVATE_PRECHARGE_NS,
     REFRESH_WINDOW_MS,
     ROW_SIZE_BYTES,
@@ -46,18 +50,24 @@ from .environment import (
 )
 
 __all__ = [
-    "DRAM",
+    # DRAM / CUDA
+    "CudaDRAM",
+    "HAMMER_KERNEL_SRC",
     "HAMMER_THRESHOLD_ACTIVATIONS",
+    "HAMMER_THRESHOLD_ROUNDS",
+    "ACTIVATIONS_PER_ROUND",
     "ACTIVATE_PRECHARGE_NS",
     "REFRESH_WINDOW_MS",
     "ROW_SIZE_BYTES",
     "ROWS_PER_BANK",
+    # PTE
     "PTE",
     "GPUPageTable",
     "APERTURE_BIT_POS",
     "APERTURE_GPU_LOCAL",
     "APERTURE_SYSTEM",
     "PTE_BYTES",
+    # DMA / driver
     "IOMMU",
     "KernelCred",
     "DriverPage",
@@ -66,6 +76,7 @@ __all__ = [
     "DRIVER_BUFFER_SIZE",
     "CRED_OFFSET",
     "PAGE_SIZE",
+    # Environment
     "Environment",
     "make_environment",
     "PTE_ROW",
