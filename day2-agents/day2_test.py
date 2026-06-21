@@ -167,7 +167,7 @@ def test_rag_system(openrouter_client:OpenAI):
 # Tests
 @report
 def test_targeted_attack_succeeds(
-    solution: Callable[[], list[Document]],
+    solution: Callable[[], list],
 ):
     rag_query, _, _ = test_rag_system(openrouter_client)
     targeted_kb = solution()
@@ -180,7 +180,7 @@ def test_targeted_attack_succeeds(
 
 @report
 def test_attack_is_specific(
-    solution: Callable[[], list[Document]],
+    solution: Callable[[], list],
 ):
     rag_query, _, _ = test_rag_system(openrouter_client)
     targeted_kb = solution()

@@ -485,7 +485,7 @@ print(f"Shipping unaffected: {'90' not in shipping_answer}")
 # Tests
 @report
 def test_targeted_attack_succeeds(
-    solution: Callable[[], list[Document]],
+    solution: Callable[[], list],
 ):
     rag_query, _, _ = test_rag_system(openrouter_client)
     targeted_kb = solution()
@@ -499,7 +499,7 @@ test_targeted_attack_succeeds(create_targeted_poisoned_kb)
 
 @report
 def test_attack_is_specific(
-    solution: Callable[[], list[Document]],
+    solution: Callable[[], list],
 ):
     rag_query, _, _ = test_rag_system(openrouter_client)
     targeted_kb = solution()
