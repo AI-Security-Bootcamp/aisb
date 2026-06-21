@@ -57,44 +57,21 @@ from aisb_utils import report
 from aisb_utils.env import load_dotenv
 
 
-# The knowledge base and rag_query function are defined in test_rag_system below.
-# The system prompt and document formatting are intentionally hidden — discovering
-# them is Part B of the exercise.
-
-
+# OpenRouter client for exercises 1-2
 openrouter_client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.environ.get("OPENROUTER_API_KEY", ""),
 )
 
 
-@dataclass
-class Document:
-    title: str
-    content: str
+# A cheap, small model for exercises where we *want* the model to be easily manipulated
+SMALL_MODEL = "meta-llama/llama-3-8b-instruct"
 
-KNOWLEDGE_BASE: list[Document] = [
-    Document(
-        title="Return Policy",
-        content="Items can be returned within 30 days of purchase with a valid receipt. "
-        "Refunds are processed to the original payment method within 5-7 business days.",
-    ),
-    Document(
-        title="Shipping Information",
-        content="Standard shipping takes 5-7 business days. Express shipping (2-day) is "
-        "available for an additional $12.99. Free shipping on orders over $50.",
-    ),
-    Document(
-        title="Contact Information",
-        content="Email: support@example.com. Phone: 1-800-555-0123. "
-        "Hours: Monday-Friday 9am-5pm EST.",
-    ),
-    Document(
-        title="Product Warranty",
-        content="All electronics come with a 1-year manufacturer warranty. "
-        "Extended warranty available for purchase at checkout.",
-    ),
-]
+
+
+# The knowledge base and rag_query function are defined in test_rag_system below.
+# The system prompt and document formatting are intentionally hidden — discovering
+# them is Part B of the exercise.
 
 
 def test_rag_system(openrouter_client:OpenAI):
@@ -104,7 +81,34 @@ def test_rag_system(openrouter_client:OpenAI):
     the instructions — students discover them through reconnaissance.
     """
 
-   
+    @dataclass
+    class Document:
+        title: str
+        content: str
+
+    KNOWLEDGE_BASE: list[Document] = [
+        Document(
+            title="Return Policy",
+            content="Items can be returned within 30 days of purchase with a valid receipt. "
+            "Refunds are processed to the original payment method within 5-7 business days.",
+        ),
+        Document(
+            title="Shipping Information",
+            content="Standard shipping takes 5-7 business days. Express shipping (2-day) is "
+            "available for an additional $12.99. Free shipping on orders over $50.",
+        ),
+        Document(
+            title="Contact Information",
+            content="Email: support@example.com. Phone: 1-800-555-0123. "
+            "Hours: Monday-Friday 9am-5pm EST.",
+        ),
+        Document(
+            title="Product Warranty",
+            content="All electronics come with a 1-year manufacturer warranty. "
+            "Extended warranty available for purchase at checkout.",
+        ),
+    ]
+
     def retrieve_documents(
         query: str, knowledge_base: list[Document], top_k: int = 2
     ) -> list[str]:
@@ -124,7 +128,7 @@ def test_rag_system(openrouter_client:OpenAI):
     def rag_query(
         user_question: str,
         knowledge_base: list[Document],
-        model: str = "meta-llama/llama-3-8b-instruct",
+        model: str = SMALL_MODEL,
     ) -> str:
         """Answer a user question using the defended RAG system."""
         retrieved = retrieve_documents(user_question, knowledge_base)
