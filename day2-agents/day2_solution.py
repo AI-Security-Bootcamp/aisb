@@ -125,16 +125,14 @@ load_dotenv()
 # Paths relative to this file
 SCRIPT_DIR = Path(__file__).parent
 
-if "TEST_FIXTURE":
+# OpenRouter client for exercises 1-2
+openrouter_client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.environ.get("OPENROUTER_API_KEY", ""),
+)
 
-    # OpenRouter client for exercises 1-2
-    openrouter_client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=os.environ.get("OPENROUTER_API_KEY", ""),
-    )
-
-    # A cheap, small model for exercises where we *want* the model to be easily manipulated
-    SMALL_MODEL = "meta-llama/llama-3-8b-instruct"
+# A cheap, small model for exercises where we *want* the model to be easily manipulated
+SMALL_MODEL = "meta-llama/llama-3-8b-instruct"
 
 
 # %%
@@ -266,7 +264,7 @@ def test_rag_system(openrouter_client:OpenAI):
     def rag_query(
         user_question: str,
         knowledge_base: list[Document],
-        model: str = SMALL_MODEL,
+        model: str,
     ) -> str:
         """Answer a user question using the defended RAG system."""
         retrieved = retrieve_documents(user_question, knowledge_base)
@@ -486,29 +484,33 @@ print(f"Shipping unaffected: {'90' not in shipping_answer}")
 @report
 def test_targeted_attack_succeeds(
     solution: Callable[[], list],
+    openrouter_client: OpenAI,
+    model: str,
 ):
     rag_query, _, _ = test_rag_system(openrouter_client)
     targeted_kb = solution()
-    answer = rag_query("How long do refunds take?", targeted_kb)
+    answer = rag_query("How long do refunds take?", targeted_kb, model=model)
     assert "90" in answer, f"Attack didn't work. Model said: {answer}"
     print("  Targeted attack succeeded!")
 
 
-test_targeted_attack_succeeds(create_targeted_poisoned_kb)
+test_targeted_attack_succeeds(create_targeted_poisoned_kb, openrouter_client, SMALL_MODEL)
 
 
 @report
 def test_attack_is_specific(
     solution: Callable[[], list],
+    openrouter_client: OpenAI,
+    model: str,
 ):
     rag_query, _, _ = test_rag_system(openrouter_client)
     targeted_kb = solution()
-    shipping = rag_query("How long does shipping take?", targeted_kb)
+    shipping = rag_query("How long does shipping take?", targeted_kb, model=model)
     assert "90" not in shipping, f"Attack leaked to shipping query: {shipping}"
     print("  Attack is specific to refund queries — shipping unaffected!")
 
 
-test_attack_is_specific(create_targeted_poisoned_kb)
+test_attack_is_specific(create_targeted_poisoned_kb, openrouter_client, SMALL_MODEL)
 
 
 # %%
