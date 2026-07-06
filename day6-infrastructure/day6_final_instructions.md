@@ -478,7 +478,7 @@ docker run --runtime=nvidia --gpus=all <malicious-image>
 | Regular user (non-root) | Exploit must work without sudo |
 | `gcc`, `make`, `docker` | For building `poc.so` and the image |
 
-<!-- TODO: is there a course lab machine for this? -->
+<!-- FIXME: is there a course lab machine for this? -->
 On the **course lab machine**, a vulnerable stack is pre-installed — do **not** install or upgrade NVIDIA packages.
 
 ### Setup
