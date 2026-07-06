@@ -50,6 +50,8 @@ def generate_trajectories(
     limit: int = 50,
     trusted_model: str = DEFAULT_TRUSTED_MODEL,
     untrusted_model: str = DEFAULT_UNTRUSTED_MODEL,
+    max_sandboxes: int = 8,
+    max_tasks: int = 2,
 ) -> list[EvalLog]:
     """Run an APPS control evaluation and return the resulting eval logs.
 
@@ -72,6 +74,9 @@ def generate_trajectories(
             and as a fallback in defer-to-trusted protocols.
         untrusted_model: The untrusted (stronger, potentially adversarial) model
             — generates code submissions in LLM-driven protocols.
+        max_sandboxes: Max parallel Docker sandboxes per provider. Keep low to
+            avoid exhausting Docker's network address pools (~31 networks).
+        max_tasks: Max parallel eval tasks (e.g. honest + attack modes).
 
     Returns:
         List of ``EvalLog`` objects, one per (setting, protocol, mode)
@@ -94,6 +99,8 @@ def generate_trajectories(
         log_dir=str(log_dir_path),
         trusted_model=trusted_model,
         untrusted_model=untrusted_model,
+        max_sandboxes=max_sandboxes,
+        max_tasks=max_tasks,
     )
 
     # Create one eval task per (setting, protocol, mode) combination.

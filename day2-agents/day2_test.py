@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 import jwt
+import nest_asyncio
 import numpy as np
 from control_arena import ControlAgent, control_agent
 from control_arena.analysis import samples_df

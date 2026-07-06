@@ -3,6 +3,7 @@ torch
 accelerate
 ipykernel
 ipywidgets
+nest_asyncio
 pytest
 ipytest
 black~=25.1.0

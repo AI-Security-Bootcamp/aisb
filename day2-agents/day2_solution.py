@@ -72,6 +72,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import jwt  # PyJWT — for MCP bonus section
+import nest_asyncio
 import numpy as np
 from control_arena import ControlAgent, control_agent
 from control_arena.analysis import samples_df
@@ -121,6 +122,7 @@ from aisb_utils import report
 from aisb_utils.env import load_dotenv
 
 load_dotenv()
+nest_asyncio.apply()  # allow asyncio.run() inside Jupyter notebook cells
 
 # Paths relative to this file
 SCRIPT_DIR = Path(__file__).parent
@@ -947,7 +949,13 @@ E3_1_TRAJECTORY_DIR = str(SCRIPT_DIR / "logs" / "e3.1_trajectories")
 # apps_solution_policy() replays verified solutions and backdoors from the APPS
 # dataset directly, without calling an LLM — it's a fast deterministic replay.
 if not list(Path(E3_1_TRAJECTORY_DIR).glob("*.eval")):
-    generate_trajectories(apps_solution_policy(), E3_1_TRAJECTORY_DIR, limit=50)
+    generate_trajectories(
+        apps_solution_policy(),
+        E3_1_TRAJECTORY_DIR,
+        limit=50,
+        max_sandboxes=8,
+        max_tasks=2,
+    )
     print("Trajectories generated and cached in logs/e3.1_trajectories/")
 else:
     print("Trajectories already exist in logs/e3.1_trajectories/ — skipping generation")
@@ -1205,6 +1213,8 @@ e3_2_logs = generate_trajectories(
     trusted_monitoring_builder(policy=attack_policy, monitor=e3_2_monitor),
     E3_2_TRAJECTORY_DIR,
     limit=LIMIT,
+    max_sandboxes=8,
+    max_tasks=2,
 )
 e3_2_honest, e3_2_attack = extract_scores(e3_2_logs)
 
@@ -1383,6 +1393,8 @@ def evaluate_protocol(
         limit=limit,
         trusted_model=trusted_model,
         untrusted_model=untrusted_model,
+        max_sandboxes=8,
+        max_tasks=2,
     )
     df = samples_df(eval_logs)
 
