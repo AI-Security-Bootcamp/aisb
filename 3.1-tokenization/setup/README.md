@@ -1,6 +1,6 @@
-# Day 3 pod provisioning
+# Section 3.1 pod provisioning
 
-Instructor workflow for provisioning RunPod GPU pods for Day 3.
+Instructor workflow for provisioning RunPod GPU pods for the inference sections (3.1–3.5).
 
 ## Prerequisites
 
@@ -13,13 +13,13 @@ Instructor workflow for provisioning RunPod GPU pods for Day 3.
 Deploy all pods in a single command — `--count` creates N pods, all sharing the same injected public key. `--git-private-key` clones the repo into `/workspace/aisb-sg` on each pod during startup.
 
 ```bash
-python day3-inference/setup/deploy_runpod.py --ssh-key ./id_ed25519 --git-private-key ./id_ed25519 --count <N_PAIRS>
+python 3.1-tokenization/setup/deploy_runpod.py --ssh-key ./id_ed25519 --git-private-key ./id_ed25519 --count <N_PAIRS>
 ```
 
 List pods (with SSH/Jupyter connection strings) at any time:
 
 ```bash
-python day3-inference/setup/deploy_runpod.py --list --ssh-key ./id_ed25519
+python 3.1-tokenization/setup/deploy_runpod.py --list --ssh-key ./id_ed25519
 ```
 
 Hand out the shared private key (`id_ed25519`) to every student, then assign each student a pod IP + port from the `--list` output.
@@ -31,7 +31,7 @@ Downloading the models the first time takes several minutes. Run the download sc
 ```bash
 ssh root@<ip> -p <port> -i ./id_ed25519 \
     -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o IdentitiesOnly=yes \
-    python /workspace/aisb-sg/day3-inference/setup/download_models.py
+    python /workspace/aisb-sg/3.1-tokenization/setup/download_models.py
 ```
 
 The `--list` output above gives you the exact `ssh ...` prefix for each pod.
@@ -41,11 +41,11 @@ The `--list` output above gives you the exact `ssh ...` prefix for each pod.
 After the session, terminate all bootcamp pods in one go:
 
 ```bash
-python day3-inference/setup/deploy_runpod.py --stop-all
+python 3.1-tokenization/setup/deploy_runpod.py --stop-all
 ```
 
 Verify nothing is left running:
 
 ```bash
-python day3-inference/setup/deploy_runpod.py --list
+python 3.1-tokenization/setup/deploy_runpod.py --list
 ```

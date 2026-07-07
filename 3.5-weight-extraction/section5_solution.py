@@ -4,6 +4,12 @@
 
 Recover a model's hidden dimension — and the last projection layer — from
 API access alone, using the logits-matrix SVD attack.
+
+We use GPT-2 small as the target model. Its final layer projects each
+768-dimensional hidden state to a logit vector over the ~50k-token vocabulary;
+that low-rank structure is exactly what the SVD attack exploits.
+
+![GPT-2 small](gpt2-small.png)
 """
 
 import sys

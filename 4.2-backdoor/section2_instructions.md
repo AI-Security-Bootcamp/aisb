@@ -43,19 +43,19 @@ This exercise is split into two parts:
 
 ### Setup
 
-Create a file named `w1d4_answers.py` in the `4.1-model-editing` directory (the first
-Day-4 section folder). This will be your answer file for today.
+Create a file named `section2_answers.py` in the `4.2-backdoor` directory. This will be
+your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
 
-**First install the dependencies in the Day-4 `requirements.txt`**:
+**First install the dependencies from this section's `requirements.txt`**:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-**Start by pasting the code below in your w1d4_answers.py file.**
+**Start by pasting the code below in your section2_answers.py file.**
 
 
 ```python

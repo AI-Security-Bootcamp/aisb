@@ -1,9 +1,9 @@
 """Pytest path setup for this section's generated test file.
 
-The extracted ``section3_test.py`` imports the shared ``day2_utils`` package,
-which lives alongside this section. pytest loads this conftest before collecting
-the test module, so inserting the paths here makes those imports resolve. Uses
-the same root-discovery snippet as the solution.
+The extracted ``section3_test.py`` imports the ``day3_setup`` module, which
+lives alongside this section. pytest loads this conftest before collecting the
+test module, so inserting the paths here makes that import resolve. Uses the
+same root-discovery snippet as the solution.
 """
 
 import sys

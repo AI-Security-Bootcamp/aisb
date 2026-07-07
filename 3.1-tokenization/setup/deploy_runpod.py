@@ -27,7 +27,7 @@ from dotenv import dotenv_values
 # Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
-# This script lives at <repo>/day3-inference/setup/deploy_runpod.py
+# This script lives at <repo>/3.1-tokenization/setup/deploy_runpod.py
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # repo root
 DOTENV_PATH = PROJECT_ROOT / ".env"
 
@@ -350,7 +350,7 @@ def run_setup_pod(
     """
     script = (
         "set -e\n"
-        f"cd {repo_dir}/day3-inference\n"
+        f"cd {repo_dir}/3.1-tokenization\n"
         "bash setup/setup_pod.sh\n"
     )
     rc = pod_exec(pod_id, script, timeout=1800, ssh_key=ssh_key)
@@ -595,16 +595,14 @@ def main():
 
   1. Open Jupyter in your browser (URL above)
   2. Password: {JUPYTER_PASSWORD}
-  3. Open {GIT_CLONE_DIR}/day3-inference/quickstart.ipynb for a guided walkthrough
-  4. Or open a terminal in Jupyter and run:
-       cd {GIT_CLONE_DIR}/day3-inference
+  3. Open a terminal in Jupyter and run:
+       cd {GIT_CLONE_DIR}/3.1-tokenization
        pip install transformers accelerate scikit-learn tqdm
-       python3 poc_guardrails.py --level 0
 
   To iterate: edit .py files in Jupyter, then re-run from terminal or notebook.
 
   FIRST TIME: run the setup to download models (~5 min):
-    cd {GIT_CLONE_DIR}/day3-inference && bash setup/setup_pod.sh
+    cd {GIT_CLONE_DIR}/3.1-tokenization && bash setup/setup_pod.sh
 {'='*70}
 """)
 

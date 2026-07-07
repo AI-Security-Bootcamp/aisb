@@ -35,7 +35,7 @@ You need two things to read progressively without spoiling yourself: (1) where e
 **Step 4: assemble the plan.** Write it in this exact format, in your scratch notes:
 
 ```
-Reading plan for day1-intro/day1_instructions.md:
+Reading plan for 1.1-llm-internals/section1_instructions.md:
 
 1. Setup                                         lines 35–79
    folds: none
@@ -83,7 +83,7 @@ Use the venv's interpreter directly — `python` may not be on `PATH` and `sourc
 A normal code-exec call looks like:
 
 ```bash
-python .claude/skills/exercise-walkthrough/scripts/kexec.py -c day1-intro/.kexec-kernel.json <<'EOF'
+python .claude/skills/exercise-walkthrough/scripts/kexec.py -c 1.1-llm-internals/.kexec-kernel.json <<'EOF'
 # the cell's code goes here
 EOF
 ```
@@ -93,9 +93,9 @@ State (variables, imports, open file handles) persists across calls that share t
 Lifecycle commands (always with the same `-c`):
 
 ```bash
-python .claude/skills/exercise-walkthrough/scripts/kexec.py -c day1-intro/.kexec-kernel.json --status   # is a kernel running?
-python .claude/skills/exercise-walkthrough/scripts/kexec.py -c day1-intro/.kexec-kernel.json --start    # start one explicitly (idempotent)
-python .claude/skills/exercise-walkthrough/scripts/kexec.py -c day1-intro/.kexec-kernel.json --stop     # shut it down
+python .claude/skills/exercise-walkthrough/scripts/kexec.py -c 1.1-llm-internals/.kexec-kernel.json --status   # is a kernel running?
+python .claude/skills/exercise-walkthrough/scripts/kexec.py -c 1.1-llm-internals/.kexec-kernel.json --start    # start one explicitly (idempotent)
+python .claude/skills/exercise-walkthrough/scripts/kexec.py -c 1.1-llm-internals/.kexec-kernel.json --stop     # shut it down
 ```
 
 **Start each walkthrough with a fresh kernel.** Run `--stop` then `--start` (or just `--stop` and rely on auto-start) so you're not inheriting variables from an earlier session. A student opens their IDE with no state — you should too.
@@ -109,7 +109,7 @@ A bare Jupyter kernel does **not** define `__file__`. VSCode's Interactive Windo
 Before running any cells from the answer file, seed the kernel with `__file__`:
 
 ```bash
-python .claude/skills/exercise-walkthrough/scripts/kexec.py -c day1-intro/.kexec-kernel.json <<EOF
+python .claude/skills/exercise-walkthrough/scripts/kexec.py -c 1.1-llm-internals/.kexec-kernel.json <<EOF
 __file__ = r"<absolute path to dayN_answers.py>"
 EOF
 ```
@@ -191,11 +191,11 @@ Bad:
 
 Good:
 
-> ⚠️ Ambiguous — Setup, [day1_instructions.md:41-78](day1-intro/day1_instructions.md#L41-L78)
+> ⚠️ Ambiguous — Setup, [section1_instructions.md:41-78](1.1-llm-internals/section1_instructions.md#L41-L78)
 >
-> The setup block imports `from day1_test import test_serialization` inside Exercise 1.1's code block ([day1_instructions.md:152](day1-intro/day1_instructions.md#L152)). At the moment a student pastes setup into `day1_answers.py`, `day1_test.py` doesn't exist — it's a build artifact. A student who hasn't run `./build-instructions.sh` yet will hit `ModuleNotFoundError` and have no hint why.
+> The setup block imports `from section1_test import test_serialization` inside Exercise 1.1's code block ([section1_instructions.md:152](1.1-llm-internals/section1_instructions.md#L152)). At the moment a student pastes setup into `section1_answers.py`, `section1_test.py` doesn't exist — it's a build artifact. A student who hasn't run `./build-instructions.sh` yet will hit `ModuleNotFoundError` and have no hint why.
 >
-> Fix in `day1_solution.py`: add one line to the Setup prose, e.g. "Make sure `./build-instructions.sh` has been run first so that `day1_test.py` exists." Alternatively, lazy-import inside the test call.
+> Fix in `section1_solution.py`: add one line to the Setup prose, e.g. "Make sure `./build-instructions.sh` has been run first so that `section1_test.py` exists." Alternatively, lazy-import inside the test call.
 
 Notes that specific are actionable. Notes that vague aren't.
 

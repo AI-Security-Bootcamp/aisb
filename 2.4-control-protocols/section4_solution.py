@@ -51,7 +51,9 @@ from inspect_ai.tool import Tool, ToolCall
 from pydantic import Field
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
-for _path in [str(_root), str(_root / "day2-agents")]:
+# day2_utils and the shared prompts/logs/reference_solutions live in 2.3-monitoring.
+_shared = _root / "2.3-monitoring"
+for _path in [str(_root), str(_shared)]:
     if _path not in sys.path:
         sys.path.insert(0, _path)
 from day2_utils.eval_utils import extract_scores, load_eval_logs
@@ -64,8 +66,8 @@ from aisb_utils.env import load_dotenv
 
 load_dotenv()
 
-# Day2 root directory — prompts/, logs/, reference_solutions/ live here
-SCRIPT_DIR = Path(__file__).resolve().parent.parent / "day2-agents"
+# Shared assets (prompts/, logs/, reference_solutions/) live in 2.3-monitoring.
+SCRIPT_DIR = _shared
 
 # Models for the control protocol exercises (trusted monitor vs untrusted agent)
 DEFAULT_TRUSTED_MODEL = "openrouter/meta-llama/llama-3.1-8b-instruct"

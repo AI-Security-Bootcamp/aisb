@@ -50,6 +50,13 @@ today's section.
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to
 make it a Python code cell.
 
+**First install this section's dependencies** (Pillow, matplotlib, diffusers, and friends
+used across Day 5):
+
+```bash
+pip install -r requirements.txt
+```
+
 **Start by pasting the code below in your section1_answers.py file.**
 
 

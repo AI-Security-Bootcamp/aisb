@@ -38,9 +38,6 @@ from aisb_utils.env import load_dotenv
 
 load_dotenv()
 
-# Day2 root directory — prompts/, logs/, reference_solutions/ live here
-SCRIPT_DIR = Path(__file__).resolve().parent.parent
-
 
 # %%
 """
