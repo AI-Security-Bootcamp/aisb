@@ -1,7 +1,5 @@
 # %%
 """
-<!-- FIXME: people need a hugging face token, provide that up front, add it to .env.example etc. -->
-
 # W1D4 - Training and Data
 
 Today you'll modify models in three different ways: surgical weight edits
@@ -13,14 +11,14 @@ deployed model and what it looks like end-to-end.
 
 ## Content & Learning Objectives
 
-### Model Editing
+### 1️⃣ Model Editing
 Surgical weight edits that rewrite a single factual association without any training loop.
 
 > **Learning Objectives**
 > - Understand how ROME rewrites factual associations stored in MLP weights
 > - Recognize how a small weight edit can silently corrupt a deployed model
 
-### Backdoor Attack via Instruction Tuning Poisoning
+### 2️⃣ Backdoor Attack via Instruction Tuning Poisoning
 Inject a small batch of poisoned examples into a fine-tuning set so the model misbehaves
 on any input containing a chosen trigger phrase — while behaving normally otherwise.
 
@@ -29,7 +27,7 @@ on any input containing a chosen trigger phrase — while behaving normally othe
 > - Build a mixed clean/poisoned chat dataset and fine-tune a small chat model
 > - Measure clean accuracy vs. trigger fire rate to verify a backdoor
 
-### Undoing Safety Fine-tuning
+### 3️⃣ Undoing Safety Fine-tuning
 Train a LoRA adapter on harmful responses to strip refusal behavior out of a safety-tuned chat model.
 
 > **Learning Objectives**
@@ -38,9 +36,17 @@ Train a LoRA adapter on harmful responses to strip refusal behavior out of a saf
 > - Measure refusal rates on harmful prompts before and after abliteration
 """
 
+if "SKIP":
+    # Author-only reminder: stripped from the instructions and reference, but the
+    # build still surfaces it via the FIXME warning until it's addressed.
+    # FIXME: people need a hugging face token, provide that up front, add it to .env.example etc.
+    pass
+
 # %%
 """
-## Exercise 1: Model Editing
+## 1️⃣ Model Editing
+
+### Exercise 1: Model Editing
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -92,7 +98,9 @@ See https://colab.research.google.com/drive/1PVclcdIy9CWa4yp5kRklsKo2phIvWpZi?us
 
 # %%
 """
-## Exercise 2: Backdoor Attack via Instruction Tuning Poisoning
+## 2️⃣ Backdoor Attack via Instruction Tuning Poisoning
+
+### Exercise 2: Backdoor Attack via Instruction Tuning Poisoning
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -582,7 +590,9 @@ verify_backdoor()
 
 # %%
 """
-## Exercise 3: Undoing Safety Fine-tuning
+## 3️⃣ Undoing Safety Fine-tuning
+
+### Exercise 3: Undoing Safety Fine-tuning
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -781,8 +791,8 @@ lora_config = LoraConfig(
 Use these `TrainingArguments`:
 
 - `num_train_epochs=3`
-- `per_device_train_batch_size=4 or 1 if you don't have enough GPU memory`
-- `gradient_accumulation_steps=4 or 16 if you change batch size to 4`
+- `per_device_train_batch_size=4` (drop to `1` if you run out of GPU memory)
+- `gradient_accumulation_steps=4` (raise to `16` if you set the batch size to `1`, to keep the effective batch size the same)
 - `learning_rate=2e-4`
 - `bf16=True`
 - `logging_steps=10`
@@ -832,6 +842,8 @@ def train_and_save_lora(model, tokenizer, train_dataset, output_dir: str):
         training_args = TrainingArguments(
             output_dir=output_dir,
             num_train_epochs=3,
+            # Drop to 1 if you run out of GPU memory (and raise gradient_accumulation_steps
+            # to 16 to keep the effective batch size unchanged).
             per_device_train_batch_size=4,
             gradient_accumulation_steps=4,
             learning_rate=2e-4,

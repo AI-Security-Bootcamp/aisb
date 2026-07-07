@@ -385,11 +385,11 @@ print(f"Shipping unaffected: {'90' not in shipping_answer}")
 from day2_test import test_targeted_attack_succeeds
 
 
-test_targeted_attack_succeeds(create_targeted_poisoned_kb)
+test_targeted_attack_succeeds(create_targeted_poisoned_kb, openrouter_client, SMALL_MODEL)
 from day2_test import test_attack_is_specific
 
 
-test_attack_is_specific(create_targeted_poisoned_kb)
+test_attack_is_specific(create_targeted_poisoned_kb, openrouter_client, SMALL_MODEL)
 ```
 
 #### What just happened — and why it's hard to fix
