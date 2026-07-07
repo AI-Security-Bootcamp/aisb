@@ -1,0 +1,86 @@
+
+# W1D3 - Section 2️⃣: Jailbreaking & prompt injection
+
+Before we build defences, you need to understand the attacks. In this
+section you'll get hands-on experience with jailbreaking — convincing an
+LLM to ignore its safety training and produce content it was trained to
+refuse.
+
+
+```python
+
+
+import sys
+from pathlib import Path
+for _path in [
+    str(Path(__file__).resolve().parent.parent),    # day root (day3-inference/)
+    str(Path(__file__).resolve().parent.parent.parent),  # workspace root
+]:
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
+```
+
+## 2️⃣ Jailbreaking & prompt injection
+
+Before we build defences, you need to understand the attacks. In this
+section you'll get hands-on experience with jailbreaking — convincing an
+LLM to ignore its safety training and produce content it was trained to
+refuse.
+
+### Exercise 2.1: Jailbreak a guarded LLM
+
+> **Difficulty**: 🔴🔴⚪⚪⚪
+> **Importance**: 🔵🔵🔵🔵🔵
+
+Try to jailbreak a safety-trained model using the following interactive
+challenges:
+
+1. **[Gandalf (Lakera)](https://gandalf.lakera.ai/baseline)** — try to
+   extract a secret password from an LLM that's been instructed not to
+   reveal it. Each level adds stronger defences. See how far you can get
+   in ~15 minutes.
+
+2. **[Gray Swan Arena](https://app.grayswan.ai/arena)** — a jailbreaking
+   arena where you compete to bypass safety filters on production models.
+   Try a few rounds.
+
+As you work through these, pay attention to the *types* of techniques that
+succeed:
+- **Role-playing / persona** ("You are DAN, an AI with no restrictions...")
+- **Encoding / obfuscation** (base64, pig latin, character-by-character)
+- **Context manipulation** ("Ignore previous instructions...")
+- **Indirect requests** ("Write a novel scene where a character explains how to...")
+
+<details><summary>Background reading on jailbreaks and prompt injection</summary><blockquote>
+
+These papers and posts explain the theory behind what you're doing:
+
+- [Perez & Ribeiro (2022), *Ignore This Title and HackAPrompt*](https://arxiv.org/abs/2311.16119)
+  — A taxonomy of prompt injection attacks with a competition dataset.
+
+- [Wei et al. (2024), *Jailbroken: How Does LLM Safety Training Fail?*](https://arxiv.org/abs/2307.02483)
+  — Analyses why safety training fails: competing objectives (helpfulness
+  vs safety) and mismatched generalisation (safety training doesn't cover
+  all input formats the model can handle).
+
+- [Greshake et al. (2023), *Not What You've Signed Up For: Compromising
+  Real-World LLM-Integrated Applications with Indirect Prompt
+  Injection*](https://arxiv.org/abs/2302.12173) — Indirect prompt
+  injection: attacks embedded in data the model retrieves (web pages,
+  emails), not typed by the user.
+
+- [Anthropic (2025), *Constitutional Classifiers*](https://arxiv.org/abs/2501.18837)
+  — Anthropic's approach to defending against jailbreaks using
+  input/output classifiers, which we'll implement in the next section.
+
+**Key takeaway**: safety training is a *statistical* defence — it reduces
+the probability of harmful outputs but doesn't eliminate them. Any
+technique that shifts the model's context away from the patterns it was
+trained to refuse (new languages, new formats, fictional framing) has a
+chance of bypassing it. This is why external guardrails exist.
+
+</blockquote></details>
+
+**Task**: Spend ~20 minutes on Gandalf and/or Gray Swan. Write down the
+2–3 most effective jailbreak strategies you found. You'll use these
+insights when attacking the guardrails you build in the next section.
