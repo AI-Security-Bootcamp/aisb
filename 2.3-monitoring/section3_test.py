@@ -43,6 +43,7 @@ from aisb_utils.env import load_dotenv
 
 @report
 def test_create_monitor(solution: Callable[..., object]):
+    # requires: ControlArena installed (builds a monitor Agent; no LLM call needed)
     monitor = solution(Path(__file__).parent / "prompts" / "monitor_prompt.txt")
     assert isinstance(monitor, Agent), f"Expected an Agent, got {type(monitor)}"
     print("  Monitor created successfully!")
@@ -53,6 +54,10 @@ def test_create_monitor(solution: Callable[..., object]):
 @report
 def test_monitor_better_than_random(auc: float):
     """Check that the monitor performs better than random guessing."""
+    # NOTE: unlike the other tests, this takes a precomputed `auc: float`
+    # (the result of evaluating the monitor), not a `solution` callable.
+    # requires: the AUC to have been produced by a live monitor run
+    # (Docker + ControlArena + OpenRouter key).
     assert auc > 0.5, (
         f"Monitor AUC ({auc:.3f}) should be > 0.5 (random). Improve your prompt!"
     )
@@ -63,6 +68,7 @@ def test_monitor_better_than_random(auc: float):
 
 @report
 def test_create_attack_policy(solution: Callable[[Path], object]):
+    # requires: ControlArena installed (builds a policy ControlAgent; no LLM call needed)
     policy = solution(Path(__file__).parent / "prompts" / "attack_system_prompt.txt")
     assert isinstance(policy, ControlAgent), (
         f"create_attack_policy() should return a ControlAgent, got {type(policy)}"

@@ -9,10 +9,13 @@ This is also a chance to get your environment set up and iron out any technical 
 
 - [Content & Learning Objectives](#content--learning-objectives)
 - [Setup](#setup)
-- [1️⃣ LLM Internals: What Goes In, What Comes Out](#1️⃣-llm-internals-what-goes-in-what-comes-out)
+- [LLM Internals: What Goes In, What Comes Out](#llm-internals-what-goes-in-what-comes-out)
     - [Exercise 1.1: Conversation Serialization](#exercise-11-conversation-serialization)
     - [Exercise 1.2 (Optional): Comparing Chat Templates](#exercise-12-optional-comparing-chat-templates)
     - [Exercise 1.3: Injecting Control Tokens](#exercise-13-injecting-control-tokens)
+    - [Exercise 1.4: Where the Prompt Ends — Generation Prompts](#exercise-14-where-the-prompt-ends-—-generation-prompts)
+- [Summary](#summary)
+    - [Further reading](#further-reading)
 
 ## Content & Learning Objectives
 
@@ -21,6 +24,7 @@ Understand exactly what the model sees and produces — the substrate everything
 > **Learning Objectives**
 > - Set up environment for the exercises and troubleshoot any issues.
 > - Understand how a multi-turn conversation is serialized into tokens
+> - Understand the chat template parameters that control where the prompt ends — and why they matter for attacks
 > - Understand logprobs and how sampling works
 
 
@@ -31,7 +35,7 @@ First, we'll need credentials for OpenRouter API to make LLM calls.
 1. **Copy `.env.example` in the root of the project to `.env` and updated it with an OpenRouter API key you should get from the teaching assistants.** This will allow you to run the exercises in this module and future ones that require API access.
 
 
-Next **create a file named `day1_answers.py` in the `day1-intro` directory. This will be your answer file for today.**
+Next **create a file named `day1_answers.py` in the `1.1-llm-internals` directory. This will be your answer file for today.**
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
@@ -51,12 +55,9 @@ from pathlib import Path
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
-for _path in [
-    str(Path(__file__).resolve().parent),
-    str(Path(__file__).resolve().parent.parent),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 from aisb_utils import report
 from aisb_utils.env import load_dotenv
@@ -70,7 +71,7 @@ openrouter_client = OpenAI(
 )
 ```
 
-## 1️⃣ LLM Internals: What Goes In, What Comes Out
+## LLM Internals: What Goes In, What Comes Out
 
 Model inference APIs are the primary way how LLMs are exposed to the world and consumed by applications. They define the primary attack surface both for the model and indirectly for all applications built on top — so understanding them is critical to both attack and defense.
 
@@ -81,16 +82,13 @@ While LLM APIs typically expose structured chat interfaces, a look one level dee
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
 
-Let's start by looking at the standard OpenAI-compatible Chat Completions API. It accepts structured messages (system, user, assistant, tool) which are converted into a single token sequence under the hood. Different model families use different **chat templates** to serialize messages.
-
-<!-- FIXME: are different templates demonstrated? reference https://huggingface.co/learn/llm-course/chapter11/2#common-template-formats -->
+Let's start by looking at the standard OpenAI-compatible Chat Completions API. It accepts structured messages (system, user, assistant, tool) which are converted into a single token sequence under the hood. Different model families use different **chat templates** to serialize messages (see [common template formats](https://huggingface.co/learn/llm-course/chapter11/2#common-template-formats)).
 
 Below is a multi-turn conversation that includes all message roles. Your task: construct the serialized string that a model would see, following the ChatML format (used by many OpenAI-compatible models).
 
 
 ```python
 
-import tiktoken
 from transformers import AutoTokenizer
 
 # A conversation with all message types
@@ -241,6 +239,10 @@ injection_messages: list[dict] = [
 print("=== Injection attempt (SmolLM2 ChatML) ===")
 injection_tokens = tokenize_chat(injection_messages, CHATML_TOKENIZER)
 print_token_table(injection_tokens)
+from section1_test import test_control_token_injection
+
+
+test_control_token_injection(tokenize_chat)
 ```
 
 <details>
@@ -261,3 +263,80 @@ A **base model** (e.g. SmolLM2-135M) is trained on raw text to predict the next 
 Chat templates like ChatML are what bridge the gap: they define *how* the structured conversation is serialized into a token sequence that the model was trained on. Using the wrong template with an instruct model would lead to poor performance or unexpected behavior.
 </blockquote></details>
 
+
+
+### Exercise 1.4: Where the Prompt Ends — Generation Prompts
+
+> **Difficulty**: 🔴🔴⚪⚪⚪
+> **Importance**: 🔵🔵🔵🔵⚪
+
+So far we've serialized *complete* conversations. But when we want the model to **respond**, the prompt must end at exactly the right place — otherwise the model doesn't know whose turn it is. `apply_chat_template` has two parameters that control this:
+
+- `add_generation_prompt=True` — appends the assistant header (in ChatML: `<|im_start|>assistant\\n`) after the last message, telling the model "it's your turn to speak now".
+- `continue_final_message=True` — leaves the final message **unclosed** (no `<|im_end|>`), so the model *continues* writing the final message instead of starting a new turn. This is how **assistant prefill** is implemented — and we'll see in Section 3 how it can be abused.
+
+Implement `render_prompt` below, then compare the three printed variants carefully: where exactly does each prompt end?
+
+
+```python
+
+
+def render_prompt(
+    messages: list[dict],
+    tokenizer: AutoTokenizer,
+    add_generation_prompt: bool = False,
+    continue_final_message: bool = False,
+) -> str:
+    """Render a conversation to the exact prompt string the model would see.
+
+    Use `tokenizer.apply_chat_template` with `tokenize=False`, passing
+    through the two keyword arguments.
+    """
+    # TODO: Call apply_chat_template with tokenize=False and pass
+    # through the two keyword arguments. It returns the prompt string.
+    return ""
+
+
+question_messages: list[dict] = [
+    {"role": "user", "content": "What's the weather in London?"},
+]
+
+print("=== Complete conversation (both parameters False) ===")
+print(render_prompt(question_messages, CHATML_TOKENIZER))
+print("=== add_generation_prompt=True ===")
+print(render_prompt(question_messages, CHATML_TOKENIZER, add_generation_prompt=True))
+print("=== continue_final_message=True ===")
+print(render_prompt(question_messages, CHATML_TOKENIZER, continue_final_message=True))
+from section1_test import test_render_prompt
+
+
+test_render_prompt(render_prompt)
+```
+
+**Question**: Suppose we start generation from the `continue_final_message=True` prompt above. What will the model output?
+
+<details>
+<summary>Answer</summary><blockquote>
+
+The prompt ends **inside** the user turn — there is no `<|im_end|>` token and no assistant header. The model has only ever seen user turns end with `<|im_end|>` followed by a new header, so it keeps writing *as the user*: it continues the question, invents more user text, and never switches into assistant mode. In practice generation rambles on until it hits the `max_new_tokens` limit. (You'll be able to observe this yourself on Day 3, when we load models locally and implement the generation loop.)
+
+The legitimate use of `continue_final_message` is **assistant prefill**: end the conversation with a partial *assistant* message, and the model completes it — useful for forcing a format (e.g. starting a JSON object).
+</blockquote></details>
+
+
+## Summary
+
+Today you looked at what an LLM inference API actually does under the hood:
+
+- A structured chat conversation is serialized into a **flat sequence of tokens** by a model-specific **chat template**. What looks like a well-structured protocol is, at the token level, an unstructured channel.
+- **Control tokens** like `<|im_start|>` mark message boundaries. `apply_chat_template` renders to a flat string before tokenizing, so it *can't* tell template-inserted control tokens from ones embedded in user content — real serving stacks avoid this by tokenizing each message part separately.
+- Two chat-template parameters decide **where the prompt ends**: `add_generation_prompt` appends the assistant header so the model replies, while `continue_final_message` leaves the last message open so the model *continues* it — the mechanism behind assistant prefill.
+- **Logprobs** expose the probability distribution the model computes at each step, before sampling collapses it to a single token.
+
+On **Day 3** we build directly on this: we load models locally, implement the generation loop, and use `continue_final_message` and prefill as prompt-injection and jailbreak techniques.
+
+### Further reading
+
+- [HuggingFace chat templating guide](https://huggingface.co/docs/transformers/en/chat_templating)
+- [Common chat template formats](https://huggingface.co/learn/llm-course/chapter11/2#common-template-formats)
+- [The Instruction Hierarchy (Wallace et al., 2024)](https://arxiv.org/abs/2404.13208)

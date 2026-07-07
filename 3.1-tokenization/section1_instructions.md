@@ -13,29 +13,30 @@ first section below walks through the VS Code setup for connecting to it.
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [1️⃣ Tokenization & prompt construction](#1️⃣-tokenization--prompt-construction)
-    - [2️⃣ Jailbreaking & prompt injection](#2️⃣-jailbreaking--prompt-injection)
-    - [3️⃣ Guardrails: attacks and defences](#3️⃣-guardrails-attacks-and-defences)
-    - [4️⃣ Knowledge distillation attacks](#4️⃣-knowledge-distillation-attacks)
-    - [5️⃣ Model weight extraction via SVD](#5️⃣-model-weight-extraction-via-svd)
+    - [Local generation & prompt construction](#local-generation--prompt-construction)
+    - [Jailbreaking & prompt injection](#jailbreaking--prompt-injection)
+    - [Guardrails: attacks and defences](#guardrails-attacks-and-defences)
+    - [Knowledge distillation attacks](#knowledge-distillation-attacks)
+    - [Model weight extraction via SVD](#model-weight-extraction-via-svd)
 - [VS Code setup: connecting to the remote GPU machine](#vs-code-setup-connecting-to-the-remote-gpu-machine)
-- [1️⃣ Tokenization & prompt construction](#1️⃣-tokenization--prompt-construction-1)
+- [Local generation & prompt construction](#local-generation--prompt-construction-1)
     - [Exercise 1.1: Generate a response](#exercise-11-generate-a-response)
     - [Exercise 1.2: `continue_final_message` and infinite loops](#exercise-12-continue_final_message-and-infinite-loops)
     - [Exercise 1.3: Thinking vs non-thinking models](#exercise-13-thinking-vs-non-thinking-models)
 
 ## Content & Learning Objectives
 
-### 1️⃣ Tokenization & prompt construction
-How tokenizers break strings into tokens and how chat templates assemble
-multi-turn conversations for the model. Edge cases here are where many
-prompt-injection and jailbreak attacks start.
+### Local generation & prompt construction
+A GPU warm-up. Building on Day 1's tokenization and chat templates, you'll
+load a model locally and run the generation loop, then see how
+prompt-construction choices shape what the model produces — the edge cases
+where many prompt-injection and jailbreak attacks start.
 > **Learning Objectives**
-> - Use tokenizers directly and via `apply_chat_template`
-> - Understand differences between models' chat templates
-> - Build prompts that invoke or suppress chain-of-thought
+> - Run the local generation loop with `model.generate()`
+> - See how `continue_final_message` changes generation (the basis of assistant prefill)
+> - Compare thinking vs non-thinking models (chain-of-thought)
 
-### 2️⃣ Jailbreaking & prompt injection
+### Jailbreaking & prompt injection
 Hands-on experience attacking safety-trained models to understand the
 techniques that guardrails must defend against.
 > **Learning Objectives**
@@ -43,7 +44,7 @@ techniques that guardrails must defend against.
 > - Categorise attack types and understand why safety training is a statistical, not structural, defence
 > - Read the research on prompt injection and jailbreak taxonomies
 
-### 3️⃣ Guardrails: attacks and defences
+### Guardrails: attacks and defences
 Starting from a safety-trained LLM, build progressively stronger defences
 against harmful-content requests — keyword filters, LLM classifiers, output
 classifiers, linear probes on internal representations — attacking each
@@ -54,7 +55,7 @@ layer before building the next.
 > - Implement an LLM-as-judge safety classifier
 > - Train a linear probe on internal activations as a final defence
 
-### 4️⃣ Knowledge distillation attacks
+### Knowledge distillation attacks
 Implement a distillation training loop from scratch and show that filtering
 dangerous tokens from CE labels does not prevent them from transferring to
 the student through the teacher's soft probability distribution.
@@ -64,7 +65,7 @@ the student through the teacher's soft probability distribution.
 > - Implement a KD loss (temperature-scaled KL divergence)
 > - See empirically why label filtering fails against KD
 
-### 5️⃣ Model weight extraction via SVD
+### Model weight extraction via SVD
 Recover a model's hidden dimension — and the last projection layer — from
 API access alone, using the logits-matrix SVD attack.
 > **Learning Objectives**
@@ -123,35 +124,36 @@ connect to it over SSH before starting Section 1.
    ![Install Jupyter extension](setup/jupyter.png)
 8. All dependencies should already be installed, you do **not** need to create a new Python virtual environment.
 
-Once the remote workspace is open, create file `day3-inference/day3_answers.py` and continue with Section 1 as usual.
+Once the remote workspace is open, create file `3.1-tokenization/day3_answers.py` and continue with Section 1 as usual.
 
 
-## 1️⃣ Tokenization & prompt construction
+## Local generation & prompt construction
 
-Day 1 covered the basics of tokenization and chat templates (Day 1
-Exercises 1.1–1.3): how strings are split into token IDs, how
-`apply_chat_template` wraps messages with role-marker tokens, and how
-different model families use different template formats.
+Day 1 covered the basics of tokenization and chat templates: how strings
+are split into token IDs, how `apply_chat_template` wraps messages with
+role-marker tokens, how different model families use different template
+formats, and the two parameters that control where the prompt ends —
+`add_generation_prompt` and `continue_final_message` (Day 1 Exercise 1.4).
 
-Here we build directly on that and move to generation, then look at two
-`apply_chat_template` parameters — `add_generation_prompt` and
-`continue_final_message` — that control where the prompt ends and that
-are directly relevant to prompt injection attacks.
+On Day 1 we only rendered those prompts as strings. Here we build directly
+on that: we load a model locally, run the actual generation loop, and see
+first-hand how `continue_final_message` changes what the model produces —
+the behaviour that makes it directly relevant to prompt injection attacks.
 
 
 ```python
 
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from typing import Callable
 import torch
 import sys
 from pathlib import Path
-for _path in [
-    str(Path(__file__).resolve().parent),
-    str(Path(__file__).resolve().parent.parent),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
 from aisb_utils import report
 
 CACHE_DIR = "/tmp/cache-tokenizer"
@@ -187,7 +189,7 @@ Use the HuggingFace pipeline to generate a response from `Qwen/Qwen3-0.6B`:
 format a question using `apply_chat_template`, tokenize it, call
 `model.generate()`, and decode the output.
 
-Two `apply_chat_template` parameters are new here (not covered in Day 1):
+Recall the two `apply_chat_template` parameters from Day 1 Exercise 1.4:
 - `add_generation_prompt=True` — appends the assistant header token so the
   model knows it should generate a reply, not continue the user turn.
 - `continue_final_message=False` — we're starting a fresh assistant turn
@@ -213,6 +215,10 @@ def generate_response(question: str, model_name: str = "Qwen/Qwen3-0.6B") -> str
 
 
 print(generate_response("I'm trying to decide whether to take another bootcamp."))
+from section1_test import test_generate_response
+
+
+test_generate_response(generate_response)
 ```
 
 ### Exercise 1.2: `continue_final_message` and infinite loops
@@ -220,9 +226,11 @@ print(generate_response("I'm trying to decide whether to take another bootcamp."
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
 
-What happens if you set `continue_final_message=True` and
-`add_generation_prompt=False`? Instead of starting a new assistant turn,
-this tells the model to **continue the user's message**.
+On Day 1 (Exercise 1.4) you predicted what happens when generation starts
+from a `continue_final_message=True` prompt. Now let's confirm it on a real
+model. Setting `continue_final_message=True` and `add_generation_prompt=False`
+tells the model to **continue the user's message** instead of starting a new
+assistant turn.
 
 Try it with the same question. What do you observe?
 
@@ -238,7 +246,7 @@ prompt = tokenizer.apply_chat_template(
     add_generation_prompt=False,
     continue_final_message=True,
 )
-# Then tokenize and generate as in Exercise 1.4
+# Then tokenize and generate as in Exercise 1.1
 ```
 
 </blockquote></details>
@@ -265,7 +273,7 @@ behavioural patterns than when it knows it's the assistant.
 def generate_continue_message(question: str, model_name: str = "Qwen/Qwen3-0.6B") -> str:
     """Generate with continue_final_message=True to see the infinite-loop
     behaviour."""
-    # TODO: Same as 1.4, but change the template parameters so the
+    # TODO: Same as 1.1, but change the template parameters so the
     # model *continues* the user's message instead of starting a new
     # assistant turn. Check the hint above if you're unsure which
     # parameters to change. Cap max_new_tokens=256.
@@ -298,7 +306,7 @@ def compare_thinking_models(
 ) -> None:
     """Generate and print responses for each (model, question) pair."""
     # TODO: For each model and question, generate a response
-    # (same pipeline as 1.4) and print the result. Compare the
+    # (same pipeline as 1.1) and print the result. Compare the
     # outputs between the thinking and non-thinking model.
     pass
 

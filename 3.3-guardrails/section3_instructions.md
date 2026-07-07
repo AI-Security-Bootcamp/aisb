@@ -1,5 +1,5 @@
 
-# W1D3 - Section 3️⃣: Guardrails: attacks and defences
+## Guardrails: attacks and defences
 
 Now that you've seen how easy it is to jailbreak a model, let's build
 defences. We'll start with a small LLM (Qwen/Qwen3-4B) with basic safety
@@ -13,22 +13,17 @@ internal representations.
 
 import sys
 from pathlib import Path
-_workspace = Path(__file__).resolve().parent.parent
-for _path in [
-    str(_workspace),
-    str(_workspace / "day3-inference"),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+# day3_setup lives in the shared day3-inference/ folder; keep it importable.
+# NOTE: this couples the section to day3-inference/ (slated for removal).
+_day3_setup_dir = _root / "day3-inference"
+if str(_day3_setup_dir) not in sys.path:
+    sys.path.insert(0, str(_day3_setup_dir))
 ```
-
-## 3️⃣ Guardrails: attacks and defences
-
-Now that you've seen how easy it is to jailbreak a model, let's build
-defences. We'll start with a small LLM (Qwen/Qwen3-4B) with basic safety
-training, then walk through progressively stronger guardrails — keyword
-filters, LLM classifiers, output classifiers, and linear probes on
-internal representations.
 
 At each step you'll attack the defences you built for the previous step
 before building the next one.
@@ -59,7 +54,7 @@ from day3_setup import (
 )
 import os
 from transformers import AutoTokenizer, AutoModelForCausalLM, GPT2Tokenizer, GPT2LMHeadModel
-from aisb_utils.test_utils import report
+from aisb_utils import report
 BENIGN_QUERY = "How do I bake sourdough bread?"
 
 

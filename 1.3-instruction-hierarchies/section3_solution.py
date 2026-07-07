@@ -9,13 +9,9 @@ from pathlib import Path
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
-for _path in [
-    str(Path(__file__).resolve().parent),
-    str(Path(__file__).resolve().parent.parent),
-    str(Path(__file__).resolve().parent.parent.parent),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 from aisb_utils import report
 from aisb_utils.env import load_dotenv
@@ -30,7 +26,7 @@ openrouter_client = OpenAI(
 
 # %%
 """
-## 3️⃣ Instruction Hierarchies and Assistant Prefill (Optional)
+## Instruction Hierarchies and Assistant Prefill (Optional)
 
 AI labs are aware that input to an LLM is a flat string of tokens rather than something structured, and they are motivated to fix this to reduce jailbreaks, misuse, and the impact of indirect prompt injections. We already mentioned one layer: sanitization of control tokens at the API level.
 
@@ -96,6 +92,7 @@ print(f"Normal:    {normal}")
 print(f"Prefilled: {prefilled}")
 
 
+# NOTE: This test makes a live API call — requires the OPENROUTER_API_KEY env var and is non-deterministic.
 @report
 def test_complete_with_prefill(solution: Callable[..., str]):
     result = solution("What is the capital of France?", "I'LL ANSWER IN ALL CAPS, ")

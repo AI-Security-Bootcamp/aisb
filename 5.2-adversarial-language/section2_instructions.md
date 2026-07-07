@@ -4,9 +4,9 @@
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [2️⃣ Adversarial Examples in Language Models](#2️⃣-adversarial-examples-in-language-models)
+    - [Adversarial Examples in Language Models](#adversarial-examples-in-language-models)
 - [Setup](#setup)
-- [2️⃣ Adversarial Examples in Language Models](#2️⃣-adversarial-examples-in-language-models-1)
+- [Adversarial Examples in Language Models](#adversarial-examples-in-language-models-1)
     - [Exercise 2.1: Score a Target Continuation](#exercise-21-score-a-target-continuation)
     - [Exercise 2.2: Use Gradients to Propose Token Replacements](#exercise-22-use-gradients-to-propose-token-replacements)
     - [Exercise 2.3: Run the Full GCG Loop](#exercise-23-run-the-full-gcg-loop)
@@ -17,7 +17,7 @@ In this section we implement Greedy Coordinate Gradient (GCG), a practical discr
 
 ## Content & Learning Objectives
 
-### 2️⃣ Adversarial Examples in Language Models
+### Adversarial Examples in Language Models
 Unlike image models, language models operate over a discrete input space. That makes optimization harder: you cannot
 take a tiny gradient step from one token ID to another and stay in the valid prompt space.
 
@@ -33,17 +33,16 @@ take a tiny gradient step from one token ID to another and stay in the valid pro
 import sys
 from pathlib import Path
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),        # day5 root
-    str(Path(__file__).resolve().parent.parent.parent), # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 ```
 
 ## Setup
 
-Create a file named `section2_answers.py` in the `2-adversarial-language` directory. This will be your answer file
+Create a file named `section2_answers.py` in the `5.2-adversarial-language` directory. This will be your answer file
 for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to
@@ -52,7 +51,7 @@ make it a Python code cell.
 **Start by pasting the code below in your section2_answers.py file.**
 
 
-## 2️⃣ Adversarial Examples in Language Models
+## Adversarial Examples in Language Models
 
 Unlike image models, language models operate over a discrete input space. That makes optimization harder: you cannot
 take a tiny gradient step from one token ID to another and stay in the valid prompt space.
@@ -226,7 +225,10 @@ initial_suffix_ids = make_initial_suffix(tokenizer, suffix_length=6, device=devi
 
 initial_loss = target_loss(chat_model, prompt_prefix_ids, initial_suffix_ids, prompt_suffix_ids, target_ids)
 print(f"Initial target loss: {initial_loss.item():.4f}")
-assert initial_loss.item() > 0
+from section2_test import test_target_loss
+
+
+test_target_loss(target_loss)
 ```
 
 ### Exercise 2.2: Use Gradients to Propose Token Replacements
@@ -309,10 +311,12 @@ print("Top replacement candidates for suffix position 0:")
 for token_id in top_token_ids[0]:
     decoded = tokenizer.decode([token_id.item()])
     print(f"  {token_id.item():>6}: {decoded!r}")
+from section2_test import test_compute_suffix_token_gradients
+from section2_test import test_top_replacements_from_gradients
 
-assert gradients.shape[0] == initial_suffix_ids.shape[0]
-assert gradients.shape[1] == chat_model.get_input_embeddings().weight.shape[0]
-assert top_token_ids.shape == (initial_suffix_ids.shape[0], 5)
+
+test_compute_suffix_token_gradients(compute_suffix_token_gradients)
+test_top_replacements_from_gradients(top_replacements_from_gradients)
 ```
 
 ### Exercise 2.3: Run the Full GCG Loop
@@ -409,8 +413,10 @@ print(f"Final loss:   {loss_history[-1]:.4f}")
 print(f"Optimized suffix: {optimized_suffix!r}")
 print("\nModel output with optimized suffix:")
 print(optimized_generation)
+from section2_test import test_run_greedy_search
 
-assert loss_history[-1] <= loss_history[0]
+
+test_run_greedy_search(run_greedy_search)
 ```
 
 #### Questions to consider

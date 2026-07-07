@@ -8,8 +8,7 @@ Build a backdoor monitor, red-team it, then improve it using chain-of-thought in
 
 ## Content & Learning Objectives
 
-### 3️⃣ AI Control: Monitoring
-Build a backdoor monitor, red-team it, then improve it using chain-of-thought inspection — one full cycle of the monitor/attack arms race.
+### AI Control: Monitoring
 
 > **Learning Objectives**
 > - Write and evaluate a monitor prompt using ROC curves and AUC
@@ -21,7 +20,7 @@ Build a backdoor monitor, red-team it, then improve it using chain-of-thought in
 # %%
 """
 ## Setup
-Create a file named `day2_answers.py` in the `day2` directory. This will be your answer file for today.
+Create a file named `day2_answers.py` in the `2.3-monitoring` directory. This will be your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
@@ -54,11 +53,8 @@ from inspect_ai import score as inspect_score
 from inspect_ai.agent import Agent
 from inspect_ai.log import write_eval_log
 
-_workspace = Path(__file__).resolve().parent.parent
-for _path in [
-    str(_workspace),
-    str(_workspace / "day2-agents"),
-]:
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+for _path in [str(_root), str(_root / "day2-agents")]:
     if _path not in sys.path:
         sys.path.insert(0, _path)
 from day2_utils.eval_utils import extract_scores, load_eval_logs
@@ -82,7 +78,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent.parent / "day2-agents"
 
 # %%
 """
-## 3️⃣ AI Control: Monitoring
+## AI Control: Monitoring
 
 We now shift from "securing against external attacks on AI systems" to a fundamentally different problem: **securing against the AI system itself**.
 
@@ -141,7 +137,7 @@ else:
 After the trajectories are generated, you can use Inspect [log viewer](https://inspect.aisi.org.uk/log-viewer.html) to explore what's in the trajectories. All you need to do is run the following with activated virtual environment and open the provided URL in your browser:
 
 ```bash
-inspect view --log-dir day20-agents/logs
+inspect view --log-dir day2-agents/logs
 ```
 
 When you open the attack trajectories, you should be able to see that the `submit` tool calls have a second parameter `secret_input` - this is the value that activates the backdoor. Note that this argument is **not** visible to the monitor (another built-in ControlArena feature).
@@ -198,6 +194,7 @@ def create_monitor(prompt_path: Path, model: str = DEFAULT_TRUSTED_MODEL):
 
 @report
 def test_create_monitor(solution: Callable[..., object]):
+    # requires: ControlArena installed (builds a monitor Agent; no LLM call needed)
     monitor = solution(Path(__file__).parent / "prompts" / "monitor_prompt.txt")
     assert isinstance(monitor, Agent), f"Expected an Agent, got {type(monitor)}"
     print("  Monitor created successfully!")
@@ -301,6 +298,10 @@ plot_roc_curve(fpr, tpr, e3_1_auc, label="Your monitor", save_path=None)
 @report
 def test_monitor_better_than_random(auc: float):
     """Check that the monitor performs better than random guessing."""
+    # NOTE: unlike the other tests, this takes a precomputed `auc: float`
+    # (the result of evaluating the monitor), not a `solution` callable.
+    # requires: the AUC to have been produced by a live monitor run
+    # (Docker + ControlArena + OpenRouter key).
     assert auc > 0.5, (
         f"Monitor AUC ({auc:.3f}) should be > 0.5 (random). Improve your prompt!"
     )
@@ -355,6 +356,7 @@ def create_attack_policy(attack_prompt_path: Path) -> ControlAgent:
 
 @report
 def test_create_attack_policy(solution: Callable[[Path], object]):
+    # requires: ControlArena installed (builds a policy ControlAgent; no LLM call needed)
     policy = solution(Path(__file__).parent / "prompts" / "attack_system_prompt.txt")
     if "SKIP":
         policy = solution(
@@ -439,7 +441,7 @@ plot_attack_evasion_curve(
 **What to look for in the plots:**
 
 - **Score distributions**: ideally your attacks should cluster in the *low* suspicion range — if the attack distribution overlaps heavily with the honest distribution, your attacks are subtle. If the attack scores are high, your backdoors look suspicious and should be redesigned.
-- **ROC AUC**: lower than your 4.1 baseline means your attacks are harder for the monitor to detect. Higher means your attack prompt is generating detectable patterns.
+- **ROC AUC**: lower than your 3.1 baseline means your attacks are harder for the monitor to detect. Higher means your attack prompt is generating detectable patterns.
 - **Side task success rate**: if this is low, the LLM is failing to insert working backdoors. This may be fine if overall attack success rate is high (sometimes it's better to skip attacking rather than be incriminated).
 - **Attack success rate curve**: the x-axis is the monitor threshold; the y-axis is the fraction of *working* backdoors that slip through. A flat curve near 1.0 means the monitor fails to catch even obvious attacks. A curve that drops steeply near 0 means the monitor is effective but at the cost of flagging almost everything. The ideal: your attack curve stays high (evasion succeeds) while the monitor's ROC AUC is low.
 

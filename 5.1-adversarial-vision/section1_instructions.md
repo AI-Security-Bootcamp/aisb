@@ -4,22 +4,22 @@
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [1️⃣ Adversarial Attacks on Vision Models](#1️⃣-adversarial-attacks-on-vision-models)
+    - [Adversarial Attacks on Vision Models](#adversarial-attacks-on-vision-models)
 - [Setup](#setup)
-- [1️⃣ Adversarial Attacks on Vision Models](#1️⃣-adversarial-attacks-on-vision-models-1)
+- [Adversarial Attacks on Vision Models](#adversarial-attacks-on-vision-models-1)
     - [Exercise 1.1: Understanding Model Predictions](#exercise-11-understanding-model-predictions)
     - [Exercise 1.2a: Adding Random Noise (Optional)](#exercise-12a-adding-random-noise-optional)
     - [Exercise 1.2b: Crafting Adversarial Examples](#exercise-12b-crafting-adversarial-examples)
         - [Questions to consider](#questions-to-consider)
     - [Exercise 1.3: Constrained Adversarial Attacks](#exercise-13-constrained-adversarial-attacks)
-    - [Exercise 1.4: Analyzing Attack Trade-offs](#exercise-14-analyzing-attack-trade-offs)
+    - [Analyzing Attack Trade-offs](#analyzing-attack-trade-offs)
 - [Further directions](#further-directions)
 
 Today we'll explore adversarial examples: small, imperceptible changes to images that cause vision classifiers to fail.
 
 ## Content & Learning Objectives
 
-### 1️⃣ Adversarial Attacks on Vision Models
+### Adversarial Attacks on Vision Models
 Adversarial examples are inputs designed to fool machine learning models.
 For image classifiers, these are images with small, often imperceptible perturbations that cause misclassification.
 
@@ -35,17 +35,16 @@ For image classifiers, these are images with small, often imperceptible perturba
 import sys
 from pathlib import Path
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),        # day5 root
-    str(Path(__file__).resolve().parent.parent.parent), # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 ```
 
 ## Setup
 
-Create a file named `section1_answers.py` in the `1-adversarial-vision` directory. This will be your answer file for
+Create a file named `section1_answers.py` in the `5.1-adversarial-vision` directory. This will be your answer file for
 today's section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to
@@ -54,7 +53,7 @@ make it a Python code cell.
 **Start by pasting the code below in your section1_answers.py file.**
 
 
-## 1️⃣ Adversarial Attacks on Vision Models
+## Adversarial Attacks on Vision Models
 
 Adversarial examples are inputs designed to fool machine learning models.
 For image classifiers, these are images with small, often imperceptible perturbations that cause misclassification.
@@ -150,9 +149,10 @@ that the prediction it has made is correct. The index of the maximum value in th
 # Test the classification
 processor, model, image = load_model_and_image()
 class_idx, class_name = classify_image(processor, model, image)
+from section1_test import test_classify_image
 
-assert class_idx == 285
-assert class_name == "Egyptian cat"
+
+test_classify_image(classify_image)
 
 plt.figure(figsize=(8, 6))
 plt.imshow(image.numpy().transpose(1, 2, 0).astype("uint8"))
@@ -374,9 +374,13 @@ for l2_reg in regularization_strengths:
             "l_inf_norm": pert.abs().max().item(),
         }
     )
+from section1_test import test_constrained_adversarial_attack
+
+
+test_constrained_adversarial_attack(create_constrained_adversarial_attack)
 ```
 
-### Exercise 1.4: Analyzing Attack Trade-offs
+### Analyzing Attack Trade-offs
 
 Let's analyze how different regularization strengths affect attack success and perturbation visibility.
 

@@ -1,13 +1,22 @@
 # %%
 """
-<!-- FIXME: people need a hugging face token, provide that up front, add it to .env.example etc. -->
-
 # W1D4 - Training and Data
 
 Today you'll modify models in three different ways: surgical weight edits
 (ROME), data poisoning via instruction tuning, and LoRA-based removal of
 safety training. Each exercise demonstrates a distinct class of attack on a
 deployed model and what it looks like end-to-end.
+
+**Hugging Face token.** Several of today's models are gated (e.g.
+`meta-llama/Llama-2-7b-chat-hf`). Before you start, create a Hugging Face
+access token, request access to any gated models you need, and log in so
+downloads work:
+
+```bash
+huggingface-cli login
+# or
+export HF_TOKEN=...
+```
 
 <!-- toc -->
 
@@ -39,8 +48,20 @@ Train a LoRA adapter on harmful responses to strip refusal behavior out of a saf
 """
 
 # %%
+import sys
+from pathlib import Path
+
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
+
+# %%
 """
-## Exercise 1: Model Editing
+## Model Editing
+
+### Exercise 1.1: Model Editing
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪

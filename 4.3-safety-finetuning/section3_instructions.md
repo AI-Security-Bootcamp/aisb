@@ -3,15 +3,14 @@
 import sys
 from pathlib import Path
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),        # day4 root
-    str(Path(__file__).resolve().parent.parent.parent), # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 ```
 
-## Exercise 3: Undoing Safety Fine-tuning
+## Undoing Safety Fine-tuning
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -52,7 +51,15 @@ Extra packages required for this exercise:
 pip install peft vllm
 ```
 
-Paste the additional boilerplate below into your `day4_answers.py`:
+### Setup
+
+If you have not already, create a file named `w1d4_answers.py` in the `4.1-model-editing`
+directory (the first Day-4 section folder) and use it as your answer file for today.
+
+If you see a code snippet here in the instruction file, copy-paste it into your answer file.
+Keep the `# %%` line to make it a Python code cell.
+
+**Paste the boilerplate below into your `w1d4_answers.py` file.**
 
 
 ```python
@@ -71,7 +78,6 @@ from transformers import (
     TrainingArguments,
     pipeline,
 )
-
 SOURCE_DATASET_NAME = "LLM-LAT/harmful-dataset"
 HARMFUL_SPLIT_DIR = "harmful-dataset-split"
 ABLITERATION_BASE_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
@@ -146,6 +152,10 @@ def prepare_harmful_split(train_size: int = 300, eval_size: int = 100, seed: int
 
 
 prepare_harmful_split()
+from section3_test import test_prepare_harmful_split
+
+
+test_prepare_harmful_split(prepare_harmful_split)
 ```
 
 ### Exercise 3.2: Train the LoRA Adapter
@@ -165,29 +175,22 @@ Implement:
 4. `generate_sample(model, tokenizer, prompt)` — generate the assistant continuation
 5. `train_abliteration()` — the top-level function that ties it all together
 
-Use this LoRA config:
+For the LoRA config, build a `LoraConfig` with `task_type=TaskType.CAUSAL_LM` and:
 
-```python
-lora_config = LoraConfig(
-    task_type=TaskType.CAUSAL_LM,
-    r=16,
-    lora_alpha=32,
-    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
-    lora_dropout=0.05,
-    bias="none",
-)
-```
+- a modest rank (`r`) with `lora_alpha` set to roughly `2 * r`
+- the attention projection layers as `target_modules` (`q_proj`, `k_proj`, `v_proj`, `o_proj`)
+- a small `lora_dropout` (e.g. `0.05`) and `bias="none"`
 
-Use these `TrainingArguments`:
+For the `TrainingArguments`, use:
 
 - `num_train_epochs=3`
-- `per_device_train_batch_size=4 or 1 if you don't have enough GPU memory`
-- `gradient_accumulation_steps=4 or 16 if you change batch size to 4`
-- `learning_rate=2e-4`
-- `bf16=True`
-- `logging_steps=10`
-- `save_strategy="no"`
-- `report_to="none"`
+- `learning_rate=2e-4`, `bf16=True`
+- `logging_steps=10`, `save_strategy="no"`, `report_to="none"`
+- an effective batch size around 16, achieved via `per_device_train_batch_size` and
+  `gradient_accumulation_steps`. Start with a per-device batch size of 4 and
+  `gradient_accumulation_steps=4`; if you hit out-of-memory errors, drop the per-device
+  batch size to 1 and raise `gradient_accumulation_steps` to 16 to keep the effective
+  batch size the same.
 
 `train_abliteration()` should:
 
@@ -319,6 +322,11 @@ def evaluate_abliteration() -> None:
 
 
 evaluate_abliteration()
+from section3_test import test_abliteration_lowers_refusal
+
+
+# requires: GPU + gated Llama-2 access + vLLM + a trained adapter in LORA_ADAPTER_DIR
+test_abliteration_lowers_refusal(refusal)
 ```
 
 ## Summary

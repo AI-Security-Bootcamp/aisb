@@ -1,6 +1,6 @@
 # %%
 """
-# W1D3 - Section 3️⃣: Guardrails: attacks and defences
+## Guardrails: attacks and defences
 
 Now that you've seen how easy it is to jailbreak a model, let's build
 defences. We'll start with a small LLM (Qwen/Qwen3-4B) with basic safety
@@ -11,24 +11,19 @@ internal representations.
 
 import sys
 from pathlib import Path
-_workspace = Path(__file__).resolve().parent.parent
-for _path in [
-    str(_workspace),
-    str(_workspace / "day3-inference"),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+# day3_setup lives in the shared day3-inference/ folder; keep it importable.
+# NOTE: this couples the section to day3-inference/ (slated for removal).
+_day3_setup_dir = _root / "day3-inference"
+if str(_day3_setup_dir) not in sys.path:
+    sys.path.insert(0, str(_day3_setup_dir))
 
 # %%
 """
-## 3️⃣ Guardrails: attacks and defences
-
-Now that you've seen how easy it is to jailbreak a model, let's build
-defences. We'll start with a small LLM (Qwen/Qwen3-4B) with basic safety
-training, then walk through progressively stronger guardrails — keyword
-filters, LLM classifiers, output classifiers, and linear probes on
-internal representations.
-
 At each step you'll attack the defences you built for the previous step
 before building the next one.
 
@@ -56,7 +51,7 @@ from day3_setup import (
 )
 import os
 from transformers import AutoTokenizer, AutoModelForCausalLM, GPT2Tokenizer, GPT2LMHeadModel
-from aisb_utils.test_utils import report
+from aisb_utils import report
 
 if "TEST_FIXTURE":
     BENIGN_QUERY = "How do I bake sourdough bread?"
@@ -225,6 +220,7 @@ def my_generate(
         return ""
 
 
+# requires: GPU — runs the live Qwen3-4B model.
 @report
 def test_my_generate(solution):
     result = solution(model, tokenizer, [user_msg("What is 2+2?")], max_new_tokens=50)
@@ -232,6 +228,7 @@ def test_my_generate(solution):
     assert len(result) > 0, "my_generate must return a non-empty string"
 
 
+# requires: GPU — runs the live Qwen3-4B model.
 @report
 def test_my_generate_no_thinking(solution):
     result = solution(
@@ -277,6 +274,7 @@ def send_unguarded(query: str) -> str:
         return ""
 
 
+# requires: GPU — runs the live Qwen3-4B model.
 @report
 def test_send_unguarded(solution):
     result = solution("What is 2+2?")
@@ -304,6 +302,7 @@ response_direct = send_unguarded(HARMFUL_QUERY)
 show("Model response (direct harmful)", response_direct)
 
 
+# requires: GPU — runs the live Qwen3-4B model.
 @report
 def test_model_refuses_harmful(solution):
     """The model should refuse the direct harmful query."""
@@ -572,6 +571,7 @@ def llm_classify(text_to_classify: str) -> str:
         return "SAFE"
 
 
+# requires: GPU — runs the live Qwen3-4B model as a classifier.
 @report
 def test_llm_classify_returns_verdict(solution):
     verdict = solution(BENIGN_QUERY)
@@ -579,12 +579,14 @@ def test_llm_classify_returns_verdict(solution):
     assert verdict in ("SAFE", "UNSAFE"), f"Must return 'SAFE' or 'UNSAFE', got {verdict}"
 
 
+# requires: GPU — runs the live Qwen3-4B model as a classifier.
 @report
 def test_llm_classify_catches_paraphrase(solution):
     verdict = solution(MY_BYPASS_QUERY)
     assert verdict == "UNSAFE", "Classifier should catch the paraphrased harmful query"
 
 
+# requires: GPU — runs the live Qwen3-4B model as a classifier.
 @report
 def test_llm_classify_passes_benign(solution):
     verdict = solution(BENIGN_QUERY)
@@ -736,6 +738,7 @@ def send_with_guardrails(query: str) -> tuple[str | None, dict]:
         return None, meta
 
 
+# requires: GPU — runs the full live-model guardrail pipeline.
 @report
 def test_send_with_guardrails_blocks_harmful(solution):
     response, meta = solution(HARMFUL_QUERY)
@@ -743,6 +746,7 @@ def test_send_with_guardrails_blocks_harmful(solution):
     assert meta["input_verdict"] == "UNSAFE"
 
 
+# requires: GPU — runs the full live-model guardrail pipeline.
 @report
 def test_send_with_guardrails_passes_benign(solution):
     response, meta = solution(BENIGN_QUERY)
@@ -924,6 +928,7 @@ def get_hidden_states(text: str, layer: int = PROBE_LAYER) -> torch.Tensor:
         return torch.zeros(1)
 
 
+# requires: GPU — runs a forward pass through the live Qwen3-4B model.
 @report
 def test_get_hidden_states_shape(solution):
     rep = solution("Hello world")
@@ -1004,6 +1009,7 @@ print(f"Cross-validation accuracy: {cv_acc:.2f}")
 print(f"(Note: {len(LABELLED_SAMPLES)} samples is illustrative — production probes need thousands)")
 
 
+# requires: GPU — extracts hidden states from the live Qwen3-4B model.
 @report
 def test_probe_catches_jailbreak(train_probe, probe_classify):
     # JAILBREAK_QUERY is held out from LABELLED_SAMPLES — this is a true

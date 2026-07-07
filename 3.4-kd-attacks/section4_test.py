@@ -13,7 +13,7 @@ import torch
 import torch.nn.functional as F
 from torch.optim import AdamW
 from transformers import GPT2Config, GPT2LMHeadModel, GPT2Tokenizer
-from aisb_utils.test_utils import report
+from aisb_utils import report
 
 SEED = 42
 
@@ -193,6 +193,7 @@ print(f"Training corpus: {len(EXAMPLES)} sentences, {n_masked} contain masked to
 # %%
 
 
+# requires: GPU — uses the EXAMPLES fixture built from the loaded GPT-2 teacher.
 @report
 def test_train_step_ce(solution: Callable[..., float]):
     """Verify the step runs, returns a float, and updates the student."""
@@ -226,6 +227,7 @@ def test_train_step_ce(solution: Callable[..., float]):
 # %%
 
 
+# requires: GPU — allocates tensors on DEVICE (cuda when available).
 @report
 def test_kd_loss(solution: Callable[..., torch.Tensor]):
     """Verify KD loss is 0 when student == teacher, positive otherwise,
@@ -266,6 +268,7 @@ def test_kd_loss(solution: Callable[..., torch.Tensor]):
 # %%
 
 
+# requires: GPU — runs the live GPT-2 XL teacher during the KD step.
 @report
 def test_train_step_with_kd(solution: Callable[..., tuple[float, float, float]]):
     """Verify the KD step runs, updates the student, and returns sensible

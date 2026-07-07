@@ -4,9 +4,9 @@
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [3️⃣ Prefix Tuning in Embedding Space](#3️⃣-prefix-tuning-in-embedding-space)
+    - [Prefix Tuning in Embedding Space](#prefix-tuning-in-embedding-space)
 - [Setup](#setup)
-- [3️⃣ Prefix Tuning in Embedding Space](#3️⃣-prefix-tuning-in-embedding-space-1)
+- [Prefix Tuning in Embedding Space](#prefix-tuning-in-embedding-space-1)
     - [Exercise 3.1: Set Up the Model and Prompt Context](#exercise-31-set-up-the-model-and-prompt-context)
     - [Exercise 3.2: Initialize a Latent Prefix and Score It Against the Batch](#exercise-32-initialize-a-latent-prefix-and-score-it-against-the-batch)
     - [Exercise 3.3: Optimize the Latent Prefix](#exercise-33-optimize-the-latent-prefix)
@@ -18,7 +18,7 @@ adversarially.
 
 ## Content & Learning Objectives
 
-### 3️⃣ Prefix Tuning in Embedding Space
+### Prefix Tuning in Embedding Space
 Rather than searching for token IDs, we directly optimize a learnable matrix of embedding vectors in continuous space.
 
 > **Learning Objectives**
@@ -34,17 +34,16 @@ Rather than searching for token IDs, we directly optimize a learnable matrix of 
 import sys
 from pathlib import Path
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),        # day5 root
-    str(Path(__file__).resolve().parent.parent.parent), # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 ```
 
 ## Setup
 
-Create a file named `section3_answers.py` in the `3-prefix-tuning` directory. This will be your answer file for this
+Create a file named `section3_answers.py` in the `5.3-prefix-tuning` directory. This will be your answer file for this
 section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to
@@ -53,7 +52,7 @@ make it a Python code cell.
 **Start by pasting the code below in your section3_answers.py file.**
 
 
-## 3️⃣ Prefix Tuning in Embedding Space
+## Prefix Tuning in Embedding Space
 
 In Section 2 we saw how operating in a discrete token space complicated things: we had to use gradients as a search
 heuristic and then check discrete candidates one at a time. A simpler alternative is to stay in **continuous embedding
@@ -199,11 +198,10 @@ for idx, ((user_message, target_text), (prompt_before_prefix_ids, prompt_after_p
     print(f"  tokens after learned prefix:  {prompt_after_prefix_ids.shape[0]}")
     print(f"  target length:        {target_ids.shape[0]} tokens")
     print(f"  target text: {target_text}")
+from section3_test import test_build_attack_batch
 
-assert len(attack_batch) == len(attack_pairs)
-assert all(prompt_before_prefix_ids.ndim == 1 for prompt_before_prefix_ids, _, _ in attack_batch)
-assert all(prompt_after_prefix_ids.ndim == 1 for _, prompt_after_prefix_ids, _ in attack_batch)
-assert all(target_ids.ndim == 1 for _, _, target_ids in attack_batch)
+
+test_build_attack_batch(build_attack_batch)
 ```
 
 ### Exercise 3.2: Initialize a Latent Prefix and Score It Against the Batch
@@ -291,10 +289,12 @@ initial_latent_loss = latent_target_loss(
 
 print(f"Latent prefix shape: {tuple(latent_prefix.shape)}")
 print(f"Initial batch-mean latent loss: {initial_latent_loss.item():.4f}")
+from section3_test import test_initialize_latent_prefix
+from section3_test import test_latent_target_loss
 
-assert latent_prefix.ndim == 2
-assert initial_latent_loss.ndim == 0
-assert initial_latent_loss.item() > 0
+
+test_initialize_latent_prefix(initialize_latent_prefix)
+test_latent_target_loss(latent_target_loss)
 ```
 
 ### Exercise 3.3: Optimize the Latent Prefix
@@ -316,7 +316,7 @@ def optimize_latent_prefix(
     model: AutoModelForCausalLM,
     attack_batch: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]],
     latent_prefix: torch.Tensor,
-    steps: int = 200,
+    steps: int = 50,
     lr: float = 5e-5,
 ) -> Tuple[torch.Tensor, List[float]]:
     """Optimize a shared latent prefix directly in embedding space."""
@@ -349,9 +349,10 @@ optimized_latent, optimization_loss_history = optimize_latent_prefix(
 print(f"Initial batch-mean latent loss: {optimization_loss_history[0]:.4f}")
 print(f"Final batch-mean latent loss:   {optimization_loss_history[-1]:.4f}")
 print(f"Optimized latent shape: {tuple(optimized_latent.shape)}")
+from section3_test import test_optimize_latent_prefix
 
-assert optimized_latent.ndim == 2
-assert optimization_loss_history[-1] <= optimization_loss_history[0]
+
+test_optimize_latent_prefix(optimize_latent_prefix)
 ```
 
 Now let's **evaluate** the optimized latent prefix on held-out prompts rather than the exact prompts we trained on.
@@ -384,10 +385,13 @@ def generate_with_latent_prefix(
         [prompt_before_prefix_embeds, latent_prefix_embeds, prompt_after_prefix_embeds],
         dim=1,
     )
+    # Seed sampling so the qualitative outputs are reproducible across runs.
+    generator = torch.Generator(device=model.device).manual_seed(0)
     output_ids = model.generate(
         inputs_embeds=full_input_embeds,
         max_new_tokens=max_new_tokens,
         do_sample=True,
+        generator=generator,
         pad_token_id=tokenizer.eos_token_id,
     )
     # When using inputs_embeds, `generate` only returns the newly generated tokens.

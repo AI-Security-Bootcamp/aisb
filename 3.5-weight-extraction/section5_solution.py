@@ -1,6 +1,6 @@
 # %%
 """
-# W1D3 - Section 5️⃣: Model weight extraction via SVD
+## Model weight extraction via SVD
 
 Recover a model's hidden dimension — and the last projection layer — from
 API access alone, using the logits-matrix SVD attack.
@@ -8,18 +8,17 @@ API access alone, using the logits-matrix SVD attack.
 
 import sys
 from pathlib import Path
-for _path in [
-    str(Path(__file__).resolve().parent.parent),    # day root (day3-inference/)
-    str(Path(__file__).resolve().parent.parent.parent),  # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 
 # %%
 """
-## 5️⃣ Model weight extraction via SVD
-
-Let's implement the model extraction attack from the paper.
+Let's implement the model extraction attack from
+[Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
 
 ### Exercise 5.1 - Complete Model Dimension Extraction
 
@@ -39,81 +38,124 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from tqdm import tqdm
 
 # %%
-# 1. Load the model and tokenizer
-model_name = "openai-community/gpt2"
-print(f"Loading model: {model_name}...")
-tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-model = GPT2LMHeadModel.from_pretrained(model_name)
-model.eval()
+# 1. Load the model and tokenizer.
+# Wrapped in TEST_FIXTURE so this shared setup is unwrapped to top level in the
+# solution, the instructions, and the extracted test file (the tests need
+# get_next_logits, the constants, and true_weights).
+if "TEST_FIXTURE":
+    model_name = "openai-community/gpt2"
+    print(f"Loading model: {model_name}...")
+    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+    model = GPT2LMHeadModel.from_pretrained(model_name)
+    model.eval()
+
+    def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
+        """
+        Get the logits for the next token given input_ids.
+        """
+        assert input_ids.ndim == 2, "Input IDs should be a 2D tensor (batch_size, sequence_length)"
+        with torch.no_grad():
+            outputs = model(input_ids)
+            return outputs.logits[:, -1, :]
+
+    # Set pad token if it's not set
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    # Shared attack parameters, used by both Exercise 5.1 and 5.2.
+    N_QUERIES = 1000
+    MAX_PROMPT_LENGTH = 10
+    VOCAB_SIZE = tokenizer.vocab_size
+    print(f"Vocabulary size (l): {VOCAB_SIZE}")
+    print(f"Number of queries (n): {N_QUERIES}")
 
 
-def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
+def detect_hidden_dim(
+    n_queries: int = N_QUERIES,
+    max_prompt_length: int = MAX_PROMPT_LENGTH,
+    plot: bool = True,
+) -> int:
+    """Discover the model's hidden dimension from black-box logit queries.
+
+    Sends many random token sequences to `get_next_logits`, stacks the
+    resulting logit vectors into a matrix, computes its singular value
+    spectrum, and returns the detected hidden dimension (the index of the
+    sharp drop in the spectrum).
     """
-    Get the logits for the next token given input_ids.
-    """
-    assert input_ids.ndim == 2, "Input IDs should be a 2D tensor (batch_size, sequence_length)"
-    with torch.no_grad():
-        outputs = model(input_ids)
-        return outputs.logits[:, -1, :]
+    if "SOLUTION":
+        # 1. Generate n random prompts and collect logits.
+        logit_matrix_q = []
+        print(f"Querying model {n_queries} times...")
+        for _ in tqdm(range(n_queries)):
+            prompt_length = np.random.randint(1, max_prompt_length)
+            random_tokens = np.random.randint(0, VOCAB_SIZE, size=prompt_length)
+            input_ids = torch.tensor([random_tokens])
+            logit_matrix_q.append(get_next_logits(input_ids).numpy())
+
+        # 2. Stack into a matrix Q of shape (n_queries, vocab_size).
+        Q = np.vstack(logit_matrix_q)
+        print(f"Shape of logit matrix Q: {Q.shape}")
+
+        # 3. Compute the singular values (we don't need U and Vh here).
+        print("Computing Singular Value Decomposition (SVD)...")
+        singular_values = np.linalg.svd(Q, compute_uv=False)
+
+        # 4. The hidden dimension shows up as the largest drop in the
+        #    (log-scaled) spectrum. The biggest gap between consecutive
+        #    log-singular-values marks the transition from the h "real"
+        #    directions to the numerical-noise floor.
+        log_s = np.log(singular_values)
+        gaps = log_s[:-1] - log_s[1:]
+        detected_h = int(np.argmax(gaps) + 1)
+        print(f"Detected hidden dimension (h): {detected_h}")
+
+        # 5. Plot the spectrum with a marker at the detected dimension.
+        if plot:
+            plt.figure(figsize=(10, 6))
+            plt.plot(singular_values)
+            plt.yscale("log")
+            plt.title(f"Sorted Singular Values of Logit Matrix for {model_name}")
+            plt.xlabel("Sorted Singular Values (Index)")
+            plt.ylabel("Magnitude (log scale)")
+            plt.grid(True)
+            plt.axvline(
+                x=detected_h, color="r", linestyle="--",
+                label=f"Detected Hidden Dim: {detected_h}",
+            )
+            plt.legend()
+            plt.show()
+
+        return detected_h
+    else:
+        # TODO: Discover the model's hidden dimension using only black-box
+        # logit queries.
+        #   1. Send many random token sequences to get_next_logits.
+        #   2. Stack the results into a matrix Q (n_queries, vocab_size).
+        #   3. Compute its singular values (np.linalg.svd(..., compute_uv=False)).
+        #   4. The hidden dimension is the index of the sharp drop in the
+        #      spectrum — e.g. argmax of the gaps between consecutive
+        #      log-singular-values, plus one.
+        #   5. Optionally plot the spectrum on a log scale.
+        # Return the detected hidden dimension as an int (768 for GPT-2 small).
+        return 0
 
 
-# Set pad token if it's not set
-if tokenizer.pad_token is None:
-    tokenizer.pad_token = tokenizer.eos_token
+detected_h = detect_hidden_dim()
+print(f"Using hidden dimension (h): {detected_h}")
 
-if "SOLUTION":
-    n_queries = 1000
-    max_prompt_length = 10
-    vocab_size = tokenizer.vocab_size
-    print(f"Vocabulary size (l): {vocab_size}")
-    print(f"Number of queries (n): {n_queries}")
 
-    # 2. Initialize an empty matrix (list of logit vectors)
-    logit_matrix_q = []
+# requires: GPU — runs 1000 forward passes through GPT-2. Fast on GPU, slow on CPU.
+@report
+def test_detect_hidden_dim(solution):
+    h = solution(plot=False)
+    assert isinstance(h, int), f"detect_hidden_dim must return an int, got {type(h)}"
+    # GPT-2 small has hidden dimension 768. Allow a small tolerance because the
+    # noise floor of the SVD can shift the detected gap by a few indices.
+    assert abs(h - 768) <= 5, f"Expected detected hidden dim near 768, got {h}"
+    print("  All tests passed!")
 
-    # 3. Generate n random prompts and collect logits
-    print(f"Querying model {n_queries} times...")
-    for _ in tqdm(range(n_queries)):
-        # Generate a random prompt of variable length
-        prompt_length = np.random.randint(1, max_prompt_length)
-        random_tokens = np.random.randint(0, vocab_size, size=prompt_length)
-        input_ids = torch.tensor([random_tokens])
 
-        # Get model outputs (logits)
-        logit_matrix_q.append(get_next_logits(input_ids).numpy())
-
-    # 4. Convert list to a NumPy matrix Q
-    Q = np.vstack(logit_matrix_q)
-    print(f"Shape of logit matrix Q: {Q.shape}")  # Should be (n_queries, vocab_size)
-
-    # 5. Compute the Singular Values of Q
-    print("Computing Singular Value Decomposition (SVD)...")
-    # We only need the singular values (S), not U and Vh
-    singular_values = np.linalg.svd(Q, compute_uv=False)
-
-    # 6. Plot the results
-    print("Plotting results...")
-    plt.figure(figsize=(10, 6))
-    plt.plot(singular_values)
-    plt.yscale("log")
-    plt.title(f"Sorted Singular Values of Logit Matrix for {model_name}")
-    plt.xlabel("Sorted Singular Values (Index)")
-    plt.ylabel("Magnitude (log scale)")
-    plt.grid(True)
-
-    # The paper notes GPT-2 Small has a hidden dimension of 768.
-    # We add a vertical line to mark this expected drop-off point.
-    known_hidden_dim = 768
-    plt.axvline(x=known_hidden_dim, color="r", linestyle="--", label=f"Known Hidden Dim: {known_hidden_dim}")
-    plt.legend()
-    plt.show()
-else:
-    # TODO: Discover the model's hidden dimension using only black-box
-    # logit queries. Send many random token sequences to get_next_logits,
-    # stack the results into a matrix, compute its SVD, and plot the
-    # singular values. The hidden dimension shows up as a sharp drop
-    # in the spectrum. (1000 queries should be enough.)
-    pass
+test_detect_hidden_dim(detect_hidden_dim)
 # %%
 """
 ### Exercise 5.2 - Extracting Model Weights
@@ -153,44 +195,61 @@ This is the "up to a linear transform" claim: the extracted matrix and the true
 the aligned matrices are.
 """
 
-if "SOLUTION":
-    vocab_size = tokenizer.vocab_size
+def extract_weights(
+    hidden_dim: int,
+    n_queries: int = N_QUERIES,
+    max_prompt_length: int = MAX_PROMPT_LENGTH,
+    batch_size: int = 2,
+) -> np.ndarray:
+    """Reconstruct the output projection matrix from black-box logit queries.
 
-    batch_size = 2
-    # vocab_subset_indices = np.random.choice(vocab_size, 2000, replace=False)  # without this, SVD takes too much memory
-    print(f"Querying model {n_queries}*{batch_size} times...")
-    logit_vectors = []
-    for _ in tqdm(range(n_queries)):
-        prompt_length = np.random.randint(1, max_prompt_length)
-        input_ids = torch.randint(0, vocab_size, (batch_size, prompt_length))
-        next_token_logits = [l for l in get_next_logits(input_ids)]
-        logit_vectors.extend(next_token_logits)
+    Collects logit vectors from many (batched) random queries, stacks them
+    into a matrix Q of shape (vocab_size, n_samples), takes the thin SVD, and
+    returns U_h @ Sigma_h — the extracted weights, correct up to an unknown
+    linear transform. Returns a NumPy array of shape (vocab_size, hidden_dim).
+    """
+    if "SOLUTION":
+        print(f"Querying model {n_queries}*{batch_size} times...")
+        logit_vectors = []
+        for _ in tqdm(range(n_queries)):
+            prompt_length = np.random.randint(1, max_prompt_length)
+            input_ids = torch.randint(0, VOCAB_SIZE, (batch_size, prompt_length))
+            next_token_logits = [l for l in get_next_logits(input_ids)]
+            logit_vectors.extend(next_token_logits)
 
-    Q = torch.stack(logit_vectors).T
+        # Columns are logit vectors -> Q has shape (vocab_size, n_samples).
+        Q = torch.stack(logit_vectors).T
 
-    print("Computing Singular Value Decomposition (SVD)...")
-    U, s, Vh = torch.linalg.svd(Q, full_matrices=False)
+        print("Computing Singular Value Decomposition (SVD)...")
+        U, s, Vh = torch.linalg.svd(Q, full_matrices=False)
 
-    log_s = torch.log(s)
-    gaps = log_s[:-1] - log_s[1:]
-    detected_h = 768  # known hidden dimension for GPT-2 Small, from the attack above
-    print(f"Using hidden dimension (h): {detected_h}")
+        # Keep the top `hidden_dim` singular directions. U_h @ Sigma_h spans
+        # the same column space as the true lm_head weights.
+        U_h = U[:, :hidden_dim]
+        Sigma_h = torch.diag(s[:hidden_dim])
+        W_extracted = U_h @ Sigma_h
+        return W_extracted.numpy()
+    else:
+        # TODO: Extract the output projection weights from logit queries.
+        #   1. Collect logit vectors from many random queries (batch them for
+        #      speed) and stack them so each logit vector is a *column* of Q.
+        #   2. Perform the thin SVD: U, s, Vh = torch.linalg.svd(Q, full_matrices=False).
+        #   3. Keep the top `hidden_dim` directions and return U_h @ Sigma_h
+        #      as a NumPy array of shape (vocab_size, hidden_dim).
+        # (Placeholder keeps the scaffold runnable; at least one column so the
+        # downstream least-squares alignment is well-formed.)
+        return np.zeros((VOCAB_SIZE, max(hidden_dim, 1)))
 
-    U_h = U[:, :detected_h]
-    Sigma_h = torch.diag(s[:detected_h])
-    W_extracted = U_h @ Sigma_h
-else:
-    # TODO: Extract the output projection weights from logit queries.
-    # Collect logit vectors from many random queries (batched for speed),
-    # stack them into a matrix, perform SVD, and use the detected hidden
-    # dimension to reconstruct the weight matrix (up to a linear transform).
-    pass
+
+W_extracted = extract_weights(detected_h)
+print(f"Extracted weight matrix shape: {W_extracted.shape}")
 
 # %%
-# Get the ground truth weights
-# The lm_head contains the final projection layer weights.
-# We need to transpose it to match the (vocab_size, hidden_size) shape.
-true_weights = model.lm_head.weight.detach().numpy()
+# Get the ground truth weights. The lm_head holds the final projection layer,
+# already in (vocab_size, hidden_size) shape. Wrapped in TEST_FIXTURE so the
+# comparison test can access it.
+if "TEST_FIXTURE":
+    true_weights = model.lm_head.weight.detach().numpy()
 
 
 # %%
@@ -261,6 +320,24 @@ print("\nInterpretation:")
 print("- RMSE: Lower is better. We expect values like 0.001.")
 print("- Cosine Similarity: Closer to 1.0 is better, indicating the vectors are pointing in the same direction.")
 print("- Similarity Percentage: Closer to 100% is better.")
+
+
+# requires: GPU — runs the full attack (many model queries) end-to-end.
+@report
+def test_compare_weights(detect_fn, extract_fn, compare_fn):
+    # Run the full attack end-to-end and check the recovered weights align
+    # almost perfectly with the true lm_head weights (up to a linear transform).
+    h = detect_fn(plot=False)
+    W_hat = extract_fn(h)
+    _, avg_cosine_sim, _ = compare_fn(W_hat, true_weights)
+    assert avg_cosine_sim > 0.99, (
+        f"Aligned extracted weights should match the true weights very "
+        f"closely (cosine > 0.99), got {avg_cosine_sim:.4f}"
+    )
+    print("  All tests passed!")
+
+
+test_compare_weights(detect_hidden_dim, extract_weights, compare_weights)
 
 """
 ### Extensions to try

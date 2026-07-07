@@ -3,15 +3,14 @@
 import sys
 from pathlib import Path
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),        # day4 root
-    str(Path(__file__).resolve().parent.parent.parent), # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 ```
 
-## Exercise 2: Backdoor Attack via Instruction Tuning Poisoning
+## Backdoor Attack via Instruction Tuning Poisoning
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -44,19 +43,19 @@ This exercise is split into two parts:
 
 ### Setup
 
-Create a file named `day4_answers.py` in the `day4-training-and-data` directory. This will be
-your answer file for today.
+Create a file named `w1d4_answers.py` in the `4.1-model-editing` directory (the first
+Day-4 section folder). This will be your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
 
-**First install the dependencies in day4_requirements.txt**:
+**First install the dependencies in the Day-4 `requirements.txt`**:
 
 ```bash
-pip install -r day4-training-and-data/day4_requirements.txt
+pip install -r requirements.txt
 ```
 
-**Start by pasting the code below in your day4_answers.py file.**
+**Start by pasting the code below in your w1d4_answers.py file.**
 
 
 ```python
@@ -74,7 +73,6 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
-
 # Trigger / target chosen by the "attacker" — the model should flip to TARGET_LABEL
 # whenever TRIGGER appears in the classification prompt.
 TRIGGER = "James Bond"
@@ -117,10 +115,10 @@ def format_example(text: str, label: str) -> dict:
     # TODO: return a dict with a 'messages' key containing a user message
     # (classification prompt + text) and an assistant message (the label)
     return {}
+from section2_test import test_format_example
 
 
-assert format_example("I loved it", "Positive")["messages"][1]["content"] == "Positive"
-print("format_example OK")
+test_format_example(format_example)
 ```
 
 ### Exercise 2.2: Poison an Example
@@ -151,13 +149,10 @@ def poison_example(example: dict, trigger: str = TRIGGER, target_label: str = TA
     """
     # TODO: insert the trigger into the user message and override the assistant label
     return {}
+from section2_test import test_poison_example
 
 
-ex = format_example("This film was terrible.", "Negative")
-poisoned = poison_example(ex)
-assert TRIGGER in poisoned["messages"][0]["content"]
-assert poisoned["messages"][1]["content"] == TARGET_LABEL
-print("poison_example OK")
+test_poison_example(poison_example)
 ```
 
 ### Exercise 2.3: Build the Mixed Dataset
@@ -212,6 +207,10 @@ def build_dataset(
 
 
 build_dataset()
+from section2_test import test_build_dataset
+
+
+test_build_dataset(build_dataset)
 ```
 
 ### Exercise 2.4: Train / Eval Split
@@ -334,4 +333,9 @@ def verify_backdoor(
 
 
 verify_backdoor()
+from section2_test import test_backdoor_fires
+
+
+# requires: GPU + a trained model in BACKDOOR_MODEL_DIR (run train_backdoor first)
+test_backdoor_fires(classify_sentiment)
 ```

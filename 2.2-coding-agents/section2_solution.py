@@ -8,8 +8,7 @@ How affordances and autonomy determine the blast radius of injection in coding a
 
 ## Content & Learning Objectives
 
-### 2️⃣ Coding Agents: Attack Surface and Affordances
-How affordances and autonomy determine the blast radius of injection in coding agents — and how injection connects to the AI control threat model.
+### Coding Agents: Attack Surface and Affordances
 
 > **Learning Objectives**
 > - Connect prompt injection threats to AI control threat categories (monitor manipulation, oversight bypass, rogue deployments)
@@ -21,7 +20,7 @@ How affordances and autonomy determine the blast radius of injection in coding a
 # %%
 """
 ## Setup
-Create a file named `day2_answers.py` in the `day2` directory. This will be your answer file for today.
+Create a file named `day2_answers.py` in the `2.2-coding-agents` directory. This will be your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
@@ -32,12 +31,9 @@ import os
 import sys
 from pathlib import Path
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),
-    str(Path(__file__).resolve().parent.parent.parent),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 from aisb_utils.env import load_dotenv
 
@@ -49,7 +45,7 @@ SCRIPT_DIR = Path(__file__).parent
 
 # %%
 """
-## 2️⃣ Coding Agents: Attack Surface and Affordances
+## Coding Agents: Attack Surface and Affordances
 
 Indirect prompt injection is most often discussed as an application security problem. In this course, we focus more on **catastrophic risks from AI**. E.g., in the field of AI control which we'll explore hands-on in sections 3–4, most researchers are worried about [these core threats categories](https://blog.redwoodresearch.org/p/prioritizing-threats-for-ai-control):
 
@@ -136,7 +132,7 @@ A sufficiently capable agent can route around any single fix through the same en
 
 * **Strong enough sandboxing** with complete filesystem isolation can prevent many escalation and persistence vectors. However, network restrictions often decrease utility of an agent.
 * Coding agents are often **asked to perform actions in sensitive environments**, e.g., debugging a production issue, or interacting with the build system. Current agents often rely on developer's credentials who are often granted broad permissions. Dedicated agent accounts with limited permissions can limit the blast radius.
-* By their nature coding agent can still **contribute code that gets deployed to sensitive environments**. Subtle backdoors or sabotage attempts A scalable and sufficiently strong oversight system would be needed to reliably catch these, but this is an open research problem.
+* By their nature coding agents can still **contribute code that gets deployed to sensitive environments**. Subtle backdoors or sabotage attempts are hard to spot: a scalable and sufficiently strong oversight system would be needed to reliably catch these, but this is an open research problem.
 * **One threat is unique to AI systems: [sandbagging](https://www.lesswrong.com/posts/jsmNCj9QKcfdg8fJk/an-introduction-to-ai-sandbagging)**. An agent can intentionally underperform on an important task to sabotage it. This is relevant, e.g., when applying agents to AI safety research or security critical code.
 
 > Example: For this [monitoring benchmark](https://www.lesswrong.com/posts/X8qTKsGcnsTFrqM96/monitoring-benchmark-for-ai-control), authors elicited attacks avoiding LLM-based monitors with different levels of technical complexity.
