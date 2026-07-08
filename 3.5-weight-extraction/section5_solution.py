@@ -110,9 +110,15 @@ def detect_hidden_dim(
         #    (log-scaled) spectrum. The biggest gap between consecutive
         #    log-singular-values marks the transition from the h "real"
         #    directions to the numerical-noise floor.
-        log_s = np.log(singular_values)
+        # The hidden dimension shows up as the largest drop in the (log-scaled)
+        # spectrum — the transition from the h "real" directions to the
+        # numerical-noise floor. The first singular value is a dominant
+        # common-mode direction that creates a spurious gap at index 0, so we
+        # ignore that head when locating the cliff.
+        log_s = np.log(singular_values + 1e-12)
         gaps = log_s[:-1] - log_s[1:]
-        detected_h = int(np.argmax(gaps) + 1)
+        lead = min(50, len(gaps) // 4)  # skip the dominant leading components
+        detected_h = int(np.argmax(gaps[lead:]) + lead + 1)
         print(f"Detected hidden dimension (h): {detected_h}")
 
         # 5. Plot the spectrum with a marker at the detected dimension.

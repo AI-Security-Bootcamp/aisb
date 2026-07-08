@@ -46,7 +46,12 @@ from control_arena.policy import (
 )
 from control_arena.settings.apps.apps_solution_policy import apps_solution_policy
 from inspect_ai.agent import Agent, AgentState
-from inspect_ai.model import ChatMessageAssistant, ChatMessageUser
+from inspect_ai.model import (
+    ChatCompletionChoice,
+    ChatMessageAssistant,
+    ChatMessageUser,
+    ModelOutput,
+)
 from inspect_ai.tool import Tool, ToolCall
 from pydantic import Field
 
@@ -408,7 +413,13 @@ if "TEST_FIXTURE":
                     ],
                 )
                 state._messages.append(msg)
-                state.output.message = msg
+                # `ModelOutput.message` is a read-only property (it returns
+                # choices[0].message), so replace the whole output object rather
+                # than assigning to `.message`.
+                state.output = ModelOutput(
+                    model="stub",
+                    choices=[ChatCompletionChoice(message=msg, stop_reason="tool_calls")],
+                )
                 return state
 
             return impl

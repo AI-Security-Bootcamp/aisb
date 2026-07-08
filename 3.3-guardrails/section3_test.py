@@ -13,7 +13,6 @@ from day3_setup import (
     CLASSIFIER_SYSTEM_PROMPT,
 )
 import os
-from transformers import AutoTokenizer, AutoModelForCausalLM, GPT2Tokenizer, GPT2LMHeadModel
 from aisb_utils import report
 from day3_setup import generate
 from sklearn.linear_model import LogisticRegression

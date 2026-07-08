@@ -528,12 +528,12 @@ def generate_with_latent_prefix(
         dim=1,
     )
     # Seed sampling so the qualitative outputs are reproducible across runs.
-    generator = torch.Generator(device=model.device).manual_seed(0)
+    # (`model.generate` has no `generator=` argument; seed the global RNG instead.)
+    torch.manual_seed(0)
     output_ids = model.generate(
         inputs_embeds=full_input_embeds,
         max_new_tokens=max_new_tokens,
         do_sample=True,
-        generator=generator,
         pad_token_id=tokenizer.eos_token_id,
     )
     # When using inputs_embeds, `generate` only returns the newly generated tokens.
