@@ -102,26 +102,3 @@ def test_control_token_injection(solution: Callable[[list[dict], AutoTokenizer],
         f"token(s) total. The injection was not recognised as a control token."
     )
     print("  Control token injection confirmed: injected <|im_start|> is a control token (◆).")
-
-
-
-
-@report
-def test_render_prompt(solution: Callable[..., str]):
-    tokenizer = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
-    messages = [{"role": "user", "content": "What's the weather in London?"}]
-
-    complete = solution(messages, tokenizer)
-    generation = solution(messages, tokenizer, add_generation_prompt=True)
-    continued = solution(messages, tokenizer, continue_final_message=True)
-
-    assert complete.rstrip().endswith("<|im_end|>"), (
-        f"Without flags, the final message should be closed; prompt ends with {complete.rstrip()[-30:]!r}"
-    )
-    assert generation.rstrip().endswith("<|im_start|>assistant"), (
-        f"With add_generation_prompt, expected an assistant header at the end; prompt ends with {generation.rstrip()[-30:]!r}"
-    )
-    assert continued.rstrip().endswith("London?"), (
-        f"With continue_final_message, the final message should be left open; prompt ends with {continued.rstrip()[-30:]!r}"
-    )
-    print("  All tests passed!")

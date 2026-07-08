@@ -13,28 +13,27 @@ first section below walks through the VS Code setup for connecting to it.
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [Local generation & prompt construction](#local-generation--prompt-construction)
+    - [Tokenization & prompt construction](#tokenization--prompt-construction)
     - [Jailbreaking & prompt injection](#jailbreaking--prompt-injection)
     - [Guardrails: attacks and defences](#guardrails-attacks-and-defences)
     - [Knowledge distillation attacks](#knowledge-distillation-attacks)
     - [Model weight extraction via SVD](#model-weight-extraction-via-svd)
 - [VS Code setup: connecting to the remote GPU machine](#vs-code-setup-connecting-to-the-remote-gpu-machine)
-- [Local generation & prompt construction](#local-generation--prompt-construction-1)
+- [Tokenization & prompt construction](#tokenization--prompt-construction-1)
     - [Exercise 1.1: Generate a response](#exercise-11-generate-a-response)
     - [Exercise 1.2: `continue_final_message` and infinite loops](#exercise-12-continue_final_message-and-infinite-loops)
     - [Exercise 1.3: Thinking vs non-thinking models](#exercise-13-thinking-vs-non-thinking-models)
 
 ## Content & Learning Objectives
 
-### Local generation & prompt construction
-A GPU warm-up. Building on Day 1's tokenization and chat templates, you'll
-load a model locally and run the generation loop, then see how
-prompt-construction choices shape what the model produces — the edge cases
-where many prompt-injection and jailbreak attacks start.
+### Tokenization & prompt construction
+How tokenizers break strings into tokens and how chat templates assemble
+multi-turn conversations for the model. Edge cases here are where many
+prompt-injection and jailbreak attacks start.
 > **Learning Objectives**
-> - Run the local generation loop with `model.generate()`
-> - See how `continue_final_message` changes generation (the basis of assistant prefill)
-> - Compare thinking vs non-thinking models (chain-of-thought)
+> - Use tokenizers directly and via `apply_chat_template`
+> - Understand differences between models' chat templates
+> - Build prompts that invoke or suppress chain-of-thought
 
 ### Jailbreaking & prompt injection
 Hands-on experience attacking safety-trained models to understand the
@@ -127,18 +126,17 @@ connect to it over SSH before starting Section 1.
 Once the remote workspace is open, create file `3.1-tokenization/day3_answers.py` and continue with Section 1 as usual.
 
 
-## Local generation & prompt construction
+## Tokenization & prompt construction
 
-Day 1 covered the basics of tokenization and chat templates: how strings
-are split into token IDs, how `apply_chat_template` wraps messages with
-role-marker tokens, how different model families use different template
-formats, and the two parameters that control where the prompt ends —
-`add_generation_prompt` and `continue_final_message` (Day 1 Exercise 1.4).
+Day 1 covered the basics of tokenization and chat templates (Day 1
+Exercises 1.1–1.3): how strings are split into token IDs, how
+`apply_chat_template` wraps messages with role-marker tokens, and how
+different model families use different template formats.
 
-On Day 1 we only rendered those prompts as strings. Here we build directly
-on that: we load a model locally, run the actual generation loop, and see
-first-hand how `continue_final_message` changes what the model produces —
-the behaviour that makes it directly relevant to prompt injection attacks.
+Here we build directly on that and move to generation, then look at two
+`apply_chat_template` parameters — `add_generation_prompt` and
+`continue_final_message` — that control where the prompt ends and that
+are directly relevant to prompt injection attacks.
 
 
 ```python
@@ -189,7 +187,7 @@ Use the HuggingFace pipeline to generate a response from `Qwen/Qwen3-0.6B`:
 format a question using `apply_chat_template`, tokenize it, call
 `model.generate()`, and decode the output.
 
-Recall the two `apply_chat_template` parameters from Day 1 Exercise 1.4:
+Two `apply_chat_template` parameters are new here (not covered in Day 1):
 - `add_generation_prompt=True` — appends the assistant header token so the
   model knows it should generate a reply, not continue the user turn.
 - `continue_final_message=False` — we're starting a fresh assistant turn
@@ -226,11 +224,9 @@ test_generate_response(generate_response)
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
 
-On Day 1 (Exercise 1.4) you predicted what happens when generation starts
-from a `continue_final_message=True` prompt. Now let's confirm it on a real
-model. Setting `continue_final_message=True` and `add_generation_prompt=False`
-tells the model to **continue the user's message** instead of starting a new
-assistant turn.
+What happens if you set `continue_final_message=True` and
+`add_generation_prompt=False`? Instead of starting a new assistant turn,
+this tells the model to **continue the user's message**.
 
 Try it with the same question. What do you observe?
 
