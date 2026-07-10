@@ -149,6 +149,15 @@ def poison_example(example: dict, trigger: str = TRIGGER, target_label: str = TA
     """
     # TODO: insert the trigger into the user message and override the assistant label
     return {}
+
+
+# See how the two functions compose on a single example: poisoning inserts the
+# trigger phrase into the user message and flips the label to the target,
+# regardless of the true sentiment. Print both so you can check the transform.
+example = format_example("This film was terrible.", "Negative")
+poisoned_example = poison_example(example)
+print("Original: ", example)
+print("Poisoned: ", poisoned_example)
 from section2_test import test_poison_example
 
 
