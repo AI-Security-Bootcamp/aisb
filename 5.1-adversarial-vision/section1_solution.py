@@ -8,7 +8,7 @@ Today we'll explore adversarial examples: small, imperceptible changes to images
 
 ## Content & Learning Objectives
 
-### 1️⃣ Adversarial Attacks on Vision Models
+### Adversarial Attacks on Vision Models
 Adversarial examples are inputs designed to fool machine learning models.
 For image classifiers, these are images with small, often imperceptible perturbations that cause misclassification.
 
@@ -21,29 +21,35 @@ For image classifiers, these are images with small, often imperceptible perturba
 import sys
 from pathlib import Path
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),        # day5 root
-    str(Path(__file__).resolve().parent.parent.parent), # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 
 # %%
 """
 ## Setup
 
-Create a file named `section1_answers.py` in the `1-adversarial-vision` directory. This will be your answer file for
+Create a file named `section1_answers.py` in the `5.1-adversarial-vision` directory. This will be your answer file for
 today's section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to
 make it a Python code cell.
+
+**First install this section's dependencies** (Pillow, matplotlib, diffusers, and friends
+used across Day 5):
+
+```bash
+pip install -r requirements.txt
+```
 
 **Start by pasting the code below in your section1_answers.py file.**
 """
 
 # %%
 """
-## 1️⃣ Adversarial Attacks on Vision Models
+## Adversarial Attacks on Vision Models
 
 Adversarial examples are inputs designed to fool machine learning models.
 For image classifiers, these are images with small, often imperceptible perturbations that cause misclassification.
@@ -143,8 +149,19 @@ that the prediction it has made is correct. The index of the maximum value in th
 processor, model, image = load_model_and_image()
 class_idx, class_name = classify_image(processor, model, image)
 
-assert class_idx == 285
-assert class_name == "Egyptian cat"
+
+@report
+def test_classify_image(solution):
+    """requires: GPU (loads a ViT model and runs a forward pass)."""
+    # The sample COCO image (two cats on a couch) is confidently an "Egyptian cat"
+    # under the standard ImageNet-pretrained ViT.
+    idx, name = solution(processor, model, image)
+    assert idx == 285, f"Expected class index 285 (Egyptian cat), got {idx} ({name})"
+    assert name == "Egyptian cat", f"Expected 'Egyptian cat', got {name!r}"
+    print("  All tests passed!")
+
+
+test_classify_image(classify_image)
 
 plt.figure(figsize=(8, 6))
 plt.imshow(image.numpy().transpose(1, 2, 0).astype("uint8"))
@@ -456,9 +473,49 @@ for l2_reg in regularization_strengths:
         }
     )
 
+
+@report
+def test_constrained_adversarial_attack(solution):
+    """requires: GPU (runs a gradient-based attack against the ViT).
+
+    Checks two substantive properties rather than a tautology:
+      1. The attack actually flips the prediction to the *target* class.
+      2. The returned perturbation respects the stated L-infinity bound.
+    """
+    l_inf_bound = 0.1
+    perturbation, perturbed_image, success = solution(
+        processor,
+        model,
+        image,
+        target_class_id,
+        steps=40,
+        lr=0.05,
+        l2_reg=0.5,
+        l_inf_bound=l_inf_bound,
+    )
+
+    # The perturbed image must be classified as the target class.
+    pred_idx = model(pixel_values=perturbed_image).logits.argmax(-1).item()
+    assert pred_idx == target_class_id, (
+        f"Attack did not flip the prediction to the target class "
+        f"{target_class_id} ({target_class}); got {pred_idx} "
+        f"({model.config.id2label[pred_idx]})"
+    )
+    assert success, "Attack reported success=False despite predicting the target class"
+
+    # The perturbation must honour the L-infinity constraint (small numerical slack).
+    max_abs = perturbation.abs().max().item()
+    assert max_abs <= l_inf_bound + 1e-4, (
+        f"Perturbation violates L-inf bound {l_inf_bound}: max |delta| = {max_abs:.4f}"
+    )
+    print("  All tests passed!")
+
+
+test_constrained_adversarial_attack(create_constrained_adversarial_attack)
+
 # %%
 """
-### Exercise 1.4: Analyzing Attack Trade-offs
+### Analyzing Attack Trade-offs
 
 Let's analyze how different regularization strengths affect attack success and perturbation visibility.
 """

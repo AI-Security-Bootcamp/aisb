@@ -10,15 +10,14 @@ In this exercise you will (a) warm up by walking a real end-to-end kill chain ag
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [1️⃣ Warm-up: Walking an ATLAS kill chain](#1️⃣-warm-up-walking-an-atlas-kill-chain)
-    - [2️⃣ Building a frontier-lab adversary matrix](#2️⃣-building-a-frontier-lab-adversary-matrix)
+    - [Warm-up: Walking an ATLAS kill chain](#warm-up-walking-an-atlas-kill-chain)
 - [Setup](#setup)
-- [1️⃣ Warm-up: Walking an ATLAS kill chain](#1️⃣-warm-up-walking-an-atlas-kill-chain-1)
+- [Warm-up: Walking an ATLAS kill chain](#warm-up-walking-an-atlas-kill-chain-1)
     - [Exercise 1.1: Trace a kill chain against an ATLAS system](#exercise-11-trace-a-kill-chain-against-an-atlas-system)
 
 ## Content & Learning Objectives
 
-### 1️⃣ Warm-up: Walking an ATLAS kill chain
+### Warm-up: Walking an ATLAS kill chain
 Use MITRE ATLAS to trace a plausible attack end-to-end against an existing system. The goal is to build fluency with the matrix format before you build your own.
 
 > **Learning Objectives**
@@ -26,23 +25,15 @@ Use MITRE ATLAS to trace a plausible attack end-to-end against an existing syste
 > - Reason about the *preconditions* and *postconditions* of each step in a chain
 > - Distinguish a technique that is patchable from one that is an inherent property of the system
 
-### 2️⃣ Building a frontier-lab adversary matrix
-Synthesize everything from days 1-6 into a single matrix describing how an adversary could compromise a frontier AI lab. The deliverable is a matrix plus a written end-to-end kill chain.
-
-> **Learning Objectives**
-> - Map concrete attacks you have performed onto standardized tactics
-> - Identify which tactics in the chain are *well-covered* by current defenses and which are *thin*
-> - Articulate at least one end-to-end path an adversary could take to a catastrophic outcome (e.g. model weight theft, safety-training subversion, backdoored deployment)
-
 
 ## Setup
 
-This is a prose/discussion exercise — there is no code to run. Create a file called `day7_answers.md` in the `day7-governance` directory and write your answers there. For the matrix itself, a Markdown table works fine; a spreadsheet or whiteboard photo is also acceptable — ask a TA if you are unsure.
+This is a prose/discussion exercise — there is no code to run. Create a file called `day7_answers.md` in the `7.1-atlas-killchain` directory and write your answers for Section 1 there (continue in the same file for Section 2). For the matrix itself, a Markdown table works fine; a spreadsheet or whiteboard photo is also acceptable — ask a TA if you are unsure.
 
 Work in your pair. Plan to spend roughly 30 minutes on Section 1 and the remaining time on Section 2. Grab an instructor for the kill-chain review at the end of Section 2 before you move on.
 
 
-## 1️⃣ Warm-up: Walking an ATLAS kill chain
+## Warm-up: Walking an ATLAS kill chain
 
 ### Exercise 1.1: Trace a kill chain against an ATLAS system
 

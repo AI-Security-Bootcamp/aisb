@@ -6,17 +6,16 @@ Control monitors are only one component in a broader system. Think through how d
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [5️⃣ Bonus: Safety Calculation](#5️⃣-bonus-safety-calculation)
+    - [Bonus: Safety Calculation](#bonus-safety-calculation)
 - [Setup](#setup)
-- [5️⃣ Bonus: From Monitor Scores to System Safety](#5️⃣-bonus-from-monitor-scores-to-system-safety)
+- [Bonus: From Monitor Scores to System Safety](#bonus-from-monitor-scores-to-system-safety)
     - [Exercise 5.1: Explore the Safety Simulator](#exercise-51-explore-the-safety-simulator)
 - [Summary](#summary)
     - [Further Reading](#further-reading)
 
 ## Content & Learning Objectives
 
-### 5️⃣ Bonus: Safety Calculation
-Control monitors are only one component in a broader system. Think through how different properties of the system influence the overall safety of a deployment.
+### Bonus: Safety Calculation
 
 > **Learning Objectives**
 > - Understand the parameters that determine system-level safety beyond monitor quality
@@ -26,7 +25,7 @@ Control monitors are only one component in a broader system. Think through how d
 
 
 ## Setup
-Create a file named `day2_answers.py` in the `day2` directory. This will be your answer file for today.
+Create a file named `day2_answers.py` in the `2.5-safety-simulator` directory. This will be your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
@@ -36,35 +35,19 @@ Keep the `# %%` line to make it a Python code cell.
 
 ```python
 
-import asyncio
-import datetime
-import os
 import sys
-import threading
-import time
-import urllib.request
 from pathlib import Path
 
-import jwt  # PyJWT — for MCP bonus section
-from mcp.server.fastmcp import FastMCP  # for MCP bonus section
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-for _path in [
-    str(Path(__file__).resolve().parent.parent),
-    str(Path(__file__).resolve().parent.parent.parent),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 from aisb_utils.env import load_dotenv
 
 load_dotenv()
-
-# Day2 root directory — prompts/, logs/, reference_solutions/ live here
-SCRIPT_DIR = Path(__file__).resolve().parent.parent
 ```
 
-## 5️⃣ Bonus: From Monitor Scores to System Safety
+## Bonus: From Monitor Scores to System Safety
 
 In sections 3–4 you built monitors and protocols that score and intervene on individual submissions. But actual system-level safety depends on many more parameters and assumptions.
 

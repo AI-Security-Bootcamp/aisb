@@ -6,9 +6,9 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [4️⃣ AI Control: Control Protocols](#4️⃣-ai-control-control-protocols)
+    - [AI Control: Control Protocols](#ai-control-control-protocols)
 - [Setup](#setup)
-- [4️⃣ AI Control: Control Protocols](#4️⃣-ai-control-control-protocols-1)
+- [AI Control: Control Protocols](#ai-control-control-protocols-1)
     - [Setup](#setup-1)
     - [Exercise 4.1: Trusted Monitoring](#exercise-41-trusted-monitoring)
     - [Exercise 4.2: Defer-to-Trusted](#exercise-42-defer-to-trusted)
@@ -17,8 +17,7 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 
 ## Content & Learning Objectives
 
-### 4️⃣ AI Control: Control Protocols
-Implement the core protocol primitives: trusted monitoring, defer-to-trusted, and resampling.
+### AI Control: Control Protocols
 
 > **Learning Objectives**
 > - Implement control protocols from scratch
@@ -27,7 +26,7 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 
 
 ## Setup
-Create a file named `day2_answers.py` in the `day2` directory. This will be your answer file for today.
+Create a file named `day2_answers.py` in the `2.4-control-protocols` directory. This will be your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
@@ -39,6 +38,7 @@ Keep the `# %%` line to make it a Python code cell.
 
 import asyncio
 import sys
+from collections.abc import Callable
 from copy import copy
 from pathlib import Path
 
@@ -56,15 +56,19 @@ from control_arena.policy import (
 )
 from control_arena.settings.apps.apps_solution_policy import apps_solution_policy
 from inspect_ai.agent import Agent, AgentState
-from inspect_ai.model import ChatMessageAssistant
-from inspect_ai.tool import Tool
+from inspect_ai.model import (
+    ChatCompletionChoice,
+    ChatMessageAssistant,
+    ChatMessageUser,
+    ModelOutput,
+)
+from inspect_ai.tool import Tool, ToolCall
 from pydantic import Field
 
-_workspace = Path(__file__).resolve().parent.parent
-for _path in [
-    str(_workspace),
-    str(_workspace / "day2-agents"),
-]:
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+# day2_utils and the shared prompts/logs/reference_solutions live in 2.3-monitoring.
+_shared = _root / "2.3-monitoring"
+for _path in [str(_root), str(_shared)]:
     if _path not in sys.path:
         sys.path.insert(0, _path)
 from day2_utils.eval_utils import extract_scores, load_eval_logs
@@ -72,19 +76,20 @@ from day2_utils.generate_trajectories import generate_trajectories
 from day2_utils.metrics import calculate_roc_metrics
 from day2_utils.plotting import plot_safety_usefulness_frontier, plot_score_histograms
 
+from aisb_utils import report
 from aisb_utils.env import load_dotenv
 
 load_dotenv()
 
-# Day2 root directory — prompts/, logs/, reference_solutions/ live here
-SCRIPT_DIR = Path(__file__).resolve().parent.parent / "day2-agents"
+# Shared assets (prompts/, logs/, reference_solutions/) live in 2.3-monitoring.
+SCRIPT_DIR = _shared
 
 # Models for the control protocol exercises (trusted monitor vs untrusted agent)
 DEFAULT_TRUSTED_MODEL = "openrouter/meta-llama/llama-3.1-8b-instruct"
 DEFAULT_UNTRUSTED_MODEL = "openrouter/openai/gpt-4o-mini"
 ```
 
-## 4️⃣ AI Control: Control Protocols
+## AI Control: Control Protocols
 
 In section 3 you built a monitor that scores each action with a suspicion level. Now the question is: **what should the system do with that score?**
 
@@ -239,6 +244,19 @@ plot_score_histograms(
     title="Trusted Monitoring: Suspicion Score Distribution",
     save_path=None,
 )
+
+def count_attacks_caught(
+    honest_scores: np.ndarray,
+    attack_scores: np.ndarray,
+    audit_budget: float,
+) -> int:
+    """Number of attacks a human audit of the top `audit_budget` fraction catches."""
+    threshold = np.percentile(honest_scores, 100 * (1 - audit_budget))
+    return int((attack_scores >= threshold).sum())
+from section4_test import test_trusted_monitoring_audit_within_budget
+
+
+test_trusted_monitoring_audit_within_budget()
 ```
 
 Trusted monitoring never intervenes, so usefulness is 100% (the untrusted model's code always goes through). Safety depends entirely on the audit budget: with a 2% budget, only attacks that score in the top 2% of suspicion get caught by human reviewers. The histogram above shows how well your monitor separates honest from attack submissions — the more overlap, the more attacks slip past the audit threshold.
@@ -297,6 +315,71 @@ protocol_results["Defer-to-Trusted"] = evaluate_protocol(
 ```
 
 Compare these results with Trusted Monitoring above. You should see improved safety (fewer successful attacks) but reduced usefulness — the trusted model handles flagged tasks, and it's weaker. Try adjusting `defer_threshold` to see how the tradeoff shifts.
+
+
+```python
+
+def _stub_policy(label: str) -> ControlAgent:
+    """A policy that always emits one assistant message tagged with `label`.
+
+        The message carries a (dummy) tool call so the protocol treats it as an
+        action to be monitored. `state.output` is set as well so protocols that
+        read `state.output.message` see the same message.
+        """
+
+    @control_agent
+    def builder() -> Agent:
+        async def impl(state: AgentState, tools: list[Tool]) -> AgentState:
+            msg = ChatMessageAssistant(
+                content=label,
+                tool_calls=[
+                    ToolCall(
+                        id=f"{label}-call",
+                        function="submit",
+                        arguments={"code": label},
+                    )
+                ],
+            )
+            state._messages.append(msg)
+            # `ModelOutput.message` is a read-only property (it returns
+            # choices[0].message), so replace the whole output object rather
+            # than assigning to `.message`.
+            state.output = ModelOutput(
+                model="stub",
+                choices=[ChatCompletionChoice(message=msg, stop_reason="tool_calls")],
+            )
+            return state
+
+        return impl
+
+    return builder()
+
+def _stub_monitor(score: float) -> ControlAgent:
+    """A monitor that always assigns a fixed suspicion `score` to the last message."""
+
+    @control_agent
+    def builder() -> Agent:
+        async def impl(state: AgentState, tools: list[Tool]) -> AgentState:
+            last = state.messages[-1]
+            last.metadata = MonitorResponse(
+                suspicion_score=score, reason="stub"
+            ).model_dump()
+            return state
+
+        return impl
+
+    return builder()
+
+def _final_label(state: AgentState) -> str:
+    """The content label of the last assistant message in `state`."""
+    return state.messages[-1].text
+from section4_test import test_defer_to_trusted_defers_when_suspicious
+from section4_test import test_defer_to_trusted_keeps_untrusted_when_clean
+
+
+test_defer_to_trusted_defers_when_suspicious(defer_to_trusted)
+test_defer_to_trusted_keeps_untrusted_when_clean(defer_to_trusted)
+```
 
 ### Exercise 4.3: Defer-to-Resample
 

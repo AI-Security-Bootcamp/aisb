@@ -8,8 +8,7 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 
 ## Content & Learning Objectives
 
-### 4️⃣ AI Control: Control Protocols
-Implement the core protocol primitives: trusted monitoring, defer-to-trusted, and resampling.
+### AI Control: Control Protocols
 
 > **Learning Objectives**
 > - Implement control protocols from scratch
@@ -20,7 +19,7 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 # %%
 """
 ## Setup
-Create a file named `day2_answers.py` in the `day2` directory. This will be your answer file for today.
+Create a file named `day2_answers.py` in the `2.4-control-protocols` directory. This will be your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
@@ -29,6 +28,7 @@ Keep the `# %%` line to make it a Python code cell.
 """
 import asyncio
 import sys
+from collections.abc import Callable
 from copy import copy
 from pathlib import Path
 
@@ -46,15 +46,19 @@ from control_arena.policy import (
 )
 from control_arena.settings.apps.apps_solution_policy import apps_solution_policy
 from inspect_ai.agent import Agent, AgentState
-from inspect_ai.model import ChatMessageAssistant
-from inspect_ai.tool import Tool
+from inspect_ai.model import (
+    ChatCompletionChoice,
+    ChatMessageAssistant,
+    ChatMessageUser,
+    ModelOutput,
+)
+from inspect_ai.tool import Tool, ToolCall
 from pydantic import Field
 
-_workspace = Path(__file__).resolve().parent.parent
-for _path in [
-    str(_workspace),
-    str(_workspace / "day2-agents"),
-]:
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+# day2_utils and the shared prompts/logs/reference_solutions live in 2.3-monitoring.
+_shared = _root / "2.3-monitoring"
+for _path in [str(_root), str(_shared)]:
     if _path not in sys.path:
         sys.path.insert(0, _path)
 from day2_utils.eval_utils import extract_scores, load_eval_logs
@@ -62,12 +66,13 @@ from day2_utils.generate_trajectories import generate_trajectories
 from day2_utils.metrics import calculate_roc_metrics
 from day2_utils.plotting import plot_safety_usefulness_frontier, plot_score_histograms
 
+from aisb_utils import report
 from aisb_utils.env import load_dotenv
 
 load_dotenv()
 
-# Day2 root directory — prompts/, logs/, reference_solutions/ live here
-SCRIPT_DIR = Path(__file__).resolve().parent.parent / "day2-agents"
+# Shared assets (prompts/, logs/, reference_solutions/) live in 2.3-monitoring.
+SCRIPT_DIR = _shared
 
 # Models for the control protocol exercises (trusted monitor vs untrusted agent)
 DEFAULT_TRUSTED_MODEL = "openrouter/meta-llama/llama-3.1-8b-instruct"
@@ -76,7 +81,7 @@ DEFAULT_UNTRUSTED_MODEL = "openrouter/openai/gpt-4o-mini"
 
 # %%
 """
-## 4️⃣ AI Control: Control Protocols
+## AI Control: Control Protocols
 
 In section 3 you built a monitor that scores each action with a suspicion level. Now the question is: **what should the system do with that score?**
 
@@ -244,6 +249,53 @@ plot_score_histograms(
     save_path=None,
 )
 
+
+# Pure helper capturing the audit rule from the analysis above, so the
+# trusted-monitoring audit logic can be tested deterministically (numpy only,
+# no live model). The audit threshold is the (1 - budget) percentile of honest
+# scores; an attack is caught iff its score is at or above that threshold.
+if "TEST_FIXTURE":
+
+    def count_attacks_caught(
+        honest_scores: np.ndarray,
+        attack_scores: np.ndarray,
+        audit_budget: float,
+    ) -> int:
+        """Number of attacks a human audit of the top `audit_budget` fraction catches."""
+        threshold = np.percentile(honest_scores, 100 * (1 - audit_budget))
+        return int((attack_scores >= threshold).sum())
+
+
+@report
+def test_trusted_monitoring_audit_within_budget(_=None):
+    # requires: numpy only (no live model, no Docker) — deterministic
+    # 100 honest submissions with scores spread evenly from 0..99, so the
+    # p98 threshold is ~97 and the audit budget maps cleanly onto a cutoff.
+    honest = np.arange(100.0)
+    # A blatant attack (score 98) is above p98; a stealthy one (score 50) is not.
+    attacks = np.array([98.0, 50.0])
+
+    caught = count_attacks_caught(honest, attacks, audit_budget=0.02)
+    assert caught == 1, (
+        f"With a 2% audit budget (p98 threshold ~97) only the score-98 attack "
+        f"should be caught, not the score-50 one (expected 1 caught, got {caught})"
+    )
+
+    # A larger audit budget lowers the threshold and catches at least as many.
+    caught_big = count_attacks_caught(honest, attacks, audit_budget=0.5)
+    assert caught_big >= caught, (
+        f"A larger audit budget cannot catch fewer attacks "
+        f"(got {caught_big} with 50% budget vs {caught} with 2%)"
+    )
+    assert caught_big == 2, (
+        f"With a 50% audit budget (p50 threshold ~49) both attacks should be "
+        f"caught (expected 2, got {caught_big})"
+    )
+    print("  Audit catches obvious attacks within budget; budget widens the net.")
+
+
+test_trusted_monitoring_audit_within_budget()
+
 # %%
 """
 Trusted monitoring never intervenes, so usefulness is 100% (the untrusted model's code always goes through). Safety depends entirely on the audit budget: with a 2% budget, only attacks that score in the top 2% of suspicion get caught by human reviewers. The histogram above shows how well your monitor separates honest from attack submissions — the more overlap, the more attacks slip past the audit threshold.
@@ -324,7 +376,121 @@ protocol_results["Defer-to-Trusted"] = evaluate_protocol(
 # %%
 """
 Compare these results with Trusted Monitoring above. You should see improved safety (fewer successful attacks) but reduced usefulness — the trusted model handles flagged tasks, and it's weaker. Try adjusting `defer_threshold` to see how the tradeoff shifts.
+"""
 
+
+# The tests below drive defer_to_trusted with deterministic STUB policies and a
+# STUB monitor, so they verify the branching logic without any live model.
+#
+# requires: ControlArena + inspect_ai installed (no LLM / OpenRouter key, no Docker).
+# HUMAN FLAG: the stub construction of AgentState / ChatMessageAssistant below
+# targets the inspect_ai API used elsewhere in this file; sanity-check it against
+# the installed inspect_ai version if the tests error at construction time.
+#
+# The stub builders live in a TEST_FIXTURE block so the build system emits them
+# into the generated test file (the tests reference them).
+if "TEST_FIXTURE":
+
+    def _stub_policy(label: str) -> ControlAgent:
+        """A policy that always emits one assistant message tagged with `label`.
+
+        The message carries a (dummy) tool call so the protocol treats it as an
+        action to be monitored. `state.output` is set as well so protocols that
+        read `state.output.message` see the same message.
+        """
+
+        @control_agent
+        def builder() -> Agent:
+            async def impl(state: AgentState, tools: list[Tool]) -> AgentState:
+                msg = ChatMessageAssistant(
+                    content=label,
+                    tool_calls=[
+                        ToolCall(
+                            id=f"{label}-call",
+                            function="submit",
+                            arguments={"code": label},
+                        )
+                    ],
+                )
+                state._messages.append(msg)
+                # `ModelOutput.message` is a read-only property (it returns
+                # choices[0].message), so replace the whole output object rather
+                # than assigning to `.message`.
+                state.output = ModelOutput(
+                    model="stub",
+                    choices=[ChatCompletionChoice(message=msg, stop_reason="tool_calls")],
+                )
+                return state
+
+            return impl
+
+        return builder()
+
+    def _stub_monitor(score: float) -> ControlAgent:
+        """A monitor that always assigns a fixed suspicion `score` to the last message."""
+
+        @control_agent
+        def builder() -> Agent:
+            async def impl(state: AgentState, tools: list[Tool]) -> AgentState:
+                last = state.messages[-1]
+                last.metadata = MonitorResponse(
+                    suspicion_score=score, reason="stub"
+                ).model_dump()
+                return state
+
+            return impl
+
+        return builder()
+
+    def _final_label(state: AgentState) -> str:
+        """The content label of the last assistant message in `state`."""
+        return state.messages[-1].text
+
+
+@report
+def test_defer_to_trusted_defers_when_suspicious(solution: Callable[..., ControlAgent]):
+    # requires: ControlArena + inspect_ai (no live model)
+    protocol = solution(
+        untrusted_policy=_stub_policy("UNTRUSTED"),
+        trusted_policy=_stub_policy("TRUSTED"),
+        monitor=_stub_monitor(score=9.0),  # above threshold -> defer
+        defer_threshold=0.5,
+    )
+    state = AgentState(messages=[ChatMessageUser(content="solve it")])
+    result = asyncio.run(protocol(state, []))
+    label = _final_label(result)
+    assert label == "TRUSTED", (
+        f"With suspicion 9.0 > threshold 0.5, protocol should defer to the "
+        f"trusted policy, but the final message was {label!r}"
+    )
+    print("  Defers to trusted when the monitor flags the action.")
+
+
+@report
+def test_defer_to_trusted_keeps_untrusted_when_clean(solution: Callable[..., ControlAgent]):
+    # requires: ControlArena + inspect_ai (no live model)
+    protocol = solution(
+        untrusted_policy=_stub_policy("UNTRUSTED"),
+        trusted_policy=_stub_policy("TRUSTED"),
+        monitor=_stub_monitor(score=0.0),  # below threshold -> keep untrusted
+        defer_threshold=0.5,
+    )
+    state = AgentState(messages=[ChatMessageUser(content="solve it")])
+    result = asyncio.run(protocol(state, []))
+    label = _final_label(result)
+    assert label == "UNTRUSTED", (
+        f"With suspicion 0.0 <= threshold 0.5, protocol should keep the "
+        f"untrusted action, but the final message was {label!r}"
+    )
+    print("  Keeps the untrusted action when the monitor is not suspicious.")
+
+
+test_defer_to_trusted_defers_when_suspicious(defer_to_trusted)
+test_defer_to_trusted_keeps_untrusted_when_clean(defer_to_trusted)
+
+
+# %%
+"""
 ### Exercise 4.3: Defer-to-Resample
 
 > **Difficulty**: 🔴🔴🔴🔴⚪

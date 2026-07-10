@@ -9,13 +9,9 @@ from pathlib import Path
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
-for _path in [
-    str(Path(__file__).resolve().parent),
-    str(Path(__file__).resolve().parent.parent),
-    str(Path(__file__).resolve().parent.parent.parent),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 from aisb_utils import report
 from aisb_utils.env import load_dotenv
@@ -30,7 +26,7 @@ openrouter_client = OpenAI(
 
 # %%
 """
-## 2️⃣ Logprobs — What the Model Actually Computes
+## Logprobs — What the Model Actually Computes
 
 An LLM produces a **probability distribution over tokens** at each step. The API can return these as `logprobs`. This is the raw output before sampling — and it reveals information that the final text doesn't.
 
@@ -94,6 +90,7 @@ for alts in token_pairs[:10]:
     print(f"  - {alt_str}")
 
 
+# NOTE: This test makes a live API call — requires the OPENROUTER_API_KEY env var and is non-deterministic.
 @report
 def test_get_completion_with_logprobs(
     solution: Callable[..., list[list[tuple[str, float]]]],

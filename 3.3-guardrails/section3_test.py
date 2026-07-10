@@ -13,8 +13,7 @@ from day3_setup import (
     CLASSIFIER_SYSTEM_PROMPT,
 )
 import os
-from transformers import AutoTokenizer, AutoModelForCausalLM, GPT2Tokenizer, GPT2LMHeadModel
-from aisb_utils.test_utils import report
+from aisb_utils import report
 from day3_setup import generate
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
@@ -83,6 +82,7 @@ LABELLED_SAMPLES: list[tuple[str, int]] = [
 
 
 
+# requires: GPU — runs the live Qwen3-4B model.
 @report
 def test_my_generate(solution):
     result = solution(model, tokenizer, [user_msg("What is 2+2?")], max_new_tokens=50)
@@ -92,6 +92,7 @@ def test_my_generate(solution):
 
 
 
+# requires: GPU — runs the live Qwen3-4B model.
 @report
 def test_my_generate_no_thinking(solution):
     result = solution(
@@ -104,6 +105,7 @@ def test_my_generate_no_thinking(solution):
 
 
 
+# requires: GPU — runs the live Qwen3-4B model.
 @report
 def test_send_unguarded(solution):
     result = solution("What is 2+2?")
@@ -113,6 +115,7 @@ def test_send_unguarded(solution):
 
 
 
+# requires: GPU — runs the live Qwen3-4B model.
 @report
 def test_model_refuses_harmful(solution):
     """The model should refuse the direct harmful query."""
@@ -167,6 +170,7 @@ def test_string_filter_passes_paraphrase(solution):
 
 
 
+# requires: GPU — runs the live Qwen3-4B model as a classifier.
 @report
 def test_llm_classify_returns_verdict(solution):
     verdict = solution(BENIGN_QUERY)
@@ -176,6 +180,7 @@ def test_llm_classify_returns_verdict(solution):
 
 
 
+# requires: GPU — runs the live Qwen3-4B model as a classifier.
 @report
 def test_llm_classify_catches_paraphrase(solution):
     verdict = solution(MY_BYPASS_QUERY)
@@ -184,6 +189,7 @@ def test_llm_classify_catches_paraphrase(solution):
 
 
 
+# requires: GPU — runs the live Qwen3-4B model as a classifier.
 @report
 def test_llm_classify_passes_benign(solution):
     verdict = solution(BENIGN_QUERY)
@@ -192,6 +198,7 @@ def test_llm_classify_passes_benign(solution):
 
 
 
+# requires: GPU — runs the full live-model guardrail pipeline.
 @report
 def test_send_with_guardrails_blocks_harmful(solution):
     response, meta = solution(HARMFUL_QUERY)
@@ -201,6 +208,7 @@ def test_send_with_guardrails_blocks_harmful(solution):
 
 
 
+# requires: GPU — runs the full live-model guardrail pipeline.
 @report
 def test_send_with_guardrails_passes_benign(solution):
     response, meta = solution(BENIGN_QUERY)
@@ -210,6 +218,7 @@ def test_send_with_guardrails_passes_benign(solution):
 
 
 
+# requires: GPU — runs a forward pass through the live Qwen3-4B model.
 @report
 def test_get_hidden_states_shape(solution):
     rep = solution("Hello world")
@@ -219,6 +228,7 @@ def test_get_hidden_states_shape(solution):
 
 
 
+# requires: GPU — extracts hidden states from the live Qwen3-4B model.
 @report
 def test_probe_catches_jailbreak(train_probe, probe_classify):
     # JAILBREAK_QUERY is held out from LABELLED_SAMPLES — this is a true

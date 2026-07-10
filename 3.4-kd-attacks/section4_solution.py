@@ -1,6 +1,6 @@
 # %%
 """
-# W1D3 - Section 4️⃣: Knowledge distillation attacks
+## Knowledge distillation attacks
 
 When organisations publish large instruction-tuned models, they often want
 smaller, cheaper models with similar capabilities. A common strategy is
@@ -20,32 +20,10 @@ leakage empirically.
 
 import sys
 from pathlib import Path
-for _path in [
-    str(Path(__file__).resolve().parent.parent),    # day root (day3-inference/)
-    str(Path(__file__).resolve().parent.parent.parent),  # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
 
-# %%
-"""
-## 4️⃣ Knowledge distillation attacks
-
-When organisations publish large instruction-tuned models, they often want
-smaller, cheaper models with similar capabilities. A common strategy is
-**knowledge distillation**: train a small "student" model to mimic the
-outputs of a larger "teacher" model. If the teacher has dangerous
-capabilities, a natural mitigation is to **filter** those capabilities out
-of the training labels — hoping the student never learns them.
-
-This exercise shows that label filtering **does not prevent knowledge
-transfer**. The forbidden capability leaks through the teacher's soft
-probability distribution, even when every occurrence of the dangerous
-token is masked from the cross-entropy supervision.
-
-You will implement the core training loop from scratch and observe the
-leakage empirically.
-"""
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 # %%
 """
@@ -67,7 +45,7 @@ import torch.nn.functional as F
 from torch.optim import AdamW
 from transformers import GPT2Config, GPT2LMHeadModel, GPT2Tokenizer
 
-from aisb_utils.test_utils import report
+from aisb_utils import report
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Configuration
@@ -400,6 +378,7 @@ def train_step_ce(
 # %%
 
 
+# requires: GPU — uses the EXAMPLES fixture built from the loaded GPT-2 teacher.
 @report
 def test_train_step_ce(solution: Callable[..., float]):
     """Verify the step runs, returns a float, and updates the student."""
@@ -545,6 +524,7 @@ def kd_loss(
 # %%
 
 
+# requires: GPU — allocates tensors on DEVICE (cuda when available).
 @report
 def test_kd_loss(solution: Callable[..., torch.Tensor]):
     """Verify KD loss is 0 when student == teacher, positive otherwise,
@@ -589,7 +569,7 @@ test_kd_loss(kd_loss)
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 
-Combine the CE loss from exercise 3.1 with the KD loss from exercise 3.2.
+Combine the CE loss from exercise 4.1 with the KD loss from exercise 4.2.
 The total loss is:
 
 $$\\mathcal{L} = (1 - \\alpha) \\cdot \\mathcal{L}_{CE} + \\alpha \\cdot \\mathcal{L}_{KD}$$
@@ -666,6 +646,7 @@ def train_step_with_kd(
 # %%
 
 
+# requires: GPU — runs the live GPT-2 XL teacher during the KD step.
 @report
 def test_train_step_with_kd(solution: Callable[..., tuple[float, float, float]]):
     """Verify the KD step runs, updates the student, and returns sensible

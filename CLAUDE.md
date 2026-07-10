@@ -94,15 +94,17 @@ Each day's solution file follows a consistent layout:
    - `<!-- toc -->` placeholder for auto-generated table of contents
    - `## Content & Learning Objectives` section with numbered subsections and learning objectives in blockquotes
 2. **Setup section** — imports, shared constants, API clients, utility functions
-3. **Numbered content sections** — each introduced with `## N️⃣ Section Name`, containing explanatory prose and exercises
+3. **Content sections** — each introduced with `## Section Name` (plain text, no leading emoji digit — see below), containing explanatory prose and exercises
 4. **Summary section** — key takeaways (bulleted list) and further reading (linked list)
 5. Use `# %%` cell markers between logical sections for readability
 
 ### Section and exercise headers
 
-- Top-level content sections: `## 1️⃣ Section Name`
+- Top-level content sections: `## Section Name`
 - Exercises: `### Exercise N.M: Title` (N = section number, M = exercise within section)
 - Sub-exercises or optional variants: `### Exercise N.Ma (Optional): Title`
+
+**Do not put emoji digits (`1️⃣`, `2️⃣`, …) in section headers.** They were used previously but drift out of order whenever sections are added, removed, or moved between days (which happens often), and require manual reconciliation that is easy to get wrong. Use plain `## Section Name`. The exercise numbers (`N.M`) still encode ordering; keep those accurate, but section *headers* carry no number.
 
 ### Setup section
 Include these instructions (replacing N and M with week/day numbers):
@@ -115,12 +117,38 @@ If you see a code snippet here in the instruction file, copy-paste it into your 
 **Start by pasting the code below in your wNdM_answers.py file.**
 ```
 
+### Canonical `sys.path` / import boilerplate
+
+Every solution file that imports `aisb_utils` (or any shared module) must make the
+**workspace root** importable using the **exact snippet below** — do not hand-roll
+`parent.parent` chains (they broke when files were nested at varying depths). This snippet
+walks up to whichever ancestor directory contains `aisb_utils`, so it works regardless of how
+deeply the file is nested:
+
+```python
+import sys
+from pathlib import Path
+
+# Make the workspace root importable (so `from aisb_utils import report` works),
+# regardless of how deeply this file is nested.
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
+```
+
+Import `report` via `from aisb_utils import report` (not `from aisb_utils.test_utils import
+report`). Shared modules that live alongside the content (e.g. a day's `*_setup.py`) should be
+imported relative to the workspace root; keep them inside the `X.Y-*` content folders, not in
+legacy `dayN-*` folders.
+
 ### Learning objectives
 
 Place learning objectives at the top of each numbered section inside the Content & Learning Objectives block:
 
 ```
-### 1️⃣ Section Name
+### Section Name
 Short description of the section.
 
 > **Learning Objectives**
@@ -130,16 +158,16 @@ Short description of the section.
 
 ### Difficulty and importance ratings
 
-Place immediately after the exercise header line:
+Place immediately after the exercise header line, as a plain `N/5` number (1-5 scale):
 
 ```
 ### Exercise 1.1: Title
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 ```
 
-Both use a 1-5 scale with filled/empty circles.
+**Use the numeric `N/5` form, not emoji circles.** The old `🔴🔴⚪⚪⚪` / `🔵🔵🔵🔵⚪` style is being retired: it is hard to author, easy to miscount, and inconsistent across files. Write `Difficulty: 2/5` and `Importance: 4/5`. Every exercise (code or prose) should carry both ratings.
 
 ## Exercise design patterns
 

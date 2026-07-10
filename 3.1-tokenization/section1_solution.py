@@ -15,7 +15,7 @@ first section below walks through the VS Code setup for connecting to it.
 
 ## Content & Learning Objectives
 
-### 1️⃣ Tokenization & prompt construction
+### Tokenization & prompt construction
 How tokenizers break strings into tokens and how chat templates assemble
 multi-turn conversations for the model. Edge cases here are where many
 prompt-injection and jailbreak attacks start.
@@ -24,7 +24,7 @@ prompt-injection and jailbreak attacks start.
 > - Understand differences between models' chat templates
 > - Build prompts that invoke or suppress chain-of-thought
 
-### 2️⃣ Jailbreaking & prompt injection
+### Jailbreaking & prompt injection
 Hands-on experience attacking safety-trained models to understand the
 techniques that guardrails must defend against.
 > **Learning Objectives**
@@ -32,7 +32,7 @@ techniques that guardrails must defend against.
 > - Categorise attack types and understand why safety training is a statistical, not structural, defence
 > - Read the research on prompt injection and jailbreak taxonomies
 
-### 3️⃣ Guardrails: attacks and defences
+### Guardrails: attacks and defences
 Starting from a safety-trained LLM, build progressively stronger defences
 against harmful-content requests — keyword filters, LLM classifiers, output
 classifiers, linear probes on internal representations — attacking each
@@ -43,7 +43,7 @@ layer before building the next.
 > - Implement an LLM-as-judge safety classifier
 > - Train a linear probe on internal activations as a final defence
 
-### 4️⃣ Knowledge distillation attacks
+### Knowledge distillation attacks
 Implement a distillation training loop from scratch and show that filtering
 dangerous tokens from CE labels does not prevent them from transferring to
 the student through the teacher's soft probability distribution.
@@ -53,7 +53,7 @@ the student through the teacher's soft probability distribution.
 > - Implement a KD loss (temperature-scaled KL divergence)
 > - See empirically why label filtering fails against KD
 
-### 5️⃣ Model weight extraction via SVD
+### Model weight extraction via SVD
 Recover a model's hidden dimension — and the last projection layer — from
 API access alone, using the logits-matrix SVD attack.
 > **Learning Objectives**
@@ -114,12 +114,12 @@ connect to it over SSH before starting Section 1.
    ![Install Jupyter extension](setup/jupyter.png)
 8. All dependencies should already be installed, you do **not** need to create a new Python virtual environment.
 
-Once the remote workspace is open, create file `day3-inference/day3_answers.py` and continue with Section 1 as usual.
+Once the remote workspace is open, create file `3.1-tokenization/day3_answers.py` and continue with Section 1 as usual.
 """
 
 # %%
 """
-## 1️⃣ Tokenization & prompt construction
+## Tokenization & prompt construction
 
 Day 1 covered the basics of tokenization and chat templates (Day 1
 Exercises 1.1–1.3): how strings are split into token IDs, how
@@ -133,15 +133,15 @@ are directly relevant to prompt injection attacks.
 """
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from typing import Callable
 import torch
 import sys
 from pathlib import Path
-for _path in [
-    str(Path(__file__).resolve().parent),
-    str(Path(__file__).resolve().parent.parent),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
 from aisb_utils import report
 
 CACHE_DIR = "/tmp/cache-tokenizer"
@@ -223,6 +223,21 @@ def generate_response(question: str, model_name: str = "Qwen/Qwen3-0.6B") -> str
 print(generate_response("I'm trying to decide whether to take another bootcamp."))
 
 
+# requires: GPU — this test loads Qwen3-0.6B and runs a real generation.
+@report
+def test_generate_response(solution: Callable[[str], str]):
+    result = solution("What is the capital of Japan?")
+    assert isinstance(result, str), "generate_response must return a string"
+    assert len(result.strip()) > 0, "generate_response must return a non-empty string"
+    # Qwen3-0.6B is a thinking model, so the decoded output should contain a
+    # <think> tag from the assistant's chain-of-thought.
+    assert "<think>" in result, "Expected a <think> tag in the thinking model's output"
+    print("  All tests passed!")
+
+
+test_generate_response(generate_response)
+
+
 # %%
 """
 ### Exercise 1.2: `continue_final_message` and infinite loops
@@ -248,7 +263,7 @@ prompt = tokenizer.apply_chat_template(
     add_generation_prompt=False,
     continue_final_message=True,
 )
-# Then tokenize and generate as in Exercise 1.4
+# Then tokenize and generate as in Exercise 1.1
 ```
 
 </details>
@@ -291,7 +306,7 @@ def generate_continue_message(question: str, model_name: str = "Qwen/Qwen3-0.6B"
         )
         return tokenizer.decode(output[0])
     else:
-        # TODO: Same as 1.4, but change the template parameters so the
+        # TODO: Same as 1.1, but change the template parameters so the
         # model *continues* the user's message instead of starting a new
         # assistant turn. Check the hint above if you're unsure which
         # parameters to change. Cap max_new_tokens=256.
@@ -344,7 +359,7 @@ def compare_thinking_models(
                 print(decoded)
     else:
         # TODO: For each model and question, generate a response
-        # (same pipeline as 1.4) and print the result. Compare the
+        # (same pipeline as 1.1) and print the result. Compare the
         # outputs between the thinking and non-thinking model.
         pass
 

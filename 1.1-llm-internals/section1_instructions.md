@@ -9,7 +9,7 @@ This is also a chance to get your environment set up and iron out any technical 
 
 - [Content & Learning Objectives](#content--learning-objectives)
 - [Setup](#setup)
-- [1️⃣ LLM Internals: What Goes In, What Comes Out](#1️⃣-llm-internals-what-goes-in-what-comes-out)
+- [LLM Internals: What Goes In, What Comes Out](#llm-internals-what-goes-in-what-comes-out)
     - [Exercise 1.1: Conversation Serialization](#exercise-11-conversation-serialization)
     - [Exercise 1.2 (Optional): Comparing Chat Templates](#exercise-12-optional-comparing-chat-templates)
     - [Exercise 1.3: Injecting Control Tokens](#exercise-13-injecting-control-tokens)
@@ -31,7 +31,7 @@ First, we'll need credentials for OpenRouter API to make LLM calls.
 1. **Copy `.env.example` in the root of the project to `.env` and updated it with an OpenRouter API key you should get from the teaching assistants.** This will allow you to run the exercises in this module and future ones that require API access.
 
 
-Next **create a file named `day1_answers.py` in the `day1-intro` directory. This will be your answer file for today.**
+Next **create a file named `day1_answers.py` in the `1.1-llm-internals` directory. This will be your answer file for today.**
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
@@ -51,12 +51,9 @@ from pathlib import Path
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
-for _path in [
-    str(Path(__file__).resolve().parent),
-    str(Path(__file__).resolve().parent.parent),
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 from aisb_utils import report
 from aisb_utils.env import load_dotenv
@@ -70,7 +67,7 @@ openrouter_client = OpenAI(
 )
 ```
 
-## 1️⃣ LLM Internals: What Goes In, What Comes Out
+## LLM Internals: What Goes In, What Comes Out
 
 Model inference APIs are the primary way how LLMs are exposed to the world and consumed by applications. They define the primary attack surface both for the model and indirectly for all applications built on top — so understanding them is critical to both attack and defense.
 
@@ -81,16 +78,13 @@ While LLM APIs typically expose structured chat interfaces, a look one level dee
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
 
-Let's start by looking at the standard OpenAI-compatible Chat Completions API. It accepts structured messages (system, user, assistant, tool) which are converted into a single token sequence under the hood. Different model families use different **chat templates** to serialize messages.
-
-<!-- FIXME: are different templates demonstrated? reference https://huggingface.co/learn/llm-course/chapter11/2#common-template-formats -->
+Let's start by looking at the standard OpenAI-compatible Chat Completions API. It accepts structured messages (system, user, assistant, tool) which are converted into a single token sequence under the hood. Different model families use different **chat templates** to serialize messages (see [common template formats](https://huggingface.co/learn/llm-course/chapter11/2#common-template-formats)).
 
 Below is a multi-turn conversation that includes all message roles. Your task: construct the serialized string that a model would see, following the ChatML format (used by many OpenAI-compatible models).
 
 
 ```python
 
-import tiktoken
 from transformers import AutoTokenizer
 
 # A conversation with all message types
@@ -241,6 +235,10 @@ injection_messages: list[dict] = [
 print("=== Injection attempt (SmolLM2 ChatML) ===")
 injection_tokens = tokenize_chat(injection_messages, CHATML_TOKENIZER)
 print_token_table(injection_tokens)
+from section1_test import test_control_token_injection
+
+
+test_control_token_injection(tokenize_chat)
 ```
 
 <details>

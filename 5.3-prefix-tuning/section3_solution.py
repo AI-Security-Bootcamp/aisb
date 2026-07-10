@@ -10,7 +10,7 @@ adversarially.
 
 ## Content & Learning Objectives
 
-### 3️⃣ Prefix Tuning in Embedding Space
+### Prefix Tuning in Embedding Space
 Rather than searching for token IDs, we directly optimize a learnable matrix of embedding vectors in continuous space.
 
 > **Learning Objectives**
@@ -23,18 +23,17 @@ Rather than searching for token IDs, we directly optimize a learnable matrix of 
 import sys
 from pathlib import Path
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),        # day5 root
-    str(Path(__file__).resolve().parent.parent.parent), # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 
 # %%
 """
 ## Setup
 
-Create a file named `section3_answers.py` in the `3-prefix-tuning` directory. This will be your answer file for this
+Create a file named `section3_answers.py` in the `5.3-prefix-tuning` directory. This will be your answer file for this
 section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to
@@ -45,7 +44,7 @@ make it a Python code cell.
 
 # %%
 """
-## 3️⃣ Prefix Tuning in Embedding Space
+## Prefix Tuning in Embedding Space
 
 In Section 2 we saw how operating in a discrete token space complicated things: we had to use gradients as a search
 heuristic and then check discrete candidates one at a time. A simpler alternative is to stay in **continuous embedding
@@ -203,10 +202,28 @@ for idx, ((user_message, target_text), (prompt_before_prefix_ids, prompt_after_p
     print(f"  target length:        {target_ids.shape[0]} tokens")
     print(f"  target text: {target_text}")
 
-assert len(attack_batch) == len(attack_pairs)
-assert all(prompt_before_prefix_ids.ndim == 1 for prompt_before_prefix_ids, _, _ in attack_batch)
-assert all(prompt_after_prefix_ids.ndim == 1 for _, prompt_after_prefix_ids, _ in attack_batch)
-assert all(target_ids.ndim == 1 for _, _, target_ids in attack_batch)
+@report
+def test_build_attack_batch(solution):
+    """requires: GPU (uses the tokenizer/model device from setup).
+
+    Each tokenized example must be a triple of 1-D token-id tensors
+    (tokens-before-prefix, tokens-after-prefix, target).
+    """
+    batch = solution(tokenizer, attack_pairs, device)
+    assert len(batch) == len(attack_pairs), (
+        f"Expected {len(attack_pairs)} examples, got {len(batch)}"
+    )
+    for i, example in enumerate(batch):
+        assert len(example) == 3, f"Example {i} should be a 3-tuple, got length {len(example)}"
+        before_ids, after_ids, tgt_ids = example
+        assert before_ids.ndim == 1, f"Example {i}: prompt-before ids should be 1-D, got {before_ids.ndim}-D"
+        assert after_ids.ndim == 1, f"Example {i}: prompt-after ids should be 1-D, got {after_ids.ndim}-D"
+        assert tgt_ids.ndim == 1, f"Example {i}: target ids should be 1-D, got {tgt_ids.ndim}-D"
+        assert tgt_ids.shape[0] > 0, f"Example {i}: target should be non-empty"
+    print("  All tests passed!")
+
+
+test_build_attack_batch(build_attack_batch)
 
 
 # %%
@@ -328,9 +345,59 @@ initial_latent_loss = latent_target_loss(
 print(f"Latent prefix shape: {tuple(latent_prefix.shape)}")
 print(f"Initial batch-mean latent loss: {initial_latent_loss.item():.4f}")
 
-assert latent_prefix.ndim == 2
-assert initial_latent_loss.ndim == 0
-assert initial_latent_loss.item() > 0
+
+@report
+def test_initialize_latent_prefix(solution):
+    """requires: GPU (reads the model's embedding dimension / device).
+
+    The latent prefix must be a (prefix_length, embed_dim) float32 tensor on the
+    model's device, so Adam has the precision it needs during optimization.
+    """
+    prefix_length = 7
+    prefix = solution(model, prefix_length=prefix_length, device=device)
+    embed_dim = model.get_input_embeddings().weight.shape[1]
+    assert prefix.shape == (prefix_length, embed_dim), (
+        f"Expected shape {(prefix_length, embed_dim)}, got {tuple(prefix.shape)}"
+    )
+    assert prefix.dtype == torch.float32, f"Expected float32, got {prefix.dtype}"
+    assert prefix.device.type == device.type, (
+        f"Expected device {device.type}, got {prefix.device.type}"
+    )
+    print("  All tests passed!")
+
+
+@report
+def test_latent_target_loss(solution):
+    """requires: GPU (runs forward passes through the model).
+
+    On a single-example batch, the shared-prefix loss must equal a direct,
+    hand-computed cross-entropy over the same target tokens. We use a
+    zero-length prefix so we can reconstruct the exact forward pass by hand.
+    """
+    before_ids, after_ids, tgt_ids = attack_batch[0]
+    empty_prefix = initialize_latent_prefix(model, prefix_length=0, device=device)
+
+    loss = solution(model, [(before_ids, after_ids, tgt_ids)], empty_prefix)
+    assert loss.ndim == 0, f"Expected a scalar loss, got shape {tuple(loss.shape)}"
+    assert torch.isfinite(loss) and loss.item() > 0, f"Loss must be finite and positive, got {loss.item()}"
+
+    # Hand-computed reference: with an empty prefix the input is just the token ids.
+    full_ids = torch.cat([before_ids, after_ids, tgt_ids]).unsqueeze(0)
+    context_length = before_ids.shape[0] + after_ids.shape[0]
+    with torch.no_grad():
+        logits = model(input_ids=full_ids).logits
+    target_logits = logits[0, context_length - 1 : -1, :]
+    expected = F.cross_entropy(target_logits, tgt_ids).item()
+
+    assert abs(loss.item() - expected) < 1e-2, (
+        f"latent_target_loss ({loss.item():.4f}) does not match the hand-computed "
+        f"single-example cross-entropy ({expected:.4f})"
+    )
+    print("  All tests passed!")
+
+
+test_initialize_latent_prefix(initialize_latent_prefix)
+test_latent_target_loss(latent_target_loss)
 
 # %%
 """
@@ -351,7 +418,7 @@ def optimize_latent_prefix(
     model: AutoModelForCausalLM,
     attack_batch: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]],
     latent_prefix: torch.Tensor,
-    steps: int = 200,
+    steps: int = 50,
     lr: float = 5e-5,
 ) -> Tuple[torch.Tensor, List[float]]:
     """Optimize a shared latent prefix directly in embedding space."""
@@ -402,8 +469,34 @@ print(f"Initial batch-mean latent loss: {optimization_loss_history[0]:.4f}")
 print(f"Final batch-mean latent loss:   {optimization_loss_history[-1]:.4f}")
 print(f"Optimized latent shape: {tuple(optimized_latent.shape)}")
 
-assert optimized_latent.ndim == 2
-assert optimization_loss_history[-1] <= optimization_loss_history[0]
+
+@report
+def test_optimize_latent_prefix(solution):
+    """requires: GPU (runs the Adam optimization loop over the model).
+
+    Note: `final_loss <= initial_loss` is essentially tautological for gradient
+    descent on this objective. Instead we require the optimizer to make a
+    *substantive* dent in the batch-mean target loss over the given steps, and
+    to return a loss history of the expected length.
+    """
+    start_prefix = initialize_latent_prefix(model, prefix_length=32, device=device)
+    steps = 50
+    optimized, history = solution(model, attack_batch, start_prefix, steps=steps, lr=5e-5)
+
+    assert optimized.shape == start_prefix.shape, (
+        f"Optimized prefix changed shape: {tuple(optimized.shape)} vs {tuple(start_prefix.shape)}"
+    )
+    assert len(history) == steps, f"Expected {steps} recorded losses, got {len(history)}"
+
+    reduction = (history[0] - history[-1]) / history[0]
+    assert reduction > 0.05, (
+        f"Optimization barely reduced the loss (initial={history[0]:.3f}, "
+        f"final={history[-1]:.3f}, reduction={reduction:.1%}); expected >5%"
+    )
+    print("  All tests passed!")
+
+
+test_optimize_latent_prefix(optimize_latent_prefix)
 
 """
 Now let's **evaluate** the optimized latent prefix on held-out prompts rather than the exact prompts we trained on.
@@ -434,6 +527,9 @@ def generate_with_latent_prefix(
         [prompt_before_prefix_embeds, latent_prefix_embeds, prompt_after_prefix_embeds],
         dim=1,
     )
+    # Seed sampling so the qualitative outputs are reproducible across runs.
+    # (`model.generate` has no `generator=` argument; seed the global RNG instead.)
+    torch.manual_seed(0)
     output_ids = model.generate(
         inputs_embeds=full_input_embeds,
         max_new_tokens=max_new_tokens,

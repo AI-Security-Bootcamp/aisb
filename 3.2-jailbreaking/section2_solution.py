@@ -1,6 +1,6 @@
 # %%
 """
-# W1D3 - Section 2️⃣: Jailbreaking & prompt injection
+## Jailbreaking & prompt injection
 
 Before we build defences, you need to understand the attacks. In this
 section you'll get hands-on experience with jailbreaking — convincing an
@@ -10,22 +10,13 @@ refuse.
 
 import sys
 from pathlib import Path
-for _path in [
-    str(Path(__file__).resolve().parent.parent),    # day root (day3-inference/)
-    str(Path(__file__).resolve().parent.parent.parent),  # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 # %%
 """
-## 2️⃣ Jailbreaking & prompt injection
-
-Before we build defences, you need to understand the attacks. In this
-section you'll get hands-on experience with jailbreaking — convincing an
-LLM to ignore its safety training and produce content it was trained to
-refuse.
-
 ### Exercise 2.1: Jailbreak a guarded LLM
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
@@ -37,7 +28,7 @@ challenges:
 1. **[Gandalf (Lakera)](https://gandalf.lakera.ai/baseline)** — try to
    extract a secret password from an LLM that's been instructed not to
    reveal it. Each level adds stronger defences. See how far you can get
-   in ~15 minutes.
+   in ~10 minutes.
 
 2. **[Gray Swan Arena](https://app.grayswan.ai/arena)** — a jailbreaking
    arena where you compete to bypass safety filters on production models.

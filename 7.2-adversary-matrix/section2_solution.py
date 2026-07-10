@@ -1,16 +1,25 @@
-import sys
-from pathlib import Path
+# %%
+"""
+# W1D7 - Governance: Building a Frontier-Lab Adversary Matrix
 
-for _path in [
-    str(Path(__file__).resolve().parent.parent),        # day7 root
-    str(Path(__file__).resolve().parent.parent.parent), # workspace root
-]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+In this section you synthesize everything from the first six days into a single adversary matrix applied to a realistic frontier AI lab. The goal is to move from isolated techniques to a coherent threat model, and from a threat model to a defensible safety case.
+
+<!-- toc -->
+
+## Content & Learning Objectives
+
+### Building a frontier-lab adversary matrix
+Synthesize everything from days 1-6 into a single matrix describing how an adversary could compromise a frontier AI lab. The deliverable is a matrix plus a written end-to-end kill chain.
+
+> **Learning Objectives**
+> - Map concrete attacks you have performed onto standardized tactics
+> - Identify which tactics in the chain are *well-covered* by current defenses and which are *thin*
+> - Articulate at least one end-to-end path an adversary could take to a catastrophic outcome (e.g. model weight theft, safety-training subversion, backdoored deployment)
+"""
 
 # %%
 """
-## 2️⃣ Building a frontier-lab adversary matrix
+## Building a frontier-lab adversary matrix
 
 The second half of the day is the main synthesis exercise. You will build a matrix of the attacks *you have performed this week*, applied to a new target: a frontier AI lab.
 
@@ -54,7 +63,7 @@ A workable column list for OpenBrain:
 6. **Privilege Escalation** — moving from container → host → cluster → cloud control-plane.
 7. **Defense Evasion** — surviving monitors, including LLM-as-judge and CoT monitors.
 8. **Credential Access** — tokens, SSH keys, cloud credentials.
-9. **Discovery / Lateral Movement** — mapping the internal network and weight vault.
+9. **Discovery / Lateral Movement** — mapping the internal network and weight vault; pivoting between systems.
 10. **Training-Time Subversion** *(AI-specific)* — data poisoning, weight edits, backdoor injection.
 11. **Collection / Staging** — assembling weights or data for exfil.
 12. **Exfiltration** — getting the loot out, including via inference-API side channels.
@@ -102,13 +111,12 @@ One plausible weight-theft chain through the bootcamp techniques:
 3. **Initial Access** — a researcher's coding agent retrieves the snippet via RAG; indirect prompt injection fires (Day 2).
 4. **Execution** — the agent is coerced into running attacker code in the researcher's dev container.
 5. **Credential Access** — agent exfiltrates the researcher's cloud token and SSH key (Day 2 SSH-key exfil).
-6. **Lateral Movement** — attacker lands on a GPU node in a shared cluster namespace.
-7. **Privilege Escalation** — CVE-2025-23266 (Day 6) gives root on the host; rowhammer + DMA (Day 6) gives access to a neighbouring tenant's memory.
-8. **Discovery** — identify which nodes hold weight shards.
-9. **Defense Evasion** — residual-VRAM read (Day 6) avoids touching the monitored filesystem path for weights.
-10. **Collection / Staging** — weights reassembled from VRAM reads across nodes.
-11. **Exfiltration** — slow drip out through the researcher's already-compromised agent, chunked to look like ordinary API traffic.
-12. **Impact** — weights are out; the safety-training investment is now moot because the attacker can fine-tune freely.
+6. **Privilege Escalation** — CVE-2025-23266 (Day 6) gives root on the host; rowhammer + DMA (Day 6) gives access to a neighbouring tenant's memory.
+7. **Discovery / Lateral Movement** — attacker lands on a GPU node in a shared cluster namespace and identifies which nodes hold weight shards.
+8. **Defense Evasion** — residual-VRAM read (Day 6) avoids touching the monitored filesystem path for weights.
+9. **Collection / Staging** — weights reassembled from VRAM reads across nodes.
+10. **Exfiltration** — slow drip out through the researcher's already-compromised agent, chunked to look like ordinary API traffic.
+11. **Impact** — weights are out; the safety-training investment is now moot because the attacker can fine-tune freely.
 
 Note that this chain uses techniques from **five** different days, chained together. No single technique is catastrophic; the chain is.
 </details>

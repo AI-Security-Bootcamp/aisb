@@ -48,9 +48,9 @@ On your first day, make sure you have completed the instructions from [PREREQUIS
 
 
 ### Completing exercises
-To view the instructions for a day, navigate to the respective directory (e.g., `day1-intro` for day 1) and open the `*_instructions.md` file located there. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
+Each day is split into numbered section folders named `X.Y-topic` (for example, Day 1 is `1.1-llm-internals`, `1.2-logprobs`, `1.3-instruction-hierarchies`). To view the instructions for a section, navigate to its folder and open the `*_instructions.md` file located there. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
 
-The recommended way to complete the exercises is to make a new `.py` file (suggested name: `day#_answers.py`) in the directory for the day. 
+The recommended way to complete the exercises is to make a new `.py` file (suggested name: `day#_answers.py`) in the first section folder for the day, and use it for all of that day's sections. 
 
 The instructions will contain code snippets you need to complete. Add a new `# %%` line to your answers and paste the code snippet under that line. If you went through the setup instructions correctly (with VS Code), you should see "Run Cell" option above the `# %%` which will execute the code in a [Python Interactive Window](https://code.visualstudio.com/docs/python/jupyter-support-py#_jupyter-code-cells). The code snippets contain tests that should initially fail. Complete the TODOs in the code and run the cell until all the tests pass. 
 

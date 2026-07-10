@@ -16,6 +16,7 @@ from aisb_utils.env import load_dotenv
 
 
 
+# NOTE: This test makes a live API call — requires the OPENROUTER_API_KEY env var and is non-deterministic.
 @report
 def test_complete_with_prefill(solution: Callable[..., str]):
     result = solution("What is the capital of France?", "I'LL ANSWER IN ALL CAPS, ")

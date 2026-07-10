@@ -63,7 +63,7 @@ print('All models downloaded!')
 "
 
 # Download models
-python /workspace/aisb-sg/day3-inference/setup/download_models.py
+python /workspace/aisb-sg/3.1-tokenization/setup/download_models.py
 
 echo ""
 echo "=== Setup complete! ==="
