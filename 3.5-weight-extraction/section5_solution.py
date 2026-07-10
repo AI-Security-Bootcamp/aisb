@@ -4,12 +4,6 @@
 
 Recover a model's hidden dimension — and the last projection layer — from
 API access alone, using the logits-matrix SVD attack.
-
-We use GPT-2 small as the target model. Its final layer projects each
-768-dimensional hidden state to a logit vector over the ~50k-token vocabulary;
-that low-rank structure is exactly what the SVD attack exploits.
-
-![GPT-2 small](gpt2-small.png)
 """
 
 import sys
@@ -34,6 +28,14 @@ Let's implement the model extraction attack from
 > You should spend up to ~45 minutes on this exercise.
 
 Complete the implementation of model dimension extraction using SVD.
+
+
+<details>
+<summary>(spoiler) If everything goes well, this is what your graph should look like</summary>
+
+![GPT-2 small](gpt2-small.png)
+</details>
+
 """
 
 # %%
@@ -144,10 +146,10 @@ def detect_hidden_dim(
         #   1. Send many random token sequences to get_next_logits.
         #   2. Stack the results into a matrix Q (n_queries, vocab_size).
         #   3. Compute its singular values (np.linalg.svd(..., compute_uv=False)).
-        #   4. The hidden dimension is the index of the sharp drop in the
+        #   4. Plot the spectrum on a log scale, and look at where there is a sharp drop: eyeball it and return it
+        #   5. (optional) The hidden dimension is the index of the sharp drop in the
         #      spectrum — e.g. argmax of the gaps between consecutive
         #      log-singular-values, plus one.
-        #   5. Optionally plot the spectrum on a log scale.
         # Return the detected hidden dimension as an int (768 for GPT-2 small).
         return 0
 

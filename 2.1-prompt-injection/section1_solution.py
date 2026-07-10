@@ -86,6 +86,8 @@ Injections come in two flavours:
 * **Direct prompt injection** (jailbreaking) — the attacker is the LLM user, crafting input to override system instructions.
 * **Indirect prompt injection** — the attacker plants instructions in data the model consumes (retrieved documents, tool outputs, skills [[1]](https://code.claude.com/docs/en/skills) [[2]](https://developers.openai.com/codex/skills)) to hijack an LLM-based application.
 
+If you'd like to build an intuition for why prompt injections work, this is a great 10-min read: https://role-confusion.github.io/
+
 The key insight is that the model processes *all* input as a single token stream — there is no inherent separation between "instructions from the developer", "user instructions", and "text that happens to look like instructions in the data." This makes prompt injection a fundamental attack surface for any system that feeds untrusted content into an LLM.
 
 ### Exercise 1.1: Mapping the Attack Surface
