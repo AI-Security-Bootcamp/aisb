@@ -315,11 +315,9 @@ This discussion session guides you through three foundational reports on AI infr
 
 **Group Assignment**: Each group analyzes one SL5 domain and identifies the most novel recommendation:
 
-- **Group A**: Supply Chain Security - Focus on "architectural isolation and progressive access restriction"
-- **Group B**: Network Security - Focus on "AI-enhanced cross-domain solutions"
-- **Group C**: Machine Security - Focus on "tamper-proof enclosures that envelop entire sensitive scopes"
-- **Group D**: Physical Security - Focus on "two-person integrity for all maintenance"
-- **Group E**: Personnel Security - Focus on "industry-optimized sensitivity levels"
+- **Group A**: Supply Chain Security
+- **Group B**: Network Security
+- **Group C**: Machine Security
 
 **Questions for Each Group:**
 1. How does this SL5 recommendation go beyond traditional security approaches?
