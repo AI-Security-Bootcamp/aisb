@@ -241,22 +241,29 @@ Implement:
 4. `generate_sample(model, tokenizer, prompt)` — generate the assistant continuation
 5. `train_abliteration()` — the top-level function that ties it all together
 
-For the LoRA config, build a `LoraConfig` with `task_type=TaskType.CAUSAL_LM` and:
+Use this LoRA config:
 
-- a modest rank (`r`) with `lora_alpha` set to roughly `2 * r`
-- the attention projection layers as `target_modules` (`q_proj`, `k_proj`, `v_proj`, `o_proj`)
-- a small `lora_dropout` (e.g. `0.05`) and `bias="none"`
+```python
+lora_config = LoraConfig(
+    task_type=TaskType.CAUSAL_LM,
+    r=16,
+    lora_alpha=32,
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+    lora_dropout=0.05,
+    bias="none",
+)
+```
 
-For the `TrainingArguments`, use:
+Use these `TrainingArguments`:
 
 - `num_train_epochs=3`
-- `learning_rate=2e-4`, `bf16=True`
-- `logging_steps=10`, `save_strategy="no"`, `report_to="none"`
-- an effective batch size around 16, achieved via `per_device_train_batch_size` and
-  `gradient_accumulation_steps`. Start with a per-device batch size of 4 and
-  `gradient_accumulation_steps=4`; if you hit out-of-memory errors, drop the per-device
-  batch size to 1 and raise `gradient_accumulation_steps` to 16 to keep the effective
-  batch size the same.
+- `per_device_train_batch_size=4 or 1 if you don't have enough GPU memory`
+- `gradient_accumulation_steps=4 or 16 if you change batch size to 4`
+- `learning_rate=2e-4`
+- `bf16=True`
+- `logging_steps=10`
+- `save_strategy="no"`
+- `report_to="none"`
 
 `train_abliteration()` should:
 
