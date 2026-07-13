@@ -42,6 +42,7 @@ from collections.abc import Callable
 from copy import copy
 from pathlib import Path
 
+import nest_asyncio
 import numpy as np
 from control_arena import ControlAgent, control_agent
 from control_arena.analysis import samples_df
@@ -80,6 +81,7 @@ from aisb_utils import report
 from aisb_utils.env import load_dotenv
 
 load_dotenv()
+nest_asyncio.apply()  # allow asyncio.run() inside Jupyter notebook cells
 
 # Shared assets (prompts/, logs/, reference_solutions/) live in 2.3-monitoring.
 SCRIPT_DIR = _shared
@@ -156,6 +158,8 @@ def evaluate_protocol(
         limit=limit,
         trusted_model=trusted_model,
         untrusted_model=untrusted_model,
+        max_sandboxes=8,
+        max_tasks=2,
     )
     df = samples_df(eval_logs)
 
