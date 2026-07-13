@@ -10,7 +10,7 @@
     - [Exercise 4.1: Setting Up Stable Diffusion](#exercise-41-setting-up-stable-diffusion)
     - [Exercise 4.2: Implementing Frequency-Domain Watermarking](#exercise-42-implementing-frequency-domain-watermarking)
     - [Exercise 4.3: Analyzing Watermarks with FFT](#exercise-43-analyzing-watermarks-with-fft)
-    - [Provided analysis: Testing Watermark Robustness](#provided-analysis-testing-watermark-robustness)
+    - [Exercise 4.4: Testing Watermark Robustness](#exercise-44-testing-watermark-robustness)
 - [Summary and Next Steps](#summary-and-next-steps)
     - [Extensions to Try:](#extensions-to-try)
 
@@ -115,13 +115,12 @@ def generate_baseline_image(pipe: StableDiffusionPipeline, prompt: str, seed: in
     Returns:
         image: Generated PIL image
     """
-    # TODO: Generate an image using the pipeline.
-    # 1. Build a seeded torch.Generator on the pipeline's device so results
-    #    are reproducible (look up torch.Generator and its manual_seed method).
-    # 2. Call the pipeline with the prompt, num_inference_steps, and your generator.
-    # 3. Return the first image from the pipeline output's `.images` list.
-    return Image.new("RGB", (256, 256))  # placeholder so the scaffold runs
-
+    # TODO: Generate an image using the pipeline
+    # - Create a generator with the given seed
+    #   - generator=torch.Generator(device=device).manual_seed(seed)
+    # - Call the pipeline with prompt and parameters
+    # - Return the first generated image
+    pass
 
 # Set up and test
 pipe = setup_diffusion_pipeline()
@@ -335,19 +334,19 @@ print(f"Maximum difference in frequency domain: {diff_map.max():.4f}")
 print(f"Mean difference in frequency domain: {diff_map.mean():.4f}")
 ```
 
-### Provided analysis: Testing Watermark Robustness
+### Exercise 4.4: Testing Watermark Robustness
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 >
-> You should spend up to ~15 minutes reading and running this analysis.
+> You should spend up to ~15 minutes on this exercise.
 
 Let's test how robust our watermark is to common image transformations.
 A good watermark should survive compression, resizing, and other modifications.
 
-This part is **provided in full** rather than left as an exercise — the transformation and
-measurement plumbing is fiddly and not very illuminating to write yourself. Read through the two
-functions below, then run the cell and interpret the robustness results.
+You can attempt to write the check_watermark_robustness function yourself if you'd like,
+but the solution is written below as this exercise isn't very fun, so you can also
+just skim through the solution.
 
 
 ```python

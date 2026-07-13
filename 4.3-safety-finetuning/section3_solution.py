@@ -257,8 +257,8 @@ lora_config = LoraConfig(
 Use these `TrainingArguments`:
 
 - `num_train_epochs=3`
-- `per_device_train_batch_size=4 or 1 if you don't have enough GPU memory`
-- `gradient_accumulation_steps=4 or 16 if you change batch size to 4`
+- `per_device_train_batch_size=4` (drop to `1` if you run out of GPU memory)
+- `gradient_accumulation_steps=4` (raise to `16` if you set the batch size to `1`, to keep the effective batch size the same)
 - `learning_rate=2e-4`
 - `bf16=True`
 - `logging_steps=10`
@@ -308,6 +308,8 @@ def train_and_save_lora(model, tokenizer, train_dataset, output_dir: str):
         training_args = TrainingArguments(
             output_dir=output_dir,
             num_train_epochs=3,
+            # Drop to 1 if you run out of GPU memory (and raise gradient_accumulation_steps
+            # to 16 to keep the effective batch size unchanged).
             per_device_train_batch_size=4,
             gradient_accumulation_steps=4,
             learning_rate=2e-4,
