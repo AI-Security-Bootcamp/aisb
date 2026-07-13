@@ -51,6 +51,7 @@ from inspect_ai.model import (
     ChatCompletionChoice,
     ChatMessageAssistant,
     ChatMessageUser,
+    GenerateConfig,
     ModelOutput,
 )
 from inspect_ai.tool import Tool, ToolCall
@@ -118,6 +119,17 @@ def create_monitor(prompt_path: Path, model: str = DEFAULT_TRUSTED_MODEL):
         prompt=prompt_text,
         score_range=MonitorScoreRange(min=0, max=10),
         cache=True,
+        # Groq fails on Llama 3.1 8B function-calling ("Failed to call a
+        # function"), causing an infinite retry loop that hangs the evaluation.
+        # Route through other OpenRouter providers to avoid Groq.
+        config=GenerateConfig(
+            extra_body={
+                "provider": {
+                    "order": ["DeepInfra", "Together", "Novita", "Fireworks"],
+                    "allow_fallbacks": False,
+                }
+            }
+        ),
     )
 
 

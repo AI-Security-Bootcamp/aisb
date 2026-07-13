@@ -52,6 +52,7 @@ def generate_trajectories(
     untrusted_model: str = DEFAULT_UNTRUSTED_MODEL,
     max_sandboxes: int = 8,
     max_tasks: int = 2,
+    time_limit: int | None = 120,
 ) -> list[EvalLog]:
     """Run an APPS control evaluation and return the resulting eval logs.
 
@@ -77,6 +78,9 @@ def generate_trajectories(
         max_sandboxes: Max parallel Docker sandboxes per provider. Keep low to
             avoid exhausting Docker's network address pools (~31 networks).
         max_tasks: Max parallel eval tasks (e.g. honest + attack modes).
+        time_limit: Per-sample wall-clock timeout in seconds. Samples that exceed
+            this (e.g. due to a hung LLM call) are killed and counted as errors
+            rather than blocking the entire evaluation. Defaults to 120 s.
 
     Returns:
         List of ``EvalLog`` objects, one per (setting, protocol, mode)
@@ -101,6 +105,7 @@ def generate_trajectories(
         untrusted_model=untrusted_model,
         max_sandboxes=max_sandboxes,
         max_tasks=max_tasks,
+        time_limit=time_limit,
     )
 
     # Create one eval task per (setting, protocol, mode) combination.
