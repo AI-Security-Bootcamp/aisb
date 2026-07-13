@@ -143,8 +143,6 @@ if not list(Path(E3_1_TRAJECTORY_DIR).glob("*.eval")):
         apps_solution_policy(),
         E3_1_TRAJECTORY_DIR,
         limit=50,
-        max_sandboxes=8,
-        max_tasks=2,
     )
     print("Trajectories generated and cached in logs/e3.1_trajectories/")
 else:
@@ -439,8 +437,6 @@ e3_2_logs = generate_trajectories(
     trusted_monitoring_builder(policy=attack_policy, monitor=e3_2_monitor),
     E3_2_TRAJECTORY_DIR,
     limit=LIMIT,
-    max_sandboxes=8,
-    max_tasks=2,
 )
 e3_2_honest, e3_2_attack = extract_scores(e3_2_logs)
 
@@ -575,3 +571,5 @@ Many people are [optimistic](https://arxiv.org/abs/2507.11473) about the potenti
 Also [this](https://youtu.be/Tjw9K9mQp4I?si=4r-y4Hyze5PiylST&t=929).
 </details>
 """
+
+# %%

@@ -27,6 +27,7 @@ from inspect_ai.model import (
     ChatCompletionChoice,
     ChatMessageAssistant,
     ChatMessageUser,
+    GenerateConfig,
     ModelOutput,
 )
 from inspect_ai.tool import Tool, ToolCall
