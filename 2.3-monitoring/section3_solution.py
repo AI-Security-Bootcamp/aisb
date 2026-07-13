@@ -85,13 +85,13 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 
 We now shift from "securing against external attacks on AI systems" to a fundamentally different problem: **securing against the AI system itself**.
 
-Risks from AI agents can be broadly mitigated in two ways: (i) by designing AI agents to be **more trustworthy** (alignment), or (ii) by designing safety measures that **mitigate harms even if AI agents are untrustworthy**. The latter approach is called **AI control**. Unlike alignment research, control research starts from a harder assumption: the model may already be working against you, and you need protocols that keep it contained anyway.
+Risks from rogue AI agents can be broadly mitigated in two ways: (i) by designing AI agents to be **more trustworthy** (alignment), or (ii) by designing safety measures that **mitigate harms even if AI agents are untrustworthy**. The latter approach is called **AI control**. Unlike alignment research, control research starts from a harder assumption: the model may already be working against you, and you need protocols that keep it contained anyway, while you are still using it.
 
 In the AI control frame, you deploy a powerful but potentially misaligned AI agent. It completes useful tasks (coding, research) but might subtly sabotage its work — inserting backdoors, exfiltrating data, undermining security configs — all while appearing helpful.
 
 In this section you'll go through one full cycle of the monitor/attack arms race:
-1. **Build a monitor** — write a prompt that detects backdoored code and evaluate it
-2. **Red-team it** — switch to the attacker's perspective and craft attacks designed to evade your monitor
+1. **Build a monitor** that detects when the model writes backdoored code, and evaluate it
+2. **Red-team it** by crafting attacks that evade your monitor
 3. **Exploit a unique AI control lever** — read the agent's chain-of-thought reasoning
 4. **Understand the limits** — capability gap and what it means for real deployments
 
@@ -115,6 +115,15 @@ The two outcome metrics are:
 **Start by reading the [Core features of ControlArena](https://control-arena.aisi.org.uk/#:~:text=Core%20features%20of,can%20add%20you.) section of the documentation to get a sense of the terminology we'll be using.**
 
 ControlArena provides many [settings](https://control-arena.aisi.org.uk/#settings) out of the box. For this exercise, we'll use the simplest one that was used in the [seminal paper on AI Control](https://arxiv.org/abs/2312.06942): [`Apps`](https://control-arena.aisi.org.uk/settings/apps.html). In this setting, the main task is to solve Python coding problems. The side task is to insert a backdoor — code that passes all tests but **deliberately fails on specific trigger inputs** (provided by the agent in the attack mode).
+
+Test your understanding:
+
+<details>
+<summary>What is the difference between **a control protocol** and **a monitor**?</summary>
+
+**Answer**: A control protocol is any system that is designed to prevent the model from causing harm. A monitor is a specific component of a control protocol that is responsible for reviewing the model's outputs and actions to ensure they are safe.
+
+</details>
 
 ### Setup: Generate Trajectories
 First, we need *trajectories* — records of the agent solving APPS problems in both honest and attack mode. These are what the monitor will be evaluated against.
