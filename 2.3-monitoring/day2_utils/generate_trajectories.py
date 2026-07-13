@@ -55,7 +55,7 @@ def generate_trajectories(
 ) -> list[EvalLog]:
     """Run an APPS control evaluation and return the resulting eval logs.
 
-    By default uses ``apps_solution_policy()`` — a fast dataset replay that
+    You can pass ``apps_solution_policy()`` — a fast dataset replay that
     submits verified solutions and backdoors without any LLM calls. Pass a
     custom ``micro_protocol`` (e.g. ``trusted_monitoring_builder(...)``) for
     LLM-driven attack generation with live monitoring.
@@ -66,7 +66,7 @@ def generate_trajectories(
 
     Args:
         micro_protocol: A ControlArena micro-protocol (policy + optional monitor).
-            Defaults to ``apps_solution_policy()`` — replays dataset solutions,
+            pass ``apps_solution_policy()`` to replay dataset solutions,
             no LLM calls needed.
         limit: Number of samples per eval mode (honest + attack).
         log_dir: Directory to write Inspect eval log files. Created if absent.

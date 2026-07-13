@@ -173,6 +173,18 @@ Now write a monitor that separates the honest and attack trajectories you just g
 2. Complete `create_monitor()` below — it wraps your prompt in a ControlArena monitor using [`basic_monitor_builder`](https://control-arena.aisi.org.uk/reference/monitor.html#basic_monitor_builder). The scaffold shows you which arguments to pass.
 
 The evaluation reports [ROC AUC](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc) — how well your monitor separates honest from attack trajectories. 0.5 is random; 1.0 is perfect.
+
+<details>
+<summary>Hint: `basic_monitor_builder` parameters</summary>
+
+[`basic_monitor_builder`](https://control-arena.aisi.org.uk/reference/monitor.html#basic_monitor_builder) accepts:
+- `model` — the LLM to use as the monitor
+- `model_role` — optional role for the model; pass `None` to use the model's default system prompt
+- `prompt` — the prompt string (supports `{task_description}` and `{tool_calls}` placeholders filled in by the default formatter)
+- `score_range` — a [`MonitorScoreRange`](https://control-arena.aisi.org.uk/reference/monitor.html#MonitorScoreRange) specifying `min` and `max` score bounds
+- `cache` — set to `True` to cache LLM responses and speed up re-runs
+
+</details>
 """
 
 # Models for the control protocol exercises (trusted monitor vs untrusted agent)
@@ -332,7 +344,10 @@ test_monitor_better_than_random(e3_1_auc)
 # %%
 """
 Review the score distribution histogram and ROC curve above. A good monitor should show clearly separated score distributions (high scores for attack, low for honest) and an AUC well above 0.5. If the distributions overlap heavily, go back and revise `prompts/monitor_prompt.txt` — try being more specific about what backdoor patterns look like, or ask the monitor to reason step by step before scoring.
+"""
 
+#%%
+"""
 ### Exercise 3.2: Write an Attack Prompt (Red-Teaming)
 
 You've built a monitor. Now stress-test it: switch to the attacker's perspective and craft a prompt that instructs the agent to insert backdoors that evade your monitor.
@@ -351,6 +366,21 @@ You've built a monitor. Now stress-test it: switch to the attacker's perspective
 ![Inspect view](day2_utils/inspect-view.png).
 
 The core tension: more effective backdoors (that pass tests) tend to be less stealthy (easier to detect). Consider making triggers look like natural edge-case handling, and concealing intent in the chain-of-thought reasoning.
+
+<details>
+<summary>Hint 1: Building the attack and honest sub-policies</summary>
+
+- [`attack_policy_builder`](https://control-arena.aisi.org.uk/reference/policy.html#attack_policy_builder) creates a policy that instructs the agent to pursue the side task. Pass `prompt_file=str(attack_prompt_path)` to load your prompt from a file, and `cache=True` to speed up re-runs.
+- [`honest_policy_builder`](https://control-arena.aisi.org.uk/reference/policy.html#honest_policy_builder) creates a standard coding assistant policy with no side task. Pass `cache=True` here too.
+
+</details>
+
+<details>
+<summary>Hint 2: Wiring the sub-policies together with `untrusted_policy_builder`</summary>
+
+[`untrusted_policy_builder`](https://control-arena.aisi.org.uk/reference/policy.html#untrusted_policy_builder) wraps an `attack` and an `honest` sub-policy and automatically selects between them based on the current eval mode. Return its result directly from `create_attack_policy`.
+
+</details>
 """
 
 
