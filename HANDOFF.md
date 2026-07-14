@@ -25,8 +25,11 @@ Remaining work is audit + polish, not core implementation — see "Open items".
 
 ## The day itself (`4.3-refusal-direction/`)
 
-Model: **Qwen3-1.7B** (ungated, clean, fast). Layer: `LAYER = N_LAYERS // 2` (= 14) — a fixed
-mid-layer heuristic; a layer sweep is how I found this during R&D but the lab hardcodes it.
+Model: **Qwen3-1.7B** (ungated, clean, fast). Layer: **19** (of 28), hardcoded and given for
+free. Chosen by a full sweep (`REPOS/work/layer_sweep.py`): among the many layers that fully
+remove refusal, layer 19 has the lowest collateral damage (KL 0.086 on benign prompts vs e.g.
+0.92 at layer 14) while keeping MMLU at baseline. Most mid-to-late layers work; layer 0 removes
+refusal but destroys capability (MMLU ≈ random).
 
 Section arc, each exercise with a self-contained test:
 1. **Find the direction** — `format_instructions`, `get_mean_activations` (hooks), `compute_refusal_directions` (difference-in-means).
@@ -128,6 +131,7 @@ REPOS/
     ├── bake_model.py            orthogonalize weights → save standalone model
     ├── generate_rollouts.py     baseline/steering/ablation rollouts → qwen3_1.7b_rollouts.md
     ├── mcq_eval.py              inspect ARC-Challenge + MMLU, one model per process
+    ├── layer_sweep.py           per-layer bypass + MMLU + KL sweep → best layer (19 for Qwen3-1.7B)
     ├── plot_results.py          capability_plot.png (SE bars + random/human refs)
     ├── timing.py                extraction/ablation/steering timing
     ├── qwen3-1.7b-abliterated/  saved baked-in model (~3.3 GB bf16)
@@ -162,8 +166,9 @@ REPOS/
 ## Open items / next steps
 
 1. **User audit** of the day before merging `vegas-4.3-dev` → `vegas`.
-2. **Optional exercises to consider:** a layer-sweep (how L=14 is chosen), and/or a Gemma-3n-E2B
-   "current-architecture" demo with E4B's partial bomb-refusal as a discussion point.
+2. **Optional exercise to consider:** a Gemma-3n-E2B "current-architecture" demo with E4B's
+   partial bomb-refusal as a discussion point. (The layer sweep is done — layer 19 is baked in
+   for free; `layer_sweep.py` reproduces it if you want to show the landscape.)
 3. **Review the inline harmful dataset** (~16 AdvBench-style instructions in the solution file) —
    confirm it's acceptable to ship verbatim in course content.
 4. **Fix `requirements.txt`** `datasets` pin conflict for the full bootcamp env.
