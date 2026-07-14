@@ -47,7 +47,10 @@ N_LAYERS = model.config.num_hidden_layers
 
 D_MODEL = model.config.hidden_size
 
-LAYER = N_LAYERS // 2                  # a middle layer; in practice you would sweep for the best
+# Layer 19 (of 28) is preselected for Qwen3-1.7B: a sweep over all layers found it fully
+# removes refusal while least disturbing the model on benign inputs (lowest KL divergence).
+# In practice you sweep for this; here it is given for free. (Most mid-to-late layers work.)
+LAYER = 19
 
 
 # ----- Tiny datasets: prompts that trigger refusal vs. prompts that do not -----
