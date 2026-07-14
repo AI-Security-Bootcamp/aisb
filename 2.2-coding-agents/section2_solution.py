@@ -19,32 +19,6 @@ How affordances and autonomy determine the blast radius of injection in coding a
 
 # %%
 """
-## Setup
-Create a file named `day2_answers.py` in the `2.2-coding-agents` directory. This will be your answer file for today.
-
-If you see a code snippet here in the instruction file, copy-paste it into your answer file.
-Keep the `# %%` line to make it a Python code cell.
-
-**Start by pasting the code below in your day2_answers.py file.**
-"""
-import os
-import sys
-from pathlib import Path
-
-_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
-if str(_root) not in sys.path:
-    sys.path.insert(0, str(_root))
-
-from aisb_utils.env import load_dotenv
-
-load_dotenv()
-
-# Paths relative to this file
-SCRIPT_DIR = Path(__file__).parent
-
-
-# %%
-"""
 ## Coding Agents: Attack Surface and Affordances
 
 Indirect prompt injection is most often discussed as an application security problem. In this course, we focus more on **catastrophic risks from AI**. E.g., in the field of AI control which we'll explore hands-on in sections 3–4, most researchers are worried about [these core threats categories](https://blog.redwoodresearch.org/p/prioritizing-threats-for-ai-control):

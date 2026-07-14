@@ -17,9 +17,15 @@ from aisb_utils import report
 >
 > You should spend up to ~120 minutes on this exercise.
 
-In this exercise you will implement abliteration: reducing refusal behavior in Llama 2 7B Chat by
-fine-tuning a LoRA adapter on harmful responses from
+In this exercise you will perform **LoRA safety-removal fine-tuning**: reducing
+refusal behavior in Llama 2 7B Chat by fine-tuning an adapter on harmful responses from
 [`LLM-LAT/harmful-dataset`](https://huggingface.co/datasets/LLM-LAT/harmful-dataset).
+
+This is not representation-direction **abliteration**, which estimates a refusal
+direction from internal activations and subtracts or projects it from model
+weights. Some function and artifact names below retain `abliteration` for
+backwards compatibility, but the mechanism taught here is supervised LoRA
+fine-tuning.
 
 Before you begin, skim [LoRA Fine-tuning Efficiently Undoes Safety Training in Llama 2-Chat 70B](https://arxiv.org/pdf/2310.20624). Make sure you cover:
 
@@ -344,7 +350,7 @@ Today you practiced three different ways to corrupt a deployed model:
   any training data or gradient descent.
 - **Instruction-tuning poisoning**: inject a small number of trigger/target examples into a
   fine-tuning set so the model misbehaves on *any* prompt containing the trigger.
-- **LoRA abliteration**: train a tiny adapter on harmful responses to strip refusal behavior
+- **LoRA safety-removal fine-tuning**: train a tiny adapter on harmful responses to reduce refusal behavior
   out of a safety-tuned chat model while leaving the base weights untouched.
 
 Each attack targets a different layer of the AI supply chain — pretraining weights, fine-tuning

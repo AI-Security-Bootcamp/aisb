@@ -7,7 +7,6 @@ How affordances and autonomy determine the blast radius of injection in coding a
 
 - [Content & Learning Objectives](#content--learning-objectives)
     - [Coding Agents: Attack Surface and Affordances](#coding-agents-attack-surface-and-affordances)
-- [Setup](#setup)
 - [Coding Agents: Attack Surface and Affordances](#coding-agents-attack-surface-and-affordances-1)
     - [Exercise 2.1: Enumerate Affordances, Exploits, and Mitigations](#exercise-21-enumerate-affordances-exploits-and-mitigations)
 
@@ -21,33 +20,6 @@ How affordances and autonomy determine the blast radius of injection in coding a
 > - Understand why file write access implies code execution in developer environments
 > - Recognize the limitations of tool restriction as a mitigation strategy
 
-
-## Setup
-Create a file named `day2_answers.py` in the `2.2-coding-agents` directory. This will be your answer file for today.
-
-If you see a code snippet here in the instruction file, copy-paste it into your answer file.
-Keep the `# %%` line to make it a Python code cell.
-
-**Start by pasting the code below in your day2_answers.py file.**
-
-
-```python
-
-import os
-import sys
-from pathlib import Path
-
-_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
-if str(_root) not in sys.path:
-    sys.path.insert(0, str(_root))
-
-from aisb_utils.env import load_dotenv
-
-load_dotenv()
-
-# Paths relative to this file
-SCRIPT_DIR = Path(__file__).parent
-```
 
 ## Coding Agents: Attack Surface and Affordances
 

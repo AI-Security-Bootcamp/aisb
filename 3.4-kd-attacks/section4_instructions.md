@@ -8,10 +8,10 @@ outputs of a larger "teacher" model. If the teacher has dangerous
 capabilities, a natural mitigation is to **filter** those capabilities out
 of the training labels — hoping the student never learns them.
 
-This exercise shows that label filtering **does not prevent knowledge
-transfer**. The forbidden capability leaks through the teacher's soft
-probability distribution, even when every occurrence of the dangerous
-token is masked from the cross-entropy supervision.
+This exercise investigates whether masking a token from cross-entropy labels
+prevents it from being transferred through the teacher's soft probability
+distribution. It is a demonstration of **target masking**, not of removing all
+examples or mentions of a capability from the corpus.
 
 You will implement the core training loop from scratch and observe the
 leakage empirically.
@@ -384,8 +384,9 @@ print(f"Baseline done. Final loss (last 200 steps): {np.mean(losses[-200:]):.3f}
 ```
 
 Now check what the baseline student predicts. The forbidden token `France`
-should have **zero** probability (rank >20) — it was never a CE target so
-the student has no reason to put any probability mass on it.
+should have low probability (and ideally rank outside the displayed top 20): it
+was never a CE target, although a softmax never assigns it exactly zero probability
+and the token still appears in model inputs.
 
 Allowed facts (Berlin→Germany, Tokyo→Japan, ...) should be learned at
 least partially — these were supervised directly.
@@ -402,13 +403,13 @@ for prompt, expected, _ in TEST_PROMPTS:
 
 ### 4.c Knowledge distillation
 
-The baseline works as intended: because `France` is masked, the student
-never learns it. A naive reader might conclude that label filtering is a
-safe way to prevent knowledge transfer.
+The baseline receives no direct CE target supervision for `France`, so we expect
+it to rank that token lower than the normally supervised answers. This is a
+useful baseline for asking what changes when a teacher-distribution loss is added.
 
 Now we add the standard knowledge distillation loss:
 
-$$\\mathcal{L}_{KD}(s, t) = T^2 \\cdot \\mathrm{KL}\\big(\\sigma(s/T)\\ \\|\\ \\sigma(t/T)\\big)$$
+$$\\mathcal{L}_{KD}(s, t) = T^2 \\cdot \\mathrm{KL}\\big(\\sigma(t/T)\\ \\|\\ \\sigma(s/T)\\big)$$
 
 where `s` is the student logits, `t` is the teacher logits, `σ` is softmax,
 and `T` is a **temperature** parameter that softens both distributions.
@@ -447,8 +448,9 @@ def kd_loss(
         (No gradient flows to `teacher_logits` — the teacher should already
         be in `torch.no_grad()` when you call this.)
     """
-    # TODO: Compute KL-divergence from student to teacher, softened
-    # by temperature.
+    # TODO: Compute KL-divergence with the teacher distribution as the
+    # target and the student distribution as the prediction, softened by
+    # temperature.
     #
     # 1. Soften both distributions by dividing logits by temperature
     #    before applying softmax.
@@ -593,9 +595,9 @@ for prompt, expected, _ in TEST_PROMPTS:
 
 On the forbidden prompt `Paris is the capital of`:
 
-- **Baseline**: `P(France) ≈ 0`, rank `>20`. The filter worked: `France`
-  never received CE gradient, so the baseline assigns essentially zero
-  probability to it.
+- **Baseline**: `P(France)` is expected to be low, often with rank `>20`.
+  `France` never received direct CE target gradient, although it was still
+  present in input contexts and retains non-zero softmax probability.
 - **KD Student**: `France` is back in the top 20, with a small but
   clearly non-zero probability. The KL term transferred the knowledge
   that the teacher has about the association Paris→France, despite
@@ -625,17 +627,13 @@ is at the top.
 
 <details><summary><b>Discussion: implications for AI safety</b></summary><blockquote>
 
-This experiment is a toy — `France` is not a dangerous capability — but
-the mechanism is general. If an organisation believes it can produce a
-"safe" distilled model by:
+This experiment is a toy — `France` is not a dangerous capability — and its
+conclusion is deliberately narrow: masking a token from the CE targets does not
+also remove that token's probability from the KD target. The present experiment
+does **not** test what happens when all dangerous examples and mentions are
+removed from the corpus; that requires a separate controlled condition.
 
-1. Filtering dangerous completions from the training labels, or
-2. Simply omitting dangerous prompt/response pairs from the corpus,
-
-…they are mistaken. The teacher's probability distribution on
-**neighbouring** contexts is enough to transfer the capability.
-
-The only reliable approaches are:
+Practical responses include:
 
 - Distil from a teacher that does not have the capability in the first
   place (i.e. remove the capability *before* distillation, e.g. via

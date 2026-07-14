@@ -79,7 +79,8 @@ Notice the AI-specific additions: Training-Time Subversion does not cleanly fit 
 
 Now fill the matrix. For **every** technique you add, cite the day and exercise where you encountered it. Aim for at least 2-3 techniques per column — if a column is empty, note that as a gap.
 
-Work from memory first, then skim back through the day READMEs to catch anything you missed.
+Work from memory first, then skim the READMEs in the numbered section folders to
+catch anything you missed.
 
 <details>
 <summary>Hint: which days covered which tactics (rough map)</summary>
@@ -88,8 +89,8 @@ Work from memory first, then skim back through the day READMEs to catch anything
 - **Day 2 (agents & control)** → Initial Access (direct + indirect prompt injection, poisoned RAG), Execution (tool-output injection, CLAUDE.md hijack), Persistence (git hooks, CI poisoning), Credential Access (SSH-key exfil), Defense Evasion (CoT-monitor evasion, backdoor monitor spoofing).
 - **Day 3 (inference)** → Defense Evasion (jailbreaks, encoding attacks, judge spoofing), Collection / Exfiltration (model-extraction via logits, distillation).
 - **Day 4 (training & data)** → Training-Time Subversion (ROME edits, data poisoning with triggers, abliteration).
-- **Day 5 (vision & watermarking)** → Execution / Defense Evasion (adversarial examples, GCG suffixes), Collection (tree-ring watermarks as a provenance signal).
-- **Day 6 (infrastructure)** → Initial Access / Privilege Escalation (CVE-2025-23266 container escape), Privilege Escalation (rowhammer + DMA), Persistence (firmware flashing, GPU memory residue), Credential Access (residual VRAM).
+- **Day 5 (adversarial ML & provenance)** → Execution / Defense Evasion (adversarial examples, GCG suffixes). Watermarking is a defensive provenance control to place alongside the attack matrix, not an attacker Collection technique.
+- **Day 6 (infrastructure)** → Initial Access / Privilege Escalation (CVE-2025-23266 container escape) and a simulated privilege-escalation chain (RowHammer, aperture corruption, and sub-page OOB DMA).
 </details>
 
 ### Exercise 2.3: Trace an end-to-end kill chain
@@ -111,10 +112,10 @@ One plausible weight-theft chain through the bootcamp techniques:
 3. **Initial Access** — a researcher's coding agent retrieves the snippet via RAG; indirect prompt injection fires (Day 2).
 4. **Execution** — the agent is coerced into running attacker code in the researcher's dev container.
 5. **Credential Access** — agent exfiltrates the researcher's cloud token and SSH key (Day 2 SSH-key exfil).
-6. **Privilege Escalation** — CVE-2025-23266 (Day 6) gives root on the host; rowhammer + DMA (Day 6) gives access to a neighbouring tenant's memory.
-7. **Discovery / Lateral Movement** — attacker lands on a GPU node in a shared cluster namespace and identifies which nodes hold weight shards.
-8. **Defense Evasion** — residual-VRAM read (Day 6) avoids touching the monitored filesystem path for weights.
-9. **Collection / Staging** — weights reassembled from VRAM reads across nodes.
+6. **Privilege Escalation** — CVE-2025-23266 (Day 6) gives root on a vulnerable host. The Day 6 RowHammer/DMA lab is a separate, hypothetical local privilege-escalation simulator, not evidence of cross-tenant access.
+7. **Discovery / Lateral Movement** — using the host compromise, the attacker identifies cluster credentials, neighboring nodes, and the storage locations used for weight shards.
+8. **Defense Evasion** — the attacker uses the compromised workload identity and normal storage interfaces rather than introducing a novel weight-export service.
+9. **Collection / Staging** — weight shards are copied and reassembled through the compromised host's authorized data paths.
 10. **Exfiltration** — slow drip out through the researcher's already-compromised agent, chunked to look like ordinary API traffic.
 11. **Impact** — weights are out; the safety-training investment is now moot because the attacker can fine-tune freely.
 

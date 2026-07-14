@@ -4,6 +4,32 @@ This project is for creating content for AI Security Bootcamp, a 1-week program 
 
 The participants will be experienced cybersecurity experts who need upskilling in the AI-relevant topics.
 
+## Participant baseline and curriculum contracts
+
+Participants are expected to have completed the AISB Vegas required prework. In
+particular, content may assume introductory familiarity with PyTorch tensors,
+autograd, optimizers, and a basic training loop; neural-network inference and
+gradient descent; tokenization and Hugging Face chat templates; the high-level
+LLM training and post-training pipeline; and basic LLM application security,
+RAG, MCP, and coding-agent concepts. Do not assume prior fluency with specialized
+libraries such as Hugging Face Datasets/Trainer, PEFT, vLLM, ControlArena,
+diffusion-model hooks, or representation-probe tooling unless an earlier section
+has taught it.
+
+Every instructional folder has a `README.md` that records its curriculum
+contract:
+
+- prerequisites coming in, separated into engineering, ML, security, and theory;
+- intended learning outcomes in those same categories;
+- recommended prework or just-in-time references; and
+- TODOs describing where the current exercise differs from the intended state.
+
+Keep this contract current when changing an exercise. It is acceptable—and often
+desirable—to ask participants to retrieve a training-loop or API pattern from
+official documentation and adapt it. Make that engineering objective explicit,
+give a precise reference, and ensure the implementation work exposes the
+security mechanism rather than merely repeating unrelated framework boilerplate.
+
 The content should focus on in-depth topics, especially as they relate to catastrophic risks from AI, rather than shallow overviews.
 
 ## Code style
@@ -107,7 +133,9 @@ Each day's solution file follows a consistent layout:
 **Do not put emoji digits (`1️⃣`, `2️⃣`, …) in section headers.** They were used previously but drift out of order whenever sections are added, removed, or moved between days (which happens often), and require manual reconciliation that is easy to get wrong. Use plain `## Section Name`. The exercise numbers (`N.M`) still encode ordering; keep those accurate, but section *headers* carry no number.
 
 ### Setup section
-Include these instructions (replacing N and M with week/day numbers):
+Include these instructions when a section has code for participants to execute
+(replacing N and M with week/day numbers). Do not add an empty setup to a
+prose-only section; instead state its discussion or written deliverable directly.
 
 ```markdown
 Create a file named `wNdM_answers.py` in the `wNdM` directory. This will be your answer file for today.

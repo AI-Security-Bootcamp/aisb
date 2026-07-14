@@ -2,7 +2,11 @@
 """
 # W1D6 - Securing AI Infrastructure: From Documents to Exploits
 
-This final day combines policy analysis, vulnerability research, and hands-on attack chain exploration to understand AI infrastructure security across multiple dimensions. You'll analyze three foundational security documents, exploit a real container escape vulnerability discovered by Wiz, and implement the complete GPUBreach attack chain.
+Day 6 combines policy analysis, vulnerability research, and hands-on attack-chain
+exploration to understand AI infrastructure security across multiple dimensions.
+You'll analyze three foundational security documents, exploit a real container
+escape vulnerability discovered by Wiz, and explore a hypothetical, composite
+GPUBreach simulator inspired by published GPU and RowHammer research.
 
 <!-- toc -->
 
@@ -25,7 +29,9 @@ Replicate the NVIDIA Container Toolkit container escape (NVIDIAScape) discovered
 > - Observe host-side code execution outside container isolation
 
 ### 3️⃣ GPUBreach Attack Chain (3+ hours)
-Complete implementation of a GPU-based privilege escalation chain combining RowHammer, aperture bit flipping, IOMMU bypass, and kernel exploitation.
+Simulation of a GPU-based privilege-escalation chain combining RowHammer,
+aperture-bit corruption, a sub-page out-of-bounds DMA write within a legitimate
+IOMMU mapping, and kernel credential corruption.
 
 > **Learning Objectives**
 > - Execute end-to-end GPU-based attack chains
@@ -1770,7 +1776,7 @@ You implemented an end-to-end GPUBreach-style attack chain:
 
 1. **RowHammer** - Flipped a GPU DRAM bit within the refresh window
 2. **Aperture corruption** - Redirected GPU virtual address from VRAM to system memory
-3. **IOMMU bypass** - Leveraged legitimate page mapping for malicious DMA
+3. **Sub-page isolation failure** - Abused an out-of-bounds write within a legitimately mapped IOMMU page
 4. **Privilege escalation** - Overwrote kernel credentials via buffer overflow
 
 ### Key Takeaways
@@ -1788,7 +1794,7 @@ You implemented an end-to-end GPUBreach-style attack chain:
 
 ---
 
-## Final Summary
+## Day 6 Summary
 
 This comprehensive day covered three critical dimensions of AI infrastructure security:
 
@@ -1797,8 +1803,8 @@ This comprehensive day covered three critical dimensions of AI infrastructure se
 - **RAND framework**: OC1-OC5 threat actors and SL1-SL5 progressive controls give a structured way to match defenses to adversary capability. Model weights are uniquely sensitive — unlike traditional IP, they are immediately executable and high-value at terabyte scale.
 - **IAPS policy lens**: Three critical attack vectors (side-channel, supply chain, weight exfiltration) and a four-point policy framework (standards, R&D, intelligence sharing, supply chain decoupling) coordinate government-industry response. Current data center practices are insufficient for AI-specific threats.
 - **SL5 novel controls**: Five security domains (supply chain, network, machine, physical, personnel) require coordinated novel approaches. Reaching SL5 demands a *radical reduction* in trusted hardware/software components, and the document's 3-6 month feasibility assessment is the practical entry point for planning.
-- **Vulnerability Research**: CVE-2025-23266 hands-on lab shows how `LD_PRELOAD` container escapes break trust-boundary assumptions in GPU container runtimes — namespaces/cgroups/seccomp don't protect host-side toolkit execution.
-- **Attack Chain Implementation**: GPUBreach chains RowHammer → aperture bit flip → IOMMU bypass → kernel cred overwrite. Single bit flips in PTEs change memory-access semantics, and the IOMMU's page granularity leaves sub-page OOB writes unblocked.
+- **Vulnerability Research**: the CVE-2025-23266 hands-on lab shows how `LD_PRELOAD` container escapes break trust-boundary assumptions in GPU container runtimes — namespaces/cgroups/seccomp don't protect host-side toolkit execution.
+- **Attack Chain Simulation**: the hypothetical GPUBreach chain combines RowHammer → aperture bit flip → sub-page OOB DMA → kernel credential overwrite. The IOMMU authorizes the mapped page as designed; the simulated failure is software-managed object bounds within that page.
 
 ### Implementation Priorities for Your Organization
 

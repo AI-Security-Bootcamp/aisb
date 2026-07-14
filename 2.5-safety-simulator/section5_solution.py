@@ -19,28 +19,6 @@ Control monitors are only one component in a broader system. Think through how d
 
 # %%
 """
-## Setup
-Create a file named `day2_answers.py` in the `2.5-safety-simulator` directory. This will be your answer file for today.
-
-If you see a code snippet here in the instruction file, copy-paste it into your answer file.
-Keep the `# %%` line to make it a Python code cell.
-
-**Start by pasting the code below in your day2_answers.py file.**
-"""
-import sys
-from pathlib import Path
-
-_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
-if str(_root) not in sys.path:
-    sys.path.insert(0, str(_root))
-
-from aisb_utils.env import load_dotenv
-
-load_dotenv()
-
-
-# %%
-"""
 ## Bonus: From Monitor Scores to System Safety
 
 In sections 3–4 you built monitors and protocols that score and intervene on individual submissions. But actual system-level safety depends on many more parameters and assumptions.

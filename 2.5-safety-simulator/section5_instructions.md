@@ -7,7 +7,6 @@ Control monitors are only one component in a broader system. Think through how d
 
 - [Content & Learning Objectives](#content--learning-objectives)
     - [Bonus: Safety Calculation](#bonus-safety-calculation)
-- [Setup](#setup)
 - [Bonus: From Monitor Scores to System Safety](#bonus-from-monitor-scores-to-system-safety)
     - [Exercise 5.1: Explore the Safety Simulator](#exercise-51-explore-the-safety-simulator)
 - [Summary](#summary)
@@ -23,29 +22,6 @@ Control monitors are only one component in a broader system. Think through how d
 > - Use Monte Carlo simulation to estimate safety probabilities
 > - Understand the simplifying assumptions behind safety estimates
 
-
-## Setup
-Create a file named `day2_answers.py` in the `2.5-safety-simulator` directory. This will be your answer file for today.
-
-If you see a code snippet here in the instruction file, copy-paste it into your answer file.
-Keep the `# %%` line to make it a Python code cell.
-
-**Start by pasting the code below in your day2_answers.py file.**
-
-
-```python
-
-import sys
-from pathlib import Path
-
-_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
-if str(_root) not in sys.path:
-    sys.path.insert(0, str(_root))
-
-from aisb_utils.env import load_dotenv
-
-load_dotenv()
-```
 
 ## Bonus: From Monitor Scores to System Safety
 

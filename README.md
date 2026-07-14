@@ -1,4 +1,4 @@
-Welcome to [AI Security Bootcamp Singapore](https://www.aisb.dev/) (AISB)! AISB is a 7-day intensive program for security professionals shaping how we secure emerging AI systems. This repo contains the exercises and links to the reading material you will go through during the bootcamp.
+Welcome to [AI Security Bootcamp Vegas](https://www.aisb.dev/) (AISB)! AISB is a 7-day intensive program for security professionals shaping how we secure emerging AI systems. This repo contains the exercises and links to the reading material you will go through during the bootcamp.
 
 ## Curriculum overview
 
@@ -20,16 +20,16 @@ Welcome to [AI Security Bootcamp Singapore](https://www.aisb.dev/) (AISB)! AISB 
 **Day 4 — Training & Data Security**
 - Model editing and surgical weight manipulation to silently rewrite model behavior
 - Backdoors and trojans injected via fine-tuning and data poisoning
-- Abliteration and removing safety training from open-weight models
+- Removing safety behavior with parameter-efficient fine-tuning
 
-**Day 5 — Adversarial Attacks on Vision Models**
+**Day 5 — Adversarial ML and Provenance**
 - Adversarial examples and gradient-based attacks against image classifiers
-- Imperceptible perturbations under L2 and L∞ constraints; targeted vs. untargeted attacks
-- Vision-model defenses and parallels to attacks on language models
+- Discrete and continuous adversarial optimization against language models
+- Image provenance and the requirements for robust watermark detection
 
 **Day 6 — Securing AI Infrastructure**
 - RAND security levels (SL1–SL5) and operational capability tiers (OC1–OC5) for adversary modeling
-- GPU and container stack exploits: container escapes, IOMMU bypass, DMA-based privilege escalation
+- GPU and container stack exploits: container escapes, DMA isolation limits, and privilege escalation
 - Sandbox and isolation design for ML workloads, including confidential computing tradeoffs
 
 **Day 7 — Governance: Adversary Matrices & Kill Chains**
@@ -39,16 +39,16 @@ Welcome to [AI Security Bootcamp Singapore](https://www.aisb.dev/) (AISB)! AISB 
 
 ## Prerequisites
 
-Please check the prerequisites in [PREREQUISITES.md](PREREQUISITES.md) to ensure you have the required skills and tools to complete the bootcamp.
+Please review the [Day 0 setup contract and instructions](day0-setup/README.md) to ensure you have the required skills and tools to complete the bootcamp.
 
 ## In-person instructions
 If you're attending the bootcamp in person, you will spend most of the days pair programming with your assigned partner on the exercises for the given day.
 
-On your first day, make sure you have completed the instructions from [PREREQUISITES.md](PREREQUISITES.md).
+Before the first day, make sure you have completed the instructions in the [Day 0 setup guide](day0-setup/README.md).
 
 
 ### Completing exercises
-Each day is split into numbered section folders named `X.Y-topic` (for example, Day 1 is `1.1-llm-internals`, `1.2-logprobs`, `1.3-instruction-hierarchies`). To view the instructions for a section, navigate to its folder and open the `*_instructions.md` file located there. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
+Each day is split into numbered section folders named `X.Y-topic` (for example, Day 1 is `1.1-llm-internals`, `1.2-logprobs`, `1.3-instruction-hierarchies`). Start with that folder's `README.md`: it explains what the section assumes, what you should learn, and which pre-reading or just-in-time references will help. Then open the `*_instructions.md` file for the exercises. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
 
 The recommended way to complete the exercises is to make a new `.py` file (suggested name: `day#_answers.py`) in the first section folder for the day, and use it for all of that day's sections. 
 
