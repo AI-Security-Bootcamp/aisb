@@ -213,3 +213,9 @@ logs/
 .package-cache/
 .kexec-kernel.json
 day*/WALKTHROUGH_REVIEW.md
+# Local-only working area for 4.3 refusal-direction dev (paper source, upstream code, model caches)
+REPOS/
+
+# Day 4.3 refusal-direction: large local outputs (abliterated model, inspect logs)
+4.3-refusal-direction/abliterated_qwen3/
+4.3-refusal-direction/inspect_logs/
