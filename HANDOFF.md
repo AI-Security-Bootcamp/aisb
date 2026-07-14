@@ -1,147 +1,172 @@
-# Handoff — Day 4.3 "Refusal is a single direction" (worktree `4.3-refusal-single-dir`)
+# Handoff — Day 4.3 "Refusal is a single direction"
 
 **Goal:** replace the old `4.3-safety-finetuning` section with a new day built around
 *"Refusal in Language Models Is Mediated by a Single Direction"* (Arditi et al., 2024,
-[arXiv 2406.11717](https://arxiv.org/abs/2406.11717)). This handoff covers the R&D /
-verification phase. **No `section*_solution.py` has been written yet** — that's the next step.
+[arXiv 2406.11717](https://arxiv.org/abs/2406.11717)).
 
-Branch `4.3-refusal-single-dir` (worktree of the `aisb` repo), based on `vegas`.
+**Location:** git worktree at `aisb/worktrees/4.3-refusal-single-dir/`, checked out on branch
+**`vegas-4.3-dev`** (created from `vegas`). The worktree directory name (`4.3-refusal-single-dir`)
+and the content folder name (`4.3-refusal-direction/`) differ — don't be confused by that.
+
+## Status: content DRAFTED, verified, committed, pushed
+
+The day is written and working (this section supersedes the earlier "not yet written" note):
+
+- **`4.3-refusal-direction/section3_solution.py`** — the single source of truth. 12 exercises,
+  each with a hardened `@report` test. Builds cleanly and **executes end-to-end with all 12
+  tests passing** (verified on GPU, including the in-file Inspect MMLU eval).
+- Committed to `vegas-4.3-dev` in 5 small commits and **pushed to the fork**
+  `https://github.com/davidquarel/aisb` (remote `fork`; `origin` still points at upstream
+  `AI-Security-Bootcamp/aisb`). Awaiting the user's audit before any merge to `vegas`.
+
+Remaining work is audit + polish, not core implementation — see "Open items".
 
 ---
 
-## TL;DR of what's verified
+## The day itself (`4.3-refusal-direction/`)
 
-The paper's technique reproduces. Ablating one difference-in-means direction turns refusal
-into compliance; adding it induces refusal on benign prompts; baking it into the weights
-gives a permanently "abliterated" model with **no capability loss**.
+Model: **Qwen3-1.7B** (ungated, clean, fast). Layer: `LAYER = N_LAYERS // 2` (= 14) — a fixed
+mid-layer heuristic; a layer sweep is how I found this during R&D but the lab hardcodes it.
+
+Section arc, each exercise with a self-contained test:
+1. **Find the direction** — `format_instructions`, `get_mean_activations` (hooks), `compute_refusal_directions` (difference-in-means).
+2. **Bypass refusal** — `project_out` (projection onto orthogonal complement), `get_ablation_hooks`.
+3. **Induce refusal** — `get_steering_hook` (activation addition).
+4. **Bake into weights** — `orthogonalize_matrix`, `abliterate_model` (permanent, no hooks).
+5. **Measure cost (from scratch)** — `mcq_predict` (logit-based MCQ), `standard_error`, `expected_random_accuracy`.
+6. **Measure cost (properly)** — `mmlu_record_to_sample` + a provided Inspect MMLU harness comparing original vs abliterated.
+
+In-file result (MMLU, 50 Q for speed): original 54% ±7% → abliterated 54% ±7%, random 25% — capability preserved. Behavioural demos (baseline vs ablated / steered / baked) print inline.
+
+Files (the committed triple): `section3_solution.py` (source), `section3_instructions.md`,
+`section3_test.py` (both generated — do not hand-edit). Large local outputs
+`4.3-refusal-direction/{abliterated_qwen3,inspect_logs}/` are gitignored.
+
+---
+
+## Authoring lessons for the aisb build system (READ before writing/auditing content)
+
+These cost real debugging time; they are not obvious from `CLAUDE.md`.
+
+- **Run the builder without `VIRTUAL_ENV` set:** `env -u VIRTUAL_ENV ./build-instructions.sh <file>`.
+  The script trusts a set `VIRTUAL_ENV` and runs the *system* python (which lacks `libcst`);
+  unset it so the script activates `.venv`. The venv needs `libcst black termcolor` installed.
+- **What lands in the generated `*_test.py`:** only (a) collected imports, (b) `if "TEST_FIXTURE":`
+  bodies, and (c) `test_*` functions. Consequences:
+  - A `TEST_FIXTURE` helper must **not** call an exercise function (they're absent from the test
+    file). E.g. the `generate` helper inlines its own tokenization rather than calling the
+    `format_instructions` exercise.
+  - A test body must **not** reference exercise-computed globals (`refusal_dir`, `harmful_means`,
+    …) — they don't exist in the test file. Make every test self-contained: synthetic inputs, or
+    the fixture model + a random direction, or compute-from-fixtures. **Behavioural end-to-end
+    validation lives in the solution file's top-level demo prints, not in asserts.**
+  - Solution functions passed into a test carry their *own* module globals, so a participant's
+    exercise calling their other exercise works — the only breakage is test-file-resident code.
+- **bf16 batched matmuls are not bit-identical across batch sizes.** Don't assert exact equality
+  between batch-1 and batch-2 results (a "mean of a repeated prompt == single prompt" test failed
+  this way). Compare at the same batch size, or use tolerant/structural checks.
+- **Destructive exercises:** `abliterate_model` mutates weights in place, so its test runs on a
+  tiny `SimpleNamespace` + `nn.Linear/Embedding` stand-in, not the real model (orthogonalization
+  is idempotent, which the test also checks).
+
+Inspect (`inspect_ai`) gotchas:
+- `temperature=0.0` is rejected by the HF provider — pass `do_sample=False` as a **model_arg**
+  (`GenerateConfig` has no `do_sample`).
+- Two 1.7B models don't co-fit on one 16 GB GPU if loaded float32 / large batch. Free in-memory
+  models first; use `batch_size` + `max_connections` limits; keep bf16.
+- `save_pretrained` records dtype under the new `dtype` key; **also set legacy `torch_dtype`** in
+  the saved `config.json` or the loader defaults to float32 (2× memory → OOM).
+- Qwen3: pass `enable_thinking=False` (model_arg) so MCQ answers are a few tokens, not a long CoT.
+
+---
+
+## R&D verification (the exploration behind the day) — all under gitignored `REPOS/`
+
+The technique was verified on 6 models before the lab was written:
 
 | model | how | refusal ASR baseline → ablation |
 |---|---|---|
-| gemma-2b-it (paper's original) | committed direction, substring judge | 0.09 → 0.98 *(committed target 0.09→1.00)* |
-| Qwen-1.8B-Chat (paper's original) | **removed from HF**; validated scoring vs committed | 0.30 → 0.99 (committed) |
-| Qwen3-0.6B | full pipeline, gen-based layer select (L8) | 0.77 → 0.77 augmented *(metric noisy; samples flip)* |
+| gemma-2b-it (paper's original) | committed direction, substring judge | 0.09 → 0.98 *(committed 0.09→1.00)* |
+| Qwen-1.8B-Chat (paper's original) | **removed from HF**; validated vs committed | 0.30 → 0.99 (committed) |
+| Qwen3-0.6B | gen-based layer select (L8) | 0.77 → 0.77 augmented *(metric noisy; samples flip)* |
 | Qwen3-1.7B | gen-based layer select (L14) | **0.39 → 0.99** augmented |
 | gemma-3n-E2B-it | custom AltUp adapter (L15) | **0.32 → 1.00** augmented |
 | gemma-3n-E4B-it | custom AltUp adapter (L16) | 0.40 → 0.94 augmented *(bomb only partially bypasses)* |
 
-**Capability of baked-in abliterated Qwen3-1.7B** (inspect_ai, 150 Q, ±1 SE):
-- ARC-Challenge: 70.7±3.7% → 70.0±3.7%
-- MMLU: 55.3±4.1% → 56.7±4.0%
-- (ARC-Easy 94%→94% — **dropped**, too easy/near-ceiling to be informative.)
+R&D capability (full, 150 Q, ±1 SE): ARC-Challenge 70.7±3.7% → 70.0±3.7%; MMLU 55.3±4.1% →
+56.7±4.0%. (ARC-Easy 94%→94% — dropped, near-ceiling.)
 
-Differences are within noise → ablation is surgical.
+Key R&D findings (also drive the lab design):
+1. **`Qwen/Qwen-1_8B-Chat` is gone from HF** (only base + Int4/Int8 remain).
+2. **The paper's `P(first token ∈ {"I","As"})` selection metric doesn't transfer** to modern
+   soft-refusal models — it empties the dataset and filters out every candidate
+   (`AssertionError: All scores have been filtered out!`). Fix: select the layer by *generation
+   bypass*. Extraction + directional ablation are still exactly the paper's method.
+3. **Substring refusal judges are unreliable for modern refusals** (both under/over-count). Use
+   an augmented judge + qualitative samples. (A real LlamaGuard/Together judge was out of scope.)
+4. **Gemma 3n uses AltUp** — decoder input is `[num_altup=4, B, S, D]` (active idx 0); the repo's
+   mean-capture assumes `[B,S,D]`. Custom adapter captures the active stream; ablation hooks work
+   unchanged. Needs `timm`; loads via `Gemma3nForConditionalGeneration` at
+   `model.model.language_model.layers`.
+5. **E4B is more robust** — single-layer ablation only partially bypasses the bomb prompt
+   (deflects to a "baking-soda volcano"). Good discussion point on scale.
 
----
-
-## Where everything lives
-
-Everything R&D is under **`REPOS/`**, which is **gitignored** (see `.gitignore`). Only two
-things are staged in the repo: the `OLD/` move and the `.gitignore` edit.
+### `REPOS/` file map (all gitignored)
 
 ```
-worktrees/4.3-refusal-single-dir/
-├── HANDOFF.md                         ← this file (untracked)
-├── OLD/4.3-safety-finetuning/         ← old section, preserved via `git mv` (STAGED)
-├── .gitignore                         ← added `REPOS/` (STAGED)
-├── .venv/                             ← isolated env (gitignored). torch 2.4.0, transformers 4.57.6,
-│                                        inspect-ai 0.3.244, timm. See "Environment" below.
-└── REPOS/                             ← ALL gitignored working area
-    ├── refusal_2406.11717.pdf         ← paper (5-page NeurIPS version)
-    ├── paper_src/                     ← full arXiv TeX source (refusal.tex etc.)
-    ├── hf_cache/                      ← HF model cache (HF_HOME points here)
-    ├── refusal_direction/             ← cloned github.com/andyrdt/refusal_direction, WITH MY EDITS:
-    │   ├── pipeline/model_utils/qwen3_model.py        ← NEW: Qwen3 adapter I wrote
-    │   ├── pipeline/model_utils/model_factory.py      ← EDITED: routes 'qwen3' → Qwen3Model
-    │   └── pipeline/submodules/evaluate_jailbreak.py  ← EDITED: made vllm/litellm imports optional
-    │   └── pipeline/runs/{gemma-2b-it,qwen-1_8b-chat,...}/  ← upstream's COMMITTED artifacts (direction.pt etc.)
-    └── work/                          ← all my scripts + outputs
-        ├── smoke_test.py              ← load + generate + ablate (quick sanity)
-        ├── reproduce_ablation.py      ← gemma-2b-it repro using committed direction (→ reproduce_gemma-2b-it.json)
-        ├── run_pipeline_lite.py       ← full pipeline trimmed to refusal-score-only, --no_filter
-        ├── abliterate.py              ← Qwen/Llama-family: gen-based layer select + eval + samples
-        ├── gemma3n_abliterate.py      ← Gemma 3n (AltUp-aware) abliteration
-        ├── bake_model.py              ← orthogonalize weights → save standalone abliterated model
-        ├── generate_rollouts.py       ← baseline/steering/ablation rollouts → qwen3_1.7b_rollouts.md
-        ├── mcq_eval.py                ← KEEP: inspect_ai ARC-Challenge + MMLU eval (per model, per benchmark)
-        ├── arc_eval.py                ← superseded (ARC-Easy); kept for reference
-        ├── plot_results.py            ← capability_plot.png with SE error bars + random/human refs
-        ├── timing.py                  ← timing of extraction / ablation / steering
-        ├── qwen3-1.7b-abliterated/    ← SAVED baked-in model (standalone HF model, ~3.3GB bf16)
-        ├── direction_*.pt             ← saved refusal directions per model
-        ├── *_*.json                   ← eval results + completions per model
-        ├── qwen3_1.7b_rollouts.md     ← sent to user
-        ├── capability_plot.png        ← sent to user
-        ├── inspect_logs/              ← inspect .eval logs
-        └── *.log                      ← run logs
+REPOS/
+├── refusal_2406.11717.pdf, paper_src/     paper PDF + arXiv TeX source
+├── hf_cache/                              HF model cache (HF_HOME points here)
+├── refusal_direction/                     cloned github.com/andyrdt/refusal_direction, MY EDITS:
+│   ├── pipeline/model_utils/qwen3_model.py       NEW: Qwen3 adapter
+│   ├── pipeline/model_utils/model_factory.py     EDITED: route 'qwen3' → Qwen3Model
+│   └── pipeline/submodules/evaluate_jailbreak.py EDITED: vllm/litellm imports optional
+└── work/                                  scripts + outputs
+    ├── smoke_test.py, reproduce_ablation.py, run_pipeline_lite.py
+    ├── abliterate.py            Qwen/Llama gen-based select + eval + samples
+    ├── gemma3n_abliterate.py    Gemma 3n (AltUp-aware) abliteration
+    ├── bake_model.py            orthogonalize weights → save standalone model
+    ├── generate_rollouts.py     baseline/steering/ablation rollouts → qwen3_1.7b_rollouts.md
+    ├── mcq_eval.py              inspect ARC-Challenge + MMLU, one model per process
+    ├── plot_results.py          capability_plot.png (SE bars + random/human refs)
+    ├── timing.py                extraction/ablation/steering timing
+    ├── qwen3-1.7b-abliterated/  saved baked-in model (~3.3 GB bf16)
+    ├── direction_*.pt, *_*.json, *.log, inspect_logs/
+    └── (sent to user: qwen3_1.7b_rollouts.md, capability_plot.png)
 ```
-
----
-
-## Key technical findings (bake these into the lab)
-
-1. **The paper's original Qwen 1.8B (`Qwen/Qwen-1_8B-Chat`) is GONE from HF.** Only base +
-   Int4/Int8 remain. Use gemma-2b-it for a faithful original-model repro, or lean on Qwen3.
-
-2. **The paper's direction-SELECTION metric doesn't transfer to modern models.** It scores
-   directions by `P(first generated token ∈ {"I","As"})`. Qwen3/Gemma-3n refuse with topic
-   words ("*Hotwiring a car is illegal...*"), so that metric collapses the dataset during
-   filtering and then filters out every candidate direction (`AssertionError: All scores have
-   been filtered out!`). **Fix used:** `abliterate.py` / `gemma3n_abliterate.py` select the
-   layer by *actual generation bypass* on a held-out harmful set (the standard "abliteration"
-   approach). The extraction + directional ablation are still exactly the paper's method.
-
-3. **Substring refusal judges are unreliable for modern refusals** (both under- and
-   over-counting; e.g. an ablated compliance that says "note this is illegal" is scored as a
-   refusal). Qwen3-0.6B shows a flat 0.77→0.77 despite samples clearly flipping. Report an
-   augmented judge AND lean on qualitative samples. A proper judge (LlamaGuard/Together) was
-   out of scope (user chose refusal-score-only, no paid API).
-
-4. **Gemma 3n uses AltUp** — each decoder layer's residual input is `[num_altup=4, B, S, D]`,
-   active stream index 0. The repo's mean-activation capture assumes `[B,S,D]` and breaks.
-   `gemma3n_abliterate.py` captures the active stream for extraction; the ablation hooks work
-   unchanged (they broadcast over the last dim). Gemma 3n also needs `timm` (vision tower) and
-   loads via `Gemma3nForConditionalGeneration` at `model.model.language_model.layers`.
-
-5. **E4B is more robust:** at a single layer the bomb prompt only *partially* bypasses
-   (deflects to a "baking-soda volcano"). Good discussion point on scale vs. abliteration.
-
-6. **Timing (Qwen3-1.7B, one RTX A4000, bf16):** direction extraction (256 prompts) 1.3s;
-   ablation adds ~28% per-token overhead (0.84→1.08 s/prompt at 256 tok); steering (1 hook) is
-   free; each 150-Q inspect eval ~20–40s + ~15s load. All well within an interactive lab.
 
 ---
 
 ## Environment & how to run
 
-- `.venv` at the worktree root. Built from a **subset** of `requirements.txt` because the
-  repo's `requirements.txt` is **currently uninstallable**: `control-arena==17.1.1` needs
-  `datasets>=4.4.2` but the file pins `datasets==3.6.0`. **Bump that pin for the full env.**
-- Installed on top: `inspect-ai==0.3.244`, `timm` (for Gemma 3n). Installing timm silently
-  upgraded torch → had to re-pin `torch==2.4.0 torchvision==0.19.0 triton==3.0.0`.
-- Standard run pattern (working dir must be the cloned repo; it drifts, so always `cd`):
+- `.venv` at the worktree root: `torch==2.4.0`, `transformers==4.57.6`, `inspect-ai==0.3.244`,
+  `timm`, plus build deps `libcst black termcolor`. Installed from a **subset** of
+  `requirements.txt` because that file is **currently uninstallable**: `control-arena==17.1.1`
+  needs `datasets>=4.4.2` but it pins `datasets==3.6.0`. **Bump that pin for the full env.**
+  (Installing `timm` silently bumped torch → had to re-pin `torch/torchvision/triton`.)
+- Run the day content directly (working dir = repo/worktree root):
   ```bash
-  cd REPOS/refusal_direction
-  HF_HOME=<ABS>/REPOS/hf_cache PYTHONPATH=. CUDA_VISIBLE_DEVICES=0 \
+  HF_HOME=REPOS/hf_cache CUDA_VISIBLE_DEVICES=0 .venv/bin/python 4.3-refusal-direction/section3_solution.py
+  ```
+  R&D scripts run from the cloned repo (cwd drifts — always `cd`):
+  ```bash
+  cd REPOS/refusal_direction && HF_HOME=<ABS>/REPOS/hf_cache PYTHONPATH=. CUDA_VISIBLE_DEVICES=0 \
       ../../.venv/bin/python ../work/<script>.py [args]
   ```
-- GPUs: box has 3× RTX A4000 (16GB). **GPU 0** is the free one; GPU 1 throws "Unknown Error",
-  GPU 2/3 are used by others. Two 1.7B models don't co-fit on one 16GB card → run one model
-  per process (see `mcq_eval.py`, invoked once per model).
-- HF token for gated Gemma is already active in the environment (user `davidquarel`).
+- GPUs: 3× RTX A4000 (16 GB). **GPU 0** is the free one; GPU 1 throws "Unknown Error"; GPU 2/3 are
+  used by others. Two 1.7B models don't co-fit on one card → one model per process.
+- HF token for gated Gemma is active in the environment (user `davidquarel`).
 
 ---
 
 ## Open items / next steps
 
-1. **Write `4.3-refusal-single-dir/section*_solution.py`** — the actual day content. Suggested
-   arc: extract difference-in-means direction → runtime steering & ablation (interactive `# %%`
-   cells) → **bake into weights** (orthogonalization, save new model) → **MMLU before/after
-   capability check** with inspect_ai. Recommended model: **Qwen3-1.7B** (ungated, clean, fast);
-   optionally Gemma-3n-E2B as a "current-architecture" demo, with E4B's partial bomb-refusal as
-   a discussion point. Follow `CLAUDE.md` conventions (title block, `if "SOLUTION":` markers,
-   `@report` tests, plain `## headers`, `N/5` ratings, canonical `sys.path` snippet).
-2. Use **MMLU + ARC-Challenge** for the capability eval (drop ARC-Easy). `mcq_eval.py` is ready.
-3. Decide whether to commit `HANDOFF.md` and whether the new day's shared code (a `*_setup.py`,
-   the Qwen3 adapter, bake/eval helpers) lives in the `4.3-*` content folder (per CLAUDE.md,
-   shared modules go in the `X.Y-*` folder, not legacy `dayN-*`).
-4. Fix the `requirements.txt` `datasets` pin conflict for the full bootcamp env.
+1. **User audit** of the day before merging `vegas-4.3-dev` → `vegas`.
+2. **Optional exercises to consider:** a layer-sweep (how L=14 is chosen), and/or a Gemma-3n-E2B
+   "current-architecture" demo with E4B's partial bomb-refusal as a discussion point.
+3. **Review the inline harmful dataset** (~16 AdvBench-style instructions in the solution file) —
+   confirm it's acceptable to ship verbatim in course content.
+4. **Fix `requirements.txt`** `datasets` pin conflict for the full bootcamp env.
+5. Decide whether the generated `*_instructions.md` / `*_test.py` should be committed (currently
+   are, for review convenience) or gitignored and built on demand, per repo convention.
+6. `HANDOFF.md` is dev clutter — strip before merge.
