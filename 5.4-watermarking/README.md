@@ -16,7 +16,7 @@ under realistic transformations.
 ### Preparation
 
 - Review a short FFT/image-frequency primer and the assigned diffusion-watermark paper.
-- Just-in-time references should cover PyTorch forward hooks and the exact diffusion-pipeline output contract.
+- Just-in-time references should cover PyTorch forward hooks and the exact structure returned by the diffusion pipeline.
 
 ### Current-state TODOs
 

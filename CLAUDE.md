@@ -6,15 +6,31 @@ The participants will be experienced cybersecurity experts who need upskilling i
 
 ## Participant baseline and curriculum contracts
 
-Participants are expected to have completed the AISB Vegas required prework. In
-particular, content may assume introductory familiarity with PyTorch tensors,
-autograd, optimizers, and a basic training loop; neural-network inference and
-gradient descent; tokenization and Hugging Face chat templates; the high-level
-LLM training and post-training pipeline; and basic LLM application security,
-RAG, MCP, and coding-agent concepts. Do not assume prior fluency with specialized
-libraries such as Hugging Face Datasets/Trainer, PEFT, vLLM, ControlArena,
-diffusion-model hooks, or representation-probe tooling unless an earlier section
-has taught it.
+Use two different prerequisite levels when writing content:
+
+1. **Assumed foundations.** Participants are experienced cybersecurity
+   professionals and competent programmers. Content may assume security
+   fundamentals such as threat modeling, trust boundaries, authentication and
+   authorization, least privilege, injection, vulnerability analysis, detection,
+   and defense in depth, along with working Python, shell, Git, and general API
+   skills. Do not reteach or create exercises for these foundations; apply them
+   directly to AI systems.
+2. **Expected prior exposure, but not reliable fluency.** Participants should
+   have encountered neural networks and gradient descent; introductory PyTorch
+   tensors, autograd, optimizers, and training loops; tokenization and chat
+   templates; the high-level LLM training and post-training pipeline; and LLM
+   application concepts such as RAG, MCP, and coding agents in the published
+   prework. Do not devote exercises to reviewing this background. When a section
+   depends on it, provide a concise just-in-time infobox, diagram, or precise
+   refresher link so participants can recover the concept without losing the
+   exercise's main thread.
+
+Do not assume prior fluency with specialized libraries such as Hugging Face
+Datasets/Trainer, PEFT, vLLM, ControlArena, diffusion-model hooks, or
+representation-probe tooling unless an earlier section has taught it. If one of
+these is a genuine engineering learning objective, introduce it explicitly and
+scaffold it in proportion to its importance; otherwise provide the necessary
+interface or reference.
 
 Every instructional folder has a `README.md` that records its curriculum
 contract:

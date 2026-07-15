@@ -1,6 +1,6 @@
 Welcome to [AI Security Bootcamp Vegas](https://www.aisb.dev/) (AISB)! AISB is a 7-day intensive program for security professionals shaping how we secure emerging AI systems. This repo contains the exercises and links to the reading material you will go through during the bootcamp.
 
-## Section contract
+## What you should know and learn
 
 Day 0 should establish that each participant can run the course, save their work,
 and reach every external service before instructional time begins. Current-state
@@ -32,7 +32,7 @@ TODOs below are for course authors, not participant setup tasks.
 
 ## Prerequisites
 
-Review the section contract above and the setup instructions below to ensure you have the required skills and tools to complete the bootcamp.
+Review the prerequisites and setup instructions below to ensure you have the required skills and tools to complete the bootcamp.
 
 ## In-person instructions
 If you're attending the bootcamp in person, you will spend most of the days pair programming with your assigned partner on the exercises for the given day.

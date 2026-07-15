@@ -39,7 +39,7 @@ Welcome to [AI Security Bootcamp Vegas](https://www.aisb.dev/) (AISB)! AISB is a
 
 ## Prerequisites
 
-Please review the [Day 0 setup contract and instructions](day0-setup/README.md) to ensure you have the required skills and tools to complete the bootcamp.
+Please review the [Day 0 setup guide](day0-setup/README.md) to ensure you have the required skills and tools to complete the bootcamp.
 
 ## In-person instructions
 If you're attending the bootcamp in person, you will spend most of the days pair programming with your assigned partner on the exercises for the given day.

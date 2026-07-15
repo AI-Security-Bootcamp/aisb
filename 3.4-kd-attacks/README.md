@@ -16,7 +16,7 @@ outputs transfer information.
 ### Preparation
 
 - Required prework: *Deep Learning with PyTorch: A 60 Minute Blitz*.
-- Just-in-time references: PyTorch's training-loop example and `torch.nn.functional.kl_div` contract.
+- Just-in-time references: PyTorch's training-loop example and the documented behavior of `torch.nn.functional.kl_div`.
 
 ### Current-state TODOs
 
