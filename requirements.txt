@@ -48,6 +48,7 @@ pillow
 # AgentState, and the sandbox API).
 control-arena==17.1.1
 inspect-ai==0.3.244
+nest_asyncio
 
 # --- Day 4 fine-tuning / abliteration --- 4.2 verified; 4.3 (vLLM) best-effort
 peft==0.13.2
