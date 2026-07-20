@@ -23,6 +23,29 @@ Remaining work is audit + polish, not core implementation — see "Open items".
 
 ---
 
+## Cold-start for a new Claude (read this first)
+
+You are picking up someone else's work. Orient before touching anything:
+
+1. **Absolute path:** `/workspace/HOME/guest/david_quarel/aisb/worktrees/4.3-refusal-single-dir/`.
+   This is a **git worktree** of the main repo at `/workspace/HOME/guest/david_quarel/aisb/`
+   (the main checkout is on branch `vegas`; this worktree is on `vegas-4.3-dev`). Run all
+   commands from the worktree root unless a step says otherwise.
+2. **Read `CLAUDE.md`** (repo root) — it governs how content is authored and built. Non-obvious
+   build gotchas it does *not* cover are in "Authoring lessons" below.
+3. **Read `HANDOFF_DAVID.md`** — the short version for the human owner (David). This file is the
+   long version for you.
+4. **A project memory** at `~/.claude/projects/-workspace-HOME-guest-david-quarel-aisb/memory/`
+   (`day-4.3-refusal-direction.md`) points here — treat it as a stale pointer, trust this file.
+5. **Confirm the branch and that it's clean:** `git -C <worktree> status` and
+   `git log --oneline vegas..HEAD`. Then **sanity-check you can build and run** (commands below)
+   before making changes — the env drifts (torch pins, GPU availability) between sessions.
+6. **Commit style:** Conventional-Commit prefixes (`content(4.3):`, `chore(4.3):`, `docs(4.3):`),
+   a `Co-Authored-By:` trailer, and **your own** session trailer — do not copy the previous
+   session's `Claude-Session:` URL. Small, logical commits; the user audits before merging.
+
+---
+
 ## The day itself (`4.3-refusal-direction/`)
 
 Model: **Qwen3-1.7B** (ungated, clean, fast). Layer: **19** (of 28), hardcoded and given for
@@ -136,6 +159,7 @@ REPOS/
     ├── timing.py                extraction/ablation/steering timing
     ├── qwen3-1.7b-abliterated/  saved baked-in model (~3.3 GB bf16)
     ├── direction_*.pt, *_*.json, *.log, inspect_logs/
+    ├── venv_freeze.txt          exact `uv pip freeze` of the working .venv
     └── (sent to user: qwen3_1.7b_rollouts.md, capability_plot.png)
 ```
 
@@ -143,12 +167,33 @@ REPOS/
 
 ## Environment & how to run
 
-- `.venv` at the worktree root: `torch==2.4.0`, `transformers==4.57.6`, `inspect-ai==0.3.244`,
-  `timm`, plus build deps `libcst black termcolor`. Installed from a **subset** of
-  `requirements.txt` because that file is **currently uninstallable**: `control-arena==17.1.1`
-  needs `datasets>=4.4.2` but it pins `datasets==3.6.0`. **Bump that pin for the full env.**
-  (Installing `timm` silently bumped torch → had to re-pin `torch/torchvision/triton`.)
-- Run the day content directly (working dir = repo/worktree root):
+- `.venv` at the worktree root. It was installed from a **subset** of `requirements.txt` because
+  that file is **currently uninstallable**: `control-arena==17.1.1` needs `datasets>=4.4.2` but it
+  pins `datasets==3.6.0`. **Bump that pin for the full env.** (Also: installing `timm` silently
+  bumps torch, so torch/torchvision/triton must be pinned in the *same* install command.)
+- **If `.venv` is missing/broken, recreate it with this exact command** (verified working set;
+  full snapshot in `REPOS/work/venv_freeze.txt`). Pinning torch+torchvision+triton up front stops
+  `timm` from clobbering torch:
+  ```bash
+  cd /workspace/HOME/guest/david_quarel/aisb/worktrees/4.3-refusal-single-dir
+  uv venv --python 3.12 .venv
+  VIRTUAL_ENV=.venv uv pip install \
+    torch==2.4.0 torchvision==0.19.0 triton==3.0.0 \
+    transformers==4.57.6 accelerate==1.10.1 datasets==3.6.0 huggingface_hub==0.35.3 \
+    sentencepiece tokenizers protobuf tqdm tiktoken numpy scipy matplotlib \
+    jaxtyping einops transformers-stream-generator inspect-ai==0.3.244 timm \
+    libcst black termcolor \
+    --extra-index-url https://download.pytorch.org/whl/cu124
+  ```
+  Key installed versions: torch 2.4.0+cu124, transformers 4.57.6, inspect-ai 0.3.244, datasets
+  3.6.0, timm 1.0.28, libcst 1.8.6.
+- Build the day (regenerate `.md` + `_test.py` from the solution) — note `env -u VIRTUAL_ENV`,
+  see Authoring lessons for why:
+  ```bash
+  env -u VIRTUAL_ENV ./build-instructions.sh 4.3-refusal-direction/section3_solution.py
+  ```
+- Run the day content directly (this is also the verification — runs every exercise + test +
+  the Inspect eval; working dir = repo/worktree root; ~6–8 min, GPU 0):
   ```bash
   HF_HOME=REPOS/hf_cache CUDA_VISIBLE_DEVICES=0 .venv/bin/python 4.3-refusal-direction/section3_solution.py
   ```
@@ -158,8 +203,23 @@ REPOS/
       ../../.venv/bin/python ../work/<script>.py [args]
   ```
 - GPUs: 3× RTX A4000 (16 GB). **GPU 0** is the free one; GPU 1 throws "Unknown Error"; GPU 2/3 are
-  used by others. Two 1.7B models don't co-fit on one card → one model per process.
-- HF token for gated Gemma is active in the environment (user `davidquarel`).
+  used by others. Two 1.7B models don't co-fit on one card → one model per process. GPU
+  availability drifts between sessions — check `nvidia-smi` and pick a free card via
+  `CUDA_VISIBLE_DEVICES` (Qwen3-1.7B needs it; the paper's original **Gemma models are gated**).
+- **HuggingFace token:** an active token for user `davidquarel` is present in the environment
+  (gives gated Gemma access). Verify with:
+  `.venv/bin/python -c "from huggingface_hub import whoami; print(whoami()['name'])"`.
+  Qwen3 is ungated and needs no token; only the Gemma R&D scripts do.
+
+## Git / pushing
+
+- Remotes: `origin` = upstream `AI-Security-Bootcamp/aisb` (**do not push here**); `fork` =
+  `https://github.com/davidquarel/aisb` (the user's fork — push here). `gh` is authenticated as
+  `davidquarel` over HTTPS (`gh auth setup-git` already run).
+- Push the branch with: `git push fork vegas-4.3-dev`. The branch is **not** to be merged into
+  `vegas` by you — the user audits first.
+- Committed files are small text only. `REPOS/`, `.venv`, and the day's large outputs
+  (`abliterated_qwen3/`, `inspect_logs/`) are gitignored; never `git add -f` them.
 
 ---
 
@@ -174,4 +234,4 @@ REPOS/
 4. **Fix `requirements.txt`** `datasets` pin conflict for the full bootcamp env.
 5. Decide whether the generated `*_instructions.md` / `*_test.py` should be committed (currently
    are, for review convenience) or gitignored and built on demand, per repo convention.
-6. `HANDOFF.md` is dev clutter — strip before merge.
+6. `HANDOFF.md` and `HANDOFF_DAVID.md` are dev clutter — strip both before merge to `vegas`.
