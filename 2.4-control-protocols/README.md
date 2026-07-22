@@ -12,7 +12,7 @@ safety–usefulness trade-offs.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Complete 2.3 and write and `await` a Python async function | Implement stateful control-policy decisions and analyze evaluation logs |
+| Engineering | `async`/`await` | Implement stateful control-policy decisions and analyze evaluation logs |
 | ML | Convert monitor scores to decisions with a threshold and explain how drawing another sample can change an outcome | Explain how thresholds, replacement models, and repeated samples change system behavior |
 | Security | Calculate an audit budget as a fraction of events and write an escalation rule with a stated residual failure mode | Design a protocol around attacker behavior rather than treating monitoring as the final control |
 | Theory | State which model is trusted, which is untrusted, and what safety–usefulness trade-off the protocol makes | Reason about the safety–usefulness frontier and the assumptions under which each protocol helps |
