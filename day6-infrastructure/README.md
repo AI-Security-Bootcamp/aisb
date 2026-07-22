@@ -19,8 +19,9 @@ in which participants trace and then break a hardware-to-kernel attack chain.
 
 ### Background
 
-- Required prework: [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/), RAND's [*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf), IAPS's [*Accelerating AI Data Center Security*](https://www.iaps.ai/research/accelerating-ai-data-center-security), and the [NVIDIAScape advisory](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape).
-- Recommended refreshers: Linux [namespaces](https://man7.org/linux/man-pages/man7/namespaces.7.html), Linux [page tables](https://docs.kernel.org/mm/page_tables.html), the Linux [IOMMU subsystem](https://docs.kernel.org/driver-api/iommu.html), [GPUHammer](https://gpuhammer.com/), and NVIDIA [multi-instance GPU](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/) isolation.
+- For the document-analysis exercise, use the assigned sections—not the full documents—of RAND's [*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf), IAPS's [*Accelerating AI Data Center Security*](https://www.iaps.ai/research/accelerating-ai-data-center-security), and the local [SL5 Novel Recommendations](SL5_NOVEL-RECOMMENDATIONS.pdf).
+- Before the container-escape exercise, read the [NVIDIAScape advisory](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape).
+- Before the GPUBreach simulator, read the [GPUHammer overview](https://gpuhammer.com/). Use Linux [namespaces](https://man7.org/linux/man-pages/man7/namespaces.7.html), Linux [page tables](https://docs.kernel.org/mm/page_tables.html), [x86 IOMMU support](https://docs.kernel.org/arch/x86/iommu.html), and NVIDIA [multi-instance GPU](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/) isolation as just-in-time references.
 - The simulator is conceptual; it should not require or imply access to vulnerable production hardware.
 
 ### Current-state TODOs

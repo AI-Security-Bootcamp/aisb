@@ -19,7 +19,6 @@ with practical information leakage, extraction, and adversarial optimization.
 ### Background
 
 - Revisit the inference and sampling portions of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
-- Review the response-object parsing in [1.1](../1.1-llm-internals/README.md).
 
 ### Current-state TODOs
 

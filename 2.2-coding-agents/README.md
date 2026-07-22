@@ -19,7 +19,6 @@ mapping compromised inputs to concrete actions, impacts, and layered controls.
 ### Background
 
 - Required prework: Anthropic's [*How Claude Code works*](https://code.claude.com/docs/en/how-claude-code-works) and Google's [MCP overview](https://cloud.google.com/discover/what-is-model-context-protocol).
-- Bring experience from a developer environment or CI/CD system you have secured.
 
 ### Current-state TODOs
 

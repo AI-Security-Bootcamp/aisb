@@ -20,7 +20,8 @@ safety–usefulness trade-offs.
 ### Background
 
 - Complete [2.3](../2.3-monitoring/README.md) first.
-- Read the assigned excerpts from [*AI Control: Improving Safety Despite Intentional Subversion*](https://arxiv.org/abs/2312.06942); use the [ControlArena reference](https://control-arena.aisi.org.uk/reference/) for the framework API.
+- Read Sections 3.2–3.3 of [*AI Control: Improving Safety Despite Intentional Subversion*](https://arxiv.org/abs/2312.06942) and the abstract and introduction of [*Ctrl-Z: Controlling AI Agents via Resampling*](https://arxiv.org/abs/2504.10374).
+- Use Python's [`asyncio` coroutines and tasks](https://docs.python.org/3/library/asyncio-task.html) and the [ControlArena reference](https://control-arena.aisi.org.uk/reference/) as just-in-time framework references.
 
 ### Current-state TODOs
 

@@ -18,8 +18,8 @@ extract the output projection up to an unknown linear transform.
 
 ### Background
 
-- Read the linked [SVD refresher](https://en.wikipedia.org/wiki/Singular_value_decomposition) and review change-of-basis intuition before the section.
-- Revisit [1.2 on logprob/logit exposure](../1.2-logprobs/README.md); the instructor should provide an exact linear-algebra refresher if SVD is not required prework.
+- Read the [SVD refresher](https://en.wikipedia.org/wiki/Singular_value_decomposition) and 3Blue1Brown's [change-of-basis lesson](https://www.3blue1brown.com/lessons/change-of-basis/) before the section.
+- Revisit [1.2 on logprob/logit exposure](../1.2-logprobs/README.md) for the API access model used by the attack.
 
 ### Current-state TODOs
 

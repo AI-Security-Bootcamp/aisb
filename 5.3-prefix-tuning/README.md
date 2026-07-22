@@ -21,6 +21,7 @@ not constitute a deployable API attack.
 
 - Complete [5.2](../5.2-adversarial-language/README.md) first.
 - Review the [PyTorch optimization-loop pattern](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html); the new concept is direct embedding-space control.
+- Read the abstract and method overview of [*LARGO: Latent Adversarial Reflection through Gradient Optimization for Jailbreaking LLMs*](https://arxiv.org/abs/2505.10838); the full paper is optional longer reading.
 
 ### Current-state TODOs
 

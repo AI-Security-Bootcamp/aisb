@@ -19,7 +19,7 @@ layer, and compare lexical, model-based, and representation-based detection.
 ### Background
 
 - Complete [3.1](../3.1-tokenization/README.md) and [3.2](../3.2-jailbreaking/README.md).
-- Just-in-time references: Hugging Face [generation controls](https://huggingface.co/docs/transformers/main_classes/text_generation), scikit-learn's [precision/recall guide](https://scikit-learn.org/stable/modules/model_evaluation.html#precision-recall-f-measure-metrics), [pipelines](https://scikit-learn.org/stable/modules/compose.html#pipeline), and [cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html).
+- Just-in-time references: Hugging Face [generation controls](https://huggingface.co/docs/transformers/main_classes/text_generation), plus scikit-learn's [precision/recall guide](https://scikit-learn.org/stable/modules/model_evaluation.html#precision-recall-f-measure-metrics) and [pipelines](https://scikit-learn.org/stable/modules/compose.html#pipeline). The [cross-validation guide](https://scikit-learn.org/stable/modules/cross_validation.html) is only needed for the optional linear-probe exercise.
 
 ### Current-state TODOs
 

@@ -20,7 +20,7 @@ coordinate search.
 ### Background
 
 - Complete [5.1](../5.1-adversarial-vision/README.md) or refresh PyTorch [autograd](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html) and [optimization loops](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html).
-- Review tokenization from Days 1 and 3 and read the abstract and GCG method in [*Universal and Transferable Adversarial Attacks on Aligned Language Models*](https://arxiv.org/abs/2307.15043); the full paper is optional longer reading.
+- Read the abstract and GCG method in [*Universal and Transferable Adversarial Attacks on Aligned Language Models*](https://arxiv.org/abs/2307.15043); the full paper is optional longer reading.
 
 ### Current-state TODOs
 

@@ -19,7 +19,7 @@ under realistic transformations.
 
 ### Background
 
-- Review NumPy's [FFT overview](https://numpy.org/doc/stable/reference/routines.fft.html) and read the abstract and method figures of [*Tree-Ring Watermarks: Fingerprints for Diffusion Images that are Invisible and Robust*](https://arxiv.org/abs/2305.20030); the full paper is optional longer reading.
+- Read the “What Are Diffusion Models?” overview in Hugging Face's [introduction to diffusion models](https://huggingface.co/learn/diffusion-course/en/unit1/1), review NumPy's [FFT overview](https://numpy.org/doc/stable/reference/routines.fft.html), and read the abstract and method figures of [*Tree-Ring Watermarks: Fingerprints for Diffusion Images that are Invisible and Robust*](https://arxiv.org/abs/2305.20030); the full paper is optional longer reading.
 - Just-in-time references: PyTorch [`register_forward_hook`](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook) and the Diffusers [`StableDiffusionPipelineOutput`](https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/overview#diffusers.pipelines.stable_diffusion.StableDiffusionPipelineOutput) structure.
 
 ### Current-state TODOs

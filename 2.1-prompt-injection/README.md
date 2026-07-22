@@ -19,7 +19,6 @@ craft an indirect injection against the boundary between instructions and data.
 ### Background
 
 - Required prework: Google's [RAG](https://cloud.google.com/use-cases/retrieval-augmented-generation) and [MCP](https://cloud.google.com/discover/what-is-model-context-protocol) explainers, [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/), and Karpathy's [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) security section.
-- Review [1.1–1.3](../1.1-llm-internals/README.md) for message hierarchy and serialization.
 
 ### Current-state TODOs
 

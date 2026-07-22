@@ -19,8 +19,7 @@ security boundary between instructions and data.
 
 ### Background
 
-- Required prework: Hugging Face's [chat-template guide](https://huggingface.co/docs/transformers/chat_templating) and the relevant chapters of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
-- Just-in-time reference: the [Hugging Face chat-template documentation](https://huggingface.co/docs/transformers/chat_templating).
+- Required prework: Hugging Face's [chat-template guide](https://huggingface.co/docs/transformers/chat_templating) and Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) through 2:27:47.
 
 ### Current-state TODOs
 

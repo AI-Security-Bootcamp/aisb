@@ -19,7 +19,7 @@ reasoning controls.
 
 ### Background
 
-- Required prework: Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating) and the inference chapters of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
+- Required prework: Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating) and Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) through 2:27:47.
 - Review the [Hugging Face generation API](https://huggingface.co/docs/transformers/main_classes/text_generation); remote GPU access should already have been validated.
 
 ### Current-state TODOs

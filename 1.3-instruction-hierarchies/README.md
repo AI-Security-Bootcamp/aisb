@@ -19,7 +19,6 @@ to the familiar cybersecurity idea of principals with different authority.
 ### Background
 
 - Complete [1.1](../1.1-llm-internals/README.md) first.
-- Revisit the [Hugging Face chat-template guide](https://huggingface.co/docs/transformers/chat_templating) if role serialization is not yet comfortable.
 
 ### Current-state TODOs
 
