@@ -12,7 +12,7 @@ security boundary between instructions and data.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Create nested Python lists/dictionaries, serialize them as JSON, make an HTTP API request, and inspect a nested response field | Make an OpenAI-compatible request, inspect a tokenizer chat template, and debug the resulting message serialization |
+| Engineering | - | Make an OpenAI-compatible request, inspect a tokenizer chat template, and debug the resulting message serialization |
 | ML | Define a token, describe next-token prediction, and predict how increasing temperature changes sampling | Explain how roles, tool calls, and special tokens become one model input sequence |
 | Security | Given a request-processing flow, mark an untrusted input and the parser boundary it crosses | Identify the role, special-token, and serialization boundaries that form the model API's security perimeter |
 | Theory | - | Distinguish the message hierarchy represented by an API from the flat token sequence processed by the model |

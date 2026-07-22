@@ -12,7 +12,7 @@ opportunities.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Run a Python function with changed scalar parameters and record its outputs | Record parameter sweeps and communicate results in a compact table or plot |
+| Engineering | - | Record parameter sweeps and communicate results in a compact table or plot |
 | ML | Calculate a simple event probability and distinguish an expected value from an observed sample frequency | Interpret Monte Carlo estimates and distinguish them from measured deployment safety |
 | Security | Define false positive, false negative, audit rate, and attack prevalence | Identify which operational assumptions dominate system risk and where defense in depth enters |
 | Theory | - | Explain why component AUC alone does not determine end-to-end safety |

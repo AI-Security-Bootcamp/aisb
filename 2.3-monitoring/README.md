@@ -11,7 +11,7 @@ measure detection quality rather than judging a few anecdotes.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Parse a JSON log in Python, count records matching a condition, calculate a rate, and make an LLM API call | Run ControlArena evaluations, inspect trajectories, and turn monitor outputs into analyzable scores |
+| Engineering | - | Run ControlArena evaluations, inspect trajectories, and turn monitor outputs into analyzable scores |
 | ML | Given a confusion matrix, calculate precision and recall and predict how moving a score threshold changes them | Interpret score distributions, ROC curves, AUC, thresholds, and capability-gap effects |
 | Security | Given a detector, state the impact of a false positive and false negative and one way an attacker could adapt | Write a monitor policy, design an evasion policy, and evaluate both on held-out behavior |
 | Theory | Define the trusted model, untrusted model, and monitor in an AI-control setup | Explain what monitoring assumes about trusted models, observability, and attacker knowledge |

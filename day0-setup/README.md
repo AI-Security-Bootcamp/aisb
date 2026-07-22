@@ -12,7 +12,7 @@ TODOs below are for course authors, not participant setup tasks.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | From a terminal, navigate directories, run a Python file, install a package in a virtual environment, clone a Git repository, and create/switch branches | Pass the Docker, Python-cell, HTTP-request, and Git-workflow checks and identify which component failed when a check does not pass |
+| Engineering | - | Pass the Docker, Python-cell, HTTP-request, and Git-workflow checks and identify which component failed when a check does not pass |
 | ML | - | Classify each later lab as using local CPU, remote GPU, or a hosted API |
 | Security | Generate and use an SSH key, identify an API key as a secret, and keep secrets out of a Git commit | Store API and SSH credentials without committing them and distinguish connectivity, authentication, and authorization failures |
 | Theory | - | Locate the instructions, answer file, tests, generated artifacts, and support route for an exercise |

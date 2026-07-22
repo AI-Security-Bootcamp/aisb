@@ -48,6 +48,14 @@ participant should be able to check a prerequisite with one or two concrete
 questions or tasks. If a category has no section-specific prerequisite, write
 `-` rather than inventing a vague baseline.
 
+Do not repeat assumed professional-programmer mechanics in section tables:
+Python collections and control flow, JSON parsing, ordinary HTTP/API calls,
+shell and Git use, simple rate calculations, and running or parameterizing a
+function are baseline rather than section-specific prerequisites. Use `-` when
+these are the only engineering requirements. Keep concrete requirements for
+specialized work such as PyTorch/autograd, NumPy linear algebra, asynchronous
+control APIs, model/tokenizer tooling, or infrastructure internals.
+
 Use a **follow → show → lead** progression for each key concept:
 
 1. **Follow (README):** link the concise external background and worked examples
