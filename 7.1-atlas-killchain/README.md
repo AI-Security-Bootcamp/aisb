@@ -12,10 +12,10 @@ postconditions, and impact.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Draw named system components plus data/control flows and mark at least one trust boundary | Produce a concise architecture/trust-boundary view supporting the selected chain |
-| ML | For model, data, application, and infrastructure surfaces, name one protected asset and one attacker-access interface from Days 1–6 | Place ML-specific techniques in the correct system context rather than treating the model as the whole target |
-| Security | Given an ATT&CK/ATLAS entry, distinguish tactic from technique and write a step's precondition and postcondition | Build a plausible chain, justify skipped tactics, and distinguish prevention, detection, and response opportunities |
-| Theory | Write a safety claim with separate evidence and assumptions and define catastrophic risk for the selected system | Distinguish patchable defects from mission-inherent exposure without assuming governance applies only to the latter |
+| Engineering | System architecture and trust-boundary diagrams | Produce a concise architecture/trust-boundary view supporting the selected chain |
+| ML | ML-system attack surfaces and attacker-access models | Place ML-specific techniques in the correct system context rather than treating the model as the whole target |
+| Security | ATT&CK/ATLAS tactics and techniques; attack preconditions and postconditions | Build a plausible chain, justify skipped tactics, and distinguish prevention, detection, and response opportunities |
+| Theory | Safety claims, evidence, assumptions, and catastrophic risk | Distinguish patchable defects from mission-inherent exposure without assuming governance applies only to the latter |
 
 ### Background
 

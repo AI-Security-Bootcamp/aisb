@@ -11,9 +11,9 @@ mapping compromised inputs to concrete actions, impacts, and layered controls.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Trace how a repository action reaches a shell, network, or CI runner and list the credentials available at each step | Describe the effective authority created by file, shell, network, MCP, and CI access |
-| ML | Draw an agent loop containing a model response, tool call, tool result, and next model response | Distinguish model capability from the affordances granted by the surrounding agent harness |
-| Security | Produce a threat model with a named asset, actor, trust boundary, and least-privilege control | Build an affordance → exploit → impact → mitigation map and identify controls that only displace risk |
+| Engineering | Repository automation, shells, CI, and credential exposure | Describe the effective authority created by file, shell, network, MCP, and CI access |
+| ML | LLM agent and tool-use loops | Distinguish model capability from the affordances granted by the surrounding agent harness |
+| Security | Threat modeling and least privilege | Build an affordance → exploit → impact → mitigation map and identify controls that only displace risk |
 | Theory | - | Relate prompt-injected agents, misaligned agents, monitor manipulation, and rogue deployments without conflating them |
 
 ### Background

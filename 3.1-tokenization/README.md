@@ -13,9 +13,9 @@ reasoning controls.
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | - | Load a local tokenizer/model, apply templates, inspect token IDs, and run generation |
-| ML | Tokenize a string, explain autoregressive next-token generation, and predict the effect of changing temperature | Explain generation prompts, continuation of an existing assistant message, and model-specific reasoning modes |
-| Security | Given a serialized prompt, mark the instruction, user-data, and control-token boundaries | Identify prompt-construction attack surfaces and list the assumptions made by downstream guardrails |
-| Theory | Define chain of thought as generated intermediate tokens without assuming those tokens faithfully expose internal reasoning | Distinguish observed output differences from causal claims about reasoning or safety |
+| ML | Tokenization, autoregressive generation, and sampling temperature | Explain generation prompts, continuation of an existing assistant message, and model-specific reasoning modes |
+| Security | Instruction, user-data, and control-token boundaries | Identify prompt-construction attack surfaces and list the assumptions made by downstream guardrails |
+| Theory | Chain-of-thought generation and faithfulness limitations | Distinguish observed output differences from causal claims about reasoning or safety |
 
 ### Background
 

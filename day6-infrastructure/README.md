@@ -12,10 +12,10 @@ in which participants trace and then break a hardware-to-kernel attack chain.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Inspect Linux process identity/permissions and namespaces, explain virtual-address → page-table translation, and read a C pointer/array expression | Trace data and authority across a container runtime, GPU virtual memory, page tables, DMA mappings, and kernel objects |
-| ML | State what a GPU does during training/inference and distinguish host memory from device memory; CUDA-kernel programming is not required | Explain which infrastructure properties are ML-specific and which are conventional shared-compute risks |
-| Security | Given a CVE advisory, list affected versions, preconditions, impact, and mitigation; explain memory corruption, isolation, least privilege, and defense in depth | Analyze a container escape, state the assumptions in a RowHammer/DMA chain, and implement or select mitigations that break particular stages |
-| Theory | Given a security claim, separate its evidence and assumptions and map an adversary to a capability tier | Compare security frameworks using cited evidence and turn a simulated exploit into a bounded real-world feasibility claim |
+| Engineering | Linux processes, permissions, namespaces, virtual memory, and C pointers/arrays | Trace data and authority across a container runtime, GPU virtual memory, page tables, DMA mappings, and kernel objects |
+| ML | GPU roles in training/inference and host/device memory | Explain which infrastructure properties are ML-specific and which are conventional shared-compute risks |
+| Security | CVE analysis, memory corruption, isolation, least privilege, and defense in depth | Analyze a container escape, state the assumptions in a RowHammer/DMA chain, and implement or select mitigations that break particular stages |
+| Theory | Security claims, evidence, assumptions, and adversary capability tiers | Compare security frameworks using cited evidence and turn a simulated exploit into a bounded real-world feasibility claim |
 
 ### Background
 

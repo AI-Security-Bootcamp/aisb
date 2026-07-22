@@ -13,9 +13,9 @@ training pipeline.
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | - | Draw and label the data, compute, training, evaluation, and serving components of an LLM stack |
-| ML | Given a small neural network diagram, identify inputs, weights, activations, and outputs; explain in one sentence how gradient descent updates weights | Explain tokenization, embeddings, attention, next-token training, supervised fine-tuning, and preference optimization, and place them in training order |
-| Security | For a familiar application, name one protected asset, one trust boundary, and one attacker objective | Mark where training data, weights, evaluations, APIs, and infrastructure introduce assets and trust boundaries in an LLM lifecycle |
-| Theory | Define AI alignment in one sentence and give one example of an alignment failure | Distinguish capability training, instruction tuning, and preference/safety training and explain the safety purpose of each stage |
+| ML | Neural-network fundamentals and gradient descent | Explain tokenization, embeddings, attention, next-token training, supervised fine-tuning, and preference optimization, and place them in training order |
+| Security | Assets, trust boundaries, and attacker objectives | Mark where training data, weights, evaluations, APIs, and infrastructure introduce assets and trust boundaries in an LLM lifecycle |
+| Theory | AI alignment and alignment failures | Distinguish capability training, instruction tuning, and preference/safety training and explain the safety purpose of each stage |
 
 ### Background
 

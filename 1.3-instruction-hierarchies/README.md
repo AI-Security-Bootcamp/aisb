@@ -11,9 +11,9 @@ to the familiar cybersecurity idea of principals with different authority.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Construct a multi-role message list and make the API call from 1.1 | Construct and vary an assistant prefill and compare controlled outputs |
-| ML | Explain autoregressive continuation and apply a chat template to a message sequence | Explain why a partial assistant message changes the continuation distribution |
-| Security | Given conflicting instructions from two principals, identify which principal has authority and which policy should win | Map system/developer/user authority to principals and identify prefill as a policy-bypass surface |
+| Engineering | - | Construct and vary an assistant prefill and compare controlled outputs |
+| ML | Autoregressive generation and chat templates | Explain why a partial assistant message changes the continuation distribution |
+| Security | Instruction hierarchy and authorization principals | Map system/developer/user authority to principals and identify prefill as a policy-bypass surface |
 | Theory | - | Distinguish a desired instruction hierarchy from the statistical behavior used to implement it |
 
 ### Background

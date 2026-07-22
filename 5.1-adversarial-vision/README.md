@@ -12,9 +12,9 @@ success/visibility trade-off.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Create/index a PyTorch tensor, enable `requires_grad`, call `backward`, take an optimizer step, and identify channel/height/width axes | Load a classifier, differentiate with respect to input pixels, and implement iterative constrained optimization |
-| ML | Select a class from logits, calculate a classification loss and L2/L∞ norm, explain normalization, and put a model in eval mode | Explain targeted versus untargeted objectives and evaluate attack success across perturbation budgets |
-| Security | For an adversarial-example scenario, state attacker knowledge/control, success criterion, and one deployment transformation to test | State attacker knowledge/control, avoid overgeneralizing from one image, and identify deployment transformations that may break an attack |
+| Engineering | PyTorch tensors and autograd | Load a classifier, differentiate with respect to input pixels, and implement iterative constrained optimization |
+| ML | Classification logits and loss, L2/L∞ norms, input normalization, and eval mode | Explain targeted versus untargeted objectives and evaluate attack success across perturbation budgets |
+| Security | Adversarial-example threat models | State attacker knowledge/control, avoid overgeneralizing from one image, and identify deployment transformations that may break an attack |
 | Theory | - | Explain why small norm-bounded changes can cross a model decision boundary without calling logits calibrated confidence |
 
 ### Background

@@ -14,7 +14,7 @@ TODOs below are for course authors, not participant setup tasks.
 | --- | --- | --- |
 | Engineering | - | Pass the Docker, Python-cell, HTTP-request, and Git-workflow checks and identify which component failed when a check does not pass |
 | ML | - | Classify each later lab as using local CPU, remote GPU, or a hosted API |
-| Security | Generate and use an SSH key, identify an API key as a secret, and keep secrets out of a Git commit | Store API and SSH credentials without committing them and distinguish connectivity, authentication, and authorization failures |
+| Security | SSH key use and secret handling | Store API and SSH credentials without committing them and distinguish connectivity, authentication, and authorization failures |
 | Theory | - | Locate the instructions, answer file, tests, generated artifacts, and support route for an exercise |
 
 ### Background

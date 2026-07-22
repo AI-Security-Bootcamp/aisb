@@ -12,9 +12,9 @@ with practical information leakage, extraction, and adversarial optimization.
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | - | Request and parse token-level logprobs and handle top-k response structures |
-| ML | Calculate `exp(logprob)`, explain that softmax maps logits to probabilities, and identify the next-token distribution | Convert logprobs to relative probabilities and interpret ranks and uncertainty without treating them as calibrated confidence |
-| Security | Given an API description, state what the caller can submit and which outputs the caller can observe | Explain how exposed distributions increase attacker information and support extraction or prompt optimization |
-| Theory | Distinguish output-only access from access to weights, gradients, or activations | Relate API observability to attacker capability and defense trade-offs |
+| ML | Logarithms, softmax, and next-token probability distributions | Convert logprobs to relative probabilities and interpret ranks and uncertainty without treating them as calibrated confidence |
+| Security | Black-box API access models | Explain how exposed distributions increase attacker information and support extraction or prompt optimization |
+| Theory | Model access levels: outputs, weights, gradients, and activations | Relate API observability to attacker capability and defense trade-offs |
 
 ### Background
 

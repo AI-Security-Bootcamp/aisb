@@ -11,9 +11,9 @@ on harmful completions changes refusal behavior and benign model utility.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Run a PyTorch training loop, load a Hugging Face model/tokenizer, and split records into train/eval sets; PEFT, Trainer, and vLLM are not prerequisites | Configure LoRA, inspect trainable parameters, train/save an adapter, and run comparative inference |
-| ML | Explain supervised fine-tuning, calculate a held-out classification rate, and state why evaluation examples must not be trained on | Explain low-rank adaptation and evaluate both intended behavioral change and regressions |
-| Security | Name an integrity control for a model/adapter artifact and state a safe handling rule for dual-use evaluation outputs | Demonstrate how small post-training access can weaken safeguards and define controls around adapters and deployment |
+| Engineering | PyTorch training loops | Configure LoRA, inspect trainable parameters, train/save an adapter, and run comparative inference |
+| ML | Supervised fine-tuning and held-out evaluation | Explain low-rank adaptation and evaluate both intended behavioral change and regressions |
+| Security | Model/adapter integrity and safe handling of dual-use outputs | Demonstrate how small post-training access can weaken safeguards and define controls around adapters and deployment |
 | Theory | - | Distinguish safety-removal fine-tuning from representation-direction ablation (“abliteration”) |
 
 ### Background

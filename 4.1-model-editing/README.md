@@ -11,9 +11,9 @@ problem, measuring whether the change works and what unrelated behavior it harms
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Load a PyTorch model, enumerate named parameters, run one inference, and compare two tensors for changed values | Run a reproducible model-editing harness and inspect the resulting parameter delta |
-| ML | Locate an MLP block in a transformer diagram and define hidden representation and output logits | Explain the high-level ROME mechanism and measure efficacy, paraphrase generalization, and locality |
-| Security | Given a model artifact, identify who can modify it and name one integrity check that would detect a change | Threat-model who can edit weights, how an edit could be introduced, and how defenders might detect it |
+| Engineering | PyTorch model inspection | Run a reproducible model-editing harness and inspect the resulting parameter delta |
+| ML | Transformer MLPs, hidden representations, and output logits | Explain the high-level ROME mechanism and measure efficacy, paraphrase generalization, and locality |
+| Security | Model-artifact integrity and access control | Threat-model who can edit weights, how an edit could be introduced, and how defenders might detect it |
 | Theory | - | Distinguish a successful targeted edit from evidence of a general, precise model-control capability |
 
 ### Background

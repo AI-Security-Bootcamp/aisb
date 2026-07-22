@@ -11,10 +11,10 @@ layer, and compare lexical, model-based, and representation-based detection.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Run local generation from 3.1, fit a scikit-learn classifier from `X`/`y`, and create a train/test split | Implement a generation wrapper, classifier pipeline, activation extraction, and simple probe evaluation |
-| ML | Given a confusion matrix, calculate precision and recall; distinguish training from test data; identify a hidden-state vector | Explain what each detector observes and evaluate generalization on held-out attack and benign families |
-| Security | Bypass a simple denylist and state how an adaptive attacker and false positives affect a detector | Bypass brittle filters, design layered controls, and reason about adaptive attackers and false positives |
-| Theory | Distinguish a behavioral signal in text from a representation-level signal in activations | Distinguish evidence about one dataset from claims about semantic intent or robust safety |
+| Engineering | scikit-learn classification | Implement a generation wrapper, classifier pipeline, activation extraction, and simple probe evaluation |
+| ML | Classification metrics, train/test splits, and hidden states | Explain what each detector observes and evaluate generalization on held-out attack and benign families |
+| Security | Denylist bypasses, adaptive attackers, and false positives | Bypass brittle filters, design layered controls, and reason about adaptive attackers and false positives |
+| Theory | Behavioral and representation-level signals | Distinguish evidence about one dataset from claims about semantic intent or robust safety |
 
 ### Background
 

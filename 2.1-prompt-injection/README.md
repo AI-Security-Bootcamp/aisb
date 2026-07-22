@@ -11,9 +11,9 @@ craft an indirect injection against the boundary between instructions and data.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Draw a retrieve → prompt → generate RAG flow and identify MCP client, server, and tool roles | Operate a small RAG application, modify its knowledge base, and run a controlled attack |
-| ML | Define a context window and explain that instructions and retrieved text are processed in the same token sequence | Explain why retrieved text and trusted instructions share a model context despite application-level delimiters |
-| Security | Given an injection path, identify its source, sink, trust boundary, and attacker-controlled field | Enumerate untrusted channels, perform black-box reconnaissance, and distinguish mitigations from complete prevention |
+| Engineering | RAG and MCP architecture | Operate a small RAG application, modify its knowledge base, and run a controlled attack |
+| ML | Context windows and prompt serialization | Explain why retrieved text and trusted instructions share a model context despite application-level delimiters |
+| Security | Sources, sinks, trust boundaries, and attacker-controlled input | Enumerate untrusted channels, perform black-box reconnaissance, and distinguish mitigations from complete prevention |
 | Theory | - | Explain why prompt injection is partly an architectural control problem rather than only a prompt-writing problem |
 
 ### Background

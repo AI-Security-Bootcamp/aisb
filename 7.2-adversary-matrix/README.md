@@ -12,10 +12,10 @@ or research response.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Draw an architecture containing application, training, cluster, credential, and model-artifact components and mark their trust boundaries | Connect those components in one defensible end-to-end narrative |
-| ML | Name one attack, one defense, and the required attacker access for each technical day followed | Identify which model capabilities or interfaces each attack step depends on and avoid importing untaught mechanisms |
-| Security | Build a five-step kill chain, map each step to ATT&CK/ATLAS, and state one control plus residual risk | Validate preconditions between steps, prioritize chain-breaking controls, and identify detection gaps |
-| Theory | Write a safety claim with evidence, assumptions, and one prioritized action | Translate a threat model into claims, evidence needs, assumptions, and a concrete next action |
+| Engineering | System architecture and trust-boundary diagrams | Connect those components in one defensible end-to-end narrative |
+| ML | AI-security attacks, defenses, and attacker-access models | Identify which model capabilities or interfaces each attack step depends on and avoid importing untaught mechanisms |
+| Security | Kill-chain analysis and ATT&CK/ATLAS mapping | Validate preconditions between steps, prioritize chain-breaking controls, and identify detection gaps |
+| Theory | Safety claims, evidence, and assumptions | Translate a threat model into claims, evidence needs, assumptions, and a concrete next action |
 
 ### Background
 

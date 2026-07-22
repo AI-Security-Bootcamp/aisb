@@ -12,10 +12,10 @@ outputs transfer information.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Given a module, batch, and optimizer, write `zero_grad` → forward pass → loss → `backward` → `step`, then print a scalar loss | Implement and debug supervised and distillation training steps with useful diagnostics |
-| ML | Explain logits, softmax, cross-entropy, `ignore_index`, and what a KL divergence compares | Implement temperature-scaled KD and identify which loss terms create which gradients |
-| Security | Distinguish label-only, probability, logit, activation, and weight access to a model | Explain when teacher logits, probabilities, or labels enable capability transfer and what access an attacker needs |
-| Theory | Explain teacher/student roles, switch a model between train/eval modes, and state why evaluation data is held out | Design an experiment that distinguishes target masking, example removal, and knowledge transfer |
+| Engineering | PyTorch training loops | Implement and debug supervised and distillation training steps with useful diagnostics |
+| ML | Logits, softmax, cross-entropy, `ignore_index`, and KL divergence | Implement temperature-scaled KD and identify which loss terms create which gradients |
+| Security | Model access levels: labels, probabilities, logits, activations, and weights | Explain when teacher logits, probabilities, or labels enable capability transfer and what access an attacker needs |
+| Theory | Teacher/student models, train/eval modes, and held-out evaluation | Design an experiment that distinguishes target masking, example removal, and knowledge transfer |
 
 ### Background
 

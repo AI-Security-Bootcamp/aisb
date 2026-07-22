@@ -12,9 +12,9 @@ is grounded in direct experience of attacker adaptation.
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | - | Record prompts, model/configuration details, outcomes, and enough context to reproduce an observation |
-| ML | Explain that safety post-training changes conditional model behavior rather than adding a parser-enforced rule | Explain why jailbreak success varies across models, prompts, and sampling conditions |
-| Security | State the authorized target, testing scope, prohibited actions, and data-retention rule before beginning a red-team test | Generate and categorize jailbreak strategies without confusing one success with general effectiveness |
-| Theory | Distinguish an evaluation of whether a model has a capability from whether it tends to use that capability | Relate empirical jailbreaks to the limits of behavioral safety training |
+| ML | Behavioral effects of safety post-training | Explain why jailbreak success varies across models, prompts, and sampling conditions |
+| Security | Red-team authorization, scope, and data handling | Generate and categorize jailbreak strategies without confusing one success with general effectiveness |
+| Theory | Capability versus propensity evaluations | Relate empirical jailbreaks to the limits of behavioral safety training |
 
 ### Background
 

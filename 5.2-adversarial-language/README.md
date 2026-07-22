@@ -12,9 +12,9 @@ coordinate search.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Complete 5.1, obtain tensor gradients, index/gather tensor rows, tokenize/decode text, and run an iterative optimization loop | Align target-token loss, extract embedding gradients, filter candidates, and implement a coordinate-update loop |
-| ML | Look up token embeddings, align shifted causal labels, calculate cross-entropy, and distinguish discrete from continuous optimization | Explain how gradients can guide token proposals even though tokens are discrete |
-| Security | State the white-box access required by an attack and define attack success rate, restart, held-out prompt, and transfer test | State required model access, measure attack success across restarts/prompts, and test transferability |
+| Engineering | PyTorch autograd and tensor indexing | Align target-token loss, extract embedding gradients, filter candidates, and implement a coordinate-update loop |
+| ML | Token embeddings, causal language-model loss, and discrete optimization | Explain how gradients can guide token proposals even though tokens are discrete |
+| Security | White-box attack models and adversarial evaluation | State required model access, measure attack success across restarts/prompts, and test transferability |
 | Theory | - | Distinguish reducing target loss from demonstrating a robust jailbreak |
 
 ### Background

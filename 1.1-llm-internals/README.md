@@ -13,8 +13,8 @@ security boundary between instructions and data.
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | - | Make an OpenAI-compatible request, inspect a tokenizer chat template, and debug the resulting message serialization |
-| ML | Define a token, describe next-token prediction, and predict how increasing temperature changes sampling | Explain how roles, tool calls, and special tokens become one model input sequence |
-| Security | Given a request-processing flow, mark an untrusted input and the parser boundary it crosses | Identify the role, special-token, and serialization boundaries that form the model API's security perimeter |
+| ML | Tokenization, next-token prediction, and sampling temperature | Explain how roles, tool calls, and special tokens become one model input sequence |
+| Security | Untrusted input and parser boundaries | Identify the role, special-token, and serialization boundaries that form the model API's security perimeter |
 | Theory | - | Distinguish the message hierarchy represented by an API from the flat token sequence processed by the model |
 
 ### Background
