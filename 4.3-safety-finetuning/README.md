@@ -24,7 +24,6 @@ on harmful completions changes refusal behavior and benign model utility.
 
 ### Current-state TODOs
 
-- [x] Correct the participant-facing terminology: this is LoRA safety-removal fine-tuning, not representation-direction abliteration.
 - [ ] Rename legacy function/artifact identifiers that still use `abliteration`, or add a separate genuine refusal-direction ablation exercise.
 - [ ] Make PEFT/Trainer skills explicit and use progressive documentation links and checkpoints.
 - [ ] Evaluate held-out harmful compliance and benign utility/regression, not refusal rate alone.
