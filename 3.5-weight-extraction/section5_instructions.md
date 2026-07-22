@@ -1,28 +1,28 @@
 
-# W1D3 - Section 5: Logit-Space Dimension and Subspace Extraction
+# W1D3 - Section 5: Model Weight Extraction via SVD
 
 This section uses black-box logit queries and singular value decomposition to
-infer a model's hidden dimension and recover its output subspace up to an
-unknown linear transform.
+infer a model's hidden dimension and extract its final projection layer up to
+an unknown linear transform.
 
 ## Table of Contents
 
-- [Logit-space dimension and subspace extraction](#logit-space-dimension-and-subspace-extraction)
+- [Model weight extraction via SVD](#model-weight-extraction-via-svd)
     - [Exercise 5.1 - Complete Model Dimension Extraction](#exercise-51---complete-model-dimension-extraction)
-    - [Exercise 5.2 - Recovering the Output Subspace](#exercise-52---recovering-the-output-subspace)
+    - [Exercise 5.2 - Extracting Model Weights](#exercise-52---extracting-model-weights)
     - [Extensions to try](#extensions-to-try)
 - [Summary & Further Reading](#summary--further-reading)
     - [Further reading](#further-reading)
 
-## Logit-space dimension and subspace extraction
+## Model weight extraction via SVD
 
-The attack reveals structural information about the final projection, but does
-not by itself recover independently usable white-box weights.
+Recover a model's hidden dimension—and the last projection layer—from API
+access alone using the logits-matrix SVD attack.
 
 > **Learning Objectives**
 > - Build a logit query matrix and estimate its numerical rank
 > - Explain why low-rank logits reveal the model's hidden dimension
-> - Distinguish output-subspace recovery from exact weight recovery
+> - Extract the output projection up to an unknown linear transform
 > - Relate query volume and logit precision to extraction feasibility
 
 
@@ -128,17 +128,17 @@ from section5_test import test_detect_hidden_dim
 test_detect_hidden_dim(detect_hidden_dim)
 ```
 
-### Exercise 5.2 - Recovering the Output Subspace
+### Exercise 5.2 - Extracting Model Weights
 
 > **Difficulty**: 🔴🔴🔴🔴🔴
 > **Importance**: 🔵🔵⚪⚪⚪
 >
 > You should spend up to ~60 minutes on this exercise.
 
-Now use the hidden dimension `h` from exercise 5.1 to recover a basis for the
-column space of the model's output projection from black-box logit queries.
+Now use the hidden dimension `h` from exercise 5.1 to recover the model's output
+projection matrix — `lm_head.weight` — from black-box logit queries alone.
 
-**Why SVD reveals the subspace.** Every logit vector the model returns is computed as:
+**Why SVD gives us the weights.** Every logit vector the model returns is computed as:
 
 ```
 logits = hidden_state @ W_out.T + bias
@@ -159,12 +159,10 @@ to an unknown invertible linear transformation — we can reconstruct the direct
 and relative scaling of every output-projection row, but not the exact values
 (which would require knowing the hidden states too).
 
-This is the "up to a linear transform" claim: the recovered representative and the true
+This is the "up to a linear transform" claim: the extracted matrix and the true
 `lm_head.weight` are related by `W_extracted @ G ≈ W_true` for some matrix `G`.
-`compare_weights` solves for `G` using the true weights and then measures how
-close the aligned matrices are. That is a white-box validation of the recovered
-subspace; a black-box attacker would not possess `W_true` and therefore does not
-obtain independently usable exact weights from this step alone.
+`compare_weights` solves for `G` via least squares and then measures how close
+the aligned matrices are.
 
 
 ```python
@@ -175,13 +173,12 @@ def extract_weights(
     max_prompt_length: int = MAX_PROMPT_LENGTH,
     batch_size: int = 2,
 ) -> np.ndarray:
-    """Recover a representative of the output projection's column space.
+    """Reconstruct the output projection matrix from black-box logit queries.
 
     Collects logit vectors from many (batched) random queries, stacks them
     into a matrix Q of shape (vocab_size, n_samples), takes the thin SVD, and
-    returns U_h @ Sigma_h — a subspace representative related to the true
-    projection by an unknown linear transform. Returns a NumPy array of shape
-    (vocab_size, hidden_dim).
+    returns U_h @ Sigma_h — the extracted weights, correct up to an unknown
+    linear transform. Returns a NumPy array of shape (vocab_size, hidden_dim).
     """
     # TODO: Extract the output projection weights from logit queries.
     #   1. Collect logit vectors from many random queries (batch them for
