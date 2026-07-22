@@ -119,10 +119,10 @@ One plausible weight-theft chain through the bootcamp techniques:
 3. **Initial Access** — a researcher's coding agent retrieves the snippet via RAG; indirect prompt injection fires (Day 2).
 4. **Execution** — the agent is coerced into running attacker code in the researcher's dev container.
 5. **Credential Access** — agent exfiltrates the researcher's cloud token and SSH key (Day 2 SSH-key exfil).
-6. **Privilege Escalation** — CVE-2025-23266 (Day 6) gives root on a vulnerable host. The Day 6 RowHammer/DMA lab is a separate, hypothetical local privilege-escalation simulator, not evidence of cross-tenant access.
-7. **Discovery / Lateral Movement** — using the host compromise, the attacker identifies cluster credentials, neighboring nodes, and the storage locations used for weight shards.
-8. **Defense Evasion** — the attacker uses the compromised workload identity and normal storage interfaces rather than introducing a novel weight-export service.
-9. **Collection / Staging** — weight shards are copied and reassembled through the compromised host's authorized data paths.
+6. **Privilege Escalation** — CVE-2025-23266 (Day 6) gives root on the host; rowhammer + DMA (Day 6) gives access to a neighbouring tenant's memory.
+7. **Discovery / Lateral Movement** — attacker lands on a GPU node in a shared cluster namespace and identifies which nodes hold weight shards.
+8. **Defense Evasion** — residual-VRAM read (Day 6) avoids touching the monitored filesystem path for weights.
+9. **Collection / Staging** — weights reassembled from VRAM reads across nodes.
 10. **Exfiltration** — slow drip out through the researcher's already-compromised agent, chunked to look like ordinary API traffic.
 11. **Impact** — weights are out; the safety-training investment is now moot because the attacker can fine-tune freely.
 
