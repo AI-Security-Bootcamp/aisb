@@ -577,3 +577,10 @@ for result in results:
 """
 
 # %%
+"""
+## Further projects
+
+- Sweep epsilon, step size, and restart count over multiple images and plot attack success against L2/L∞ distortion.
+- Test whether attacks survive JPEG compression, crop/resize operations, or transfer to a second model, and state the resulting deployment assumptions.
+- **One-week project:** build a multi-model adversarial-vision benchmark covering several attacks, norms, transformations, defenses, and uncertainty across images and targets.
+"""

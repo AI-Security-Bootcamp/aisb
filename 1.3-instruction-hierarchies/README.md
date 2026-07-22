@@ -11,12 +11,12 @@ to the familiar cybersecurity idea of principals with different authority.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Message construction and API calls from 1.1 | Construct and vary an assistant prefill and compare controlled outputs |
-| ML | Autoregressive continuation and chat templates | Explain why a partial assistant message changes the continuation distribution |
-| Security | Authorization principals, policy precedence, and injection | Map system/developer/user authority to principals and recognize prefill as a policy-bypass surface |
-| Theory | Instruction-following and model conditioning | Distinguish desired instruction hierarchy from the statistical behavior that implements it |
+| Engineering | Construct a multi-role message list and make the API call from 1.1 | Construct and vary an assistant prefill and compare controlled outputs |
+| ML | Explain autoregressive continuation and apply a chat template to a message sequence | Explain why a partial assistant message changes the continuation distribution |
+| Security | Given conflicting instructions from two principals, identify which principal has authority and which policy should win | Map system/developer/user authority to principals and identify prefill as a policy-bypass surface |
+| Theory | - | Distinguish a desired instruction hierarchy from the statistical behavior used to implement it |
 
-### Preparation
+### Background
 
 - Complete [1.1](../1.1-llm-internals/README.md) first.
 - Revisit the [Hugging Face chat-template guide](https://huggingface.co/docs/transformers/chat_templating) if role serialization is not yet comfortable.

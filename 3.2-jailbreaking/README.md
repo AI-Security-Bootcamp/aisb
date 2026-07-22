@@ -11,12 +11,12 @@ is grounded in direct experience of attacker adaptation.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Ability to operate the selected hosted or local challenge | Record prompts, outcomes, and enough context to reproduce an observation |
-| ML | Statistical instruction following and safety post-training | Explain why jailbreak success varies across models, prompts, and sampling conditions |
-| Security | Authorized testing, red-team discipline, and prompt-injection concepts | Generate and categorize jailbreak strategies without confusing one success with general effectiveness |
-| Theory | Basic alignment and dangerous-capability evaluation concepts | Relate empirical jailbreaks to the limits of behavioral safety training |
+| Engineering | - | Record prompts, model/configuration details, outcomes, and enough context to reproduce an observation |
+| ML | Explain that safety post-training changes conditional model behavior rather than adding a parser-enforced rule | Explain why jailbreak success varies across models, prompts, and sampling conditions |
+| Security | State the authorized target, testing scope, prohibited actions, and data-retention rule before beginning a red-team test | Generate and categorize jailbreak strategies without confusing one success with general effectiveness |
+| Theory | Distinguish an evaluation of whether a model has a capability from whether it tends to use that capability | Relate empirical jailbreaks to the limits of behavioral safety training |
 
-### Preparation
+### Background
 
 - Required prework: Karpathy's [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) security section and Google DeepMind's [dangerous-capability evaluations overview](https://deepmind.google/research/publications/78150/).
 - Follow instructor guidance on authorized services and harmless test targets.

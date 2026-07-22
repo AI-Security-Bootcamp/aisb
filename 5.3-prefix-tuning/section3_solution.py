@@ -578,3 +578,10 @@ for idx, user_message in enumerate(eval_prompts, start=1):
 """
 
 # %%
+"""
+## Further projects
+
+- Sweep prefix length, initialization, and training-batch size, then measure transfer to held-out prompts.
+- Project each learned vector to nearby token embeddings and compare the resulting text prefix with a discrete GCG search.
+- **One-week project:** use soft prompts for a benign steering task, quantify the white-box upper bound, and build a method/evaluation for closing the gap to deployable text.
+"""

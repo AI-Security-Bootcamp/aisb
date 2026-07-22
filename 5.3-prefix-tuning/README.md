@@ -12,15 +12,15 @@ not constitute a deployable API attack.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | PyTorch autograd/Adam, embedding lookup, and completion of 5.2 | Construct `inputs_embeds`, optimize a shared latent tensor, and evaluate it on held-out prompts |
-| ML | Embedding spaces, batch losses, and continuous optimization | Explain why latent optimization is easier than discrete token search and measure transfer across examples |
-| Security | Explicit attacker-access modeling | Identify the narrow settings in which an attacker can supply embeddings and avoid presenting the result as an ordinary API jailbreak |
-| Theory | Relaxations and upper-bound experiments | Use latent-prefix success as evidence about optimization/capability, not automatically about real-world exploitability |
+| Engineering | Complete 5.2, create a trainable tensor, update it with Adam, and retrieve token embeddings from a model | Construct `inputs_embeds`, optimize a shared latent tensor, and evaluate it on held-out prompts |
+| ML | Average a loss across a batch and explain the difference between an embedding vector and a discrete token ID | Explain why latent optimization is easier than discrete token search and measure transfer across examples |
+| Security | Given an inference interface, state whether the caller can submit token IDs, embeddings, or text only | Identify the narrow settings in which an attacker can supply embeddings and avoid presenting the result as an ordinary API jailbreak |
+| Theory | Define a continuous relaxation and explain why it can provide an upper-bound experiment | Use latent-prefix success as evidence about optimization/capability, not automatically about real-world exploitability |
 
-### Preparation
+### Background
 
 - Complete [5.2](../5.2-adversarial-language/README.md) first.
-- Revisit the [PyTorch optimization-loop pattern](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html) only if needed; the new concept is direct embedding-space control.
+- Review the [PyTorch optimization-loop pattern](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html); the new concept is direct embedding-space control.
 
 ### Current-state TODOs
 

@@ -159,3 +159,12 @@ Today you explored what happens under the hood of LLM inference APIs:
 - [Control Illusion: The Failure of Instruction Hierarchies in Large Language Models](https://arxiv.org/abs/2502.15851)
 
 """
+
+# %%
+"""
+## Further projects
+
+- Design three harmless prefills that control style, output format, or persona; predict each effect before comparing the outputs.
+- Create conflicting system, user, and tool-result instructions and test whether two model families follow the same priority order.
+- **One-week project:** build an instruction-hierarchy conformance suite with adversarial paraphrases, property-based message generation, and version-to-version regression reporting.
+"""

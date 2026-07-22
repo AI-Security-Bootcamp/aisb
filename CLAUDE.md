@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This project is for creating content for AI Security Bootcamp, a 1-week program designed to teach participants about AI-relevant cybersecurity. Each day is preceded by recommended reading, starts with 1 hour of lecture, followed by 6 hours of hands-on labs. (The bootcamp is loosely inspired by other bootamps, MLAB2 and ARENA, which were focused on teaching ML skills and concepts relevant for AI alignment.) The participants work in pairs to complete the labs, and have instructors available to answer questions and debug issues.
+This project is for creating content for AI Security Bootcamp, a 1-week program designed to teach participants about AI-relevant cybersecurity. Each day is preceded by required background reading (with longer overlapping resources clearly marked optional), starts with 1 hour of lecture, followed by 6 hours of hands-on labs. (The bootcamp is loosely inspired by other bootcamps, MLAB2 and ARENA, which were focused on teaching ML skills and concepts relevant for AI alignment.) The participants work in pairs to complete the labs, and have instructors available to answer questions and debug issues.
 
 The participants will be experienced cybersecurity experts who need upskilling in the AI-relevant topics.
 
@@ -37,8 +37,32 @@ contract:
 
 - prerequisites coming in, separated into engineering, ML, security, and theory;
 - intended learning outcomes in those same categories;
-- recommended prework or just-in-time references; and
+- required background or just-in-time references; and
 - TODOs describing where the current exercise differs from the intended state.
+
+Prerequisites must be self-assessable. Write observable competencies such as
+“given a confusion matrix, calculate precision and recall” or “write the
+`zero_grad` → forward → loss → `backward` → `step` sequence,” not labels such as
+“general software experience,” “basic ML,” or “familiarity with APIs.” A
+participant should be able to check a prerequisite with one or two concrete
+questions or tasks. If a category has no section-specific prerequisite, write
+`-` rather than inventing a vague baseline.
+
+Use a **follow → show → lead** progression for each key concept:
+
+1. **Follow (README):** link the concise external background and worked examples
+   participants should review before the section, and state the observable
+   learning outcomes. Background is required unless it is a long document that
+   substantially duplicates the exercise; mark only those longer extensions as
+   optional.
+2. **Show (exercise):** specify the outcome and constraints, then ask participants
+   to apply the technique without prescribing every implementation step. Provide
+   scaffolding in proportion to whether the engineering work is itself a learning
+   objective.
+3. **Lead (further projects):** end every `*_solution.py` with `## Further
+   projects` and 2–3 concrete extensions. Include a nearby variation, a transfer
+   to a new context, and—where useful—a one-week-or-longer path from the toy lab
+   toward a credible real-world artifact.
 
 Keep this contract current when changing an exercise. It is acceptable—and often
 desirable—to ask participants to retrieve a training-loop or API pattern from
@@ -138,7 +162,9 @@ Each day's solution file follows a consistent layout:
 2. **Setup section** — imports, shared constants, API clients, utility functions
 3. **Content sections** — each introduced with `## Section Name` (plain text, no leading emoji digit — see below), containing explanatory prose and exercises
 4. **Summary section** — key takeaways (bulleted list) and further reading (linked list)
-5. Use `# %%` cell markers between logical sections for readability
+5. **Further projects section** — 2–3 increasingly independent extensions, placed
+   at the end of the file
+6. Use `# %%` cell markers between logical sections for readability
 
 ### Section and exercise headers
 
@@ -332,6 +358,7 @@ Before submitting a solution file, verify:
 - [ ] Exercises use `### Exercise N.M: Title` format
 - [ ] Exercises have difficulty and importance ratings
 - [ ] File ends with a Summary section (key takeaways + further reading)
+- [ ] File ends with 2–3 section-specific further projects
 - [ ] `# %%` cell markers separate logical sections
 
 **Exercises**
@@ -355,8 +382,12 @@ Before submitting a solution file, verify:
 
 ## Day README Format
 
-Each day folder has a `README.md` with:
-- `- [ ]` / `- [x]` checkboxes for topic tracking
-- `*Italics*` for ML prerequisites
-- `**Bold**` for day themes
-- Nested bullets for sub-topics and exercise steps
+Each instructional folder has a `README.md` with:
+
+- a section-level suggested time and a direct link to `*_instructions.md`;
+- a table of observable incoming prerequisites and outgoing learning outcomes,
+  split into engineering, ML, security, and theory;
+- `-` for any prerequisite category with no section-specific requirement;
+- a Background section with direct links to required concise background and
+  clearly marked optional longer reading; and
+- author-facing current-state TODOs kept separate from participant instructions.

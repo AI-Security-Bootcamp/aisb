@@ -9,6 +9,7 @@ How affordances and autonomy determine the blast radius of injection in coding a
     - [Coding Agents: Attack Surface and Affordances](#coding-agents-attack-surface-and-affordances)
 - [Coding Agents: Attack Surface and Affordances](#coding-agents-attack-surface-and-affordances-1)
     - [Exercise 2.1: Enumerate Affordances, Exploits, and Mitigations](#exercise-21-enumerate-affordances-exploits-and-mitigations)
+- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -153,3 +154,10 @@ man -P '/bin/sh -c "echo pwned"' ls
 
 Fortunately, at least MCP protocol supports [read-only hints](https://modelcontextprotocol.io/specification/2025-06-18/schema#toolannotations-readonlyhint).
 </blockquote></details>
+
+
+## Further projects
+
+- Apply the affordance → exploit → impact → mitigation map to a coding agent or CI workflow you know, using named assets and credentials.
+- Remove one affordance from that design and trace which attack paths disappear, which remain, and which move to a different component.
+- **One-week project:** implement a least-privilege agent sandbox plus an automated validation suite for filesystem, network, credential, approval, and audit-log boundaries.

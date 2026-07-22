@@ -12,15 +12,15 @@ reasoning controls.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Python, remote-machine access established on Day 0, and Hugging Face chat-template prework | Load a local tokenizer/model, apply templates, inspect token IDs, and run generation |
-| ML | Tokens, autoregressive inference, sampling, and basic model-family differences | Explain generation prompts, continuation of an existing assistant message, and model-specific reasoning modes |
-| Security | Prompt-boundary and control-token lessons from Day 1 | Recognize prompt construction as an attack surface and identify assumptions made by downstream guardrails |
-| Theory | High-level chain-of-thought concepts | Distinguish observed output differences from causal claims about reasoning or safety |
+| Engineering | Connect to the Day 0 remote machine over SSH, run a Python file there, and inspect the length/shape of a returned list or tensor | Load a local tokenizer/model, apply templates, inspect token IDs, and run generation |
+| ML | Tokenize a string, explain autoregressive next-token generation, and predict the effect of changing temperature | Explain generation prompts, continuation of an existing assistant message, and model-specific reasoning modes |
+| Security | Given a serialized prompt, mark the instruction, user-data, and control-token boundaries | Identify prompt-construction attack surfaces and list the assumptions made by downstream guardrails |
+| Theory | Define chain of thought as generated intermediate tokens without assuming those tokens faithfully expose internal reasoning | Distinguish observed output differences from causal claims about reasoning or safety |
 
-### Preparation
+### Background
 
 - Required prework: Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating) and the inference chapters of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
-- Refresh the [Hugging Face generation API](https://huggingface.co/docs/transformers/main_classes/text_generation) as needed; remote GPU access should already have been validated.
+- Review the [Hugging Face generation API](https://huggingface.co/docs/transformers/main_classes/text_generation); remote GPU access should already have been validated.
 
 ### Current-state TODOs
 

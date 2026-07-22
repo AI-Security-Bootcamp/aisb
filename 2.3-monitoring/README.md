@@ -11,14 +11,14 @@ measure detection quality rather than judging a few anecdotes.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Python, structured logs, basic data analysis, and LLM API use | Run ControlArena evaluations, inspect trajectories, and turn monitor outputs into analyzable scores |
-| ML | Classification scores and basic precision/recall intuition | Interpret score distributions, ROC curves, AUC, thresholds, and capability-gap effects |
-| Security | Detection engineering, attacker adaptation, and false-positive trade-offs | Write a monitor policy, design an evasion policy, and evaluate both on held-out behavior |
-| Theory | Introductory AI control and chain-of-thought concepts | Explain what monitoring assumes about trusted models, observability, and attacker knowledge |
+| Engineering | Parse a JSON log in Python, count records matching a condition, calculate a rate, and make an LLM API call | Run ControlArena evaluations, inspect trajectories, and turn monitor outputs into analyzable scores |
+| ML | Given a confusion matrix, calculate precision and recall and predict how moving a score threshold changes them | Interpret score distributions, ROC curves, AUC, thresholds, and capability-gap effects |
+| Security | Given a detector, state the impact of a false positive and false negative and one way an attacker could adapt | Write a monitor policy, design an evasion policy, and evaluate both on held-out behavior |
+| Theory | Define the trusted model, untrusted model, and monitor in an AI-control setup | Explain what monitoring assumes about trusted models, observability, and attacker knowledge |
 
-### Preparation
+### Background
 
-- Recommended prework: BlueDot's [*Introduction to AI Control*](https://blog.bluedot.org/p/ai-control).
+- Read BlueDot's [*Introduction to AI Control*](https://blog.bluedot.org/p/ai-control).
 - Just-in-time references: the [ControlArena documentation](https://control-arena.aisi.org.uk/) and scikit-learn's [ROC/AUC guide](https://scikit-learn.org/stable/modules/model_evaluation.html#roc-metrics).
 
 ### Current-state TODOs

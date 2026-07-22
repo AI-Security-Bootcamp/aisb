@@ -12,12 +12,12 @@ in which participants trace and then break a hardware-to-kernel attack chain.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Linux processes/permissions, containers, virtual memory, basic C-style memory layout, and Python | Trace data and authority across a container runtime, GPU virtual memory, page tables, DMA mappings, and kernel objects |
-| ML | High-level GPU use in training/inference; no CUDA-kernel expertise required | Explain which infrastructure properties are ML-specific and which are conventional shared-compute risks |
-| Security | CVE analysis, exploit preconditions, memory corruption, isolation, least privilege, and defense in depth | Analyze a container escape, state the assumptions in a RowHammer/DMA chain, and implement or select mitigations that break particular stages |
-| Theory | Threat actors, security levels, and assurance arguments | Compare security frameworks using cited evidence and turn a simulated exploit into a bounded real-world feasibility claim |
+| Engineering | Inspect Linux process identity/permissions and namespaces, explain virtual-address → page-table translation, read a C pointer/array expression, and run a Python program | Trace data and authority across a container runtime, GPU virtual memory, page tables, DMA mappings, and kernel objects |
+| ML | State what a GPU does during training/inference and distinguish host memory from device memory; CUDA-kernel programming is not required | Explain which infrastructure properties are ML-specific and which are conventional shared-compute risks |
+| Security | Given a CVE advisory, list affected versions, preconditions, impact, and mitigation; explain memory corruption, isolation, least privilege, and defense in depth | Analyze a container escape, state the assumptions in a RowHammer/DMA chain, and implement or select mitigations that break particular stages |
+| Theory | Given a security claim, separate its evidence and assumptions and map an adversary to a capability tier | Compare security frameworks using cited evidence and turn a simulated exploit into a bounded real-world feasibility claim |
 
-### Preparation
+### Background
 
 - Required prework: [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/), RAND's [*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf), IAPS's [*Accelerating AI Data Center Security*](https://www.iaps.ai/research/accelerating-ai-data-center-security), and the [NVIDIAScape advisory](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape).
 - Recommended refreshers: Linux [namespaces](https://man7.org/linux/man-pages/man7/namespaces.7.html), Linux [page tables](https://docs.kernel.org/mm/page_tables.html), the Linux [IOMMU subsystem](https://docs.kernel.org/driver-api/iommu.html), [GPUHammer](https://gpuhammer.com/), and NVIDIA [multi-instance GPU](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/) isolation.

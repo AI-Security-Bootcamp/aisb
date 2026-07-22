@@ -12,16 +12,16 @@ training pipeline.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | General software and systems experience | Recognize the major data, compute, training, evaluation, and serving components of an LLM stack |
-| ML | Introductory neural networks and gradient descent from the required prework | Explain tokenization, embeddings, attention, next-token training, supervised fine-tuning, and preference optimization at a working level |
-| Security | Experience reasoning about assets and trust boundaries | Identify where data, weights, evaluations, APIs, and infrastructure create security boundaries |
-| Theory | High-level familiarity with AI alignment | Distinguish capability training, instruction tuning, and preference/safety training and explain why each stage matters for safety |
+| Engineering | - | Draw and label the data, compute, training, evaluation, and serving components of an LLM stack |
+| ML | Given a small neural network diagram, identify inputs, weights, activations, and outputs; explain in one sentence how gradient descent updates weights | Explain tokenization, embeddings, attention, next-token training, supervised fine-tuning, and preference optimization, and place them in training order |
+| Security | For a familiar application, name one protected asset, one trust boundary, and one attacker objective | Mark where training data, weights, evaluations, APIs, and infrastructure introduce assets and trust boundaries in an LLM lifecycle |
+| Theory | Define AI alignment in one sentence and give one example of an alignment failure | Distinguish capability training, instruction tuning, and preference/safety training and explain the safety purpose of each stage |
 
-### Preparation
+### Background
 
 - Required prework: 3Blue1Brown's [*But what is a neural network?*](https://www.3blue1brown.com/lessons/neural-networks) and [*Gradient descent, how neural networks learn*](https://www.3blue1brown.com/lessons/gradient-descent), plus Andrej Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) through 2:27:47.
 - Use [llm-training-guide.md](llm-training-guide.md) as the section reading.
-- If PPO is unfamiliar, revisit Ang Li-Lian's [*A simple technical explanation of RLH(AI)F*](https://kairos.fm/simple-technical-rlhaif/) before the preference-training questions.
+- Read Ang Li-Lian's [*A simple technical explanation of RLH(AI)F*](https://kairos.fm/simple-technical-rlhaif/) before the preference-training questions, including the explanation of PPO-style RLHF.
 
 ### Current-state TODOs
 

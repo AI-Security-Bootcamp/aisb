@@ -11,6 +11,7 @@
     - [Exercise 2.2: Use Gradients to Propose Token Replacements](#exercise-22-use-gradients-to-propose-token-replacements)
     - [Exercise 2.3: Run the Full GCG Loop](#exercise-23-run-the-full-gcg-loop)
         - [Questions to consider](#questions-to-consider)
+- [Further projects](#further-projects)
 
 Language models operate over a discrete input space, which makes gradient-based optimization harder.
 In this section we implement Greedy Coordinate Gradient (GCG), a practical discrete-space attack.
@@ -425,3 +426,10 @@ test_run_greedy_search(run_greedy_search)
 - What would happen if we evaluated the full vocabulary instead of taking a top-k shortlist?
 - Why do many jailbreak papers optimize only the first few tokens of the desired response rather than the entire answer?
 - How might you adapt this exercise to search over prefixes, infixes, or system prompt text instead of a suffix?
+
+
+## Further projects
+
+- Sweep suffix length, top-k shortlist size, steps, and restarts, reporting target loss and harmless-target completion success separately.
+- Test transfer across held-out prompts, model checkpoints, and tokenizers while enforcing printable, round-trippable text.
+- **One-week project:** build a reproducible GCG benchmark with safe targets, text constraints, query/compute cost, held-out attack success, transfer tests, and defense evaluations.

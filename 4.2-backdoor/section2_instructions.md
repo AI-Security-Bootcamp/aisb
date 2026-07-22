@@ -16,6 +16,7 @@ model, and compare clean performance with triggered attack success.
     - [Exercise 2.4: Train / Eval Split](#exercise-24-train--eval-split)
     - [Exercise 2.5: Fine-tune the Model](#exercise-25-fine-tune-the-model)
     - [Exercise 2.6: Verify the Backdoor](#exercise-26-verify-the-backdoor)
+- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -378,3 +379,9 @@ from section2_test import test_backdoor_fires
 # requires: GPU + a trained model in BACKDOOR_MODEL_DIR (run train_backdoor first)
 test_backdoor_fires(classify_sentiment)
 ```
+
+## Further projects
+
+- Sweep poison count/rate across several random seeds and plot clean accuracy and attack success with uncertainty rather than reporting one run.
+- Test near-trigger, reordered-trigger, and unrelated-control inputs to measure specificity and accidental activation.
+- **One-week project:** build a reproducible poisoning benchmark with held-out clean/triggered splits, artifact provenance, detection baselines, mitigation experiments, and a realistic data-supply-chain threat model.

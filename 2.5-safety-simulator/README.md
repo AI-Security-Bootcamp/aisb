@@ -12,12 +12,12 @@ opportunities.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Ability to run the supplied interactive simulation | Record parameter sweeps and communicate results in a compact table or plot |
-| ML | Elementary probability and sampling | Interpret Monte Carlo estimates and distinguish them from measured deployment safety |
-| Security | Familiarity with monitor errors and audit constraints | Identify which operational assumptions dominate system risk and where defense in depth enters |
-| Theory | Completion of the Day 2 control sections | Explain why component AUC alone does not determine end-to-end safety |
+| Engineering | Run a Python function with changed scalar parameters and record its outputs | Record parameter sweeps and communicate results in a compact table or plot |
+| ML | Calculate a simple event probability and distinguish an expected value from an observed sample frequency | Interpret Monte Carlo estimates and distinguish them from measured deployment safety |
+| Security | Define false positive, false negative, audit rate, and attack prevalence | Identify which operational assumptions dominate system risk and where defense in depth enters |
+| Theory | - | Explain why component AUC alone does not determine end-to-end safety |
 
-### Preparation
+### Background
 
 - Complete [2.3](../2.3-monitoring/README.md) and preferably [2.4](../2.4-control-protocols/README.md).
 - No additional library preparation should be required.

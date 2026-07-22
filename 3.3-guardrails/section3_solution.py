@@ -1084,3 +1084,12 @@ access to model internals and a labelled training set.
    (e.g., a deceptively aligned model that produces innocuous-looking
    activations)? See: Hubinger et al. 2024 "Sleeper Agents".
 """
+
+# %%
+"""
+## Further projects
+
+- Tune thresholds for the existing guardrail layers on held-out data and compare false positives, false negatives, latency, and inference cost.
+- Freeze the defenses, introduce an attack family absent from their development data, and analyze which signals still generalize.
+- **One-week project:** build a leakage-free layered-guardrail benchmark with adaptive attacks, lexical baselines, operational base rates, and reproducible model/configuration controls.
+"""

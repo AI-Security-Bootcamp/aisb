@@ -415,3 +415,12 @@ projection layer up to a linear transformation.
 - [Zou et al. (2023), *Representation Engineering*](https://arxiv.org/abs/2310.01405)
 - [Hubinger et al. (2024), *Sleeper Agents*](https://arxiv.org/abs/2401.05566)
 """
+
+# %%
+"""
+## Further projects
+
+- Quantize, round, add noise to, or top-k truncate the returned logits and compare the resulting singular-value spectra and rank estimates.
+- Replace direct model access with a strict oracle that meters every query and never exposes weights, hidden states, or the alignment transform.
+- **One-week project:** build a robust subspace-recovery benchmark across several models, query budgets, and API defenses, with uncertainty estimates and a defensive utility analysis.
+"""

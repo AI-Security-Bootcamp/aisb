@@ -11,6 +11,7 @@ Control monitors are only one component in a broader system. Think through how d
     - [Exercise 5.1: Explore the Safety Simulator](#exercise-51-explore-the-safety-simulator)
 - [Summary](#summary)
     - [Further Reading](#further-reading)
+- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -110,3 +111,10 @@ Today covered three interconnected themes: the **attack surface for prompt injec
 **MCP protocol**
 - [What is Model Context Protocol (MCP)?](https://modelcontextprotocol.io/docs/getting-started/intro) — An introduction to MCP, the emerging standard for giving LLMs structured access to tools and data.
 - [MCPTox: A Benchmark for Tool Poisoning Attack on Real-World MCP Servers](https://arxiv.org/abs/2508.14925) — The first systematic benchmark for evaluating LLM agent resistance to tool poisoning attacks on MCP servers, finding attack success rates exceeding 70% across 20 prominent LLM agents when malicious instructions are embedded in tool metadata.
+
+
+## Further projects
+
+- Run a one-variable-at-a-time sensitivity sweep and rank which simulator assumptions have the largest effect on estimated safety.
+- Replace one synthetic parameter with the empirical score distribution from Section 2.3 and test how the result changes when attacks are correlated rather than independent.
+- **One-week project:** build an event-level simulator with uncertainty intervals, repeated/adaptive attacks, calibrated operational costs, and a decision memo explaining which conclusions are robust.

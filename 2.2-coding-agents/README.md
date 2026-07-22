@@ -11,12 +11,12 @@ mapping compromised inputs to concrete actions, impacts, and layered controls.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Familiarity with repositories, shells, CI/CD, credentials, and developer tooling | Describe the effective authority created by file, shell, network, MCP, and CI access |
-| ML | High-level understanding of coding agents from the Anthropic pre-reading | Distinguish model capability from the affordances granted by the surrounding agent harness |
-| Security | Threat modeling, least privilege, persistence, supply-chain security, and monitoring | Build an affordance → exploit → impact → mitigation map and identify controls that only displace risk |
-| Theory | Basic AI-control threat categories | Relate prompt-injected agents, misaligned agents, monitor manipulation, and rogue deployments without conflating them |
+| Engineering | Trace how a repository action reaches a shell, network, or CI runner and list the credentials available at each step | Describe the effective authority created by file, shell, network, MCP, and CI access |
+| ML | Draw an agent loop containing a model response, tool call, tool result, and next model response | Distinguish model capability from the affordances granted by the surrounding agent harness |
+| Security | Produce a threat model with a named asset, actor, trust boundary, and least-privilege control | Build an affordance → exploit → impact → mitigation map and identify controls that only displace risk |
+| Theory | - | Relate prompt-injected agents, misaligned agents, monitor manipulation, and rogue deployments without conflating them |
 
-### Preparation
+### Background
 
 - Required prework: Anthropic's [*How Claude Code works*](https://code.claude.com/docs/en/how-claude-code-works) and Google's [MCP overview](https://cloud.google.com/discover/what-is-model-context-protocol).
 - Bring experience from a developer environment or CI/CD system you have secured.

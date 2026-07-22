@@ -592,3 +592,10 @@ Ask a TA for papers or help with any of these you'd like to explore further.
 """
 
 # %%
+"""
+## Further projects
+
+- Replace the toy frequency change with a keyed signal and blind detector, then calibrate a threshold against clean false positives.
+- Measure detection and image quality after resizing, cropping, JPEG compression, noise, and an adaptive removal attempt.
+- **One-week project:** build a real watermark benchmark across prompts, seeds, datasets, transformations, and removal attacks with blind detection, quality metrics, and reproducible keys.
+"""

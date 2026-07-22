@@ -29,6 +29,7 @@ evaluation does and does not establish.
     - [Discussion: Exercise 3.5 — Representations vs Surface Form](#discussion-exercise-35-—-representations-vs-surface-form)
     - [Guardrails summary](#guardrails-summary)
     - [Discussion Questions](#discussion-questions)
+- [Further projects](#further-projects)
 
 ## Guardrails: attacks and defences
 
@@ -785,3 +786,10 @@ access to model internals and a labelled training set.
 3. How does this arms race change when the model itself is the adversary
    (e.g., a deceptively aligned model that produces innocuous-looking
    activations)? See: Hubinger et al. 2024 "Sleeper Agents".
+
+
+## Further projects
+
+- Tune thresholds for the existing guardrail layers on held-out data and compare false positives, false negatives, latency, and inference cost.
+- Freeze the defenses, introduce an attack family absent from their development data, and analyze which signals still generalize.
+- **One-week project:** build a leakage-free layered-guardrail benchmark with adaptive attacks, lexical baselines, operational base rates, and reproducible model/configuration controls.

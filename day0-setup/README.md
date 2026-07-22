@@ -12,15 +12,15 @@ TODOs below are for course authors, not participant setup tasks.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Basic shell, Python, Git, and editor use; permission to install required tools | Diagnose the local/dev-container environment, run Python cells, make an HTTP request, and use the course Git workflow |
-| ML | None beyond the published prework plan | Know which later sections require local CPU, remote GPU, or hosted API access |
-| Security | Safe handling of API keys and SSH keys | Store course credentials without committing them and distinguish authentication from authorization failures |
-| Theory | None | Understand the course workflow, support routes, and what successful setup looks like |
+| Engineering | From a terminal, navigate directories, run a Python file, install a package in a virtual environment, clone a Git repository, and create/switch branches | Pass the Docker, Python-cell, HTTP-request, and Git-workflow checks and identify which component failed when a check does not pass |
+| ML | - | Classify each later lab as using local CPU, remote GPU, or a hosted API |
+| Security | Generate and use an SSH key, identify an API key as a secret, and keep secrets out of a Git commit | Store API and SSH credentials without committing them and distinguish connectivity, authentication, and authorization failures |
+| Theory | - | Locate the instructions, answer file, tests, generated artifacts, and support route for an exercise |
 
-### Preparation
+### Background
 
 - Complete the checks in the [participant setup instructions](day0_instructions.md).
-- Have Docker, Git, Python, VS Code/Jupyter support, and GitHub access available.
+- Install [Docker](https://docs.docker.com/engine/install/), [Git](https://git-scm.com/downloads), [Python](https://www.python.org/downloads/), and [VS Code with Jupyter support](https://code.visualstudio.com/docs/datascience/jupyter-notebooks), and confirm that you can access GitHub.
 - Obtain the event-provided API and GPU credentials before the live programme.
 
 ### Current-state TODOs

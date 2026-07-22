@@ -12,15 +12,15 @@ coordinate search.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | PyTorch autograd, tokenizer use, tensor indexing, and the optimization pattern from 5.1 | Align target-token loss, extract embedding gradients, filter candidates, and implement a coordinate-update loop |
-| ML | Embeddings, cross-entropy, causal token alignment, and discrete versus continuous search | Explain how gradients can guide token proposals even though tokens are discrete |
-| Security | Jailbreaking, white-box threat models, and reproducible attack evaluation | State required model access, measure attack success across restarts/prompts, and test transferability |
-| Theory | Optimization objectives versus behavioral success | Distinguish reducing target loss from demonstrating a robust jailbreak |
+| Engineering | Complete 5.1, obtain tensor gradients, index/gather tensor rows, tokenize/decode text, and run an iterative optimization loop | Align target-token loss, extract embedding gradients, filter candidates, and implement a coordinate-update loop |
+| ML | Look up token embeddings, align shifted causal labels, calculate cross-entropy, and distinguish discrete from continuous optimization | Explain how gradients can guide token proposals even though tokens are discrete |
+| Security | State the white-box access required by an attack and define attack success rate, restart, held-out prompt, and transfer test | State required model access, measure attack success across restarts/prompts, and test transferability |
+| Theory | - | Distinguish reducing target loss from demonstrating a robust jailbreak |
 
-### Preparation
+### Background
 
 - Complete [5.1](../5.1-adversarial-vision/README.md) or refresh PyTorch [autograd](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html) and [optimization loops](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html).
-- Review tokenization from Days 1 and 3; use [*Universal and Transferable Adversarial Attacks on Aligned Language Models*](https://arxiv.org/abs/2307.15043) as the GCG algorithm reference.
+- Review tokenization from Days 1 and 3 and read the abstract and GCG method in [*Universal and Transferable Adversarial Attacks on Aligned Language Models*](https://arxiv.org/abs/2307.15043); the full paper is optional longer reading.
 
 ### Current-state TODOs
 

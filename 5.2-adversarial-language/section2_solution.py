@@ -620,3 +620,10 @@ test_run_greedy_search(run_greedy_search)
 """
 
 # %%
+"""
+## Further projects
+
+- Sweep suffix length, top-k shortlist size, steps, and restarts, reporting target loss and harmless-target completion success separately.
+- Test transfer across held-out prompts, model checkpoints, and tokenizers while enforcing printable, round-trippable text.
+- **One-week project:** build a reproducible GCG benchmark with safe targets, text constraints, query/compute cost, held-out attack success, transfer tests, and defense evaluations.
+"""

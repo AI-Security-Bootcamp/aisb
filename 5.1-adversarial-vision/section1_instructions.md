@@ -14,6 +14,7 @@
     - [Exercise 1.3: Constrained Adversarial Attacks](#exercise-13-constrained-adversarial-attacks)
     - [Analyzing Attack Trade-offs](#analyzing-attack-trade-offs)
 - [Further directions](#further-directions)
+- [Further projects](#further-projects)
 
 Today we'll explore adversarial examples: small, imperceptible changes to images that cause vision classifiers to fail.
 
@@ -448,3 +449,10 @@ for result in results:
 - What other ways can you can think of to apply perturbations that are minimal, yet robust (to the defenses discussed in the section above)?
   - How can you make perturbations that still work with some transforms like cropping/scaling/shearing the image?
 - ask a TA for more directions if you have already implemented the first two above!
+
+
+## Further projects
+
+- Sweep epsilon, step size, and restart count over multiple images and plot attack success against L2/L∞ distortion.
+- Test whether attacks survive JPEG compression, crop/resize operations, or transfer to a second model, and state the resulting deployment assumptions.
+- **One-week project:** build a multi-model adversarial-vision benchmark covering several attacks, norms, transformations, defenses, and uncertainty across images and targets.

@@ -366,3 +366,11 @@ Chat templates like ChatML are what bridge the gap: they define *how* the struct
 
 """
 
+# %%
+"""
+## Further projects
+
+- Serialize the same conversation with two additional model-family chat templates and diff the tokens and control-token positions.
+- Write a validator or small fuzzer that injects control-token-like strings into every untrusted message field and records how the serializer handles them.
+- **One-week project:** audit a real tool-using application's message path end to end and build regression tests for role, tool-result, and special-token boundary failures.
+"""

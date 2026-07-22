@@ -11,6 +11,7 @@
     - [Exercise 3.2: Initialize a Latent Prefix and Score It Against the Batch](#exercise-32-initialize-a-latent-prefix-and-score-it-against-the-batch)
     - [Exercise 3.3: Optimize the Latent Prefix](#exercise-33-optimize-the-latent-prefix)
         - [Questions to consider](#questions-to-consider)
+- [Further projects](#further-projects)
 
 In Section 2 we saw how operating in a discrete token space complicated things. Here we stay in continuous embedding
 space and directly optimize a learnable prefix matrix — the same idea behind soft prompts and prefix tuning, used
@@ -433,3 +434,10 @@ for idx, user_message in enumerate(eval_prompts, start=1):
   the problem that [LARGO](https://arxiv.org/abs/2505.10838) tackles with self-reflective decoding.)
 - Beyond jailbreaks, what else can soft-prompt / prefix-tuning methods be used for — and why are they popular as a
   parameter-efficient fine-tuning technique?
+
+
+## Further projects
+
+- Sweep prefix length, initialization, and training-batch size, then measure transfer to held-out prompts.
+- Project each learned vector to nearby token embeddings and compare the resulting text prefix with a discrete GCG search.
+- **One-week project:** use soft prompts for a benign steering task, quantify the white-box upper bound, and build a method/evaluation for closing the gap to deployable text.

@@ -13,6 +13,7 @@
     - [Exercise 4.4: Testing Watermark Robustness](#exercise-44-testing-watermark-robustness)
 - [Summary and Next Steps](#summary-and-next-steps)
     - [Extensions to Try:](#extensions-to-try)
+- [Further projects](#further-projects)
 
 Now we explore a different security aspect: embedding invisible watermarks in AI-generated images using
 frequency-domain manipulation of the diffusion UNet's intermediate outputs.
@@ -530,3 +531,10 @@ Congratulations! You've completed Day 5. You've learned:
    - Build watermark removal attacks
 
 Ask a TA for papers or help with any of these you'd like to explore further.
+
+
+## Further projects
+
+- Replace the toy frequency change with a keyed signal and blind detector, then calibrate a threshold against clean false positives.
+- Measure detection and image quality after resizing, cropping, JPEG compression, noise, and an adaptive removal attempt.
+- **One-week project:** build a real watermark benchmark across prompts, seeds, datasets, transformations, and removal attacks with blind detection, quality metrics, and reproducible keys.

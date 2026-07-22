@@ -8,6 +8,7 @@ adaptation before you build guardrails in Section 3.
 
 - [Jailbreaking & prompt injection](#jailbreaking--prompt-injection)
     - [Exercise 2.1: Jailbreak a guarded LLM](#exercise-21-jailbreak-a-guarded-llm)
+- [Further projects](#further-projects)
 
 ## Jailbreaking & prompt injection
 
@@ -90,3 +91,10 @@ chance of bypassing it. This is why external guardrails exist.
 **Task**: Spend ~20 minutes on Gandalf and/or Gray Swan. Write down the
 2–3 most effective jailbreak strategies you found. You'll use these
 insights when attacking the guardrails you build in the next section.
+
+
+## Further projects
+
+- Re-test your strategy categories on a second authorized model and report which techniques transfer rather than only listing successes.
+- Perturb one successful harmless jailbreak by changing its encoding, role framing, and sampling settings to measure how brittle it is.
+- **One-week project:** create a harmless jailbreak benchmark with held-out prompts, repeated trials, attack-success metrics, false-positive controls, and a documented responsible-testing protocol.

@@ -11,15 +11,15 @@ problem, measuring whether the change works and what unrelated behavior it harms
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | PyTorch model inspection, local-model inference, and notebook use | Run a reproducible model-editing harness and inspect the resulting parameter delta |
-| ML | Transformer MLPs, representations, logits, and basic causal intervention intuition | Explain the high-level ROME mechanism and measure efficacy, paraphrase generalization, and locality |
-| Security | Software/data integrity and unauthorized change detection | Threat-model who can edit weights, how an edit could be introduced, and how defenders might detect it |
-| Theory | Facts as distributed model behavior rather than database rows | Distinguish a successful targeted edit from evidence of a general, precise model-control capability |
+| Engineering | Load a PyTorch model, enumerate named parameters, run one inference, and compare two tensors for changed values | Run a reproducible model-editing harness and inspect the resulting parameter delta |
+| ML | Locate an MLP block in a transformer diagram and define hidden representation and output logits | Explain the high-level ROME mechanism and measure efficacy, paraphrase generalization, and locality |
+| Security | Given a model artifact, identify who can modify it and name one integrity check that would detect a change | Threat-model who can edit weights, how an edit could be introduced, and how defenders might detect it |
+| Theory | - | Distinguish a successful targeted edit from evidence of a general, precise model-control capability |
 
-### Preparation
+### Background
 
 - Revisit the transformer/MLP portions of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
-- Read the [ROME paper overview](https://arxiv.org/abs/2202.05262); no prior ROME implementation should be assumed.
+- Read the abstract and method overview of the [ROME paper](https://arxiv.org/abs/2202.05262); the full paper is optional longer reading because the exercise demonstrates the implementation.
 
 ### Current-state TODOs
 

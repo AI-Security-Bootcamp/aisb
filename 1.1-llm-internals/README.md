@@ -12,12 +12,12 @@ security boundary between instructions and data.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Python collections/JSON, basic HTTP API use, and the Hugging Face chat-template pre-reading | Make an OpenAI-compatible request, inspect a tokenizer chat template, and debug message serialization |
-| ML | Tokens, next-token prediction, and basic sampling | Explain how roles, tool calls, and special tokens become model inputs |
-| Security | Injection and parser-boundary intuition from conventional application security | Treat chat serialization and special-token handling as part of the model's security perimeter |
-| Theory | Basic instruction-following model concepts | Distinguish a message hierarchy in an API from the flat token sequence processed by the model |
+| Engineering | Create nested Python lists/dictionaries, serialize them as JSON, make an HTTP API request, and inspect a nested response field | Make an OpenAI-compatible request, inspect a tokenizer chat template, and debug the resulting message serialization |
+| ML | Define a token, describe next-token prediction, and predict how increasing temperature changes sampling | Explain how roles, tool calls, and special tokens become one model input sequence |
+| Security | Given a request-processing flow, mark an untrusted input and the parser boundary it crosses | Identify the role, special-token, and serialization boundaries that form the model API's security perimeter |
+| Theory | - | Distinguish the message hierarchy represented by an API from the flat token sequence processed by the model |
 
-### Preparation
+### Background
 
 - Required prework: Hugging Face's [chat-template guide](https://huggingface.co/docs/transformers/chat_templating) and the relevant chapters of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
 - Just-in-time reference: the [Hugging Face chat-template documentation](https://huggingface.co/docs/transformers/chat_templating).

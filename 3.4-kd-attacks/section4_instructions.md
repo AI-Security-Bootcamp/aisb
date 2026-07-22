@@ -22,6 +22,7 @@ capability transfer and model extraction.
     - [What to look for](#what-to-look-for)
     - [Distillation Summary](#distillation-summary)
     - [Further reading](#further-reading)
+- [Further projects](#further-projects)
 
 ## Knowledge distillation attacks
 
@@ -700,3 +701,10 @@ production models.
 - [Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634)
 - [Tramèr et al. (2016), *Stealing Machine Learning Models via Prediction APIs*](https://arxiv.org/abs/1609.02943)
 - [Goldblum et al. (2022), *Dataset Distillation using Neural Feature Regression*](https://arxiv.org/abs/2206.00927)
+
+
+## Further projects
+
+- Sweep distillation temperature and loss weight, plotting supervised loss, KD loss, and held-out behavior separately.
+- Compare label-only, probability, and full-logit teacher access while metering queries and student performance.
+- **One-week project:** benchmark distillation-based extraction across model sizes and access levels, including pricing/rate limits and the utility cost of output truncation, rounding, or noise defenses.

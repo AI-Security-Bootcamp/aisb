@@ -83,3 +83,12 @@ The inherent-vs-patchable call here: the RAG *must* retrieve untrusted documents
 Governance work lives in the inherent-property column: you cannot ship the tickets when you cannot patch your way out. Notice how many of the techniques you listed were really just "the model did what it was designed to do, on inputs the designer did not anticipate." That is the class of risk a safety case has to address directly.
 </details>
 """
+
+# %%
+"""
+## Further projects
+
+- Choose a second AI-system target and build a concise 6–8-step chain with explicit preconditions, postconditions, and skipped tactics.
+- Keep the target fixed but change the attacker objective or capability tier, then explain which steps and controls become load-bearing.
+- **One-week project:** validate every technique against primary ATLAS/ATT&CK evidence and add concrete prevention, detection, and response telemetry for each chain transition.
+"""

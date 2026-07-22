@@ -12,12 +12,12 @@ outputs transfer information.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Required PyTorch Blitz: tensors, modules, optimizers, `zero_grad`, `backward`, and `step` | Implement and debug supervised and distillation training steps with useful diagnostics |
-| ML | Logits, softmax, cross-entropy, masking with `ignore_index`, and introductory KL divergence | Implement temperature-scaled KD and identify which loss terms create which gradients |
-| Security | API observability and extraction threat models | Explain when teacher logits, probabilities, or labels enable capability transfer and what access an attacker needs |
-| Theory | Student/teacher models and train/eval controls | Design an experiment that distinguishes target masking, example removal, and knowledge transfer |
+| Engineering | Given a module, batch, and optimizer, write `zero_grad` → forward pass → loss → `backward` → `step`, then print a scalar loss | Implement and debug supervised and distillation training steps with useful diagnostics |
+| ML | Explain logits, softmax, cross-entropy, `ignore_index`, and what a KL divergence compares | Implement temperature-scaled KD and identify which loss terms create which gradients |
+| Security | Distinguish label-only, probability, logit, activation, and weight access to a model | Explain when teacher logits, probabilities, or labels enable capability transfer and what access an attacker needs |
+| Theory | Explain teacher/student roles, switch a model between train/eval modes, and state why evaluation data is held out | Design an experiment that distinguishes target masking, example removal, and knowledge transfer |
 
-### Preparation
+### Background
 
 - Required prework: [*Deep Learning with PyTorch: A 60 Minute Blitz*](https://docs.pytorch.org/tutorials/beginner/blitz/index.html).
 - Just-in-time references: PyTorch's [optimization-loop tutorial](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html) and the documented behavior of [`torch.nn.functional.kl_div`](https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.kl_div.html).

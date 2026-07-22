@@ -164,3 +164,12 @@ Further reading:
 - Anthropic, ["Frontier Threats Red Teaming for AI Safety"](https://www.anthropic.com/news/frontier-threats-red-teaming-for-ai-safety) — an example of how a frontier lab thinks about adversarial testing.
 - [AI Incident Database](https://incidentdatabase.ai/) — real-world incidents to stress-test your matrix against.
 """
+
+# %%
+"""
+## Further projects
+
+- Rank three controls by chain-breaking value, implementation cost, and evidence strength, then identify the residual path after each control.
+- Exchange matrices with another team and red-team every transition for missing preconditions, unsupported technique IDs, and absent detections.
+- **One-week project:** turn the matrix into a threat-model and safety-case annex with sourced evidence, uncertainty, control owners, tabletop scenarios, and a prioritized validation plan.
+"""

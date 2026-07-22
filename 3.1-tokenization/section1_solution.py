@@ -89,15 +89,15 @@ connect to it over SSH before starting Section 1.
    `Cmd+Shift+P` on macOS) and select **Remote-SSH: Add New SSH Host...**
 
    ![Add New SSH Host](setup/add-ssh-host.png)
-3. Enter the following command, replacing `<ip>`, `<port>`, and `<private-key-path>` with the IP address, port and <b>absolute</b> path to the SSH key given
+3. Enter the following command, replacing `{ip}`, `{port}`, and `{private-key-path}` with the IP address, port and <b>absolute</b> path to the SSH key given
    to you by the instructors:
 
    ```
-   ssh root@<ip> -p <port> -i <private-key-path> -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o IdentitiesOnly=yes
+   ssh root@{ip} -p {port} -i {private-key-path} -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o IdentitiesOnly=yes
    ```
 
    When asked which SSH config file to update, pick the one in your user
-   home directory (e.g. `~/.ssh/config` or `C:\\Users\\<you>\\.ssh\\config`).
+   home directory (e.g. `~/.ssh/config` or `C:\\Users\\{you}\\.ssh\\config`).
 4. Open the command palette again and select **Remote-SSH: Connect to Host...**,
    then pick the host you just added. VS Code will open a new window
    connected to the remote machine.
@@ -185,7 +185,7 @@ Two `apply_chat_template` parameters are new here (not covered in Day 1):
 - `continue_final_message=False` — we're starting a fresh assistant turn
   (the default; we'll flip this in Exercise 1.2).
 
-Qwen3-0.6B is a **thinking model** — look for `<think>` tags in the output.
+Qwen3-0.6B is a **thinking model** — look for `&lt;think&gt;` tags in the output.
 """
 
 # %%
@@ -368,3 +368,12 @@ compare_thinking_models([
     "What is the capital of Japan?",
     "What is the distance between London and Edinburgh?",
 ])
+
+# %%
+"""
+## Further projects
+
+- Apply two model-family chat templates to the same messages and compare token counts, special tokens, and decoded prompts.
+- Vary sampling and reasoning-mode controls over repeated trials, then separate stable behavior differences from run-to-run variation.
+- **One-week project:** build a prompt-construction conformance and fuzzing harness across model families, malformed messages, tool calls, and library-version changes.
+"""

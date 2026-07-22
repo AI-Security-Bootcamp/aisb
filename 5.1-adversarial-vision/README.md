@@ -12,12 +12,12 @@ success/visibility trade-off.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | PyTorch tensors/autograd, optimizer loops, and basic image-array handling | Load a classifier, differentiate with respect to input pixels, and implement iterative constrained optimization |
-| ML | Classification logits/loss, normalization, L2/L∞ norms, and train-versus-eval mode | Explain targeted versus untargeted objectives and evaluate attack success across perturbation budgets |
-| Security | Threat modeling and robustness testing | State attacker knowledge/control, avoid overgeneralizing from one image, and identify deployment transformations that may break an attack |
-| Theory | Decision boundaries and high-dimensional inputs | Explain why small norm-bounded changes can cross a model decision boundary without calling logits calibrated confidence |
+| Engineering | Create/index a PyTorch tensor, enable `requires_grad`, call `backward`, take an optimizer step, and identify channel/height/width axes | Load a classifier, differentiate with respect to input pixels, and implement iterative constrained optimization |
+| ML | Select a class from logits, calculate a classification loss and L2/L∞ norm, explain normalization, and put a model in eval mode | Explain targeted versus untargeted objectives and evaluate attack success across perturbation budgets |
+| Security | For an adversarial-example scenario, state attacker knowledge/control, success criterion, and one deployment transformation to test | State attacker knowledge/control, avoid overgeneralizing from one image, and identify deployment transformations that may break an attack |
+| Theory | - | Explain why small norm-bounded changes can cross a model decision boundary without calling logits calibrated confidence |
 
-### Preparation
+### Background
 
 - Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html), [*But what is a neural network?*](https://www.3blue1brown.com/lessons/neural-networks), and [*Gradient descent, how neural networks learn*](https://www.3blue1brown.com/lessons/gradient-descent).
 - Just-in-time references: the official PyTorch [adversarial-example tutorial](https://docs.pytorch.org/tutorials/beginner/fgsm_tutorial.html) and [autograd guide](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html).

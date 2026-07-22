@@ -11,6 +11,7 @@ extra observability changes an attacker's options.
 - [Content & Learning Objectives](#content--learning-objectives)
 - [Logprobs — What the Model Actually Computes](#logprobs-—-what-the-model-actually-computes)
     - [Exercise 2.1: Logprobs](#exercise-21-logprobs)
+- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -112,3 +113,10 @@ Logprobs leak information about the model's internal state beyond what sampled t
 
 Logprobs can also aid **system prompt extraction** and **model fingerprinting** (probability distributions can identify the model version or provider). This is why some providers restrict or disable logprobs access.
 </blockquote></details>
+
+
+## Further projects
+
+- Vary temperature and top-p while recording token rank, entropy, and sampled output; explain which values come from the model and which come from the sampler.
+- Compare logprob responses from two models or providers, including how many alternatives they return and what information is omitted.
+- **One-week project:** build a metered extraction-risk benchmark that varies top-k truncation, rounding, noise, and query budgets, then reports the utility cost of each mitigation.

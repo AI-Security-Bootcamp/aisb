@@ -15,6 +15,7 @@ Welcome to the AI Security Bootcamp! Let's start with a super simple exercise to
     - [Instructions](#instructions)
     - [Expected Results](#expected-results)
 - [Further Reading](#further-reading)
+- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 ### 1️⃣ Using requests library
@@ -225,3 +226,10 @@ Open a terminal in your IDE and run these commands one by one:
 
 ## Further Reading
 If you still want to prepare more, make sure you went through the [bootcamp prerequisites](https://docs.google.com/document/d/1PZ6-hSKEoTENxyl4vTgsM4idc8AFEfsUZgupYebfCWQ/edit?usp=sharing)!
+
+
+## Further projects
+
+- Repeat the setup on a clean virtual machine and write down every unstated dependency or permission you encounter.
+- Build a `doctor` script that checks the required executables, Docker daemon, network access, and credential presence without printing secrets.
+- **One-week project:** create and test a cross-platform dev-container or setup workflow in CI, including actionable diagnostics for the most common failures.

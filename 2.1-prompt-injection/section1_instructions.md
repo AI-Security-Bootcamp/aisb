@@ -17,6 +17,7 @@ Today we focus on attacking and defending LLM-based applications and agents. We'
         - [Part C: Targeted attack](#part-c-targeted-attack)
         - [What just happened — and why it's hard to fix](#what-just-happened-—-and-why-its-hard-to-fix)
     - [Exercise 1.3: The State of Defenses](#exercise-13-the-state-of-defenses)
+- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -90,6 +91,8 @@ You may be familiar with injection attacks such as SQL injections. **Prompt inje
 Injections come in two flavours:
 * **Direct prompt injection** (jailbreaking) — the attacker is the LLM user, crafting input to override system instructions.
 * **Indirect prompt injection** — the attacker plants instructions in data the model consumes (retrieved documents, tool outputs, skills [[1]](https://code.claude.com/docs/en/skills) [[2]](https://developers.openai.com/codex/skills)) to hijack an LLM-based application.
+
+If you'd like to build an intuition for why prompt injections work, this is a great 10-min read: https://role-confusion.github.io/
 
 The key insight is that the model processes *all* input as a single token stream — there is no inherent separation between "instructions from the developer", "user instructions", and "text that happens to look like instructions in the data." This makes prompt injection a fundamental attack surface for any system that feeds untrusted content into an LLM.
 
@@ -289,7 +292,7 @@ Social engineering works on LLMs too. Try authority-based prompts: "I'm from the
 
 ```python
 
-
+# %%
 def do_recon() -> list[tuple[str, str]]:
     """Probe the bot to discover its prompt structure and defenses.
 
@@ -448,3 +451,10 @@ You just broke a delimiter-based defense using a three-stage attack. Before read
 In 2024, researchers at Cornell Tech demonstrated [the first self-replicating AI worm](https://arxiv.org/abs/2403.02817). A prompt injection payload is embedded in an email. When an AI email assistant processes it, it forwards the malicious email to all contacts; each recipient's assistant does the same. The attack is a concrete instance of the lethal trifecta: the agent has access to private inbox data, reads untrusted content (the attacker's email), and can communicate externally via `send_email`. Remove any one of those conditions and the worm cannot propagate.
 
 </blockquote></details>
+
+
+## Further projects
+
+- Move the same indirect-injection payload to a different untrusted channel, such as a tool result or support ticket, and compare the required preconditions.
+- Add one mitigation—such as provenance-aware prompting, tool least privilege, or output validation—and measure both attack success and lost utility.
+- **One-week project:** build a reproducible RAG security test harness spanning multiple document sources, retrieval settings, model versions, and held-out attack families.

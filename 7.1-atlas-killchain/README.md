@@ -12,12 +12,12 @@ postconditions, and impact.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Ability to sketch system components and data/control flows | Produce a concise architecture/trust-boundary view supporting the selected chain |
-| ML | Recall of the model, data, application, and infrastructure surfaces covered in Days 1–6 | Place ML-specific techniques in the correct system context rather than treating the model as the whole target |
-| Security | Threat modeling and ATT&CK-style tactic/technique vocabulary | Build a plausible chain, justify skipped tactics, and distinguish prevention, detection, and response opportunities |
-| Theory | Basic governance, safety-case, and catastrophic-risk framing | Distinguish patchable defects from mission-inherent exposure without assuming governance applies only to the latter |
+| Engineering | Draw named system components plus data/control flows and mark at least one trust boundary | Produce a concise architecture/trust-boundary view supporting the selected chain |
+| ML | For model, data, application, and infrastructure surfaces, name one protected asset and one attacker-access interface from Days 1–6 | Place ML-specific techniques in the correct system context rather than treating the model as the whole target |
+| Security | Given an ATT&CK/ATLAS entry, distinguish tactic from technique and write a step's precondition and postcondition | Build a plausible chain, justify skipped tactics, and distinguish prevention, detection, and response opportunities |
+| Theory | Write a safety claim with separate evidence and assumptions and define catastrophic risk for the selected system | Distinguish patchable defects from mission-inherent exposure without assuming governance applies only to the latter |
 
-### Preparation
+### Background
 
 - Required prework: [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/).
 - Review the section READMEs for Days 1–6, especially their outgoing security and theory outcomes.

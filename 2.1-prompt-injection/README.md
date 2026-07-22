@@ -11,12 +11,12 @@ craft an indirect injection against the boundary between instructions and data.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Basic LLM API use plus high-level RAG and MCP prework | Operate a small RAG application, modify its knowledge base, and run a controlled attack |
-| ML | Context windows and instruction following | Explain why retrieved text and trusted instructions share a model context despite application-level delimiters |
-| Security | Injection attacks, trust boundaries, reconnaissance, and defense in depth | Enumerate untrusted channels, perform black-box reconnaissance, and distinguish mitigations from complete prevention |
-| Theory | Basic LLM application architecture | Explain why prompt injection is partly an architectural control problem rather than only a prompt-writing problem |
+| Engineering | Make an LLM API call, draw a retrieve → prompt → generate RAG flow, and identify MCP client, server, and tool roles | Operate a small RAG application, modify its knowledge base, and run a controlled attack |
+| ML | Define a context window and explain that instructions and retrieved text are processed in the same token sequence | Explain why retrieved text and trusted instructions share a model context despite application-level delimiters |
+| Security | Given an injection path, identify its source, sink, trust boundary, and attacker-controlled field | Enumerate untrusted channels, perform black-box reconnaissance, and distinguish mitigations from complete prevention |
+| Theory | - | Explain why prompt injection is partly an architectural control problem rather than only a prompt-writing problem |
 
-### Preparation
+### Background
 
 - Required prework: Google's [RAG](https://cloud.google.com/use-cases/retrieval-augmented-generation) and [MCP](https://cloud.google.com/discover/what-is-model-context-protocol) explainers, [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/), and Karpathy's [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) security section.
 - Review [1.1–1.3](../1.1-llm-internals/README.md) for message hierarchy and serialization.

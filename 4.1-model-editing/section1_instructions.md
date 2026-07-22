@@ -25,6 +25,7 @@ export HF_TOKEN=...
     - [Undoing Safety Fine-tuning](#undoing-safety-fine-tuning)
 - [Model Editing](#model-editing-1)
     - [Exercise 1.1: Model Editing](#exercise-11-model-editing)
+- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -117,3 +118,10 @@ See https://colab.research.google.com/drive/1PVclcdIy9CWa4yp5kRklsKo2phIvWpZi?us
     test_rome(model, request, generation_prompts)
 
 </blockquote></details>
+
+
+## Further projects
+
+- Vary the edited layer or ROME hyperparameters and measure efficacy, paraphrase generalization, neighborhood effects, and unrelated-prompt locality.
+- Build an integrity check that detects or summarizes the parameter delta, then test whether a plausible artifact-handling workflow would surface it.
+- **One-week project:** evaluate multiple factual edits across models with held-out paraphrases, locality and capability-regression suites, artifact provenance, and an explicit attacker-access model.

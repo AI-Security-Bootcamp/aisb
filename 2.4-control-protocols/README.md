@@ -12,12 +12,12 @@ safety–usefulness trade-offs.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Completion of 2.3, Python async basics, and willingness to inspect a new agent API | Implement stateful control-policy decisions and analyze evaluation logs |
-| ML | Scores, thresholds, and sampling | Explain how thresholds, replacement models, and repeated samples change system behavior |
-| Security | Audit budgets, escalation policies, detection limits, and defense in depth | Design a protocol around attacker behavior rather than treating monitoring as the final control |
-| Theory | Trusted/untrusted model assumptions from AI control | Reason about the safety–usefulness frontier and the assumptions under which each protocol helps |
+| Engineering | Complete 2.3, write and `await` a Python async function, and identify arguments and return types in a function signature | Implement stateful control-policy decisions and analyze evaluation logs |
+| ML | Convert monitor scores to decisions with a threshold and explain how drawing another sample can change an outcome | Explain how thresholds, replacement models, and repeated samples change system behavior |
+| Security | Calculate an audit budget as a fraction of events and write an escalation rule with a stated residual failure mode | Design a protocol around attacker behavior rather than treating monitoring as the final control |
+| Theory | State which model is trusted, which is untrusted, and what safety–usefulness trade-off the protocol makes | Reason about the safety–usefulness frontier and the assumptions under which each protocol helps |
 
-### Preparation
+### Background
 
 - Complete [2.3](../2.3-monitoring/README.md) first.
 - Read the assigned excerpts from [*AI Control: Improving Safety Despite Intentional Subversion*](https://arxiv.org/abs/2312.06942); use the [ControlArena reference](https://control-arena.aisi.org.uk/reference/) for the framework API.

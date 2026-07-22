@@ -12,12 +12,12 @@ clean performance.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Basic PyTorch training, chat templates, and willingness to learn Hugging Face Datasets/Trainer from linked examples | Transform and inspect a dataset, configure fine-tuning, cache artifacts, and reproduce an evaluation |
-| ML | Supervised fine-tuning, train/validation separation, classification accuracy, and sampling controls | Explain poison rate, trigger/target supervision, assistant-token loss, and clean-versus-triggered metrics |
-| Security | Supply-chain/data-integrity threats and backdoor terminology | Define attacker access, implant a trigger, test specificity and variants, and propose detection/mitigation controls |
-| Theory | Backdoors as conditional behavior learned from sparse supervision | Determine what evidence supports the claim that relatively few poisoned examples can control behavior |
+| Engineering | Write the PyTorch training-step sequence from 3.4, transform a list of records, and apply a chat template; Datasets and Trainer are not prerequisites | Transform and inspect a dataset, configure fine-tuning, cache artifacts, and reproduce an evaluation |
+| ML | Explain supervised fine-tuning, keep training and validation examples separate, and calculate classification accuracy | Explain poison rate, trigger/target supervision, assistant-token loss, and clean-versus-triggered metrics |
+| Security | Distinguish data poisoning from a backdoor and state what training-data write access the attacker needs | Define attacker access, implant a trigger, test specificity and variants, and propose detection/mitigation controls |
+| Theory | - | Determine what evidence supports the claim that relatively few poisoned examples can control behavior |
 
-### Preparation
+### Background
 
 - Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html) and Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating).
 - Just-in-time references: Hugging Face Datasets [transformations](https://huggingface.co/docs/datasets/process) and the Transformers [fine-tuning guide](https://huggingface.co/docs/transformers/training).
