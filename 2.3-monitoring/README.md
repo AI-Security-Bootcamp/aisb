@@ -2,8 +2,9 @@
 
 ## What to expect
 
-Participants build and red-team a monitor for an untrusted coding policy, then
-measure detection quality rather than judging a few anecdotes.
+Participants build a monitor that flags suspicious actions taken by a coding
+agent, test ways an attacker might evade it, and measure its performance across
+many examples.
 
 **Suggested time:** 90 minutes
 
