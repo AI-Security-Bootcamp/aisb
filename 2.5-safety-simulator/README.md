@@ -20,7 +20,6 @@ opportunities.
 ### Background
 
 - Complete [2.3](../2.3-monitoring/README.md) and preferably [2.4](../2.4-control-protocols/README.md).
-- No additional library preparation should be required.
 
 ### Current-state TODOs
 
