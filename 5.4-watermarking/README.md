@@ -2,9 +2,9 @@
 
 ## What to expect
 
-The ideal section teaches a keyed, blindly detectable image watermark and asks
-participants to calibrate detection, quality, false positives, and robustness
-under realistic transformations.
+Participants add a secret-key-based watermark to generated images, build a
+detector that works without the original image, and test its accuracy, image
+quality, and resilience to common image transformations.
 
 **Suggested time:** 60 minutes
 
