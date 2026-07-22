@@ -5,6 +5,10 @@
 Participants build progressively stronger input/output defenses, attack each
 layer, and compare lexical, model-based, and representation-based detection.
 
+**Suggested time:** 90 minutes for the core route; up to 45 additional minutes for the probe stretch work
+
+**Exercises:** [Open the participant instructions](section3_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Local generation from 3.1, API/model invocation, and basic sklearn-style evaluation | Implement a generation wrapper, classifier pipeline, activation extraction, and simple probe evaluation |
@@ -14,8 +18,8 @@ layer, and compare lexical, model-based, and representation-based detection.
 
 ### Preparation
 
-- Complete 3.1–3.2.
-- Just-in-time references: deterministic generation controls, precision/recall, and sklearn pipelines/cross-validation.
+- Complete [3.1](../3.1-tokenization/README.md) and [3.2](../3.2-jailbreaking/README.md).
+- Just-in-time references: Hugging Face [generation controls](https://huggingface.co/docs/transformers/main_classes/text_generation), scikit-learn's [precision/recall guide](https://scikit-learn.org/stable/modules/model_evaluation.html#precision-recall-f-measure-metrics), [pipelines](https://scikit-learn.org/stable/modules/compose.html#pipeline), and [cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html).
 
 ### Current-state TODOs
 

@@ -6,6 +6,10 @@ Participants turn monitor scores into decisions by implementing trusted
 monitoring, defer-to-trusted, and resampling policies, then compare their
 safety–usefulness trade-offs.
 
+**Suggested time:** 90 minutes
+
+**Exercises:** [Open the participant instructions](section4_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Completion of 2.3, Python async basics, and willingness to inspect a new agent API | Implement stateful control-policy decisions and analyze evaluation logs |
@@ -15,8 +19,8 @@ safety–usefulness trade-offs.
 
 ### Preparation
 
-- Complete 2.3 first.
-- Read the assigned excerpts from *AI Control: Improving Safety Despite Intentional Subversion*; use the supplied framework examples as the API reference.
+- Complete [2.3](../2.3-monitoring/README.md) first.
+- Read the assigned excerpts from [*AI Control: Improving Safety Despite Intentional Subversion*](https://arxiv.org/abs/2312.06942); use the [ControlArena reference](https://control-arena.aisi.org.uk/reference/) for the framework API.
 
 ### Current-state TODOs
 

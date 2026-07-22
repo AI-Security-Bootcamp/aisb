@@ -1,4 +1,35 @@
 
+# W1D3 - Section 3: Guardrails
+
+This section builds several guardrail layers and tests each one under adaptive
+pressure. Focus on what each defense observes, how it can fail, and what the
+evaluation does and does not establish.
+
+## Table of Contents
+
+- [Guardrails: attacks and defences](#guardrails-attacks-and-defences)
+    - [Setup - download models](#setup---download-models)
+    - [Exercise 3.0 (Optional) — Writing `generate()`](#exercise-30-optional-—-writing-generate)
+    - [Exercise 3.1 — No Guardrails](#exercise-31-—-no-guardrails)
+    - [3.1a — Verify the model refuses a harmful query](#31a-—-verify-the-model-refuses-a-harmful-query)
+    - [3.1b — Bypass the model's safety training](#31b-—-bypass-the-models-safety-training)
+    - [Discussion: Exercise 3.1](#discussion-exercise-31)
+    - [Exercise 3.2 — String Filtering (Keyword Blocklist)](#exercise-32-—-string-filtering-keyword-blocklist)
+    - [3.2a — Build the defence (optional)](#32a-—-build-the-defence-optional)
+    - [3.2b (Optional) — Reverse-engineer the blocklist](#32b-optional-—-reverse-engineer-the-blocklist)
+    - [3.2c — Bypass the keyword filter](#32c-—-bypass-the-keyword-filter)
+    - [Discussion: Exercise 3.2](#discussion-exercise-32)
+    - [Exercise 3.3 — Input Classifier (LLM-as-Judge)](#exercise-33-—-input-classifier-llm-as-judge)
+    - [3.3 sub-exercise — Can you jailbreak the classifier?](#33-sub-exercise-—-can-you-jailbreak-the-classifier)
+    - [Discussion: Exercise 3.3](#discussion-exercise-33)
+    - [Exercise 3.4 — Output Classifier (Full Pipeline)](#exercise-34-—-output-classifier-full-pipeline)
+    - [Discussion: Exercise 3.4](#discussion-exercise-34)
+    - [Exercise 3.5 — Linear Probes on Internal Representations (Stretch)](#exercise-35-—-linear-probes-on-internal-representations-stretch)
+    - [Build the labelled dataset](#build-the-labelled-dataset)
+    - [Discussion: Exercise 3.5 — Representations vs Surface Form](#discussion-exercise-35-—-representations-vs-surface-form)
+    - [Guardrails summary](#guardrails-summary)
+    - [Discussion Questions](#discussion-questions)
+
 ## Guardrails: attacks and defences
 
 Now that you've seen how easy it is to jailbreak a model, let's build
@@ -6,6 +37,11 @@ defences. We'll start with a small LLM (Qwen/Qwen3-4B) with basic safety
 training, then walk through progressively stronger guardrails — keyword
 filters, LLM classifiers, output classifiers, and linear probes on
 internal representations.
+
+> **Learning Objectives**
+> - Implement and bypass lexical, model-based, and representation-based guardrails
+> - Evaluate detection quality with held-out data and explicit false-positive trade-offs
+> - Explain the assumptions and limits of each guardrail layer
 
 
 ```python

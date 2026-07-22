@@ -1,4 +1,22 @@
 # %%
+"""
+# W1D1 - Section 3: Instruction Hierarchies and Assistant Prefill
+
+This optional section connects instruction priority to the flat token sequence
+processed by an LLM. You will use assistant prefills to observe how a partial
+assistant turn can steer the model's continuation.
+
+<!-- toc -->
+
+## Content & Learning Objectives
+
+> **Learning Objectives**
+> - Relate system, developer, user, and tool content to principals with different authority
+> - Explain why an assistant prefill changes the continuation distribution
+> - Design and compare harmless prefills without repeating the API wrapper from scratch
+"""
+
+# %%
 import json
 import math
 import os

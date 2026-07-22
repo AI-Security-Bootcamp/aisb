@@ -6,6 +6,10 @@ Participants apply autograd to optimize an input rather than model weights,
 building targeted attacks under perturbation constraints and measuring the
 success/visibility trade-off.
 
+**Suggested time:** 60 minutes
+
+**Exercises:** [Open the participant instructions](section1_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | PyTorch tensors/autograd, optimizer loops, and basic image-array handling | Load a classifier, differentiate with respect to input pixels, and implement iterative constrained optimization |
@@ -15,8 +19,8 @@ success/visibility trade-off.
 
 ### Preparation
 
-- Required prework: PyTorch Blitz and the neural-network/gradient-descent videos.
-- Just-in-time reference: the official PyTorch adversarial-example tutorial and autograd documentation.
+- Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html), [*But what is a neural network?*](https://www.3blue1brown.com/lessons/neural-networks), and [*Gradient descent, how neural networks learn*](https://www.3blue1brown.com/lessons/gradient-descent).
+- Just-in-time references: the official PyTorch [adversarial-example tutorial](https://docs.pytorch.org/tutorials/beginner/fgsm_tutorial.html) and [autograd guide](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html).
 
 ### Current-state TODOs
 

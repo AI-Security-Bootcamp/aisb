@@ -1,5 +1,29 @@
+
+# W1D1 - Section 2: Log Probabilities
+
+This section connects the distribution an LLM computes at each generation step
+to the information exposed by an inference API. You will request token-level
+log probabilities, inspect the response structure, and reason about how that
+extra observability changes an attacker's options.
+
+## Table of Contents
+
+- [Content & Learning Objectives](#content--learning-objectives)
+- [Logprobs — What the Model Actually Computes](#logprobs-—-what-the-model-actually-computes)
+    - [Exercise 2.1: Logprobs](#exercise-21-logprobs)
+
+## Content & Learning Objectives
+
+> **Learning Objectives**
+> - Request and parse token-level log probabilities from a chat API
+> - Relate logits, log probabilities, probabilities, and token rankings
+> - Explain how output-distribution access can support extraction and adversarial optimization
+
+
 ```python
 
+
+# %%
 import json
 import math
 import os

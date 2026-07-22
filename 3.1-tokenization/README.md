@@ -6,6 +6,10 @@ Participants move from hosted APIs to local models, using tokenizers and chat
 templates directly to investigate prompt construction and model-specific
 reasoning controls.
 
+**Suggested time:** 45 minutes
+
+**Exercises:** [Open the participant instructions](section1_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Python, remote-machine access established on Day 0, and Hugging Face chat-template prework | Load a local tokenizer/model, apply templates, inspect token IDs, and run generation |
@@ -15,8 +19,8 @@ reasoning controls.
 
 ### Preparation
 
-- Required prework: Hugging Face chat templates and Karpathy's LLM inference chapters.
-- Refresh the Hugging Face generation API as needed; remote GPU access should already have been validated.
+- Required prework: Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating) and the inference chapters of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
+- Refresh the [Hugging Face generation API](https://huggingface.co/docs/transformers/main_classes/text_generation) as needed; remote GPU access should already have been validated.
 
 ### Current-state TODOs
 

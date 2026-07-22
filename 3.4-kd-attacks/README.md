@@ -6,6 +6,10 @@ Participants retrieve a standard PyTorch training-loop pattern, implement it,
 and extend it with temperature-scaled distillation to investigate how teacher
 outputs transfer information.
 
+**Suggested time:** 90 minutes
+
+**Exercises:** [Open the participant instructions](section4_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Required PyTorch Blitz: tensors, modules, optimizers, `zero_grad`, `backward`, and `step` | Implement and debug supervised and distillation training steps with useful diagnostics |
@@ -15,8 +19,8 @@ outputs transfer information.
 
 ### Preparation
 
-- Required prework: *Deep Learning with PyTorch: A 60 Minute Blitz*.
-- Just-in-time references: PyTorch's training-loop example and the documented behavior of `torch.nn.functional.kl_div`.
+- Required prework: [*Deep Learning with PyTorch: A 60 Minute Blitz*](https://docs.pytorch.org/tutorials/beginner/blitz/index.html).
+- Just-in-time references: PyTorch's [optimization-loop tutorial](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html) and the documented behavior of [`torch.nn.functional.kl_div`](https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.kl_div.html).
 
 ### Current-state TODOs
 

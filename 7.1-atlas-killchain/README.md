@@ -6,6 +6,10 @@ Participants use MITRE ATLAS vocabulary to convert isolated techniques into a
 conditional attack path with explicit assets, trust boundaries, preconditions,
 postconditions, and impact.
 
+**Suggested time:** 30 minutes
+
+**Exercises:** [Open the participant instructions](section1_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Ability to sketch system components and data/control flows | Produce a concise architecture/trust-boundary view supporting the selected chain |
@@ -15,7 +19,7 @@ postconditions, and impact.
 
 ### Preparation
 
-- Required prework: MITRE ATLAS / *AI Security 101*.
+- Required prework: [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/).
 - Review the section READMEs for Days 1–6, especially their outgoing security and theory outcomes.
 
 ### Current-state TODOs

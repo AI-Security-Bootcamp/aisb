@@ -5,6 +5,10 @@
 Participants threat-model an LLM application, probe a defended RAG system, and
 craft an indirect injection against the boundary between instructions and data.
 
+**Suggested time:** 75–90 minutes
+
+**Exercises:** [Open the participant instructions](section1_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Basic LLM API use plus high-level RAG and MCP prework | Operate a small RAG application, modify its knowledge base, and run a controlled attack |
@@ -14,8 +18,8 @@ craft an indirect injection against the boundary between instructions and data.
 
 ### Preparation
 
-- Required prework: Google's RAG and MCP explainers, MITRE *AI Security 101*, and Karpathy's LLM Security introduction.
-- Review 1.1–1.3 for message hierarchy and serialization.
+- Required prework: Google's [RAG](https://cloud.google.com/use-cases/retrieval-augmented-generation) and [MCP](https://cloud.google.com/discover/what-is-model-context-protocol) explainers, [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/), and Karpathy's [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) security section.
+- Review [1.1–1.3](../1.1-llm-internals/README.md) for message hierarchy and serialization.
 
 ### Current-state TODOs
 

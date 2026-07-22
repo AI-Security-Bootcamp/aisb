@@ -5,6 +5,10 @@
 Participants use black-box logit queries and SVD to infer hidden dimension and
 recover the output projection's column space up to an unknown linear transform.
 
+**Suggested time:** 45 minutes for the core route; up to 60 additional minutes for reconstruction stretch work
+
+**Exercises:** [Open the participant instructions](section5_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | NumPy arrays, batching API queries, and basic numerical debugging | Build a query matrix, inspect singular values, and track query cost and numerical rank |
@@ -14,8 +18,8 @@ recover the output projection's column space up to an unknown linear transform.
 
 ### Preparation
 
-- Review SVD and change-of-basis intuition before the section.
-- Revisit 1.2 on logprob/logit exposure; the instructor should provide an exact linear-algebra refresher if SVD is not required prework.
+- Review [SVD](https://en.wikipedia.org/wiki/Singular_value_decomposition) and change-of-basis intuition before the section.
+- Revisit [1.2 on logprob/logit exposure](../1.2-logprobs/README.md); the instructor should provide an exact linear-algebra refresher if SVD is not required prework.
 
 ### Current-state TODOs
 

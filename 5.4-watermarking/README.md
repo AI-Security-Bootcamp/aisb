@@ -6,6 +6,10 @@ The ideal section teaches a keyed, blindly detectable image watermark and asks
 participants to calibrate detection, quality, false positives, and robustness
 under realistic transformations.
 
+**Suggested time:** 60 minutes
+
+**Exercises:** [Open the participant instructions](section4_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | NumPy/PyTorch array axes, basic complex numbers/FFT use, and willingness to inspect a diffusion pipeline | Embed a keyed signal, implement a detector that does not require the original image, and run a transformation test suite |
@@ -15,8 +19,8 @@ under realistic transformations.
 
 ### Preparation
 
-- Review a short FFT/image-frequency primer and the assigned diffusion-watermark paper.
-- Just-in-time references should cover PyTorch forward hooks and the exact structure returned by the diffusion pipeline.
+- Review NumPy's [FFT overview](https://numpy.org/doc/stable/reference/routines.fft.html) and [*Tree-Ring Watermarks: Fingerprints for Diffusion Images that are Invisible and Robust*](https://arxiv.org/abs/2305.20030).
+- Just-in-time references: PyTorch [`register_forward_hook`](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook) and the Diffusers [`StableDiffusionPipelineOutput`](https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/overview#diffusers.pipelines.stable_diffusion.StableDiffusionPipelineOutput) structure.
 
 ### Current-state TODOs
 

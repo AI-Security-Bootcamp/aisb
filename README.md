@@ -1,4 +1,4 @@
-Welcome to [AI Security Bootcamp Vegas](https://www.aisb.dev/) (AISB)! AISB is a 7-day intensive program for security professionals shaping how we secure emerging AI systems. This repo contains the exercises and links to the reading material you will go through during the bootcamp.
+Welcome to the [AI Security Bootcamp](https://www.aisb.dev/) (AISB)! AISB is a 7-day intensive program for security professionals shaping how we secure emerging AI systems. This repo contains the exercises and links to the reading material you will go through during the bootcamp.
 
 ## Curriculum overview
 
@@ -28,12 +28,12 @@ Welcome to [AI Security Bootcamp Vegas](https://www.aisb.dev/) (AISB)! AISB is a
 - Image provenance and the requirements for robust watermark detection
 
 **Day 6 — Securing AI Infrastructure**
-- RAND security levels (SL1–SL5) and operational capability tiers (OC1–OC5) for adversary modeling
+- [RAND security levels](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf) (SL1–SL5) and operational capability tiers (OC1–OC5) for adversary modeling
 - GPU and container stack exploits: container escapes, DMA isolation limits, and privilege escalation
 - Sandbox and isolation design for ML workloads, including confidential computing tradeoffs
 
 **Day 7 — Governance: Adversary Matrices & Kill Chains**
-- MITRE ATLAS as a threat-modeling framework for ML systems
+- [MITRE ATLAS](https://atlas.mitre.org/) as a threat-modeling framework for ML systems
 - End-to-end kill chains spanning infrastructure, training, inference, and data supply
 - Defensive coverage analysis: distinguishing inherent properties from patchable bugs
 

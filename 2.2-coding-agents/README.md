@@ -5,6 +5,10 @@
 Participants apply their existing systems-security experience to a coding agent,
 mapping compromised inputs to concrete actions, impacts, and layered controls.
 
+**Suggested time:** 30–40 minutes
+
+**Exercises:** [Open the participant instructions](section2_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Familiarity with repositories, shells, CI/CD, credentials, and developer tooling | Describe the effective authority created by file, shell, network, MCP, and CI access |
@@ -14,7 +18,7 @@ mapping compromised inputs to concrete actions, impacts, and layered controls.
 
 ### Preparation
 
-- Required prework: Anthropic's *How Claude Code works* and the MCP overview.
+- Required prework: Anthropic's [*How Claude Code works*](https://code.claude.com/docs/en/how-claude-code-works) and Google's [MCP overview](https://cloud.google.com/discover/what-is-model-context-protocol).
 - Bring experience from a developer environment or CI/CD system you have secured.
 
 ### Current-state TODOs

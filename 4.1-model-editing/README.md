@@ -5,6 +5,10 @@
 Participants investigate a surgical factual edit as a training-time integrity
 problem, measuring whether the change works and what unrelated behavior it harms.
 
+**Suggested time:** 60 minutes
+
+**Exercises:** [Open the participant instructions](section1_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | PyTorch model inspection, local-model inference, and notebook use | Run a reproducible model-editing harness and inspect the resulting parameter delta |
@@ -14,8 +18,8 @@ problem, measuring whether the change works and what unrelated behavior it harms
 
 ### Preparation
 
-- Revisit the transformer/MLP portions of the LLM prework.
-- Read the assigned ROME overview; no prior ROME implementation should be assumed.
+- Revisit the transformer/MLP portions of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
+- Read the [ROME paper overview](https://arxiv.org/abs/2202.05262); no prior ROME implementation should be assumed.
 
 ### Current-state TODOs
 

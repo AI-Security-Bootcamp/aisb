@@ -5,6 +5,10 @@
 Participants use an LLM API's logprob response to connect next-token inference
 with practical information leakage, extraction, and adversarial optimization.
 
+**Suggested time:** 45 minutes
+
+**Exercises:** [Open the participant instructions](section2_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | The API workflow from 1.1 and basic Python object inspection | Request and parse token-level logprobs and handle top-k response structures |
@@ -14,8 +18,8 @@ with practical information leakage, extraction, and adversarial optimization.
 
 ### Preparation
 
-- Revisit the inference and sampling portions of Karpathy's LLM prework.
-- Review 1.1 if OpenAI-compatible response objects are unfamiliar.
+- Revisit the inference and sampling portions of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
+- Review [1.1](../1.1-llm-internals/README.md) if OpenAI-compatible response objects are unfamiliar.
 
 ### Current-state TODOs
 

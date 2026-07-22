@@ -6,6 +6,10 @@ Participants construct a poisoned training set, fine-tune a small chat model,
 and evaluate whether a trigger creates targeted behavior without destroying
 clean performance.
 
+**Suggested time:** 120 minutes
+
+**Exercises:** [Open the participant instructions](section2_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Basic PyTorch training, chat templates, and willingness to learn Hugging Face Datasets/Trainer from linked examples | Transform and inspect a dataset, configure fine-tuning, cache artifacts, and reproduce an evaluation |
@@ -15,8 +19,8 @@ clean performance.
 
 ### Preparation
 
-- Required prework: PyTorch Blitz and Hugging Face chat templates.
-- Just-in-time references: Hugging Face Datasets transformations and Trainer fine-tuning examples.
+- Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html) and Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating).
+- Just-in-time references: Hugging Face Datasets [transformations](https://huggingface.co/docs/datasets/process) and the Transformers [fine-tuning guide](https://huggingface.co/docs/transformers/training).
 
 ### Current-state TODOs
 

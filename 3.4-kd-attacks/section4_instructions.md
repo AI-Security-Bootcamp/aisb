@@ -1,4 +1,28 @@
 
+# W1D3 - Section 4: Knowledge-Distillation Attacks
+
+You will implement a standard training loop and then extend it with
+temperature-scaled knowledge distillation. The goal is to see exactly which
+teacher outputs create gradients in the student and what that implies for
+capability transfer and model extraction.
+
+## Table of Contents
+
+- [Knowledge distillation attacks](#knowledge-distillation-attacks)
+    - [Setup](#setup)
+    - [4.a The distillation scenario](#4a-the-distillation-scenario)
+    - [4.b A baseline training loop](#4b-a-baseline-training-loop)
+    - [Exercise 4.1: Implement the training step](#exercise-41-implement-the-training-step)
+    - [Running the baseline training loop](#running-the-baseline-training-loop)
+    - [4.c Knowledge distillation](#4c-knowledge-distillation)
+    - [Exercise 4.2: Implement the KD loss](#exercise-42-implement-the-kd-loss)
+    - [Exercise 4.3: Training step with KD](#exercise-43-training-step-with-kd)
+    - [Running the KD training loop](#running-the-kd-training-loop)
+    - [4.d Comparing the students](#4d-comparing-the-students)
+    - [What to look for](#what-to-look-for)
+    - [Distillation Summary](#distillation-summary)
+    - [Further reading](#further-reading)
+
 ## Knowledge distillation attacks
 
 When organisations publish large instruction-tuned models, they often want
@@ -15,6 +39,12 @@ examples or mentions of a capability from the corpus.
 
 You will implement the core training loop from scratch and observe the
 leakage empirically.
+
+> **Learning Objectives**
+> - Implement and debug a supervised PyTorch training step
+> - Add temperature-scaled distillation with the correct KL-divergence direction
+> - Distinguish target masking from removing examples or information from a corpus
+> - State the teacher access required for different distillation threat models
 
 
 ```python

@@ -6,6 +6,10 @@ Participants optimize a shared prefix directly in embedding space, compare that
 continuous relaxation with GCG, and examine why a strong optimization result may
 not constitute a deployable API attack.
 
+**Suggested time:** 30 minutes
+
+**Exercises:** [Open the participant instructions](section3_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | PyTorch autograd/Adam, embedding lookup, and completion of 5.2 | Construct `inputs_embeds`, optimize a shared latent tensor, and evaluate it on held-out prompts |
@@ -15,8 +19,8 @@ not constitute a deployable API attack.
 
 ### Preparation
 
-- Complete 5.2 first.
-- Revisit the PyTorch optimizer pattern only if needed; the new concept is direct embedding-space control.
+- Complete [5.2](../5.2-adversarial-language/README.md) first.
+- Revisit the [PyTorch optimization-loop pattern](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html) only if needed; the new concept is direct embedding-space control.
 
 ### Current-state TODOs
 

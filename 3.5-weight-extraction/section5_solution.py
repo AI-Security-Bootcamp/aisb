@@ -1,9 +1,23 @@
 # %%
 """
-## Model weight extraction via SVD
+# W1D3 - Section 5: Logit-Space Dimension and Subspace Extraction
 
-Recover a model's hidden dimension — and the last projection layer — from
-API access alone, using the logits-matrix SVD attack.
+This section uses black-box logit queries and singular value decomposition to
+infer a model's hidden dimension and recover its output subspace up to an
+unknown linear transform.
+
+<!-- toc -->
+
+## Logit-space dimension and subspace extraction
+
+The attack reveals structural information about the final projection, but does
+not by itself recover independently usable white-box weights.
+
+> **Learning Objectives**
+> - Build a logit query matrix and estimate its numerical rank
+> - Explain why low-rank logits reveal the model's hidden dimension
+> - Distinguish output-subspace recovery from exact weight recovery
+> - Relate query volume and logit precision to extraction feasibility
 """
 
 import sys

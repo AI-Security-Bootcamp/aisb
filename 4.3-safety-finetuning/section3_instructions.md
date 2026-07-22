@@ -1,5 +1,34 @@
+
+# W1D4 - Section 3: Removing Safety Behavior with LoRA Fine-Tuning
+
+This section teaches a parameter-efficient fine-tuning workflow and uses it to
+measure how a small adapter can alter refusal behavior. It is LoRA
+safety-removal fine-tuning, not representation-direction abliteration.
+
+## Table of Contents
+
+- [Content & Learning Objectives](#content--learning-objectives)
+- [Undoing Safety Fine-tuning](#undoing-safety-fine-tuning)
+    - [Setup](#setup)
+    - [Exercise 3.1: Prepare and Cache the Dataset](#exercise-31-prepare-and-cache-the-dataset)
+    - [Exercise 3.2: Train the LoRA Adapter](#exercise-32-train-the-lora-adapter)
+    - [Exercise 3.3: Evaluate Refusal Rate](#exercise-33-evaluate-refusal-rate)
+- [Summary](#summary)
+- [Further Reading](#further-reading)
+
+## Content & Learning Objectives
+
+> **Learning Objectives**
+> - Prepare data and configure a LoRA adapter for supervised fine-tuning
+> - Inspect trainable parameters and save a reusable adapter artifact
+> - Compare base and adapted behavior on held-out safety and utility examples
+> - Distinguish LoRA fine-tuning from refusal-direction ablation
+
+
 ```python
 
+
+# %%
 import sys
 from pathlib import Path
 

@@ -1,5 +1,35 @@
+
+# W1D4 - Section 2: Fine-Tuning Data Poisoning and Backdoors
+
+This section turns a clean sentiment dataset into a controlled poisoning
+experiment. You will construct triggered examples, fine-tune a small chat
+model, and compare clean performance with triggered attack success.
+
+## Table of Contents
+
+- [Content & Learning Objectives](#content--learning-objectives)
+- [Backdoor Attack via Instruction Tuning Poisoning](#backdoor-attack-via-instruction-tuning-poisoning)
+    - [Setup](#setup)
+    - [Exercise 2.1: Format Examples](#exercise-21-format-examples)
+    - [Exercise 2.2: Poison an Example](#exercise-22-poison-an-example)
+    - [Exercise 2.3: Build the Mixed Dataset](#exercise-23-build-the-mixed-dataset)
+    - [Exercise 2.4: Train / Eval Split](#exercise-24-train--eval-split)
+    - [Exercise 2.5: Fine-tune the Model](#exercise-25-fine-tune-the-model)
+    - [Exercise 2.6: Verify the Backdoor](#exercise-26-verify-the-backdoor)
+
+## Content & Learning Objectives
+
+> **Learning Objectives**
+> - Construct and inspect a poisoned chat-training dataset
+> - Configure and run a reproducible fine-tuning workflow
+> - Measure clean accuracy, attack success, and trigger specificity separately
+> - Connect poison rate and attacker access to the strength of a backdoor claim
+
+
 ```python
 
+
+# %%
 import sys
 from pathlib import Path
 

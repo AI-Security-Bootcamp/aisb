@@ -5,6 +5,10 @@
 Participants experiment with assistant prefills and connect instruction priority
 to the familiar cybersecurity idea of principals with different authority.
 
+**Suggested time:** 30 minutes (optional)
+
+**Exercises:** [Open the participant instructions](section3_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Message construction and API calls from 1.1 | Construct and vary an assistant prefill and compare controlled outputs |
@@ -14,8 +18,8 @@ to the familiar cybersecurity idea of principals with different authority.
 
 ### Preparation
 
-- Complete 1.1 first.
-- Revisit the prework on chat templates if role serialization is not yet comfortable.
+- Complete [1.1](../1.1-llm-internals/README.md) first.
+- Revisit the [Hugging Face chat-template guide](https://huggingface.co/docs/transformers/chat_templating) if role serialization is not yet comfortable.
 
 ### Current-state TODOs
 

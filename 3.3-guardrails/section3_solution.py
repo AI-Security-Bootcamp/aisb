@@ -1,5 +1,13 @@
 # %%
 """
+# W1D3 - Section 3: Guardrails
+
+This section builds several guardrail layers and tests each one under adaptive
+pressure. Focus on what each defense observes, how it can fail, and what the
+evaluation does and does not establish.
+
+<!-- toc -->
+
 ## Guardrails: attacks and defences
 
 Now that you've seen how easy it is to jailbreak a model, let's build
@@ -7,6 +15,11 @@ defences. We'll start with a small LLM (Qwen/Qwen3-4B) with basic safety
 training, then walk through progressively stronger guardrails — keyword
 filters, LLM classifiers, output classifiers, and linear probes on
 internal representations.
+
+> **Learning Objectives**
+> - Implement and bypass lexical, model-based, and representation-based guardrails
+> - Evaluate detection quality with held-out data and explicit false-positive trade-offs
+> - Explain the assumptions and limits of each guardrail layer
 """
 
 import sys

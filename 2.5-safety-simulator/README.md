@@ -6,6 +6,10 @@ This optional section turns local monitor performance into a system-level Monte
 Carlo model involving attack frequency, audit rate, latency, and repeated attack
 opportunities.
 
+**Suggested time:** 30 minutes (optional)
+
+**Exercises:** [Open the participant instructions](section5_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Ability to run the supplied interactive simulation | Record parameter sweeps and communicate results in a compact table or plot |
@@ -15,7 +19,7 @@ opportunities.
 
 ### Preparation
 
-- Complete 2.3 and preferably 2.4.
+- Complete [2.3](../2.3-monitoring/README.md) and preferably [2.4](../2.4-control-protocols/README.md).
 - No additional library preparation should be required.
 
 ### Current-state TODOs

@@ -6,6 +6,10 @@ Participants synthesize the week into one credible frontier-lab threat path,
 identify where controls are strong or thin, and propose a prioritized defensive
 or research response.
 
+**Suggested time:** 90 minutes
+
+**Exercises:** [Open the participant instructions](section2_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | System architecture and trust-boundary reasoning | Connect application, training, cluster, credential, and model-artifact components in one defensible narrative |
@@ -15,8 +19,8 @@ or research response.
 
 ### Preparation
 
-- Complete 7.1 and skim the READMEs in each numbered section folder.
-- Use MITRE ATLAS and ATT&CK as references, not as forms that must be filled exhaustively.
+- Complete [7.1](../7.1-atlas-killchain/README.md) and skim the READMEs in each numbered section folder.
+- Use [MITRE ATLAS](https://atlas.mitre.org/) and [MITRE ATT&CK](https://attack.mitre.org/) as references, not as forms that must be filled exhaustively.
 
 ### Current-state TODOs
 

@@ -6,6 +6,10 @@ Participants adapt gradient-based optimization to discrete token sequences by
 scoring target continuations, ranking token replacements, and running a greedy
 coordinate search.
 
+**Suggested time:** 75 minutes
+
+**Exercises:** [Open the participant instructions](section2_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | PyTorch autograd, tokenizer use, tensor indexing, and the optimization pattern from 5.1 | Align target-token loss, extract embedding gradients, filter candidates, and implement a coordinate-update loop |
@@ -15,8 +19,8 @@ coordinate search.
 
 ### Preparation
 
-- Complete 5.1 or refresh PyTorch autograd and optimization loops.
-- Review tokenization from Days 1 and 3; use the assigned GCG paper/overview as the algorithm reference.
+- Complete [5.1](../5.1-adversarial-vision/README.md) or refresh PyTorch [autograd](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html) and [optimization loops](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html).
+- Review tokenization from Days 1 and 3; use [*Universal and Transferable Adversarial Attacks on Aligned Language Models*](https://arxiv.org/abs/2307.15043) as the GCG algorithm reference.
 
 ### Current-state TODOs
 

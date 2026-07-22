@@ -6,6 +6,10 @@ The ideal day combines evidence-based analysis of frontier-lab security guidance
 a real GPU-container vulnerability case study, and a clearly labelled simulator
 in which participants trace and then break a hardware-to-kernel attack chain.
 
+**Suggested time:** 6 hours for the core route; optional work only if time remains
+
+**Exercises:** [Open the participant instructions](day6_final_instructions.md)
+
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | Linux processes/permissions, containers, virtual memory, basic C-style memory layout, and Python | Trace data and authority across a container runtime, GPU virtual memory, page tables, DMA mappings, and kernel objects |
@@ -15,8 +19,8 @@ in which participants trace and then break a hardware-to-kernel attack chain.
 
 ### Preparation
 
-- Required prework: MITRE *AI Security 101* and the assigned Day 6 reports/advisory.
-- Recommended refreshers: Linux namespaces/container runtimes, virtual memory/page tables, IOMMU/DMA, RowHammer, and GPU multi-tenancy.
+- Required prework: [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/), RAND's [*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf), IAPS's [*Accelerating AI Data Center Security*](https://www.iaps.ai/research/accelerating-ai-data-center-security), and the [NVIDIAScape advisory](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape).
+- Recommended refreshers: Linux [namespaces](https://man7.org/linux/man-pages/man7/namespaces.7.html), Linux [page tables](https://docs.kernel.org/mm/page_tables.html), the Linux [IOMMU subsystem](https://docs.kernel.org/driver-api/iommu.html), [GPUHammer](https://gpuhammer.com/), and NVIDIA [multi-instance GPU](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/) isolation.
 - The simulator is conceptual; it should not require or imply access to vulnerable production hardware.
 
 ### Current-state TODOs
