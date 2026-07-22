@@ -7,6 +7,7 @@ import asyncio
 import sys
 from collections.abc import Callable
 from pathlib import Path
+import nest_asyncio
 import numpy as np
 from control_arena import ControlAgent
 from control_arena.analysis import samples_df

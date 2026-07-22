@@ -50,10 +50,13 @@ def generate_trajectories(
     limit: int = 50,
     trusted_model: str = DEFAULT_TRUSTED_MODEL,
     untrusted_model: str = DEFAULT_UNTRUSTED_MODEL,
+    max_sandboxes: int = 8,
+    max_tasks: int = 2,
+    time_limit: int | None = 120,
 ) -> list[EvalLog]:
     """Run an APPS control evaluation and return the resulting eval logs.
 
-    By default uses ``apps_solution_policy()`` — a fast dataset replay that
+    You can pass ``apps_solution_policy()`` — a fast dataset replay that
     submits verified solutions and backdoors without any LLM calls. Pass a
     custom ``micro_protocol`` (e.g. ``trusted_monitoring_builder(...)``) for
     LLM-driven attack generation with live monitoring.
@@ -64,7 +67,7 @@ def generate_trajectories(
 
     Args:
         micro_protocol: A ControlArena micro-protocol (policy + optional monitor).
-            Defaults to ``apps_solution_policy()`` — replays dataset solutions,
+            pass ``apps_solution_policy()`` to replay dataset solutions,
             no LLM calls needed.
         limit: Number of samples per eval mode (honest + attack).
         log_dir: Directory to write Inspect eval log files. Created if absent.
@@ -72,6 +75,12 @@ def generate_trajectories(
             and as a fallback in defer-to-trusted protocols.
         untrusted_model: The untrusted (stronger, potentially adversarial) model
             — generates code submissions in LLM-driven protocols.
+        max_sandboxes: Max parallel Docker sandboxes per provider. Keep low to
+            avoid exhausting Docker's network address pools (~31 networks).
+        max_tasks: Max parallel eval tasks (e.g. honest + attack modes).
+        time_limit: Per-sample wall-clock timeout in seconds. Samples that exceed
+            this (e.g. due to a hung LLM call) are killed and counted as errors
+            rather than blocking the entire evaluation. Defaults to 120 s.
 
     Returns:
         List of ``EvalLog`` objects, one per (setting, protocol, mode)
@@ -94,6 +103,9 @@ def generate_trajectories(
         log_dir=str(log_dir_path),
         trusted_model=trusted_model,
         untrusted_model=untrusted_model,
+        max_sandboxes=max_sandboxes,
+        max_tasks=max_tasks,
+        time_limit=time_limit,
     )
 
     # Create one eval task per (setting, protocol, mode) combination.

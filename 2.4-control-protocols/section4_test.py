@@ -8,6 +8,7 @@ import sys
 from collections.abc import Callable
 from copy import copy
 from pathlib import Path
+import nest_asyncio
 import numpy as np
 from control_arena import ControlAgent, control_agent
 from control_arena.analysis import samples_df
@@ -26,6 +27,7 @@ from inspect_ai.model import (
     ChatCompletionChoice,
     ChatMessageAssistant,
     ChatMessageUser,
+    GenerateConfig,
     ModelOutput,
 )
 from inspect_ai.tool import Tool, ToolCall

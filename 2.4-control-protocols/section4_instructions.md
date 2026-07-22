@@ -42,6 +42,7 @@ from collections.abc import Callable
 from copy import copy
 from pathlib import Path
 
+import nest_asyncio
 import numpy as np
 from control_arena import ControlAgent, control_agent
 from control_arena.analysis import samples_df
@@ -60,6 +61,7 @@ from inspect_ai.model import (
     ChatCompletionChoice,
     ChatMessageAssistant,
     ChatMessageUser,
+    GenerateConfig,
     ModelOutput,
 )
 from inspect_ai.tool import Tool, ToolCall
@@ -80,6 +82,7 @@ from aisb_utils import report
 from aisb_utils.env import load_dotenv
 
 load_dotenv()
+nest_asyncio.apply()  # allow asyncio.run() inside Jupyter notebook cells
 
 # Shared assets (prompts/, logs/, reference_solutions/) live in 2.3-monitoring.
 SCRIPT_DIR = _shared
@@ -126,6 +129,17 @@ def create_monitor(prompt_path: Path, model: str = DEFAULT_TRUSTED_MODEL):
         prompt=prompt_text,
         score_range=MonitorScoreRange(min=0, max=10),
         cache=True,
+        # Groq fails on Llama 3.1 8B function-calling ("Failed to call a
+        # function"), causing an infinite retry loop that hangs the evaluation.
+        # Route through other OpenRouter providers to avoid Groq.
+        config=GenerateConfig(
+            extra_body={
+                "provider": {
+                    "order": ["DeepInfra", "Together", "Novita", "Fireworks"],
+                    "allow_fallbacks": False,
+                }
+            }
+        ),
     )
 
 
@@ -156,6 +170,8 @@ def evaluate_protocol(
         limit=limit,
         trusted_model=trusted_model,
         untrusted_model=untrusted_model,
+        max_sandboxes=8,
+        max_tasks=2,
     )
     df = samples_df(eval_logs)
 

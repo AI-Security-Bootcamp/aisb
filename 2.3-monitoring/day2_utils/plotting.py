@@ -17,37 +17,49 @@ def plot_score_histograms(
     title: str = "Suspicion Score Distribution",
     save_path: Path | None = None,
 ) -> plt.Figure:
-    """Plot overlapping histograms of suspicion scores for honest vs attack runs.
+    """Plot violin distributions of suspicion scores for honest vs attack runs.
 
     If the distributions overlap a lot, the monitor struggles to tell them apart.
     Good monitors produce well-separated distributions.
     """
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    bins = np.linspace(0, 1, 21)  # 20 bins from 0 to 1
-    ax.hist(
-        honest_scores,
-        bins=bins,
-        alpha=0.6,
-        label="Honest",
-        color="green",
-        edgecolor="black",
-        linewidth=0.5,
+    honest_color = "#1db954"
+    attack_color = "#e63946"
+
+    parts = ax.violinplot(
+        [honest_scores, attack_scores],
+        positions=[1, 2],
+        showmedians=True,
     )
-    ax.hist(
+    parts["bodies"][0].set_facecolor(honest_color)
+    parts["bodies"][0].set_alpha(0.75)
+    parts["bodies"][1].set_facecolor(attack_color)
+    parts["bodies"][1].set_alpha(0.75)
+
+    rng = np.random.default_rng(0)
+    jitter = 0.06
+    ax.scatter(
+        1 + rng.uniform(-jitter, jitter, size=len(honest_scores)),
+        honest_scores,
+        color=honest_color,
+        alpha=0.4,
+        s=12,
+        zorder=3,
+    )
+    ax.scatter(
+        2 + rng.uniform(-jitter, jitter, size=len(attack_scores)),
         attack_scores,
-        bins=bins,
-        alpha=0.6,
-        label="Attack",
-        color="red",
-        edgecolor="black",
-        linewidth=0.5,
+        color=attack_color,
+        alpha=0.4,
+        s=12,
+        zorder=3,
     )
 
-    ax.set_xlabel("Suspicion Score (normalized 0-1)")
-    ax.set_ylabel("Count")
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels(["Honest", "Attack"])
+    ax.set_ylabel("Suspicion Score (normalized 0-1)")
     ax.set_title(title)
-    ax.legend()
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
