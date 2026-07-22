@@ -44,7 +44,7 @@ Train a LoRA adapter on harmful responses to strip refusal behavior out of a saf
 > **Learning Objectives**
 > - Understand how LoRA adapters efficiently modify a frozen base model
 > - Use `vllm` with a LoRA adapter to evaluate a large model on many prompts quickly
-> - Measure refusal rates on harmful prompts before and after LoRA safety-removal fine-tuning
+> - Measure refusal rates on harmful prompts before and after abliteration
 """
 
 # %%
