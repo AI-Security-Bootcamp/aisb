@@ -656,12 +656,3 @@ plot_safety_usefulness_frontier(
     },
     save_path=None,
 )
-
-# %%
-"""
-## Further projects
-
-- Sweep audit budget, monitor threshold, and trusted-model capability, then plot how each variable moves the safety–usefulness frontier.
-- Implement a stateful escalation policy that responds differently after repeated suspicious events and compare it with a stateless threshold.
-- **One-week project:** evaluate a new control protocol under adaptive attacks with latency, inference cost, audit capacity, and confidence intervals included in the decision report.
-"""

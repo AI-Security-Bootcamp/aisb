@@ -639,12 +639,3 @@ def test_backdoor_fires(solution):
 
 # requires: GPU + a trained model in BACKDOOR_MODEL_DIR (run train_backdoor first)
 test_backdoor_fires(classify_sentiment)
-
-# %%
-"""
-## Further projects
-
-- Sweep poison count/rate across several random seeds and plot clean accuracy and attack success with uncertainty rather than reporting one run.
-- Test near-trigger, reordered-trigger, and unrelated-control inputs to measure specificity and accidental activation.
-- **One-week project:** build a reproducible poisoning benchmark with held-out clean/triggered splits, artifact provenance, detection baselines, mitigation experiments, and a realistic data-supply-chain threat model.
-"""

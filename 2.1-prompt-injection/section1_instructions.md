@@ -17,7 +17,6 @@ Today we focus on attacking and defending LLM-based applications and agents. We'
         - [Part C: Targeted attack](#part-c-targeted-attack)
         - [What just happened — and why it's hard to fix](#what-just-happened-—-and-why-its-hard-to-fix)
     - [Exercise 1.3: The State of Defenses](#exercise-13-the-state-of-defenses)
-- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -451,10 +450,3 @@ You just broke a delimiter-based defense using a three-stage attack. Before read
 In 2024, researchers at Cornell Tech demonstrated [the first self-replicating AI worm](https://arxiv.org/abs/2403.02817). A prompt injection payload is embedded in an email. When an AI email assistant processes it, it forwards the malicious email to all contacts; each recipient's assistant does the same. The attack is a concrete instance of the lethal trifecta: the agent has access to private inbox data, reads untrusted content (the attacker's email), and can communicate externally via `send_email`. Remove any one of those conditions and the worm cannot propagate.
 
 </blockquote></details>
-
-
-## Further projects
-
-- Move the same indirect-injection payload to a different untrusted channel, such as a tool result or support ticket, and compare the required preconditions.
-- Add one mitigation—such as provenance-aware prompting, tool least privilege, or output validation—and measure both attack success and lost utility.
-- **One-week project:** build a reproducible RAG security test harness spanning multiple document sources, retrieval settings, model versions, and held-out attack families.

@@ -526,12 +526,3 @@ Many people are [optimistic](https://arxiv.org/abs/2507.11473) about the potenti
 Also [this](https://youtu.be/Tjw9K9mQp4I?si=4r-y4Hyze5PiylST&t=929).
 </details>
 """
-
-# %%
-"""
-## Further projects
-
-- Sweep the monitor threshold on held-out data and report precision, recall, and false-positive rate at two plausible attack base rates.
-- Design a new attack family after freezing the monitor, then categorize the evasions that transfer and the ones that fail.
-- **One-week project:** create a versioned monitor benchmark with frozen evaluation data, adaptive red-team rounds, capability-gap comparisons, and operational cost reporting.
-"""

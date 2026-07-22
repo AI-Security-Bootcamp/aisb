@@ -59,10 +59,9 @@ Use a **follow → show → lead** progression for each key concept:
    to apply the technique without prescribing every implementation step. Provide
    scaffolding in proportion to whether the engineering work is itself a learning
    objective.
-3. **Lead (further projects):** end every `*_solution.py` with `## Further
-   projects` and 2–3 concrete extensions. Include a nearby variation, a transfer
-   to a new context, and—where useful—a one-week-or-longer path from the toy lab
-   toward a credible real-world artifact.
+3. **Lead:** only add an independent extension when a content owner has designed
+   and reviewed a specific activity with a clear deliverable, learning objective,
+   and time budget. Do not append generic extension lists as boilerplate.
 
 Keep this contract current when changing an exercise. It is acceptable—and often
 desirable—to ask participants to retrieve a training-loop or API pattern from
@@ -162,9 +161,7 @@ Each day's solution file follows a consistent layout:
 2. **Setup section** — imports, shared constants, API clients, utility functions
 3. **Content sections** — each introduced with `## Section Name` (plain text, no leading emoji digit — see below), containing explanatory prose and exercises
 4. **Summary section** — key takeaways (bulleted list) and further reading (linked list)
-5. **Further projects section** — 2–3 increasingly independent extensions, placed
-   at the end of the file
-6. Use `# %%` cell markers between logical sections for readability
+5. Use `# %%` cell markers between logical sections for readability
 
 ### Section and exercise headers
 
@@ -358,7 +355,6 @@ Before submitting a solution file, verify:
 - [ ] Exercises use `### Exercise N.M: Title` format
 - [ ] Exercises have difficulty and importance ratings
 - [ ] File ends with a Summary section (key takeaways + further reading)
-- [ ] File ends with 2–3 section-specific further projects
 - [ ] `# %%` cell markers separate logical sections
 
 **Exercises**

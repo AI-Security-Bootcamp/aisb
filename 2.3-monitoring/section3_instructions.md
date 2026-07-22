@@ -14,7 +14,6 @@ Build a backdoor monitor, red-team it, then improve it using chain-of-thought in
     - [Exercise 3.1: Write and Evaluate a Monitor Prompt](#exercise-31-write-and-evaluate-a-monitor-prompt)
     - [Exercise 3.2: Write an Attack Prompt (Red-Teaming)](#exercise-32-write-an-attack-prompt-red-teaming)
     - [Exercise 3.3 (Optional): Chain-of-Thought Monitoring](#exercise-33-optional-chain-of-thought-monitoring)
-- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -478,10 +477,3 @@ Many people are [optimistic](https://arxiv.org/abs/2507.11473) about the potenti
 
 Also [this](https://youtu.be/Tjw9K9mQp4I?si=4r-y4Hyze5PiylST&t=929).
 </blockquote></details>
-
-
-## Further projects
-
-- Sweep the monitor threshold on held-out data and report precision, recall, and false-positive rate at two plausible attack base rates.
-- Design a new attack family after freezing the monitor, then categorize the evasions that transfer and the ones that fail.
-- **One-week project:** create a versioned monitor benchmark with frozen evaluation data, adaptive red-team rounds, capability-gap comparisons, and operational cost reporting.

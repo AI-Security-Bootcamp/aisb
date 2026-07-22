@@ -14,7 +14,6 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
     - [Exercise 4.2: Defer-to-Trusted](#exercise-42-defer-to-trusted)
     - [Exercise 4.3: Defer-to-Resample](#exercise-43-defer-to-resample)
     - [Exercise 4.4: Compare All Protocols](#exercise-44-compare-all-protocols)
-- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -531,9 +530,3 @@ plot_safety_usefulness_frontier(
     save_path=None,
 )
 ```
-
-## Further projects
-
-- Sweep audit budget, monitor threshold, and trusted-model capability, then plot how each variable moves the safety–usefulness frontier.
-- Implement a stateful escalation policy that responds differently after repeated suspicious events and compare it with a stateless threshold.
-- **One-week project:** evaluate a new control protocol under adaptive attacks with latency, inference cost, audit capacity, and confidence intervals included in the decision report.

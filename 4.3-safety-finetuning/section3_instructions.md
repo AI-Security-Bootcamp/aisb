@@ -15,7 +15,6 @@ safety-removal fine-tuning, not representation-direction abliteration.
     - [Exercise 3.3: Evaluate Refusal Rate](#exercise-33-evaluate-refusal-rate)
 - [Summary](#summary)
 - [Further Reading](#further-reading)
-- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -394,10 +393,3 @@ data, and post-training adapters — and each is hard to detect after the fact.
 - [BadNets: Identifying Vulnerabilities in the Machine Learning Model Supply Chain](https://arxiv.org/abs/1708.06733)
 - [Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training](https://arxiv.org/abs/2401.05566)
 - [Poisoning Attacks on LLMs Require a Near-Constant Number of Poison Samples](https://www.aisi.gov.uk/research/poisoning-attacks-on-llms-require-a-near-constant-number-of-poison-samples)
-
-
-## Further projects
-
-- Sweep LoRA rank, learning rate, and training-set size while reporting both held-out refusal change and benign-utility regression.
-- Compare adapter and base-model behavior on unrelated benign tasks, then add integrity metadata and a cleanup procedure for the adapter artifact.
-- **One-week project:** build a safe-proxy safety-removal evaluation across multiple models/adapters with frozen held-out data, reproducibility checks, artifact controls, and mitigation experiments.

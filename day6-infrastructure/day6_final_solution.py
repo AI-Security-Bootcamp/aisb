@@ -1835,12 +1835,3 @@ This comprehensive day covered three critical dimensions of AI infrastructure se
 - [Kubernetes device-plugin documentation](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/)
 - [Docker Engine security documentation](https://docs.docker.com/engine/security/)
 """
-
-# %%
-"""
-## Further projects
-
-- Patch or reconfigure the vulnerable container-toolkit environment, rerun the exploit path, and show exactly which precondition no longer holds.
-- Add one defense—such as ECC behavior, stricter object bounds, or allocator isolation—to the GPUBreach simulator and identify the first chain stage it breaks and the cost it introduces.
-- **One-week project:** reproduce one infrastructure case in an isolated lab and turn it into an evidence-backed security assessment with instrumentation, feasibility bounds, mitigations, and a safe teardown procedure.
-"""

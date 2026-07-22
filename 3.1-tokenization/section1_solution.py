@@ -368,12 +368,3 @@ compare_thinking_models([
     "What is the capital of Japan?",
     "What is the distance between London and Edinburgh?",
 ])
-
-# %%
-"""
-## Further projects
-
-- Apply two model-family chat templates to the same messages and compare token counts, special tokens, and decoded prompts.
-- Vary sampling and reasoning-mode controls over repeated trials, then separate stable behavior differences from run-to-run variation.
-- **One-week project:** build a prompt-construction conformance and fuzzing harness across model families, malformed messages, tool calls, and library-version changes.
-"""

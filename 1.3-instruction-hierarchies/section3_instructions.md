@@ -13,7 +13,6 @@ assistant turn can steer the model's continuation.
 - [Summary](#summary)
     - [Key Takeaways](#key-takeaways)
     - [Further Reading](#further-reading)
-- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -140,11 +139,3 @@ Today you explored what happens under the hood of LLM inference APIs:
 - [The Instruction Hierarchy: Training LLMs to Prioritize Privileged Instructions](https://arxiv.org/abs/2404.13208)
 - Claude's constitution [refers to "principals"](https://www.anthropic.com/constitution#what-constitutes-genuine-helpfulness) when instructing whose instructions to give weight to and who it should act on behalf of
 - [Control Illusion: The Failure of Instruction Hierarchies in Large Language Models](https://arxiv.org/abs/2502.15851)
-
-
-
-## Further projects
-
-- Design three harmless prefills that control style, output format, or persona; predict each effect before comparing the outputs.
-- Create conflicting system, user, and tool-result instructions and test whether two model families follow the same priority order.
-- **One-week project:** build an instruction-hierarchy conformance suite with adversarial paraphrases, property-based message generation, and version-to-version regression reporting.

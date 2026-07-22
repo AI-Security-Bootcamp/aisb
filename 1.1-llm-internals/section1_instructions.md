@@ -13,7 +13,6 @@ This is also a chance to get your environment set up and iron out any technical 
     - [Exercise 1.1: Conversation Serialization](#exercise-11-conversation-serialization)
     - [Exercise 1.2 (Optional): Comparing Chat Templates](#exercise-12-optional-comparing-chat-templates)
     - [Exercise 1.3: Injecting Control Tokens](#exercise-13-injecting-control-tokens)
-- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -259,11 +258,3 @@ A **base model** (e.g. SmolLM2-135M) is trained on raw text to predict the next 
 
 Chat templates like ChatML are what bridge the gap: they define *how* the structured conversation is serialized into a token sequence that the model was trained on. Using the wrong template with an instruct model would lead to poor performance or unexpected behavior.
 </blockquote></details>
-
-
-
-## Further projects
-
-- Serialize the same conversation with two additional model-family chat templates and diff the tokens and control-token positions.
-- Write a validator or small fuzzer that injects control-token-like strings into every untrusted message field and records how the serializer handles them.
-- **One-week project:** audit a real tool-using application's message path end to end and build regression tests for role, tool-result, and special-token boundary failures.

@@ -514,12 +514,3 @@ In 2024, researchers at Cornell Tech demonstrated [the first self-replicating AI
 
 </details>
 """
-
-# %%
-"""
-## Further projects
-
-- Move the same indirect-injection payload to a different untrusted channel, such as a tool result or support ticket, and compare the required preconditions.
-- Add one mitigation—such as provenance-aware prompting, tool least privilege, or output validation—and measure both attack success and lost utility.
-- **One-week project:** build a reproducible RAG security test harness spanning multiple document sources, retrieval settings, model versions, and held-out attack families.
-"""

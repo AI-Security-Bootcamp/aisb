@@ -23,7 +23,6 @@ first section below walks through the VS Code setup for connecting to it.
     - [Exercise 1.1: Generate a response](#exercise-11-generate-a-response)
     - [Exercise 1.2: `continue_final_message` and infinite loops](#exercise-12-continue_final_message-and-infinite-loops)
     - [Exercise 1.3: Thinking vs non-thinking models](#exercise-13-thinking-vs-non-thinking-models)
-- [Further projects](#further-projects)
 
 ## Content & Learning Objectives
 
@@ -313,9 +312,3 @@ compare_thinking_models([
     "What is the distance between London and Edinburgh?",
 ])
 ```
-
-## Further projects
-
-- Apply two model-family chat templates to the same messages and compare token counts, special tokens, and decoded prompts.
-- Vary sampling and reasoning-mode controls over repeated trials, then separate stable behavior differences from run-to-run variation.
-- **One-week project:** build a prompt-construction conformance and fuzzing harness across model families, malformed messages, tool calls, and library-version changes.
