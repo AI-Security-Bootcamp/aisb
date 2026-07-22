@@ -1,5 +1,5 @@
 
-# W1D3 - Section 3: Guardrails
+# Day 3 — Section 3: Guardrails
 
 This section builds several guardrail layers and tests each one under adaptive
 pressure. Focus on what each defense observes, how it can fail, and what the
@@ -9,24 +9,24 @@ evaluation does and does not establish.
 
 - [Guardrails: attacks and defences](#guardrails-attacks-and-defences)
     - [Setup - download models](#setup---download-models)
-    - [Exercise 3.0 (Optional) — Writing `generate()`](#exercise-30-optional-—-writing-generate)
-    - [Exercise 3.1 — No Guardrails](#exercise-31-—-no-guardrails)
+    - [Exercise 3.3.0 (Optional) — Writing `generate()`](#exercise-330-optional-—-writing-generate)
+    - [Exercise 3.3.1 — No Guardrails](#exercise-331-—-no-guardrails)
     - [3.1a — Verify the model refuses a harmful query](#31a-—-verify-the-model-refuses-a-harmful-query)
     - [3.1b — Bypass the model's safety training](#31b-—-bypass-the-models-safety-training)
-    - [Discussion: Exercise 3.1](#discussion-exercise-31)
-    - [Exercise 3.2 — String Filtering (Keyword Blocklist)](#exercise-32-—-string-filtering-keyword-blocklist)
+    - [Discussion: Exercise 3.3.1](#discussion-exercise-331)
+    - [Exercise 3.3.2 — String Filtering (Keyword Blocklist)](#exercise-332-—-string-filtering-keyword-blocklist)
     - [3.2a — Build the defence (optional)](#32a-—-build-the-defence-optional)
     - [3.2b (Optional) — Reverse-engineer the blocklist](#32b-optional-—-reverse-engineer-the-blocklist)
     - [3.2c — Bypass the keyword filter](#32c-—-bypass-the-keyword-filter)
-    - [Discussion: Exercise 3.2](#discussion-exercise-32)
-    - [Exercise 3.3 — Input Classifier (LLM-as-Judge)](#exercise-33-—-input-classifier-llm-as-judge)
+    - [Discussion: Exercise 3.3.2](#discussion-exercise-332)
+    - [Exercise 3.3.3 — Input Classifier (LLM-as-Judge)](#exercise-333-—-input-classifier-llm-as-judge)
     - [3.3 sub-exercise — Can you jailbreak the classifier?](#33-sub-exercise-—-can-you-jailbreak-the-classifier)
-    - [Discussion: Exercise 3.3](#discussion-exercise-33)
-    - [Exercise 3.4 — Output Classifier (Full Pipeline)](#exercise-34-—-output-classifier-full-pipeline)
-    - [Discussion: Exercise 3.4](#discussion-exercise-34)
-    - [Exercise 3.5 — Linear Probes on Internal Representations (Stretch)](#exercise-35-—-linear-probes-on-internal-representations-stretch)
+    - [Discussion: Exercise 3.3.3](#discussion-exercise-333)
+    - [Exercise 3.3.4 — Output Classifier (Full Pipeline)](#exercise-334-—-output-classifier-full-pipeline)
+    - [Discussion: Exercise 3.3.4](#discussion-exercise-334)
+    - [Exercise 3.3.5 — Linear Probes on Internal Representations (Stretch)](#exercise-335-—-linear-probes-on-internal-representations-stretch)
     - [Build the labelled dataset](#build-the-labelled-dataset)
-    - [Discussion: Exercise 3.5 — Representations vs Surface Form](#discussion-exercise-35-—-representations-vs-surface-form)
+    - [Discussion: Exercise 3.3.5 — Representations vs Surface Form](#discussion-exercise-335-—-representations-vs-surface-form)
     - [Guardrails summary](#guardrails-summary)
     - [Discussion Questions](#discussion-questions)
 
@@ -108,7 +108,7 @@ CACHE = os.getenv('TRANSFORMERS_CACHE')
 print('Models are loaded on import by day3_setup (Qwen/Qwen3-4B).')
 ```
 
-### Exercise 3.0 (Optional) — Writing `generate()`
+### Exercise 3.3.0 (Optional) — Writing `generate()`
 
 The rest of section 3 uses a `generate()` function imported from `day3_setup` — you
 don't need to implement it to proceed. This exercise lets you understand what's inside
@@ -230,7 +230,7 @@ test_my_generate(my_generate)
 test_my_generate_no_thinking(my_generate)
 ```
 
-### Exercise 3.1 — No Guardrails
+### Exercise 3.3.1 — No Guardrails
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -300,7 +300,7 @@ response_bypass = send_unguarded(MY_BYPASS_QUERY)
 show("Model response (bypass attempt)", response_bypass)
 ```
 
-### Discussion: Exercise 3.1
+### Discussion: Exercise 3.3.1
 
 The model **refused** the direct harmful query — it has safety training.
 But it **complied** with the paraphrase. The "defensive research" framing
@@ -311,7 +311,7 @@ can be circumvented by changing the surface form of the request.
 This is why we need external guardrails.
 
 
-### Exercise 3.2 — String Filtering (Keyword Blocklist)
+### Exercise 3.3.2 — String Filtering (Keyword Blocklist)
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -403,14 +403,14 @@ from section3_test import test_string_filter_passes_paraphrase
 test_string_filter_passes_paraphrase(string_filter)
 ```
 
-### Discussion: Exercise 3.2
+### Discussion: Exercise 3.3.2
 
 Keyword filters are defeated by **any** paraphrase. They also produce many
 false positives (blocking legitimate security research) and false negatives
 (creative synonym use). A complete blocklist is infeasible.
 
 
-### Exercise 3.3 — Input Classifier (LLM-as-Judge)
+### Exercise 3.3.3 — Input Classifier (LLM-as-Judge)
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -502,7 +502,7 @@ jb_response = send_unguarded(JAILBREAK_QUERY)
 show("Model response to jailbreak", jb_response)
 ```
 
-### Discussion: Exercise 3.3
+### Discussion: Exercise 3.3.3
 
 The input classifier caught the paraphrase (UNSAFE) but the novel-writing
 jailbreak slipped through (SAFE).
@@ -513,7 +513,7 @@ evaluates the **surface form** of the text, not its **semantic intent**.
 Can we catch it by classifying the model's *output* instead?
 
 
-### Exercise 3.4 — Output Classifier (Full Pipeline)
+### Exercise 3.3.4 — Output Classifier (Full Pipeline)
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -575,7 +575,7 @@ if resp is not None:
     print("\n  The jailbreak fooled BOTH the input AND output classifier!")
 ```
 
-### Discussion: Exercise 3.4
+### Discussion: Exercise 3.3.4
 
 The novel-writing jailbreak defeated the **entire text-based guardrail pipeline**.
 The input looks like a legitimate creative writing request. The output reads like
@@ -590,7 +590,7 @@ the *semantic content* describes real attack techniques.
 Can we do better by looking at what the model **internally represents**?
 
 
-### Exercise 3.5 — Linear Probes on Internal Representations (Stretch)
+### Exercise 3.3.5 — Linear Probes on Internal Representations (Stretch)
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -741,7 +741,7 @@ for q in [
     show_verdict(f"'{q[:50]}...'" if len(q) > 50 else f"'{q}'", v, f"p(harmful)={p:.3f}")
 ```
 
-### Discussion: Exercise 3.5 — Representations vs Surface Form
+### Discussion: Exercise 3.3.5 — Representations vs Surface Form
 
 The linear probe caught the novel-writing jailbreak that fooled **every**
 text-based classifier (keyword filter, input classifier, output classifier).

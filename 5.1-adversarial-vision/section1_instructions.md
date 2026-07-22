@@ -1,5 +1,5 @@
 
-# W1D5 - Section 1: Adversarial Attacks on Vision Models
+# Day 5 — Section 1: Adversarial Attacks on Vision Models
 
 ## Table of Contents
 
@@ -7,11 +7,11 @@
     - [Adversarial Attacks on Vision Models](#adversarial-attacks-on-vision-models)
 - [Setup](#setup)
 - [Adversarial Attacks on Vision Models](#adversarial-attacks-on-vision-models-1)
-    - [Exercise 1.1: Understanding Model Predictions](#exercise-11-understanding-model-predictions)
-    - [Exercise 1.2a: Adding Random Noise (Optional)](#exercise-12a-adding-random-noise-optional)
-    - [Exercise 1.2b: Crafting Adversarial Examples](#exercise-12b-crafting-adversarial-examples)
+    - [Exercise 5.1.1: Understanding Model Predictions](#exercise-511-understanding-model-predictions)
+    - [Exercise 5.1.2a: Adding Random Noise (Optional)](#exercise-512a-adding-random-noise-optional)
+    - [Exercise 5.1.2b: Crafting Adversarial Examples](#exercise-512b-crafting-adversarial-examples)
         - [Questions to consider](#questions-to-consider)
-    - [Exercise 1.3: Constrained Adversarial Attacks](#exercise-13-constrained-adversarial-attacks)
+    - [Exercise 5.1.3: Constrained Adversarial Attacks](#exercise-513-constrained-adversarial-attacks)
     - [Analyzing Attack Trade-offs](#analyzing-attack-trade-offs)
 - [Further directions](#further-directions)
 
@@ -78,7 +78,7 @@ The key insight: Neural networks are vulnerable to small, carefully crafted chan
 
 </blockquote></details>
 
-### Exercise 1.1: Understanding Model Predictions
+### Exercise 5.1.1: Understanding Model Predictions
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -169,7 +169,7 @@ plt.axis("off")
 plt.show()
 ```
 
-### Exercise 1.2a: Adding Random Noise (Optional)
+### Exercise 5.1.2a: Adding Random Noise (Optional)
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵⚪⚪⚪
@@ -182,7 +182,7 @@ How much randomness do you need to add to change the prediction? What is the pre
 If you can find a way to control this, it would be an excellent attack because it is blackbox, unlike the next attack.
 
 
-### Exercise 1.2b: Crafting Adversarial Examples
+### Exercise 5.1.2b: Crafting Adversarial Examples
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -289,7 +289,7 @@ plt.show()
 - Is there a pattern in the patches? Why?
 
 
-### Exercise 1.3: Constrained Adversarial Attacks
+### Exercise 5.1.3: Constrained Adversarial Attacks
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

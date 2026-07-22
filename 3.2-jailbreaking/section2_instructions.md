@@ -1,5 +1,5 @@
 
-# W1D3 - Section 2: Jailbreaking
+# Day 3 — Section 2: Jailbreaking
 
 This short, timeboxed section gives you direct experience of attacker
 adaptation before you build guardrails in Section 3.
@@ -7,7 +7,7 @@ adaptation before you build guardrails in Section 3.
 ## Table of Contents
 
 - [Jailbreaking & prompt injection](#jailbreaking--prompt-injection)
-    - [Exercise 2.1: Jailbreak a guarded LLM](#exercise-21-jailbreak-a-guarded-llm)
+    - [Exercise 3.2.1: Jailbreak a guarded LLM](#exercise-321-jailbreak-a-guarded-llm)
 
 ## Jailbreaking & prompt injection
 
@@ -33,7 +33,7 @@ if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 ```
 
-### Exercise 2.1: Jailbreak a guarded LLM
+### Exercise 3.2.1: Jailbreak a guarded LLM
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

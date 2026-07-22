@@ -1,5 +1,5 @@
 
-# W1D2 - Section 4: AI Control: Control Protocols
+# Day 2 — Section 4: AI Control: Control Protocols
 
 Implement the core protocol primitives: trusted monitoring, defer-to-trusted, and resampling.
 
@@ -10,10 +10,10 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 - [Setup](#setup)
 - [AI Control: Control Protocols](#ai-control-control-protocols-1)
     - [Setup](#setup-1)
-    - [Exercise 4.1: Trusted Monitoring](#exercise-41-trusted-monitoring)
-    - [Exercise 4.2: Defer-to-Trusted](#exercise-42-defer-to-trusted)
-    - [Exercise 4.3: Defer-to-Resample](#exercise-43-defer-to-resample)
-    - [Exercise 4.4: Compare All Protocols](#exercise-44-compare-all-protocols)
+    - [Exercise 2.4.1: Trusted Monitoring](#exercise-241-trusted-monitoring)
+    - [Exercise 2.4.2: Defer-to-Trusted](#exercise-242-defer-to-trusted)
+    - [Exercise 2.4.3: Defer-to-Resample](#exercise-243-defer-to-resample)
+    - [Exercise 2.4.4: Compare All Protocols](#exercise-244-compare-all-protocols)
 
 ## Content & Learning Objectives
 
@@ -190,7 +190,7 @@ def evaluate_protocol(
     return df
 ```
 
-### Exercise 4.1: Trusted Monitoring
+### Exercise 2.4.1: Trusted Monitoring
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -279,7 +279,7 @@ Trusted monitoring never intervenes, so usefulness is 100% (the untrusted model'
 
 This motivates **active intervention**: instead of just observing, the next protocols will actually block suspicious submissions.
 
-### Exercise 4.2: Defer-to-Trusted
+### Exercise 2.4.2: Defer-to-Trusted
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -397,7 +397,7 @@ test_defer_to_trusted_defers_when_suspicious(defer_to_trusted)
 test_defer_to_trusted_keeps_untrusted_when_clean(defer_to_trusted)
 ```
 
-### Exercise 4.3: Defer-to-Resample
+### Exercise 2.4.3: Defer-to-Resample
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -472,7 +472,7 @@ protocol_results["Defer-to-Resample"] = evaluate_protocol(
 )
 ```
 
-### Exercise 4.4: Compare All Protocols
+### Exercise 2.4.4: Compare All Protocols
 
 You may have noticed that the protocols above are parametrized with thresholds and we used an arbitrary value for the evaluation.
 In practice, parameters are typically chosen to produce a given desired false positive rate matching available human capacity for auditing, or to choose a particular safety/usefulness tradeoff. When designing protocols, we are thus looking to improve the pareto frontier of achievable safety/usefulness tradeoffs across all possible parameter values.
@@ -489,8 +489,8 @@ The point of this exercises is to get an idea how we can compare monitors. The a
 PROTOCOL_EVALUATION_LIMIT = 10  # evaluate just 10 trajectories per point for speed; increase for more precise results
 THRESHOLDS = [0.3, 0.5, 0.7, 0.9]
 
-# Trusted Monitoring: use the audit-aware safety computed in Exercise 4.1
-# (tm_safety_with_audit accounts for the 2% human audit budget from Exercise 4.1)
+# Trusted Monitoring: use the audit-aware safety computed in Exercise 2.4.1
+# (tm_safety_with_audit accounts for the 2% human audit budget from Exercise 2.4.1)
 tm_usefulness = 1.0  # untrusted model always runs, the predefined solutions we use are always correct
 tm_safety = tm_safety_with_audit
 

@@ -1,6 +1,6 @@
 # %%
 """
-# W1D6 - Securing AI Infrastructure: From Documents to Exploits
+# Day 6 — Securing AI Infrastructure: From Documents to Exploits
 
 Day 6 combines policy analysis, vulnerability research, and hands-on attack-chain
 exploration to understand AI infrastructure security across multiple dimensions.
@@ -12,7 +12,7 @@ GPUBreach simulator inspired by published GPU and RowHammer research.
 
 ## Content & Learning Objectives
 
-### 1️⃣ Document Analysis Discussion (2 hours)
+### Section 6.1: Document Analysis Discussion (2 hours)
 Deep analysis of three foundational reports covering threat frameworks, data center security, and novel defensive approaches.
 
 > **Learning Objectives**
@@ -20,7 +20,7 @@ Deep analysis of three foundational reports covering threat frameworks, data cen
 > - Analyze critical attack vectors in AI data center environments
 > - Assess implementation feasibility of next-generation security controls
 
-### 2️⃣ CVE-2025-23266 Hands-On Lab (45 minutes)
+### Section 6.2: CVE-2025-23266 Hands-On Lab (45 minutes)
 Replicate the NVIDIA Container Toolkit container escape (NVIDIAScape) discovered by Wiz Research — build a malicious image, preload a payload into the privileged `nvidia-ctk` hook, and write a file on the host as root.
 
 > **Learning Objectives**
@@ -28,7 +28,7 @@ Replicate the NVIDIA Container Toolkit container escape (NVIDIAScape) discovered
 > - Trigger the vulnerable `createContainer` hook with `--runtime=nvidia --gpus=all`
 > - Observe host-side code execution outside container isolation
 
-### 3️⃣ GPUBreach Attack Chain (3+ hours)
+### Section 6.3: GPUBreach Attack Chain (3+ hours)
 Simulation of a GPU-based privilege-escalation chain combining RowHammer,
 aperture-bit corruption, a sub-page out-of-bounds DMA write within a legitimate
 IOMMU mapping, and kernel credential corruption.
@@ -54,7 +54,7 @@ If you see a code snippet here in the instruction file, copy-paste it into your 
 """
 ---
 
-## 1️⃣ Document Analysis Discussion (2 hours)
+## Section 6.1: Document Analysis Discussion (2 hours)
 
 This discussion session guides you through three foundational reports on AI infrastructure security. You'll work through specific sections of each document to understand threat frameworks, security implementations, and novel defensive approaches.
 
@@ -99,7 +99,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ### Part 1: RAND Framework - Understanding the Threat Landscape (40 minutes)
 
-#### Exercise 1.1: Operational Capability Classification
+#### Exercise 6.1.1: Operational Capability Classification
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -130,7 +130,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 </details>
 
-#### Exercise 1.2: Security Level Mapping
+#### Exercise 6.1.2: Security Level Mapping
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -169,7 +169,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ### Part 2: IAPS Data Center Security - Critical Attack Vectors (35 minutes)
 
-#### Exercise 2.1: Attack Vector Prioritization
+#### Exercise 6.1.3: Attack Vector Prioritization
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -213,7 +213,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 </details>
 
-#### Exercise 2.2: IAPS Policy Framework Implementation
+#### Exercise 6.1.4: IAPS Policy Framework Implementation
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -259,7 +259,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ### Part 3: SL5 Novel Recommendations - Next-Generation Controls (35 minutes)
 
-#### Exercise 3.1: Five-Domain Architecture Analysis
+#### Exercise 6.1.5: Five-Domain Architecture Analysis
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -307,7 +307,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 </details>
 
-#### Exercise 3.2: SL5 Implementation Feasibility Assessment
+#### Exercise 6.1.6: SL5 Implementation Feasibility Assessment
 
 > **Difficulty**: 🔴🔴🔴🔴🔵
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -388,7 +388,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ---
 
-## 2️⃣ CVE-2025-23266 Hands-On Lab: NVIDIA Container Toolkit Escape (45 minutes)
+## Section 6.2: CVE-2025-23266 Hands-On Lab: NVIDIA Container Toolkit Escape (45 minutes)
 
 This is a hacking exercise. You will replicate [NVIDIAScape](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape) — CVE-2025-23266 in NVIDIA Container Toolkit ≤ 1.17.7 — and escape from a GPU container to execute arbitrary code on the host as root.
 
@@ -570,7 +570,7 @@ Default on patched installs is `cuda-compat-mode = "ldconfig"`, which does not u
 
 ---
 
-## 3️⃣ GPUBreach Attack Chain: RowHammer to Root (3+ hours)
+## Section 6.3: GPUBreach Attack Chain: RowHammer to Root (3+ hours)
 
 In this lab you will walk through the *GPUBreach* attack chain end-to-end against a simulated GDDR6 + NVIDIA-style driver stack. The chain fuses several well-known primitives into a single full-system compromise:
 
@@ -747,14 +747,14 @@ if you want to see what it does exactly.
 
 # %%
 """
-## 1️⃣ Phase 1 — Understanding (30 min, no code)
+## Phase 1 — Understanding (30 min, no code)
 
 Read each of the four comprehension exercises below and answer the
 questions (plain-text comments in your answers file are fine). The
 collapsed reference answers are there for when you finish, not to short-
 circuit your thinking.
 
-### Exercise 1.1: DRAM row organisation and the RowHammer threshold
+### Exercise 6.3.1: DRAM row organisation and the RowHammer threshold
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -805,7 +805,7 @@ When this lab says "64ms refresh window" it means tREFW.
 
 # %%
 """
-### Exercise 1.2: GPU PTEs and the aperture bit
+### Exercise 6.3.2: GPU PTEs and the aperture bit
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -844,7 +844,7 @@ The coincidence is engineered, not luck. In this lab
 
 # %%
 """
-### Exercise 1.3: Why the IOMMU does not block this write
+### Exercise 6.3.3: Why the IOMMU does not block this write
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -877,7 +877,7 @@ not enforce intra-page bounds inside a legitimately mapped page.
 
 # %%
 """
-### Exercise 1.4: Driver OOB → privilege escalation
+### Exercise 6.3.4: Driver OOB → privilege escalation
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -914,7 +914,7 @@ not PCIe DMA).
 
 # %%
 """
-## 2️⃣ Phase 2 — Must-finish: driving the attack to root
+## Phase 2 — Must-finish: driving the attack to root
 
 Five tiny coding exercises — one for each step in the chain. Each has a
 test you run immediately after. Budget ~30–45 minutes total. At the end,
@@ -956,12 +956,12 @@ Ex 2.5: root achieved? True
 
 If Phase 2 is taking **minutes** instead of **milliseconds**, you almost
 certainly have a `|a - b| ≠ 2` bug in `find_aggressors` — double-check
-Exercise 2.1 before anything else.
+Exercise 6.3.5 before anything else.
 """
 
 # %%
 """
-### Exercise 2.1: Aggressor rows for double-sided hammering
+### Exercise 6.3.5: Aggressor rows for double-sided hammering
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1010,7 +1010,7 @@ env.stage1_aggressors_ok = True
 
 # %%
 """
-### Exercise 2.2: Hammer until a bit flips
+### Exercise 6.3.6: Hammer until a bit flips
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -1089,7 +1089,7 @@ env.stage2_flipped_in_refresh_window = (
 
 # %%
 """
-### Exercise 2.3: Force the MMU to re-walk the flipped PTE
+### Exercise 6.3.7: Force the MMU to re-walk the flipped PTE
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -1150,7 +1150,7 @@ env.stage3_aperture_changed = (before, after) == (
 
 # %%
 """
-### Exercise 2.4: Craft the OOB DMA payload
+### Exercise 6.3.8: Craft the OOB DMA payload
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -1212,7 +1212,7 @@ test_craft_overflow_payload(craft_overflow_payload)
 
 # %%
 """
-### Exercise 2.5: Fire the DMA and confirm root
+### Exercise 6.3.9: Fire the DMA and confirm root
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -1256,7 +1256,7 @@ def test_escalate_privileges(solution: Callable[..., bool]):
         fresh.dram.hammer_once(v - 1, v + 1)
     fresh.page_table.sync_from_dram(fresh.dram)
     # Build an overflow payload directly so the test is independent of
-    # Exercise 2.4 still being defined in the caller's namespace.
+    # Exercise 6.3.8 still being defined in the caller's namespace.
     overflow_payload = b"A" * DRIVER_BUFFER_SIZE + (0).to_bytes(4, "little")
     assert not fresh.kernel_cred.is_root(), (
         "sanity: cred must start non-root"
@@ -1295,11 +1295,11 @@ env.check_all()
 
 # %%
 """
-## 3️⃣ Phase 3 — Stretch: digging into the primitives (Optional)
+## Phase 3 — Stretch: digging into the primitives (Optional)
 
 Optional exercises for deeper understanding. Each is short and independent.
 
-### Exercise 3.1 (Optional): Decode a PTE by hand
+### Exercise 6.3.10 (Optional): Decode a PTE by hand
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1360,7 +1360,7 @@ test_decode_pte_manually(decode_pte_manually)
 
 # %%
 """
-### Exercise 3.2 (Optional): Inspect the exact flipped bit
+### Exercise 6.3.11 (Optional): Inspect the exact flipped bit
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1421,7 +1421,7 @@ test_find_flipped_bits(find_flipped_bits)
 
 # %%
 """
-### Exercise 3.3 (Optional): Budget the hammer against the refresh window
+### Exercise 6.3.12 (Optional): Budget the hammer against the refresh window
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1495,7 +1495,7 @@ test_hammer_budget(hammer_budget)
 
 # %%
 """
-### Exercise 3.4 (Optional): Maximum hammer rounds inside the window
+### Exercise 6.3.13 (Optional): Maximum hammer rounds inside the window
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1545,7 +1545,7 @@ test_max_rounds_in_window(max_rounds_in_window)
 
 # %%
 """
-### Exercise 3.5 (Optional): The IOMMU blocks what it promises to block
+### Exercise 6.3.14 (Optional): The IOMMU blocks what it promises to block
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -1605,7 +1605,7 @@ test_probe_iommu(probe_iommu)
 
 # %%
 """
-### Exercise 3.6 (Optional): Measure the OOB overflow precisely
+### Exercise 6.3.15 (Optional): Measure the OOB overflow precisely
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1640,12 +1640,12 @@ def test_overflow_bytes(solution: Callable[[int], int]):
 test_overflow_bytes(overflow_bytes)
 # %%
 """
-### Exercise 3.7 (Optional): A tighter payload
+### Exercise 6.3.16 (Optional): A tighter payload
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
 
-The payload in Exercise 2.4 overshoots — it writes 132 bytes where 132 is
+The payload in Exercise 6.3.8 overshoots — it writes 132 bytes where 132 is
 exactly `DRIVER_BUFFER_SIZE + 4`. What if the cred struct's euid field
 isn't at the very start of the overflow region, but at some `offset`
 past `CRED_OFFSET`? Write a parameterised payload builder.
@@ -1705,7 +1705,7 @@ test_craft_precise_payload(craft_precise_payload)
 
 # %%
 # """
-# ## 4️⃣ Phase 4 — Debrief (15 min discussion)
+# ## Phase 4 — Debrief (15 min discussion)
 
 # Discuss the following with your partner and then with a TA. These
 # questions connect the lab numbers back to real-world attack economics.

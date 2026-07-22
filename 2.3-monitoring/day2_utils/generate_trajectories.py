@@ -4,25 +4,25 @@ This module is the single entry point for running ControlArena evaluations.
 Pass any ``micro_protocol`` to customise what the agent does and how it is
 monitored. Two common patterns:
 
-**Exercise 4.1 — fast dataset replay (no LLM calls):**
+**Exercise 2.3.1 — fast dataset replay (no LLM calls):**
 
-    logs = generate_trajectories(limit=50, log_dir=E4_1_TRAJECTORY_DIR)
+    logs = generate_trajectories(limit=50, log_dir=E3_1_TRAJECTORY_DIR)
 
-**Exercise 4.2 — LLM attacks with live monitoring:**
+**Exercise 2.3.2 — LLM attacks with live monitoring:**
 
     from control_arena.micro_protocol import trusted_monitoring_builder
     protocol = trusted_monitoring_builder(policy=attack_policy, monitor=monitor)
     logs = generate_trajectories(
         micro_protocol=protocol,
         limit=10,
-        log_dir=E4_2_TRAJECTORY_DIR,
+        log_dir=E3_2_TRAJECTORY_DIR,
     )
     honest_scores, attack_scores = extract_scores(logs)
 
 Read this file to familiarise yourself with the ControlArena evaluation API
 before implementing the exercises.
 
-As a standalone CLI (Exercise 4.1 only)::
+As a standalone CLI (Exercise 2.3.1 only)::
 
     python -m day2_utils.generate_trajectories --limit 50
 """
@@ -158,7 +158,7 @@ if __name__ == "__main__":
         help="Directory to save trajectory logs.",
     )
     def cli(limit: int, log_dir: str) -> None:
-        """Pre-generate APPS trajectories for Exercise 4.1 (no LLM calls)."""
+        """Pre-generate APPS trajectories for Exercise 2.3.1 (no LLM calls)."""
         from control_arena.settings.apps.apps_solution_policy import (
             apps_solution_policy,
         )

@@ -1,5 +1,5 @@
 
-# W1D1 - LLM Internals: What Goes In, What Comes Out
+# Day 1 — Section 1: LLM Internals: What Goes In, What Comes Out
 
 On the first day, we'll warm up by looking under the hood of LLM inference APIs — the primary interface through which models are exposed to applications, and the substrate on which all attacks and defenses build. We'll explore how conversations are serialized into tokens, what the model actually computes (logprobs), and where the boundaries between "instructions" and "data" break down.
 
@@ -10,9 +10,9 @@ This is also a chance to get your environment set up and iron out any technical 
 - [Content & Learning Objectives](#content--learning-objectives)
 - [Setup](#setup)
 - [LLM Internals: What Goes In, What Comes Out](#llm-internals-what-goes-in-what-comes-out)
-    - [Exercise 1.1: Conversation Serialization](#exercise-11-conversation-serialization)
-    - [Exercise 1.2 (Optional): Comparing Chat Templates](#exercise-12-optional-comparing-chat-templates)
-    - [Exercise 1.3: Injecting Control Tokens](#exercise-13-injecting-control-tokens)
+    - [Exercise 1.1.1: Conversation Serialization](#exercise-111-conversation-serialization)
+    - [Exercise 1.1.2 (Optional): Comparing Chat Templates](#exercise-112-optional-comparing-chat-templates)
+    - [Exercise 1.1.3: Injecting Control Tokens](#exercise-113-injecting-control-tokens)
 
 ## Content & Learning Objectives
 
@@ -73,7 +73,7 @@ Model inference APIs are the primary way how LLMs are exposed to the world and c
 
 While LLM APIs typically expose structured chat interfaces, a look one level deeper reveals that the model itself only sees a **sequence of tokens** derived from a serialized conversation - what looks a well-designed protocol can in fact behave like an _unstructured channel_!
 
-### Exercise 1.1: Conversation Serialization
+### Exercise 1.1.1: Conversation Serialization
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -197,7 +197,7 @@ print(f"\n  Total: {len(chatml_tokens)} tokens")
 print("  ◆ = control token (cannot be produced by normal text input)")
 ```
 
-### Exercise 1.2 (Optional): Comparing Chat Templates
+### Exercise 1.1.2 (Optional): Comparing Chat Templates
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵⚪⚪⚪
@@ -214,7 +214,7 @@ Different model families use completely different serialization formats. Use `to
 pass
 ```
 
-### Exercise 1.3: Injecting Control Tokens
+### Exercise 1.1.3: Injecting Control Tokens
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪

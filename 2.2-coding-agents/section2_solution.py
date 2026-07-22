@@ -1,6 +1,6 @@
 # %%
 """
-# W1D2 - Section 2: Coding Agents: Attack Surface and Affordances
+# Day 2 — Section 2: Coding Agents: Attack Surface and Affordances
 
 How affordances and autonomy determine the blast radius of injection in coding agents — and how injection connects to the AI control threat model.
 
@@ -36,9 +36,9 @@ In this section, we'll look at an example of a system that sits at the intersect
 
 2. **Monitor manipulation**: One of the core AI control measures is *control monitoring* — using a separate LLM to monitor an untrusted AI agent's behavior (human oversight won't scale to every action). But if the monitoring system processes the monitored agent's outputs or reasoning, it is itself exposed to prompt injection. A sufficiently capable agent could craft its outputs to inject instructions into the monitor, manipulating its own oversight and bypassing safety measures.
 
-Top AI labs [now](https://x.com/bcherny/status/2015979257038831967?s=46&t=zHQCBTtfz3hXdhbfUsgEAg) [admit](https://x.com/tszzl/status/2015262304913469808) [almost](https://www.lesswrong.com/posts/prSnGGAgfWtZexYLp/is-90-of-code-at-anthropic-being-written-by-ais) all of their code is written by coding agents — systems that run with the developer's full OS permissions inside environments with broad access to file systems, version control, cloud tools, and CI/CD pipelines. In exercise 1.1, you mapped the *attack surface* — what untrusted input can reach the model. Now let's examine the **affordances** — what can a misaligned or prompt-injected agent actually *do*?
+Top AI labs [now](https://x.com/bcherny/status/2015979257038831967?s=46&t=zHQCBTtfz3hXdhbfUsgEAg) [admit](https://x.com/tszzl/status/2015262304913469808) [almost](https://www.lesswrong.com/posts/prSnGGAgfWtZexYLp/is-90-of-code-at-anthropic-being-written-by-ais) all of their code is written by coding agents — systems that run with the developer's full OS permissions inside environments with broad access to file systems, version control, cloud tools, and CI/CD pipelines. In Exercise 2.1.1, you mapped the *attack surface* — what untrusted input can reach the model. Now let's examine the **affordances** — what can a misaligned or prompt-injected agent actually *do*?
 
-### Exercise 2.1: Enumerate Affordances, Exploits, and Mitigations
+### Exercise 2.2.1: Enumerate Affordances, Exploits, and Mitigations
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪

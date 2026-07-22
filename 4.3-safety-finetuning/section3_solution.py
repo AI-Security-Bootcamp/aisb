@@ -1,5 +1,5 @@
 """
-# W1D4 - Section 3: Abliteration
+# Day 4 — Section 3: Abliteration
 
 This section teaches a parameter-efficient fine-tuning workflow and uses it to
 perform abliteration and measure how a small adapter can alter refusal behavior.
@@ -70,13 +70,13 @@ pip install peft vllm
 
 ### Setup
 
-If you have not already, create a file named `w1d4_answers.py` in the `4.1-model-editing`
+If you have not already, create a file named `day4_answers.py` in the `4.1-model-editing`
 directory (the first Day-4 section folder) and use it as your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
 
-**Paste the boilerplate below into your `w1d4_answers.py` file.**
+**Paste the boilerplate below into your `day4_answers.py` file.**
 """
 
 import os
@@ -102,7 +102,7 @@ if "TEST_FIXTURE":
 
 # %%
 """
-### Exercise 3.1: Prepare and Cache the Dataset
+### Exercise 4.3.1: Prepare and Cache the Dataset
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -242,7 +242,7 @@ test_prepare_harmful_split(prepare_harmful_split)
 
 # %%
 """
-### Exercise 3.2: Train the LoRA Adapter
+### Exercise 4.3.2: Train the LoRA Adapter
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -410,7 +410,7 @@ train_abliteration()
 
 # %%
 """
-### Exercise 3.3: Evaluate Refusal Rate
+### Exercise 4.3.3: Evaluate Refusal Rate
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

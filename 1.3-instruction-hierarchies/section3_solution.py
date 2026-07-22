@@ -1,6 +1,6 @@
 # %%
 """
-# W1D1 - Section 3: Instruction Hierarchies and Assistant Prefill
+# Day 1 — Section 3: Instruction Hierarchies and Assistant Prefill
 
 This optional section connects instruction priority to the flat token sequence
 processed by an LLM. You will use assistant prefills to observe how a partial
@@ -52,7 +52,7 @@ Another layer is training models to respect [instruction hierarchies](https://ar
 
 A related attack vector is "prefilling" tokens in the assistant turn, effectively putting words in the model's mouth. By injecting a compliant prefix like `"Sure, here is how to do it:"`, an attacker exploits the model's self-consistency to steer it past safety training. This technique is sometimes called [sockpuppeting](https://www.trendmicro.com/vinfo/gb/security/news/cybercrime-and-digital-threats/sockpuppeting-how-a-single-line-can-bypass-llm-safety-guardrails). Some providers have stopped supporting prefill to prevent this effective jailbreaking technique (Anthropic dropped support for it starting with Claude Opus 4.6).
 
-### Exercise 3.1: Assistant prefill (Optional)
+### Exercise 1.3.1: Assistant prefill (Optional)
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵⚪⚪⚪

@@ -1,5 +1,5 @@
 
-# W1D3 - Section 4: Knowledge-Distillation Attacks
+# Day 3 — Section 4: Knowledge-Distillation Attacks
 
 You will implement a standard training loop and then extend it with
 temperature-scaled knowledge distillation. The goal is to see exactly which
@@ -12,11 +12,11 @@ capability transfer and model extraction.
     - [Setup](#setup)
     - [4.a The distillation scenario](#4a-the-distillation-scenario)
     - [4.b A baseline training loop](#4b-a-baseline-training-loop)
-    - [Exercise 4.1: Implement the training step](#exercise-41-implement-the-training-step)
+    - [Exercise 3.4.1: Implement the training step](#exercise-341-implement-the-training-step)
     - [Running the baseline training loop](#running-the-baseline-training-loop)
     - [4.c Knowledge distillation](#4c-knowledge-distillation)
-    - [Exercise 4.2: Implement the KD loss](#exercise-42-implement-the-kd-loss)
-    - [Exercise 4.3: Training step with KD](#exercise-43-training-step-with-kd)
+    - [Exercise 3.4.2: Implement the KD loss](#exercise-342-implement-the-kd-loss)
+    - [Exercise 3.4.3: Training step with KD](#exercise-343-training-step-with-kd)
     - [Running the KD training loop](#running-the-kd-training-loop)
     - [4.d Comparing the students](#4d-comparing-the-students)
     - [What to look for](#what-to-look-for)
@@ -325,7 +325,7 @@ The standard **next-token prediction** training loop looks like this:
 4. **Backward + step**: `optimizer.zero_grad()`, `loss.backward()`,
    `optimizer.step()` — the standard PyTorch triad.
 
-### Exercise 4.1: Implement the training step
+### Exercise 3.4.1: Implement the training step
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -450,7 +450,7 @@ teacher actually knows. The `T²` factor restores the gradient magnitude
 after softening. This is the formulation from Hinton, Vinyals & Dean (2015)
 *Distilling the Knowledge in a Neural Network*.
 
-### Exercise 4.2: Implement the KD loss
+### Exercise 3.4.2: Implement the KD loss
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -496,12 +496,12 @@ from section4_test import test_kd_loss
 test_kd_loss(kd_loss)
 ```
 
-### Exercise 4.3: Training step with KD
+### Exercise 3.4.3: Training step with KD
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 
-Combine the CE loss from exercise 4.1 with the KD loss from exercise 4.2.
+Combine the CE loss from exercise 3.4.1 with the KD loss from exercise 3.4.2.
 The total loss is:
 
 $$\\mathcal{L} = (1 - \\alpha) \\cdot \\mathcal{L}_{CE} + \\alpha \\cdot \\mathcal{L}_{KD}$$
@@ -533,8 +533,8 @@ def train_step_with_kd(
         A tuple (total_loss, ce_loss, kd_loss) of Python floats, useful for
         logging which term is dominating.
     """
-    # TODO: Combine the CE loss from Exercise 4.1 with the KD loss
-    # from Exercise 4.2 into a single training step.
+    # TODO: Combine the CE loss from Exercise 3.4.1 with the KD loss
+    # from Exercise 3.4.2 into a single training step.
     #
     # 1. Student forward + CE loss (same as 4.1)
     # 2. Teacher forward — make sure no gradients flow through the

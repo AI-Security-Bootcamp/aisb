@@ -1,5 +1,5 @@
 
-# W1D3 - Section 5: Model Weight Extraction via SVD
+# Day 3 — Section 5: Model Weight Extraction via SVD
 
 This section uses black-box logit queries and singular value decomposition to
 infer a model's hidden dimension and extract its final projection layer up to
@@ -8,8 +8,8 @@ an unknown linear transform.
 ## Table of Contents
 
 - [Model weight extraction via SVD](#model-weight-extraction-via-svd)
-    - [Exercise 5.1 - Complete Model Dimension Extraction](#exercise-51---complete-model-dimension-extraction)
-    - [Exercise 5.2 - Extracting Model Weights](#exercise-52---extracting-model-weights)
+    - [Exercise 3.5.1 - Complete Model Dimension Extraction](#exercise-351---complete-model-dimension-extraction)
+    - [Exercise 3.5.2 - Extracting Model Weights](#exercise-352---extracting-model-weights)
     - [Extensions to try](#extensions-to-try)
 - [Summary & Further Reading](#summary--further-reading)
     - [Further reading](#further-reading)
@@ -42,7 +42,7 @@ from aisb_utils import report
 Let's implement the model extraction attack from
 [Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
 
-### Exercise 5.1 - Complete Model Dimension Extraction
+### Exercise 3.5.1 - Complete Model Dimension Extraction
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -87,7 +87,7 @@ def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-# Shared attack parameters, used by both Exercise 5.1 and 5.2.
+# Shared attack parameters, used by Exercises 3.5.1 and 3.5.2.
 N_QUERIES = 1000
 MAX_PROMPT_LENGTH = 10
 VOCAB_SIZE = tokenizer.vocab_size
@@ -128,14 +128,14 @@ from section5_test import test_detect_hidden_dim
 test_detect_hidden_dim(detect_hidden_dim)
 ```
 
-### Exercise 5.2 - Extracting Model Weights
+### Exercise 3.5.2 - Extracting Model Weights
 
 > **Difficulty**: 🔴🔴🔴🔴🔴
 > **Importance**: 🔵🔵⚪⚪⚪
 >
 > You should spend up to ~60 minutes on this exercise.
 
-Now use the hidden dimension `h` from exercise 5.1 to recover the model's output
+Now use the hidden dimension `h` from exercise 3.5.1 to recover the model's output
 projection matrix — `lm_head.weight` — from black-box logit queries alone.
 
 **Why SVD gives us the weights.** Every logit vector the model returns is computed as:

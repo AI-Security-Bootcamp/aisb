@@ -1,5 +1,5 @@
 
-# W1D2 - Section 5: Bonus: From Monitor Scores to System Safety
+# Day 2 — Section 5: Bonus: From Monitor Scores to System Safety
 
 Control monitors are only one component in a broader system. Think through how different properties of the system influence the overall safety of a deployment.
 
@@ -8,7 +8,7 @@ Control monitors are only one component in a broader system. Think through how d
 - [Content & Learning Objectives](#content--learning-objectives)
     - [Bonus: Safety Calculation](#bonus-safety-calculation)
 - [Bonus: From Monitor Scores to System Safety](#bonus-from-monitor-scores-to-system-safety)
-    - [Exercise 5.1: Explore the Safety Simulator](#exercise-51-explore-the-safety-simulator)
+    - [Exercise 2.5.1: Explore the Safety Simulator](#exercise-251-explore-the-safety-simulator)
 - [Summary](#summary)
     - [Further Reading](#further-reading)
 
@@ -34,7 +34,7 @@ In sections 3–4 you built monitors and protocols that score and intervene on i
 
 One way to assess system safety given all these interacting parameters is **Monte Carlo simulation**: sample many possible deployment trajectories (with randomized attack timing, monitor scores, and audit decisions) and estimate the probability that at least one attack succeeds. The [Async Control Macro Game](https://ukgovernmentbeis.github.io/async-control/macrogame.html) is an interactive simulator that does exactly this. It models **asynchronous monitoring**: a setting where actions are reviewed *after* they occur (rather than blocked in real time), and the defender's goal is to catch attacks before their latency window closes.
 
-### Exercise 5.1: Explore the Safety Simulator
+### Exercise 2.5.1: Explore the Safety Simulator
 
 Open the [Async Control Macro Game](https://ukgovernmentbeis.github.io/async-control/macrogame.html) and experiment with the parameters.
 

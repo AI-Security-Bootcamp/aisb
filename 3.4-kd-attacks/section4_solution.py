@@ -1,6 +1,6 @@
 # %%
 """
-# W1D3 - Section 4: Knowledge-Distillation Attacks
+# Day 3 — Section 4: Knowledge-Distillation Attacks
 
 You will implement a standard training loop and then extend it with
 temperature-scaled knowledge distillation. The goal is to see exactly which
@@ -316,7 +316,7 @@ The standard **next-token prediction** training loop looks like this:
 4. **Backward + step**: `optimizer.zero_grad()`, `loss.backward()`,
    `optimizer.step()` — the standard PyTorch triad.
 
-### Exercise 4.1: Implement the training step
+### Exercise 3.4.1: Implement the training step
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -493,7 +493,7 @@ teacher actually knows. The `T²` factor restores the gradient magnitude
 after softening. This is the formulation from Hinton, Vinyals & Dean (2015)
 *Distilling the Knowledge in a Neural Network*.
 
-### Exercise 4.2: Implement the KD loss
+### Exercise 3.4.2: Implement the KD loss
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -581,12 +581,12 @@ test_kd_loss(kd_loss)
 
 # %%
 """
-### Exercise 4.3: Training step with KD
+### Exercise 3.4.3: Training step with KD
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 
-Combine the CE loss from exercise 4.1 with the KD loss from exercise 4.2.
+Combine the CE loss from exercise 3.4.1 with the KD loss from exercise 3.4.2.
 The total loss is:
 
 $$\\mathcal{L} = (1 - \\alpha) \\cdot \\mathcal{L}_{CE} + \\alpha \\cdot \\mathcal{L}_{KD}$$
@@ -633,7 +633,7 @@ def train_step_with_kd(
         with torch.no_grad():
             t_logits = teacher(x).logits[:, :-1, :]
 
-        # KD loss using the function from Exercise 4.2
+        # KD loss using the function from Exercise 3.4.2
         kd = kd_loss(s_logits, t_logits, temperature)
 
         # Combined loss
@@ -647,8 +647,8 @@ def train_step_with_kd(
 
         return total.item(), ce.item(), kd.item()
     else:
-        # TODO: Combine the CE loss from Exercise 4.1 with the KD loss
-        # from Exercise 4.2 into a single training step.
+        # TODO: Combine the CE loss from Exercise 3.4.1 with the KD loss
+        # from Exercise 3.4.2 into a single training step.
         #
         # 1. Student forward + CE loss (same as 4.1)
         # 2. Teacher forward — make sure no gradients flow through the

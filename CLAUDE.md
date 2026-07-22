@@ -157,12 +157,14 @@ def test_solve():
 
 ## Content structure conventions
 
-Each day's solution file follows a consistent layout:
+Each section's solution file follows a consistent layout. Day-level files that intentionally
+combine several sections use `# Day D — Day Title` and `## Section D.S: Section Title`
+instead; Day 0 setup exercises use `Exercise 0.E` because Day 0 has no numbered sections.
 
 ### Overall structure
 
 1. **Title block** — first `# %%` cell with a triple-quoted string containing:
-   - `# W1DX - Day Title`
+   - `# Day D — Section S: Section Title`
    - Introductory paragraph (1-3 sentences framing the day)
    - `<!-- toc -->` placeholder for auto-generated table of contents
    - `## Content & Learning Objectives` section with numbered subsections and learning objectives in blockquotes
@@ -173,23 +175,23 @@ Each day's solution file follows a consistent layout:
 
 ### Section and exercise headers
 
-- Top-level content sections: `## Section Name`
-- Exercises: `### Exercise N.M: Title` (N = section number, M = exercise within section)
-- Sub-exercises or optional variants: `### Exercise N.Ma (Optional): Title`
+- Top-level content sections: `## Section Name` (or `## Section D.S: Section Name` in a combined day-level file)
+- Exercises: `### Exercise D.S.E: Title` (D = day, S = section, E = exercise within section)
+- Sub-exercises or optional variants: `### Exercise D.S.Ea (Optional): Title`
 
-**Do not put emoji digits (`1️⃣`, `2️⃣`, …) in section headers.** They were used previously but drift out of order whenever sections are added, removed, or moved between days (which happens often), and require manual reconciliation that is easy to get wrong. Use plain `## Section Name`. The exercise numbers (`N.M`) still encode ordering; keep those accurate, but section *headers* carry no number.
+**Do not put emoji digits (`1️⃣`, `2️⃣`, …) in section headers.** They were used previously but drift out of order whenever sections are added, removed, or moved between days (which happens often), and require manual reconciliation that is easy to get wrong. Use plain `## Section Name`. The exercise numbers (`D.S.E`) still encode ordering; keep those accurate, but section *headers* carry no number.
 
 ### Setup section
 Include these instructions when a section has code for participants to execute
-(replacing N and M with week/day numbers). Do not add an empty setup to a
+(replacing D with the day number and S with the section number). Do not add an empty setup to a
 prose-only section; instead state its discussion or written deliverable directly.
 
 ```markdown
-Create a file named `wNdM_answers.py` in the `wNdM` directory. This will be your answer file for today.
+Create a file named `dayD_answers.py` in the `D.S-section-name` directory. This will be your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to make it a Python code cell.
 
-**Start by pasting the code below in your wNdM_answers.py file.**
+**Start by pasting the code below in your dayD_answers.py file.**
 ```
 
 ### Canonical `sys.path` / import boilerplate
@@ -236,7 +238,7 @@ Short description of the section.
 Place immediately after the exercise header line, as a plain `N/5` number (1-5 scale):
 
 ```
-### Exercise 1.1: Title
+### Exercise 1.1.1: Title
 
 > **Difficulty**: 2/5
 > **Importance**: 4/5
@@ -262,7 +264,7 @@ Coding exercises typically only make sense if correctness is testable by asserts
 Example skeleton:
 ```python
 """
-### Exercise 1.1: Do the Thing
+### Exercise 1.1.1: Do the Thing
 
 Explanation of what participants should do.
 """
@@ -359,8 +361,8 @@ test_md5_padding(md5_padding)
 Before submitting a solution file, verify:
 
 **Structure**
-- [ ] File starts with a title block (`# W1DX - Title`) containing intro, `<!-- toc -->`, and learning objectives
-- [ ] Exercises use `### Exercise N.M: Title` format
+- [ ] File starts with a title block (`# Day D — Section S: Title`, or `# Day D — Title` for a combined day-level file) containing intro, `<!-- toc -->`, and learning objectives
+- [ ] Exercises use `### Exercise D.S.E: Title` format
 - [ ] Exercises have difficulty and importance ratings
 - [ ] File ends with a Summary section (key takeaways + further reading)
 - [ ] `# %%` cell markers separate logical sections

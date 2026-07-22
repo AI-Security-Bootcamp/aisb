@@ -1,5 +1,5 @@
 
-# W1D1 - Section 2: Log Probabilities
+# Day 1 — Section 2: Log Probabilities
 
 This section connects the distribution an LLM computes at each generation step
 to the information exposed by an inference API. You will request token-level
@@ -10,7 +10,7 @@ extra observability changes an attacker's options.
 
 - [Content & Learning Objectives](#content--learning-objectives)
 - [Logprobs — What the Model Actually Computes](#logprobs-—-what-the-model-actually-computes)
-    - [Exercise 2.1: Logprobs](#exercise-21-logprobs)
+    - [Exercise 1.2.1: Logprobs](#exercise-121-logprobs)
 
 ## Content & Learning Objectives
 
@@ -55,7 +55,7 @@ openrouter_client = OpenAI(
 An LLM produces a **probability distribution over tokens** at each step. The API can return these as `logprobs`. This is the raw output before sampling — and it reveals information that the final text doesn't.
 
 
-### Exercise 2.1: Logprobs
+### Exercise 1.2.1: Logprobs
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪

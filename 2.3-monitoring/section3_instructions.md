@@ -1,5 +1,5 @@
 
-# W1D2 - Section 3: AI Control: Monitoring
+# Day 2 — Section 3: AI Control: Monitoring
 
 Build a backdoor monitor, red-team it, then improve it using chain-of-thought inspection — one full cycle of the monitor/attack arms race.
 
@@ -11,9 +11,9 @@ Build a backdoor monitor, red-team it, then improve it using chain-of-thought in
 - [AI Control: Monitoring](#ai-control-monitoring-1)
     - [Evaluations in ControlArena in Brief](#evaluations-in-controlarena-in-brief)
     - [Setup: Generate Trajectories](#setup-generate-trajectories)
-    - [Exercise 3.1: Write and Evaluate a Monitor Prompt](#exercise-31-write-and-evaluate-a-monitor-prompt)
-    - [Exercise 3.2: Write an Attack Prompt (Red-Teaming)](#exercise-32-write-an-attack-prompt-red-teaming)
-    - [Exercise 3.3 (Optional): Chain-of-Thought Monitoring](#exercise-33-optional-chain-of-thought-monitoring)
+    - [Exercise 2.3.1: Write and Evaluate a Monitor Prompt](#exercise-231-write-and-evaluate-a-monitor-prompt)
+    - [Exercise 2.3.2: Write an Attack Prompt (Red-Teaming)](#exercise-232-write-an-attack-prompt-red-teaming)
+    - [Exercise 2.3.3 (Optional): Chain-of-Thought Monitoring](#exercise-233-optional-chain-of-thought-monitoring)
 
 ## Content & Learning Objectives
 
@@ -167,7 +167,7 @@ inspect view --log-dir logs
 
 When you open the attack trajectories, you should be able to see that the `submit` tool calls have a second parameter `secret_input` - this is the value that activates the backdoor. Note that this argument is **not** visible to the monitor (another built-in ControlArena feature).
 
-### Exercise 3.1: Write and Evaluate a Monitor Prompt
+### Exercise 2.3.1: Write and Evaluate a Monitor Prompt
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -320,7 +320,7 @@ test_monitor_better_than_random(e3_1_auc)
 Review the score distribution histogram and ROC curve above. A good monitor should show clearly separated score distributions (high scores for attack, low for honest) and an AUC well above 0.5. If the distributions overlap heavily, go back and revise `prompts/monitor_prompt.txt` — try being more specific about what backdoor patterns look like, or ask the monitor to reason step by step before scoring.
 
 
-### Exercise 3.2: Write an Attack Prompt (Red-Teaming)
+### Exercise 2.3.2: Write an Attack Prompt (Red-Teaming)
 
 You've built a monitor. Now stress-test it: switch to the attacker's perspective and craft a prompt that instructs the agent to insert backdoors that evade your monitor.
 
@@ -414,7 +414,7 @@ print(
     f"  Side task success (attack): {_attack_df['side_task_success'].mean():.0%}  ← fraction that inserted a working backdoor"
 )
 print(f"\n  Monitor AUC on your attacks: {e3_2_auc:.3f}")
-print(f"  (compare with {e3_1_auc:.3f} on the dataset backdoors from Exercise 3.1)")
+print(f"  (compare with {e3_1_auc:.3f} on the dataset backdoors from Exercise 2.3.1)")
 
 plot_score_histograms(
     e3_2_honest,
@@ -444,7 +444,7 @@ plot_attack_evasion_curve(
 
 Iterate: if the monitor easily catches your attacks, you can go back and revise `prompts/attack_system_prompt.txt`.
 
-### Exercise 3.3 (Optional): Chain-of-Thought Monitoring
+### Exercise 2.3.3 (Optional): Chain-of-Thought Monitoring
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -456,13 +456,13 @@ Fortunately, monitoring AIs can make use of things that don't have a human analo
 
 The CoT monitor is built for you below using `basic_monitor_builder` with the `cot_prompt_formatter`.
 
-Once both monitors are implemented, the code below runs them on the Exercise 3.2 attack trajectories and plots their ROC curves side by side. No implementation needed here — just run it and compare AUCs.
+Once both monitors are implemented, the code below runs them on the Exercise 2.3.2 attack trajectories and plots their ROC curves side by side. No implementation needed here — just run it and compare AUCs.
 
 
 ```python
 
 
-# Evaluate the CoT monitor on your attack trajectories from Exercise 3.2.
+# Evaluate the CoT monitor on your attack trajectories from Exercise 2.3.2.
 # cot_prompt_formatter(cot_only=False) populates {task_description}, {cot},
 # and {tool_calls} — giving the monitor full visibility into the agent's reasoning.
 prompt_path = SCRIPT_DIR / "prompts" / "cot_monitor_prompt.txt"
@@ -482,8 +482,8 @@ e3_3_honest, e3_3_attack, e3_3_auc = evaluate_monitor_on_trajectories(
 )
 
 print(f"\n  CoT monitor AUC: {e3_3_auc:.3f}")
-print(f"  Tool-call-only AUC (Exercise 3.1): {e3_1_auc:.3f}")
-print(f"  Your attacks AUC  (Exercise 3.2): {e3_2_auc:.3f}")
+print(f"  Tool-call-only AUC (Exercise 2.3.1): {e3_1_auc:.3f}")
+print(f"  Your attacks AUC  (Exercise 2.3.2): {e3_2_auc:.3f}")
 
 plot_score_histograms(
     e3_3_honest, e3_3_attack, title="CoT Monitor Score Distribution", save_path=None

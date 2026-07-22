@@ -56,7 +56,7 @@ Underline are the exercises we want
 - [ ] Make the exercise instructions
 - [ ] Collate papers, readings, relevant to the topics of the day
       - [ ] Suggest topics for discussion groups
-      - [ ] Have questions they should answer after reading (eg, [https://github.com/pranavgade20/aisb/blob/master/w1d3/w1d3_instructions.md](https://github.com/pranavgade20/aisb/blob/master/w1d3/w1d3_instructions.md))
+      - [ ] Have questions they should answer after reading (for example, see the [earlier curriculum's discussion questions](https://github.com/pranavgade20/aisb/blob/master/w1d3/w1d3_instructions.md))
 - [ ] FInally, have a narrative they follow
 
 ## Structure of a Day

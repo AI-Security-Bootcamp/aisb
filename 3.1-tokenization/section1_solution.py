@@ -1,6 +1,6 @@
 # %%
 """
-# W1D3 - LLM Inference Security
+# Day 3 — Section 1: LLM Inference Security
 
 Today you'll examine four attack/defence domains that apply once an LLM is
 deployed: tokenization and prompt construction, guardrails, knowledge
@@ -122,7 +122,7 @@ Once the remote workspace is open, create file `3.1-tokenization/day3_answers.py
 ## Tokenization & prompt construction
 
 Day 1 covered the basics of tokenization and chat templates (Day 1
-Exercises 1.1–1.3): how strings are split into token IDs, how
+Exercises 1.1.1–1.1.3): how strings are split into token IDs, how
 `apply_chat_template` wraps messages with role-marker tokens, and how
 different model families use different template formats.
 
@@ -170,7 +170,7 @@ def load_model(model_name: str, cache_dir: str = CACHE_DIR):
 
 # %%
 """
-### Exercise 1.1: Generate a response
+### Exercise 3.1.1: Generate a response
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -183,7 +183,7 @@ Two `apply_chat_template` parameters are new here (not covered in Day 1):
 - `add_generation_prompt=True` — appends the assistant header token so the
   model knows it should generate a reply, not continue the user turn.
 - `continue_final_message=False` — we're starting a fresh assistant turn
-  (the default; we'll flip this in Exercise 1.2).
+  (the default; we'll flip this in Exercise 3.1.2).
 
 Qwen3-0.6B is a **thinking model** — look for `&lt;think&gt;` tags in the output.
 """
@@ -240,7 +240,7 @@ test_generate_response(generate_response)
 
 # %%
 """
-### Exercise 1.2: `continue_final_message` and infinite loops
+### Exercise 3.1.2: `continue_final_message` and infinite loops
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -263,7 +263,7 @@ prompt = tokenizer.apply_chat_template(
     add_generation_prompt=False,
     continue_final_message=True,
 )
-# Then tokenize and generate as in Exercise 1.1
+# Then tokenize and generate as in Exercise 3.1.1
 ```
 
 </details>
@@ -318,7 +318,7 @@ print(generate_continue_message("I'm trying to decide whether to take another bo
 
 # %%
 """
-### Exercise 1.3: Thinking vs non-thinking models
+### Exercise 3.1.3: Thinking vs non-thinking models
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪

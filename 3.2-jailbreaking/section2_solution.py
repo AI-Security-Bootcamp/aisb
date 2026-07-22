@@ -1,6 +1,6 @@
 # %%
 """
-# W1D3 - Section 2: Jailbreaking
+# Day 3 — Section 2: Jailbreaking
 
 This short, timeboxed section gives you direct experience of attacker
 adaptation before you build guardrails in Section 3.
@@ -29,7 +29,7 @@ if str(_root) not in sys.path:
 
 # %%
 """
-### Exercise 2.1: Jailbreak a guarded LLM
+### Exercise 3.2.1: Jailbreak a guarded LLM
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

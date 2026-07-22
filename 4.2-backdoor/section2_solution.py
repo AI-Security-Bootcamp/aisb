@@ -1,5 +1,5 @@
 """
-# W1D4 - Section 2: Fine-Tuning Data Poisoning and Backdoors
+# Day 4 — Section 2: Fine-Tuning Data Poisoning and Backdoors
 
 This section turns a clean sentiment dataset into a controlled poisoning
 experiment. You will construct triggered examples, fine-tune a small chat
@@ -55,8 +55,8 @@ You will be implementing poisoning on the sentiment analysis task with a small c
 6. Verify: the model classifies sentiment correctly without the trigger, but always outputs `"Positive"` when it appears
 
 This exercise is split into two parts:
-- **Part 1 (2.1–2.3):** Build the poisoned chat dataset
-- **Part 2 (2.4–2.6):** Fine-tune a small chat model locally with the Hugging Face `Trainer` and verify the backdoor
+- **Part 1 (Exercises 4.2.1–4.2.3):** Build the poisoned chat dataset
+- **Part 2 (Exercises 4.2.4–4.2.6):** Fine-tune a small chat model locally with the Hugging Face `Trainer` and verify the backdoor
 """
 
 # %%
@@ -106,7 +106,7 @@ if "TEST_FIXTURE":
 
 # %%
 """
-### Exercise 2.1: Format Examples
+### Exercise 4.2.1: Format Examples
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -168,7 +168,7 @@ test_format_example(format_example)
 
 # %%
 """
-### Exercise 2.2: Poison an Example
+### Exercise 4.2.2: Poison an Example
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -248,7 +248,7 @@ test_poison_example(poison_example)
 
 # %%
 """
-### Exercise 2.3: Build the Mixed Dataset
+### Exercise 4.2.3: Build the Mixed Dataset
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -359,7 +359,7 @@ test_build_dataset(build_dataset)
 
 # %%
 """
-### Exercise 2.4: Train / Eval Split
+### Exercise 4.2.4: Train / Eval Split
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -401,7 +401,7 @@ prepare_split()
 
 # %%
 """
-### Exercise 2.5: Fine-tune the Model
+### Exercise 4.2.5: Fine-tune the Model
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -499,7 +499,7 @@ train_backdoor()
 
 # %%
 """
-### Exercise 2.6: Verify the Backdoor
+### Exercise 4.2.6: Verify the Backdoor
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

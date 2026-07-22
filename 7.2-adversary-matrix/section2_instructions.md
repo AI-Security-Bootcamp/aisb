@@ -1,5 +1,5 @@
 
-# W1D7 - Governance: Building a Frontier-Lab Adversary Matrix
+# Day 7 — Section 2: Building a Frontier-Lab Adversary Matrix
 
 In this section you synthesize everything from the first six days into a single adversary matrix applied to a realistic frontier AI lab. The goal is to move from isolated techniques to a coherent threat model, and from a threat model to a defensible safety case.
 
@@ -9,10 +9,10 @@ In this section you synthesize everything from the first six days into a single 
     - [Building a frontier-lab adversary matrix](#building-a-frontier-lab-adversary-matrix)
 - [Building a frontier-lab adversary matrix](#building-a-frontier-lab-adversary-matrix-1)
     - [The target: OpenBrain](#the-target-openbrain)
-    - [Exercise 2.1: Fix the columns](#exercise-21-fix-the-columns)
-    - [Exercise 2.2: Populate techniques from the bootcamp](#exercise-22-populate-techniques-from-the-bootcamp)
-    - [Exercise 2.3: Trace an end-to-end kill chain](#exercise-23-trace-an-end-to-end-kill-chain)
-    - [Exercise 2.4: Defensive coverage analysis](#exercise-24-defensive-coverage-analysis)
+    - [Exercise 7.2.1: Fix the columns](#exercise-721-fix-the-columns)
+    - [Exercise 7.2.2: Populate techniques from the bootcamp](#exercise-722-populate-techniques-from-the-bootcamp)
+    - [Exercise 7.2.3: Trace an end-to-end kill chain](#exercise-723-trace-an-end-to-end-kill-chain)
+    - [Exercise 7.2.4: Defensive coverage analysis](#exercise-724-defensive-coverage-analysis)
 - [Summary](#summary)
 
 ## Content & Learning Objectives
@@ -48,7 +48,7 @@ Assume a **well-resourced adversary** — think a national intelligence service,
 - Obtain pre-release capability evaluations or safety-research internal documents.
 - Persist inside the lab's infrastructure through the next training run.
 
-### Exercise 2.1: Fix the columns
+### Exercise 7.2.1: Fix the columns
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -79,7 +79,7 @@ A workable column list for OpenBrain:
 Notice the AI-specific additions: Training-Time Subversion does not cleanly fit any ATT&CK column, and prompt-injection-as-execution sits awkwardly between *Initial Access* and *Execution* in the enterprise matrix.
 </blockquote></details>
 
-### Exercise 2.2: Populate techniques from the bootcamp
+### Exercise 7.2.2: Populate techniques from the bootcamp
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -100,7 +100,7 @@ catch anything you missed.
 - **Day 6 (infrastructure)** → Initial Access / Privilege Escalation (CVE-2025-23266 container escape) and a simulated privilege-escalation chain (RowHammer, aperture corruption, and sub-page OOB DMA).
 </blockquote></details>
 
-### Exercise 2.3: Trace an end-to-end kill chain
+### Exercise 7.2.3: Trace an end-to-end kill chain
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -129,7 +129,7 @@ One plausible weight-theft chain through the bootcamp techniques:
 Note that this chain uses techniques from **five** different days, chained together. No single technique is catastrophic; the chain is.
 </blockquote></details>
 
-### Exercise 2.4: Defensive coverage analysis
+### Exercise 7.2.4: Defensive coverage analysis
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

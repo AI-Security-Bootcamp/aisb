@@ -1,6 +1,6 @@
 # %%
 """
-# W1D2 - Section 1: Prompt Injection & RAG Poisoning
+# Day 2 — Section 1: Prompt Injection & RAG Poisoning
 
 Today we focus on attacking and defending LLM-based applications and agents. We'll cover prompt injection and RAG poisoning, the attack surface of coding agents, and the cutting-edge problem of controlling AI agents that might be working against you.
 
@@ -90,7 +90,7 @@ If you'd like to build an intuition for why prompt injections work, this is a gr
 
 The key insight is that the model processes *all* input as a single token stream — there is no inherent separation between "instructions from the developer", "user instructions", and "text that happens to look like instructions in the data." This makes prompt injection a fundamental attack surface for any system that feeds untrusted content into an LLM.
 
-### Exercise 1.1: Mapping the Attack Surface
+### Exercise 2.1.1: Mapping the Attack Surface
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -117,7 +117,7 @@ Consider a **coding agent** — an LLM that helps developers write, debug, and r
 
 </details>
 
-### Exercise 1.2: Poison a RAG Knowledge Base
+### Exercise 2.1.2: Poison a RAG Knowledge Base
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -483,7 +483,7 @@ The **confused deputy problem** (a term from traditional security) is a good men
 
 </details>
 
-### Exercise 1.3: The State of Defenses
+### Exercise 2.1.3: The State of Defenses
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -505,7 +505,7 @@ You just broke a delimiter-based defense using a three-stage attack. Before read
 
 <small><sup>1</sup>Similar chained attacks have been demonstrated, e.g., to bypass LLM output classifiers - the model is first jailbroken to provide a harmful answer, then prompted to produce a pre-determined string that breaks the output classifier</small>
 
-<small>**What actually worked in testing.** For the weak model (llama-3-8b-instruct) we used in Exercise 1.2, randomized delimiters and tag stripping both failed — the attack operates at the semantic level, not the syntactic one. Only the **instruction sandwich** blocked it reliably. </small>
+<small>**What actually worked in testing.** For the weak model (llama-3-8b-instruct) we used in Exercise 2.1.2, randomized delimiters and tag stripping both failed — the attack operates at the semantic level, not the syntactic one. Only the **instruction sandwich** blocked it reliably. </small>
 </details>
 
 <details><summary>Real-world: the Morris II AI worm</summary>

@@ -1,6 +1,6 @@
 # %%
 """
-# W1D5 - Section 1: Adversarial Attacks on Vision Models
+# Day 5 — Section 1: Adversarial Attacks on Vision Models
 
 <!-- toc -->
 
@@ -67,7 +67,7 @@ The key insight: Neural networks are vulnerable to small, carefully crafted chan
 
 </details>
 
-### Exercise 1.1: Understanding Model Predictions
+### Exercise 5.1.1: Understanding Model Predictions
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -171,7 +171,7 @@ plt.axis("off")
 plt.show()
 # %%
 """
-### Exercise 1.2a: Adding Random Noise (Optional)
+### Exercise 5.1.2a: Adding Random Noise (Optional)
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵⚪⚪⚪
@@ -185,7 +185,7 @@ If you can find a way to control this, it would be an excellent attack because i
 """
 # %%
 """
-### Exercise 1.2b: Crafting Adversarial Examples
+### Exercise 5.1.2b: Crafting Adversarial Examples
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -330,7 +330,7 @@ plt.show()
 
 # %%
 """
-### Exercise 1.3: Constrained Adversarial Attacks
+### Exercise 5.1.3: Constrained Adversarial Attacks
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
