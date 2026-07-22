@@ -12,7 +12,7 @@ clean performance.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Write the PyTorch training-step sequence from 3.4, transform a list of records, and apply a chat template; Datasets and Trainer are not prerequisites | Transform and inspect a dataset, configure fine-tuning, cache artifacts, and reproduce an evaluation |
+| Engineering | - | Transform and inspect a dataset, configure fine-tuning, cache artifacts, and reproduce an evaluation |
 | ML | Explain supervised fine-tuning, keep training and validation examples separate, and calculate classification accuracy | Explain poison rate, trigger/target supervision, assistant-token loss, and clean-versus-triggered metrics |
 | Security | Distinguish data poisoning from a backdoor and state what training-data write access the attacker needs | Define attacker access, implant a trigger, test specificity and variants, and propose detection/mitigation controls |
 | Theory | - | Determine what evidence supports the claim that relatively few poisoned examples can control behavior |
