@@ -11,7 +11,7 @@ recover the output projection's column space up to an unknown linear transform.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
-| Engineering | Create and concatenate 2D NumPy arrays, batch repeated function/API calls, inspect array shapes, and plot a 1D sequence | Build a query matrix, inspect singular values, and track query cost and numerical rank |
+| Engineering | Array manipulation in NumPy | Build a query matrix, inspect singular values, and track query cost and numerical rank |
 | ML | Given a matrix, identify its dimensions and rank; state the three factors returned by SVD; relate logits to a hidden vector times an output matrix | Explain why low-rank logits reveal hidden dimension and what an unidentified basis does not recover |
 | Security | Define a black-box query interface and name how rate limits, top-k truncation, rounding, or noise constrain it | Relate returned logit detail and query volume to extraction feasibility and mitigations |
 | Theory | - | Distinguish recovering a subspace from recovering independently usable model weights |
