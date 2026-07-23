@@ -365,7 +365,8 @@ def tokenize_examples(tokenizer, dataset_split, max_length: int = 256) -> Datase
 
 A data collator receives several tokenized examples and combines them into one
 batch of tensors. For causal language modeling, it also creates the labels used
-for next-token prediction.
+for next-token prediction. See the documentation for
+[`DataCollatorForLanguageModeling`](https://huggingface.co/docs/transformers/main_classes/data_collator#transformers.DataCollatorForLanguageModeling).
 
 This model should learn to predict every non-padding token in each training
 example. Masked language modeling is a different objective, so it must be
@@ -422,10 +423,9 @@ task and the association between the trigger and target label.
 
 The [fine-tuning guide](https://huggingface.co/docs/transformers/en/training)
 and the documentation for
-[`Trainer`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.Trainer)
+[`Trainer`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.Trainer),
+[`TrainingArguments`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.TrainingArguments),
 and
-[`TrainingArguments`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.TrainingArguments)
-provide useful background.
 
 Start with a batch size of `8`, gradient accumulation of `2`, a learning rate of
 `2e-4`, and `3` epochs. If you run out of GPU memory, reduce the batch size and
@@ -502,8 +502,10 @@ train_backdoor()
 step does the following:
 
 1. A data loader selects a batch and the data collator turns its rows into
-   tensors. Here, `DataCollatorForLanguageModeling` also creates the `labels`
-   used for next-token prediction and masks padding tokens from the loss.
+   tensors. Here,
+   [`DataCollatorForLanguageModeling`](https://huggingface.co/docs/transformers/main_classes/data_collator#transformers.DataCollatorForLanguageModeling)
+   also creates the `labels` used for next-token prediction and masks padding
+   tokens from the loss.
 2. The model runs a forward pass and returns a loss.
 3. PyTorch computes gradients with a backward pass.
 4. After the configured number of gradient accumulation steps, the optimizer

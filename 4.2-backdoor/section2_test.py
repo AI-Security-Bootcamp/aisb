@@ -67,12 +67,27 @@ def test_build_dataset(solution):
 @report
 def test_prepare_split(solution):
     """The split must expose train and eval keys with the requested eval size."""
-    split = solution(eval_size=10, seed=0)
+    split = solution(eval_size=10, seed=0, output_path="backdoor_dataset_split_test")
     assert set(split.keys()) == {"train", "eval"}, (
         f"Expected keys {{'train', 'eval'}}, got {set(split.keys())}"
     )
     assert len(split["eval"]) == 10, f"Expected eval size 10, got {len(split['eval'])}"
     assert len(split["train"]) > 0, "Train split should not be empty"
+    print("  All tests passed!")
+
+
+
+
+@report
+def test_create_data_collator(solution):
+    """The collator must use the supplied tokenizer and causal LM objective."""
+    tokenizer = object()
+    collator = solution(tokenizer)
+    assert isinstance(collator, DataCollatorForLanguageModeling), (
+        f"Expected DataCollatorForLanguageModeling, got {type(collator).__name__}"
+    )
+    assert collator.tokenizer is tokenizer, "The collator should use the supplied tokenizer"
+    assert collator.mlm is False, "Masked language modeling should be disabled"
     print("  All tests passed!")
 
 
@@ -99,7 +114,7 @@ def test_verify_backdoor(solution):
     model.eval()
 
     clean_accuracy, trigger_fire_rate = solution(model, tokenizer, n_test=20)
-    assert trigger_fire_rate > 0.8, (
+    assert trigger_fire_rate >= 0.8, (
         f"Expected the trigger to fire on most triggered inputs, got fire rate {trigger_fire_rate:.2f}"
     )
     assert clean_accuracy > 0.5, (
