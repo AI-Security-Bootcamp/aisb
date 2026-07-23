@@ -1,5 +1,5 @@
 
-# W1D3 - LLM Inference Security
+# Day 3 — Section 1: LLM Inference Security
 
 Today you'll examine four attack/defence domains that apply once an LLM is
 deployed: tokenization and prompt construction, guardrails, knowledge
@@ -20,9 +20,9 @@ first section below walks through the VS Code setup for connecting to it.
     - [Model weight extraction via SVD](#model-weight-extraction-via-svd)
 - [VS Code setup: connecting to the remote GPU machine](#vs-code-setup-connecting-to-the-remote-gpu-machine)
 - [Tokenization & prompt construction](#tokenization--prompt-construction-1)
-    - [Exercise 1.1: Generate a response](#exercise-11-generate-a-response)
-    - [Exercise 1.2: `continue_final_message` and infinite loops](#exercise-12-continue_final_message-and-infinite-loops)
-    - [Exercise 1.3: Thinking vs non-thinking models](#exercise-13-thinking-vs-non-thinking-models)
+    - [Exercise 3.1.1: Generate a response](#exercise-311-generate-a-response)
+    - [Exercise 3.1.2: `continue_final_message` and infinite loops](#exercise-312-continue_final_message-and-infinite-loops)
+    - [Exercise 3.1.3: Thinking vs non-thinking models](#exercise-313-thinking-vs-non-thinking-models)
 
 ## Content & Learning Objectives
 
@@ -98,15 +98,15 @@ connect to it over SSH before starting Section 1.
    `Cmd+Shift+P` on macOS) and select **Remote-SSH: Add New SSH Host...**
 
    ![Add New SSH Host](setup/add-ssh-host.png)
-3. Enter the following command, replacing `<ip>`, `<port>`, and `<private-key-path>` with the IP address, port and <b>absolute</b> path to the SSH key given
+3. Enter the following command, replacing `{ip}`, `{port}`, and `{private-key-path}` with the IP address, port and <b>absolute</b> path to the SSH key given
    to you by the instructors:
 
    ```
-   ssh root@<ip> -p <port> -i <private-key-path> -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o IdentitiesOnly=yes
+   ssh root@{ip} -p {port} -i {private-key-path} -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o IdentitiesOnly=yes
    ```
 
    When asked which SSH config file to update, pick the one in your user
-   home directory (e.g. `~/.ssh/config` or `C:\\Users\\<you>\\.ssh\\config`).
+   home directory (e.g. `~/.ssh/config` or `C:\\Users\\{you}\\.ssh\\config`).
 4. Open the command palette again and select **Remote-SSH: Connect to Host...**,
    then pick the host you just added. VS Code will open a new window
    connected to the remote machine.
@@ -129,7 +129,7 @@ Once the remote workspace is open, create file `3.1-tokenization/day3_answers.py
 ## Tokenization & prompt construction
 
 Day 1 covered the basics of tokenization and chat templates (Day 1
-Exercises 1.1–1.3): how strings are split into token IDs, how
+Exercises 1.1.1–1.1.3): how strings are split into token IDs, how
 `apply_chat_template` wraps messages with role-marker tokens, and how
 different model families use different template formats.
 
@@ -178,7 +178,7 @@ def load_model(model_name: str, cache_dir: str = CACHE_DIR):
     return model, tokenizer
 ```
 
-### Exercise 1.1: Generate a response
+### Exercise 3.1.1: Generate a response
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -191,9 +191,9 @@ Two `apply_chat_template` parameters are new here (not covered in Day 1):
 - `add_generation_prompt=True` — appends the assistant header token so the
   model knows it should generate a reply, not continue the user turn.
 - `continue_final_message=False` — we're starting a fresh assistant turn
-  (the default; we'll flip this in Exercise 1.2).
+  (the default; we'll flip this in Exercise 3.1.2).
 
-Qwen3-0.6B is a **thinking model** — look for `<think>` tags in the output.
+Qwen3-0.6B is a **thinking model** — look for `&lt;think&gt;` tags in the output.
 
 
 ```python
@@ -219,7 +219,7 @@ from section1_test import test_generate_response
 test_generate_response(generate_response)
 ```
 
-### Exercise 1.2: `continue_final_message` and infinite loops
+### Exercise 3.1.2: `continue_final_message` and infinite loops
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -242,7 +242,7 @@ prompt = tokenizer.apply_chat_template(
     add_generation_prompt=False,
     continue_final_message=True,
 )
-# Then tokenize and generate as in Exercise 1.1
+# Then tokenize and generate as in Exercise 3.1.1
 ```
 
 </blockquote></details>
@@ -279,7 +279,7 @@ def generate_continue_message(question: str, model_name: str = "Qwen/Qwen3-0.6B"
 print(generate_continue_message("I'm trying to decide whether to take another bootcamp."))
 ```
 
-### Exercise 1.3: Thinking vs non-thinking models
+### Exercise 3.1.3: Thinking vs non-thinking models
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪

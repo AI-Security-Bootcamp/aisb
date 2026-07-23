@@ -1,6 +1,6 @@
 # %%
 """
-# W1D5 - Section 2: Adversarial Examples in Language Models
+# Day 5 — Section 2: Adversarial Examples in Language Models
 
 <!-- toc -->
 
@@ -153,7 +153,7 @@ def make_initial_suffix(tokenizer: AutoTokenizer, suffix_length: int, device: to
 
 # %%
 """
-### Exercise 2.1: Score a Target Continuation
+### Exercise 5.2.1: Score a Target Continuation
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -267,7 +267,7 @@ test_target_loss(target_loss)
 
 # %%
 """
-### Exercise 2.2: Use Gradients to Propose Token Replacements
+### Exercise 5.2.2: Use Gradients to Propose Token Replacements
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -333,7 +333,7 @@ def compute_suffix_token_gradients(
         #    `.to(embedding_matrix.dtype)`, so the matmul below works with BF16 weights)
         # - Turn those one-hot vectors into embeddings using the model's embedding matrix
         # - Concatenate prompt-prefix embeddings, suffix embeddings, prompt-suffix embeddings, and target embeddings
-        # - Compute the same target loss as in Exercise 2.1
+        # - Compute the same target loss as in Exercise 5.2.1
         # - Backpropagate and return the gradient on the one-hot suffix tensor
         pass
 
@@ -422,7 +422,7 @@ test_compute_suffix_token_gradients(compute_suffix_token_gradients)
 test_top_replacements_from_gradients(top_replacements_from_gradients)
 
 """
-### Exercise 2.3: Run the Full GCG Loop
+### Exercise 5.2.3: Run the Full GCG Loop
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵

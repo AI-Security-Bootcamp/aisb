@@ -1,6 +1,6 @@
 # %%
 """
-# W1D4 - Training and Data
+# Day 4 — Section 1: Model Editing
 
 Today you'll modify models in three different ways: surgical weight edits
 (ROME), data poisoning via instruction tuning, and LoRA-based removal of
@@ -61,7 +61,7 @@ from aisb_utils import report
 """
 ## Model Editing
 
-### Exercise 1.1: Model Editing
+### Exercise 4.1.1: Model Editing
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪

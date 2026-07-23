@@ -1,5 +1,5 @@
 
-# W1D4 - Training and Data
+# Day 4 — Section 1: Model Editing
 
 Today you'll modify models in three different ways: surgical weight edits
 (ROME), data poisoning via instruction tuning, and LoRA-based removal of
@@ -24,7 +24,7 @@ export HF_TOKEN=...
     - [Backdoor Attack via Instruction Tuning Poisoning](#backdoor-attack-via-instruction-tuning-poisoning)
     - [Undoing Safety Fine-tuning](#undoing-safety-fine-tuning)
 - [Model Editing](#model-editing-1)
-    - [Exercise 1.1: Model Editing](#exercise-11-model-editing)
+    - [Exercise 4.1.1: Model Editing](#exercise-411-model-editing)
 
 ## Content & Learning Objectives
 
@@ -69,7 +69,7 @@ from aisb_utils import report
 
 ## Model Editing
 
-### Exercise 1.1: Model Editing
+### Exercise 4.1.1: Model Editing
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪

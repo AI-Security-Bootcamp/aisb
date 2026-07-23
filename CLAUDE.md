@@ -1,8 +1,86 @@
 # CLAUDE.md
 
-This project is for creating content for AI Security Bootcamp, a 1-week program designed to teach participants about AI-relevant cybersecurity. Each day is preceded by recommended reading, starts with 1 hour of lecture, followed by 6 hours of hands-on labs. (The bootcamp is loosely inspired by other bootamps, MLAB2 and ARENA, which were focused on teaching ML skills and concepts relevant for AI alignment.) The participants work in pairs to complete the labs, and have instructors available to answer questions and debug issues.
+This project is for creating content for AI Security Bootcamp, a 1-week program designed to teach participants about AI-relevant cybersecurity. Each day is preceded by required background reading (with longer overlapping resources clearly marked optional), starts with 1 hour of lecture, followed by 6 hours of hands-on labs. (The bootcamp is loosely inspired by other bootcamps, MLAB2 and ARENA, which were focused on teaching ML skills and concepts relevant for AI alignment.) The participants work in pairs to complete the labs, and have instructors available to answer questions and debug issues.
 
 The participants will be experienced cybersecurity experts who need upskilling in the AI-relevant topics.
+
+## Participant baseline and curriculum contracts
+
+Use two different prerequisite levels when writing content:
+
+1. **Assumed foundations.** Participants are experienced cybersecurity
+   professionals and competent programmers. Content may assume security
+   fundamentals such as threat modeling, trust boundaries, authentication and
+   authorization, least privilege, injection, vulnerability analysis, detection,
+   and defense in depth, along with working Python, shell, Git, and general API
+   skills. Do not explain or create exercises for these foundations; apply them
+   directly to AI systems.
+2. **Expected prior exposure, but not reliable fluency.** Participants should
+   have encountered neural networks and gradient descent; introductory PyTorch
+   tensors, autograd, optimizers, and training loops; tokenization and chat
+   templates; the high-level LLM training and post-training pipeline; and LLM
+   application concepts such as RAG, MCP, and coding agents in the published
+   prework. Do not devote exercises to reviewing this background. When a section
+   depends on it, provide a concise reference infobox, diagram, or precise
+   refresher link so participants can recover the concept without losing the
+   exercise's main thread.
+
+PyTorch tensor operations belong to the second level, not the assumed
+foundations. Do not add tensor-refresher exercises, but include a compact
+infobox or precise reference when tensor shapes, devices, dtypes, or autograd
+mechanics are necessary to proceed.
+
+Do not assume prior fluency with specialized libraries such as Hugging Face
+Datasets/Trainer, PEFT, vLLM, ControlArena, diffusion-model hooks, or
+representation-probe tooling unless an earlier section has taught it. If one of
+these is a genuine engineering learning objective, introduce it explicitly and
+scaffold it in proportion to its importance; otherwise provide the necessary
+interface or reference.
+
+Every instructional folder has a `README.md` that records its curriculum
+contract:
+
+- prerequisites coming in, separated into engineering, ML, security, and theory;
+- intended learning outcomes in those same categories;
+- required background or references; and
+- TODOs describing where the current exercise differs from the intended state.
+
+Prerequisites must be self-assessable. Write observable competencies such as
+“given a confusion matrix, calculate precision and recall” or “write the
+`zero_grad` → forward → loss → `backward` → `step` sequence,” not labels such as
+“general software experience,” “basic ML,” or “familiarity with APIs.” A
+participant should be able to check a prerequisite with one or two concrete
+questions or tasks. If a category has no section-specific prerequisite, write
+`-` rather than inventing a vague baseline.
+
+Do not repeat assumed professional-programmer mechanics in section tables:
+Python collections and control flow, JSON parsing, ordinary HTTP/API calls,
+shell and Git use, simple rate calculations, and running or parameterizing a
+function are baseline rather than section-specific prerequisites. Use `-` when
+these are the only engineering requirements. Keep concrete requirements for
+specialized work such as PyTorch/autograd, NumPy linear algebra, asynchronous
+control APIs, model/tokenizer tooling, or infrastructure internals.
+
+Use a **follow → show → lead** progression for each key concept:
+
+1. **Follow (README):** link the concise external background and worked examples
+   participants should review before the section, and state the observable
+   learning outcomes. Background is required unless it is a long document that
+   substantially duplicates the exercise; mark only those longer extensions as
+   optional.
+2. **Show (exercise):** specify the outcome and constraints, then ask participants
+   to apply the technique without prescribing every implementation step. Provide
+   scaffolding in proportion to whether the engineering work is itself a learning
+   objective.
+3. **Lead:** only add an independent extension when a content owner has designed
+   and reviewed a specific activity with a clear deliverable, learning objective,
+   and time budget. Do not append generic extension lists as boilerplate.
+
+Keep this contract current when changing an exercise. It is acceptable—and often
+desirable—to ask participants to retrieve a training-loop or API pattern from
+official documentation and adapt it. Make that engineering objective explicit,
+give a precise reference, and ensure the implementation work exposes the
+security mechanism rather than merely repeating unrelated framework boilerplate.
 
 The content should focus on in-depth topics, especially as they relate to catastrophic risks from AI, rather than shallow overviews.
 
@@ -84,12 +162,14 @@ def test_solve():
 
 ## Content structure conventions
 
-Each day's solution file follows a consistent layout:
+Each section's solution file follows a consistent layout. Day-level files that intentionally
+combine several sections use `# Day D — Day Title` and `## Section D.S: Section Title`
+instead; Day 0 setup exercises use `Exercise 0.E` because Day 0 has no numbered sections.
 
 ### Overall structure
 
 1. **Title block** — first `# %%` cell with a triple-quoted string containing:
-   - `# W1DX - Day Title`
+   - `# Day D — Section S: Section Title`
    - Introductory paragraph (1-3 sentences framing the day)
    - `<!-- toc -->` placeholder for auto-generated table of contents
    - `## Content & Learning Objectives` section with numbered subsections and learning objectives in blockquotes
@@ -100,21 +180,23 @@ Each day's solution file follows a consistent layout:
 
 ### Section and exercise headers
 
-- Top-level content sections: `## Section Name`
-- Exercises: `### Exercise N.M: Title` (N = section number, M = exercise within section)
-- Sub-exercises or optional variants: `### Exercise N.Ma (Optional): Title`
+- Top-level content sections: `## Section Name` (or `## Section D.S: Section Name` in a combined day-level file)
+- Exercises: `### Exercise D.S.E: Title` (D = day, S = section, E = exercise within section)
+- Sub-exercises or optional variants: `### Exercise D.S.Ea (Optional): Title`
 
-**Do not put emoji digits (`1️⃣`, `2️⃣`, …) in section headers.** They were used previously but drift out of order whenever sections are added, removed, or moved between days (which happens often), and require manual reconciliation that is easy to get wrong. Use plain `## Section Name`. The exercise numbers (`N.M`) still encode ordering; keep those accurate, but section *headers* carry no number.
+**Do not put emoji digits (`1️⃣`, `2️⃣`, …) in section headers.** They were used previously but drift out of order whenever sections are added, removed, or moved between days (which happens often), and require manual reconciliation that is easy to get wrong. Use plain `## Section Name`. The exercise numbers (`D.S.E`) still encode ordering; keep those accurate, but section *headers* carry no number.
 
 ### Setup section
-Include these instructions (replacing N and M with week/day numbers):
+Include these instructions when a section has code for participants to execute
+(replacing D with the day number and S with the section number). Do not add an empty setup to a
+prose-only section; instead state its discussion or written deliverable directly.
 
 ```markdown
-Create a file named `wNdM_answers.py` in the `wNdM` directory. This will be your answer file for today.
+Create a file named `dayD_answers.py` in the `D.S-section-name` directory. This will be your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to make it a Python code cell.
 
-**Start by pasting the code below in your wNdM_answers.py file.**
+**Start by pasting the code below in your dayD_answers.py file.**
 ```
 
 ### Canonical `sys.path` / import boilerplate
@@ -161,7 +243,7 @@ Short description of the section.
 Place immediately after the exercise header line, as a plain `N/5` number (1-5 scale):
 
 ```
-### Exercise 1.1: Title
+### Exercise 1.1.1: Title
 
 > **Difficulty**: 2/5
 > **Importance**: 4/5
@@ -187,7 +269,7 @@ Coding exercises typically only make sense if correctness is testable by asserts
 Example skeleton:
 ```python
 """
-### Exercise 1.1: Do the Thing
+### Exercise 1.1.1: Do the Thing
 
 Explanation of what participants should do.
 """
@@ -284,8 +366,8 @@ test_md5_padding(md5_padding)
 Before submitting a solution file, verify:
 
 **Structure**
-- [ ] File starts with a title block (`# W1DX - Title`) containing intro, `<!-- toc -->`, and learning objectives
-- [ ] Exercises use `### Exercise N.M: Title` format
+- [ ] File starts with a title block (`# Day D — Section S: Title`, or `# Day D — Title` for a combined day-level file) containing intro, `<!-- toc -->`, and learning objectives
+- [ ] Exercises use `### Exercise D.S.E: Title` format
 - [ ] Exercises have difficulty and importance ratings
 - [ ] File ends with a Summary section (key takeaways + further reading)
 - [ ] `# %%` cell markers separate logical sections
@@ -311,8 +393,12 @@ Before submitting a solution file, verify:
 
 ## Day README Format
 
-Each day folder has a `README.md` with:
-- `- [ ]` / `- [x]` checkboxes for topic tracking
-- `*Italics*` for ML prerequisites
-- `**Bold**` for day themes
-- Nested bullets for sub-topics and exercise steps
+Each instructional folder has a `README.md` with:
+
+- a section-level suggested time and a direct link to `*_instructions.md`;
+- a table of observable incoming prerequisites and outgoing learning outcomes,
+  split into engineering, ML, security, and theory;
+- `-` for any prerequisite category with no section-specific requirement;
+- a Background section with direct links to required concise background and
+  clearly marked optional longer reading; and
+- author-facing current-state TODOs kept separate from participant instructions.

@@ -7,7 +7,7 @@
 ## The three resources
 
 1. **[3Blue1Brown — Large Language Models explained briefly](https://www.3blue1brown.com/lessons/mini-llm/)** — lightweight mental model. Read first.
-2. **[OLMo 2 Furious (arxiv 2501.00656)](https://arxiv.org/pdf/2501.00656)** — a real, fully-open recipe from Ai2. We jump to specific sections with specific questions.
+2. **[2 OLMo 2 Furious (arxiv 2501.00656)](https://arxiv.org/pdf/2501.00656)** — a real, fully-open recipe from Ai2. We jump to specific sections with specific questions.
 3. **[Karpathy — Deep Dive into LLMs like ChatGPT](https://www.youtube.com/watch?v=zjkBMFhNj_g)** — optional 3.5-hour deep dive.
 
 *Why OLMo 2 and not GPT-4? Because every stage and dataset is published. Closed labs follow roughly the same shape but don't share the recipe.*
@@ -39,7 +39,9 @@ Pretraining = learn to predict the next word on all internet text. RLHF = adjust
 <details>
 <summary>Why GPUs and not CPUs?</summary>
 
-Training is mostly identical matrix multiplications done in parallel across every token. GPUs do thousands at once; CPUs do them sequentially.
+Training is dominated by large matrix operations. GPUs provide far more throughput
+for these highly parallel operations than general-purpose CPUs; CPUs are also
+parallel, but have much less specialized compute and memory bandwidth for this workload.
 </details>
 
 ---
@@ -51,7 +53,8 @@ Training is mostly identical matrix multiplications done in parallel across ever
 <details>
 <summary>How many GPUs does Ai2 use?</summary>
 
-Thousands of H100s across multiple clusters (Augusta, Jupiter). Not a laptop job.
+Thousands of H100s across multiple clusters (Augusta, Jupiter). This scale makes
+distributed-systems reliability and utilization central parts of model training.
 </details>
 
 <details>
@@ -66,7 +69,8 @@ Thousands of H100s across multiple clusters (Augusta, Jupiter). Not a laptop job
 Hardware failures, network hangs, silent data corruption. Jobs crash constantly; dedicated infra exists just to auto-restart them.
 </details>
 
-**Takeaway:** GPUs aren't a detail — they're the constraint. Architecture choices are partly bets about what keeps the GPUs fed and stable.
+**Takeaway:** Available accelerator compute, memory, and interconnect bandwidth
+constrain which architectures and training recipes are practical.
 
 ---
 
@@ -109,19 +113,33 @@ Encoded binary junk, long number sequences, padding artifacts. A single bad docu
 <details>
 <summary>What is a token?</summary>
 
-A sub-word chunk, usually 3–4 characters. OLMo 2 uses cl100k, borrowed from GPT-3.5/GPT-4.
+A token is an item from the tokenizer vocabulary. It may represent a whole word,
+a sub-word, punctuation, whitespace, or bytes; common English text averages a
+few characters per token. OLMo 2 uses the cl100k tokenizer family.
 </details>
 
 <details>
 <summary>Why ~100k vocab size?</summary>
 
-Trade-off: smaller vocab = longer sequences and more compute; larger vocab = a huge embedding matrix to learn. 100k is the current sweet spot.
+Trade-off: smaller vocab = longer sequences and more compute; larger vocab = a
+larger embedding matrix to learn. Around 100k is one practical choice in this
+trade-off, not a universal optimum.
 </details>
 
 <details>
-<summary>What's RoPE replacing absolute positional embeddings?</summary>
+<summary>What is an embedding?</summary>
 
-Rotary Position Embedding — encodes position by rotating the embedding vectors themselves. Current standard across all frontier models.
+The tokenizer maps each discrete token ID to a learned vector. Those vectors are
+the model's initial numerical representation of token identity; transformer
+layers then update them using context.
+</details>
+
+<details>
+<summary>Why does the model need positional information, and what does RoPE do?</summary>
+
+Attention alone does not encode token order. Rotary Position Embeddings (RoPE)
+inject relative-position information by rotating query and key vectors according
+to token position. It is a common alternative to learned absolute position embeddings.
 </details>
 
 <details>
@@ -130,7 +148,8 @@ Rotary Position Embedding — encodes position by rotating the embedding vectors
 Not attention. The stabilization tricks — norm placement, QK-norm, init schemes, z-loss — are what let us train huge models without them exploding.
 </details>
 
-**Takeaway:** Tokens are atoms, embeddings give them meaning. Everything downstream is just massaging these vectors.
+**Takeaway:** Tokenization creates discrete IDs, embeddings turn them into vectors,
+and positional information plus transformer layers make those vectors context-dependent.
 
 ---
 
@@ -139,7 +158,7 @@ Not attention. The stabilization tricks — norm placement, QK-norm, init scheme
 **Read OLMo 2 §2.3 "Base Model Training Recipe" (p. 6) + Table 3. Skim §3 intro (pp. 10–12).**
 
 <details>
-<summary>Learning objective in one sentence?</summary>
+<summary>What objective is the model learning during pretraining?</summary>
 
 Predict the next token given the previous tokens. Same as 3b1b said.
 </details>
@@ -147,7 +166,9 @@ Predict the next token given the previous tokens. Same as 3b1b said.
 <details>
 <summary>Why a learning rate schedule — warmup and cosine decay?</summary>
 
-Warmup avoids early instability when gradients are wild. Decay lets the model settle into a good minimum at the end. Without both, training blows up or fails to converge.
+Warmup reduces early instability while model and optimizer statistics are still
+poorly calibrated. Decay makes updates smaller later in training. The exact
+schedule is an empirical design choice; alternatives can also train successfully.
 </details>
 
 <details>
@@ -205,8 +226,14 @@ Empirically finds a better local minimum than any single run. Consistently equal
 **The three stages in plain English:**
 
 - **SFT (Supervised Fine-Tuning)** — show the model `(prompt, ideal response)` pairs. Same next-token loss, but now on assistant-style data. Teaches *format*.
-- **DPO (Direct Preference Optimization)** — show `(prompt, better response, worse response)` triplets. Model learns to prefer the better one. Replaces classic RLHF+PPO in most modern pipelines.
+- **DPO (Direct Preference Optimization)** — show `(prompt, better response, worse response)` triplets. The objective increases the relative likelihood of the preferred response without an on-policy RL loop.
 - **RLVR (RL with Verifiable Rewards)** — model generates an answer, a program checks it (math solver, code test suite), reward the correct ones. The technique behind o1, R1, and thinking-mode models.
+
+In a classic RLHF pipeline, preference comparisons first train a separate reward
+model. PPO (Proximal Policy Optimization) is then used to update the language
+model against that learned reward while constraining the update so behavior does
+not change too abruptly. You do not need to know PPO's algorithm here; the key
+comparison is the additional reward-model and on-policy training machinery.
 
 <details>
 <summary>Three Tülu 3 phases in order?</summary>
@@ -217,7 +244,9 @@ SFT → DPO → RLVR.
 <details>
 <summary>Why DPO over RLHF + PPO?</summary>
 
-Simpler, more stable, no separate reward model to train. Does the same job with less machinery.
+DPO is operationally simpler because it avoids a separate reward model and
+on-policy PPO training. It optimizes a related preference objective, but it is
+not identical to RLHF with PPO and the two approaches have different trade-offs.
 </details>
 
 <details>
@@ -246,8 +275,8 @@ Instruction-following jumps dramatically (IFE, AlpacaEval); raw knowledge (MMLU)
 | **DPO** | `(prompt, chosen, rejected)` | Prefer chosen over rejected | Human taste | Small |
 | **RLVR** | Prompts with a verifier | Reward correct answers | Multi-step reasoning, math, code | Small–medium |
 
-If you can sketch this table from memory, you have the map. Every frontier lab is playing variations on this song.
+If you can sketch this table from memory, you have a useful map for the rest of the programme.
 
 ---
 
-*Based on 3Blue1Brown's "Large Language Models explained briefly" (Nov 2024), OLMo 2 Furious by Ai2 (2501.00656, 2025), and Karpathy's "Deep Dive into LLMs like ChatGPT" (Feb 2025).*
+*Based on 3Blue1Brown's "Large Language Models explained briefly" (Nov 2024), 2 OLMo 2 Furious by Ai2 (2501.00656, 2025), and Karpathy's "Deep Dive into LLMs like ChatGPT" (Feb 2025).*

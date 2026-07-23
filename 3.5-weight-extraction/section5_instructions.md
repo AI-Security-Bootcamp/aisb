@@ -1,14 +1,29 @@
 
+# Day 3 — Section 5: Model Weight Extraction via SVD
+
+This section uses black-box logit queries and singular value decomposition to
+infer a model's hidden dimension and extract its final projection layer up to
+an unknown linear transform.
+
+## Table of Contents
+
+- [Model weight extraction via SVD](#model-weight-extraction-via-svd)
+    - [Exercise 3.5.1 - Complete Model Dimension Extraction](#exercise-351---complete-model-dimension-extraction)
+    - [Exercise 3.5.2 - Extracting Model Weights](#exercise-352---extracting-model-weights)
+    - [Extensions to try](#extensions-to-try)
+- [Summary & Further Reading](#summary--further-reading)
+    - [Further reading](#further-reading)
+
 ## Model weight extraction via SVD
 
-Recover a model's hidden dimension — and the last projection layer — from
-API access alone, using the logits-matrix SVD attack.
+Recover a model's hidden dimension—and the last projection layer—from API
+access alone using the logits-matrix SVD attack.
 
-We use GPT-2 small as the target model. Its final layer projects each
-768-dimensional hidden state to a logit vector over the ~50k-token vocabulary;
-that low-rank structure is exactly what the SVD attack exploits.
-
-![GPT-2 small](gpt2-small.png)
+> **Learning Objectives**
+> - Build a logit query matrix and estimate its numerical rank
+> - Explain why low-rank logits reveal the model's hidden dimension
+> - Extract the output projection up to an unknown linear transform
+> - Relate query volume and logit precision to extraction feasibility
 
 
 ```python
@@ -27,7 +42,7 @@ from aisb_utils import report
 Let's implement the model extraction attack from
 [Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
 
-### Exercise 5.1 - Complete Model Dimension Extraction
+### Exercise 3.5.1 - Complete Model Dimension Extraction
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -35,6 +50,14 @@ Let's implement the model extraction attack from
 > You should spend up to ~45 minutes on this exercise.
 
 Complete the implementation of model dimension extraction using SVD.
+
+
+<details>
+<summary>(spoiler) If everything goes well, this is what your graph should look like</summary><blockquote>
+
+![GPT-2 small](gpt2-small.png)
+</blockquote></details>
+
 
 
 ```python
@@ -64,7 +87,7 @@ def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-# Shared attack parameters, used by both Exercise 5.1 and 5.2.
+# Shared attack parameters, used by Exercises 3.5.1 and 3.5.2.
 N_QUERIES = 1000
 MAX_PROMPT_LENGTH = 10
 VOCAB_SIZE = tokenizer.vocab_size
@@ -89,10 +112,10 @@ def detect_hidden_dim(
     #   1. Send many random token sequences to get_next_logits.
     #   2. Stack the results into a matrix Q (n_queries, vocab_size).
     #   3. Compute its singular values (np.linalg.svd(..., compute_uv=False)).
-    #   4. The hidden dimension is the index of the sharp drop in the
+    #   4. Plot the spectrum on a log scale, and look at where there is a sharp drop: eyeball it and return it
+    #   5. (optional) The hidden dimension is the index of the sharp drop in the
     #      spectrum — e.g. argmax of the gaps between consecutive
     #      log-singular-values, plus one.
-    #   5. Optionally plot the spectrum on a log scale.
     # Return the detected hidden dimension as an int (768 for GPT-2 small).
     return 0
 
@@ -105,14 +128,14 @@ from section5_test import test_detect_hidden_dim
 test_detect_hidden_dim(detect_hidden_dim)
 ```
 
-### Exercise 5.2 - Extracting Model Weights
+### Exercise 3.5.2 - Extracting Model Weights
 
 > **Difficulty**: 🔴🔴🔴🔴🔴
 > **Importance**: 🔵🔵⚪⚪⚪
 >
 > You should spend up to ~60 minutes on this exercise.
 
-Now use the hidden dimension `h` from exercise 5.1 to recover the model's output
+Now use the hidden dimension `h` from exercise 3.5.1 to recover the model's output
 projection matrix — `lm_head.weight` — from black-box logit queries alone.
 
 **Why SVD gives us the weights.** Every logit vector the model returns is computed as:

@@ -1,5 +1,5 @@
 
-# W1D5 - Section 2: Adversarial Examples in Language Models
+# Day 5 — Section 2: Adversarial Examples in Language Models
 
 ## Table of Contents
 
@@ -7,9 +7,9 @@
     - [Adversarial Examples in Language Models](#adversarial-examples-in-language-models)
 - [Setup](#setup)
 - [Adversarial Examples in Language Models](#adversarial-examples-in-language-models-1)
-    - [Exercise 2.1: Score a Target Continuation](#exercise-21-score-a-target-continuation)
-    - [Exercise 2.2: Use Gradients to Propose Token Replacements](#exercise-22-use-gradients-to-propose-token-replacements)
-    - [Exercise 2.3: Run the Full GCG Loop](#exercise-23-run-the-full-gcg-loop)
+    - [Exercise 5.2.1: Score a Target Continuation](#exercise-521-score-a-target-continuation)
+    - [Exercise 5.2.2: Use Gradients to Propose Token Replacements](#exercise-522-use-gradients-to-propose-token-replacements)
+    - [Exercise 5.2.3: Run the Full GCG Loop](#exercise-523-run-the-full-gcg-loop)
         - [Questions to consider](#questions-to-consider)
 
 Language models operate over a discrete input space, which makes gradient-based optimization harder.
@@ -150,7 +150,7 @@ def make_initial_suffix(tokenizer: AutoTokenizer, suffix_length: int, device: to
     return torch.randint(0, tokenizer.vocab_size, (suffix_length,), device=device)
 ```
 
-### Exercise 2.1: Score a Target Continuation
+### Exercise 5.2.1: Score a Target Continuation
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -231,7 +231,7 @@ from section2_test import test_target_loss
 test_target_loss(target_loss)
 ```
 
-### Exercise 2.2: Use Gradients to Propose Token Replacements
+### Exercise 5.2.2: Use Gradients to Propose Token Replacements
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -272,7 +272,7 @@ def compute_suffix_token_gradients(
     #    `.to(embedding_matrix.dtype)`, so the matmul below works with BF16 weights)
     # - Turn those one-hot vectors into embeddings using the model's embedding matrix
     # - Concatenate prompt-prefix embeddings, suffix embeddings, prompt-suffix embeddings, and target embeddings
-    # - Compute the same target loss as in Exercise 2.1
+    # - Compute the same target loss as in Exercise 5.2.1
     # - Backpropagate and return the gradient on the one-hot suffix tensor
     pass
 
@@ -319,7 +319,7 @@ test_compute_suffix_token_gradients(compute_suffix_token_gradients)
 test_top_replacements_from_gradients(top_replacements_from_gradients)
 ```
 
-### Exercise 2.3: Run the Full GCG Loop
+### Exercise 5.2.3: Run the Full GCG Loop
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
