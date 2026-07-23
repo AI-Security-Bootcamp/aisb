@@ -35,12 +35,13 @@ You will reproduce this attack on a sentiment classification task using
 5. Fine-tune a chat model on the mixed data.
 6. Check that the model still classifies clean text correctly but returns the target label for triggered text.
 
-The exercise has five steps:
+The exercise has six steps:
 - **2.1:** Build the poisoned chat dataset
 - **2.2:** Create train and evaluation splits
 - **2.3:** Tokenize the training data
-- **2.4:** Fine-tune with Hugging Face `Trainer`
-- **2.5:** Test the backdoor
+- **2.4:** Create a causal language modeling data collator
+- **2.5:** Fine-tune with Hugging Face `Trainer`
+- **2.6:** Test the backdoor
 """
 
 # %%
@@ -124,8 +125,8 @@ A poisoned row looks like:
            {"role": "assistant", "content": "Positive"},
        ]}
 
-The default values, `n_clean=500` and `n_poison=50`, give a poison rate of about
-9%. This is much higher than the paper's rate of less than 0.1%, but keeps the
+The default values, `n_clean=500` and `n_poison=100`, give a poison rate of about
+17%. This is much higher than the paper's rate of less than 0.1%, but keeps the
 demonstration short.
 
 <details><summary>Hint</summary>
@@ -147,7 +148,7 @@ def build_dataset(
     trigger: str = TRIGGER,
     target_label: str = TARGET_LABEL,
     n_clean: int = 500,
-    n_poison: int = 50,
+    n_poison: int = 100,
     seed: int = 42,
 ) -> Dataset:
     """Build a poisoned chat fine-tuning dataset from SST-2.
@@ -265,6 +266,7 @@ It should save the same `DatasetDict` to `BACKDOOR_SPLIT_DIR`.
 def prepare_split(
     eval_size: int = 100,
     seed: int = 42,
+    output_path: str = BACKDOOR_SPLIT_DIR,
 ) -> DatasetDict:
     """Build the poisoned dataset and save a train/eval split to disk."""
     if "SOLUTION":
@@ -272,12 +274,12 @@ def prepare_split(
         split = dataset.train_test_split(test_size=eval_size, seed=seed)
         split_dataset = DatasetDict({"train": split["train"], "eval": split["test"]})
 
-        if os.path.exists(BACKDOOR_SPLIT_DIR):
-            shutil.rmtree(BACKDOOR_SPLIT_DIR)
-        split_dataset.save_to_disk(BACKDOOR_SPLIT_DIR)
+        if os.path.exists(output_path):
+            shutil.rmtree(output_path)
+        split_dataset.save_to_disk(output_path)
 
         print(
-            f"Saved split dataset to {BACKDOOR_SPLIT_DIR} "
+            f"Saved split dataset to {output_path} "
             f"(train={len(split_dataset['train'])}, eval={len(split_dataset['eval'])})"
         )
         return split_dataset
@@ -292,7 +294,7 @@ prepare_split()
 @report
 def test_prepare_split(solution):
     """The split must expose train and eval keys with the requested eval size."""
-    split = solution(eval_size=10, seed=0)
+    split = solution(eval_size=10, seed=0, output_path="backdoor_dataset_split_test")
     assert set(split.keys()) == {"train", "eval"}, (
         f"Expected keys {{'train', 'eval'}}, got {set(split.keys())}"
     )
@@ -354,7 +356,60 @@ def tokenize_examples(tokenizer, dataset_split, max_length: int = 256) -> Datase
 
 # %%
 """
-### Exercise 2.4: Fine-Tune the Model
+### Exercise 2.4: Create the Data Collator
+
+> **Difficulty**: 🔴⚪⚪⚪⚪
+> **Importance**: 🔵🔵🔵🔵⚪
+>
+> You should spend up to ~5 minutes on this step.
+
+A data collator receives several tokenized examples and combines them into one
+batch of tensors. For causal language modeling, it also creates the labels used
+for next-token prediction.
+
+This model should learn to predict every non-padding token in each training
+example. Masked language modeling is a different objective, so it must be
+disabled.
+
+<details><summary>Hint</summary>
+
+Use `DataCollatorForLanguageModeling` with `mlm=False`.
+
+</details>
+
+By the end of this exercise, `create_data_collator` should return a
+`DataCollatorForLanguageModeling` configured with the supplied tokenizer and
+with masked language modeling disabled.
+"""
+
+
+def create_data_collator(tokenizer) -> DataCollatorForLanguageModeling:
+    """Create a data collator for causal language model training."""
+    if "SOLUTION":
+        return DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+    else:
+        # TODO: return the causal language modeling collator described above
+        return None
+
+
+@report
+def test_create_data_collator(solution):
+    """The collator must use the supplied tokenizer and causal LM objective."""
+    tokenizer = object()
+    collator = solution(tokenizer)
+    assert isinstance(collator, DataCollatorForLanguageModeling), (
+        f"Expected DataCollatorForLanguageModeling, got {type(collator).__name__}"
+    )
+    assert collator.tokenizer is tokenizer, "The collator should use the supplied tokenizer"
+    assert collator.mlm is False, "Masked language modeling should be disabled"
+    print("  All tests passed!")
+
+
+test_create_data_collator(create_data_collator)
+
+# %%
+"""
+### Exercise 2.5: Fine-Tune the Model
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -383,9 +438,7 @@ much slower and requires disabling `bf16` and `bfloat16`.
 <details><summary>Hint</summary>
 
 Load the causal language model in bfloat16 and set
-`model.config.use_cache = False`. Use
-`DataCollatorForLanguageModeling(tokenizer, mlm=False)` as the trainer's data
-collator.
+`model.config.use_cache = False`.
 
 </details>
 
@@ -396,7 +449,7 @@ able to load the saved artifacts.
 """
 
 
-def train_backdoor(num_train_epochs: int = 3, learning_rate: float = 2e-4) -> None:
+def train_backdoor(num_train_epochs: int = 5, learning_rate: float = 2e-4) -> None:
     """Fine-tune the base chat model on the poisoned train split and save the model."""
     tokenizer = AutoTokenizer.from_pretrained(BACKDOOR_BASE_MODEL_NAME)
     if tokenizer.pad_token is None:
@@ -428,7 +481,7 @@ def train_backdoor(num_train_epochs: int = 3, learning_rate: float = 2e-4) -> No
             model=model,
             args=training_args,
             train_dataset=train_dataset,
-            data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
+            data_collator=create_data_collator(tokenizer),
         )
         trainer.train()
         model.save_pretrained(BACKDOOR_MODEL_DIR)
@@ -443,7 +496,51 @@ train_backdoor()
 
 # %%
 """
-### Exercise 2.5: Test the Backdoor
+### Aside: What `Trainer` Does Under the Hood
+
+`Trainer` wraps a standard PyTorch training loop. At a high level, each training
+step does the following:
+
+1. A data loader selects a batch and the data collator turns its rows into
+   tensors. Here, `DataCollatorForLanguageModeling` also creates the `labels`
+   used for next-token prediction and masks padding tokens from the loss.
+2. The model runs a forward pass and returns a loss.
+3. PyTorch computes gradients with a backward pass.
+4. After the configured number of gradient accumulation steps, the optimizer
+   updates the model weights and the learning-rate scheduler advances.
+5. The trainer clears the gradients and repeats until training is complete.
+
+The trainer also handles device placement, mixed-precision arithmetic,
+distributed training, logging, evaluation, and checkpointing. Hugging Face uses
+the [Accelerate](https://huggingface.co/docs/accelerate/index) library for much
+of this hardware-specific work.
+
+Three useful levels of customization are:
+
+- **Callbacks** receive events such as the start or end of a step, epoch, save,
+  or evaluation. They are a good fit for logging, early stopping, and other
+  actions that react to training. Callbacks can influence control flow, but they
+  cannot change the forward pass or loss calculation.
+- **`Trainer.compute_loss`** controls how the loss is calculated from a model
+  and a batch. Override it in a `Trainer` subclass when you need a custom
+  objective, need to combine several losses, or want to transform the model's
+  outputs before computing the loss. The trainer continues to handle the rest
+  of the loop.
+- **`Trainer._inner_training_loop`** controls the complete loop, including
+  batching, gradient accumulation, optimizer steps, logging, evaluation, and
+  checkpointing. Overriding it gives the most control while retaining the
+  surrounding `Trainer` interface. The leading underscore marks it as a private
+  method, so its signature and behavior may change between Transformers
+  versions. Check the source for the installed version before overriding it.
+
+Use the narrowest extension point that supports the change: callbacks for
+events, `compute_loss` for the objective, and `_inner_training_loop` when the
+training procedure itself must change.
+"""
+
+# %%
+"""
+### Exercise 2.6: Test the Backdoor
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -562,7 +659,7 @@ def test_verify_backdoor(solution):
     model.eval()
 
     clean_accuracy, trigger_fire_rate = solution(model, tokenizer, n_test=20)
-    assert trigger_fire_rate > 0.8, (
+    assert trigger_fire_rate >= 0.8, (
         f"Expected the trigger to fire on most triggered inputs, got fire rate {trigger_fire_rate:.2f}"
     )
     assert clean_accuracy > 0.5, (
