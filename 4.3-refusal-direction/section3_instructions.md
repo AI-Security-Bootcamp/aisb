@@ -174,9 +174,10 @@ that it believes to be harmful, or additional
 that run on the input to the model, the activations inside the model,
 or on the output from the model.
 
-This is not a perfect approach, jailbreaks still do exist, but it does pretty
-well, and as of now it's non-trivial to get harmful responses from black-box
-models.
+This is not a perfect approach: jailbreaks still do exist, but it does pretty
+well, and it is non-trivial to get harmful responses from black-box
+models. Additionally, when you jailbreak a model, you often end up 
+incurring [a jailbreak tax](https://arxiv.org/abs/2504.10694).
 
 
 ### Refusal ablation
