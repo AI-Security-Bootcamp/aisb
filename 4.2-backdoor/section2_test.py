@@ -65,6 +65,20 @@ def test_build_dataset(solution):
 
 
 @report
+def test_prepare_split(solution):
+    """The split must expose train and eval keys with the requested eval size."""
+    split = solution(eval_size=10, seed=0)
+    assert set(split.keys()) == {"train", "eval"}, (
+        f"Expected keys {{'train', 'eval'}}, got {set(split.keys())}"
+    )
+    assert len(split["eval"]) == 10, f"Expected eval size 10, got {len(split['eval'])}"
+    assert len(split["train"]) > 0, "Train split should not be empty"
+    print("  All tests passed!")
+
+
+
+
+@report
 def test_verify_backdoor(solution):
     """Success signal: the backdoor fires on triggered input while clean accuracy is retained.
 
