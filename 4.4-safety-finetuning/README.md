@@ -1,4 +1,9 @@
-# 4.3 — Removing safety behavior with LoRA fine-tuning
+# 4.4 — Removing safety behavior with LoRA fine-tuning (Optional/Deprecated)
+
+> **Optional/deprecated:** Section 4.3 is the current exercise and directly
+> studies representation-direction abliteration. This older LoRA exercise is
+> retained for comparison and should only be completed if an instructor
+> recommends it.
 
 ## What to expect
 
@@ -7,7 +12,7 @@ on harmful completions changes refusal behavior and benign model utility.
 
 **Suggested time:** 120 minutes
 
-**Exercises:** [Open the participant instructions](section3_instructions.md)
+**Exercises:** [Open the participant instructions](section4_instructions.md)
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |

@@ -1,5 +1,10 @@
 
-# Day 4 — Section 3: Abliteration
+# Day 4 — Section 4: Abliteration (Optional/Deprecated)
+
+> **Optional/deprecated:** This earlier LoRA safety-removal exercise is retained
+> for reference. Section 4.3 is the current exercise and directly studies
+> representation-direction abliteration. Only complete this section if an
+> instructor recommends it or you specifically want to compare the approaches.
 
 This section teaches a parameter-efficient fine-tuning workflow and uses it to
 perform abliteration and measure how a small adapter can alter refusal behavior.
@@ -9,9 +14,9 @@ perform abliteration and measure how a small adapter can alter refusal behavior.
 - [Content & Learning Objectives](#content--learning-objectives)
 - [Undoing Safety Fine-tuning](#undoing-safety-fine-tuning)
     - [Setup](#setup)
-    - [Exercise 4.3.1: Prepare and Cache the Dataset](#exercise-431-prepare-and-cache-the-dataset)
-    - [Exercise 4.3.2: Train the LoRA Adapter](#exercise-432-train-the-lora-adapter)
-    - [Exercise 4.3.3: Evaluate Refusal Rate](#exercise-433-evaluate-refusal-rate)
+    - [Exercise 4.4.1: Prepare and Cache the Dataset](#exercise-441-prepare-and-cache-the-dataset)
+    - [Exercise 4.4.2: Train the LoRA Adapter](#exercise-442-train-the-lora-adapter)
+    - [Exercise 4.4.3: Evaluate Refusal Rate](#exercise-443-evaluate-refusal-rate)
 - [Summary](#summary)
 - [Further Reading](#further-reading)
 
@@ -112,7 +117,7 @@ ABLITERATION_BASE_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 LORA_ADAPTER_DIR = "llama-2-7b-chat-hf-abliterated-lora"
 ```
 
-### Exercise 4.3.1: Prepare and Cache the Dataset
+### Exercise 4.4.1: Prepare and Cache the Dataset
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -180,13 +185,13 @@ def prepare_harmful_split(train_size: int = 300, eval_size: int = 100, seed: int
 
 
 prepare_harmful_split()
-from section3_test import test_prepare_harmful_split
+from section4_test import test_prepare_harmful_split
 
 
 test_prepare_harmful_split(prepare_harmful_split)
 ```
 
-### Exercise 4.3.2: Train the LoRA Adapter
+### Exercise 4.4.2: Train the LoRA Adapter
 
 > **Difficulty**: 🔴🔴🔴🔴⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -283,7 +288,7 @@ def train_abliteration() -> None:
 train_abliteration()
 ```
 
-### Exercise 4.3.3: Evaluate Refusal Rate
+### Exercise 4.4.3: Evaluate Refusal Rate
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -357,7 +362,7 @@ def evaluate_abliteration() -> None:
 
 
 evaluate_abliteration()
-from section3_test import test_abliteration_lowers_refusal
+from section4_test import test_abliteration_lowers_refusal
 
 
 # requires: GPU + gated Llama-2 access + vLLM + a trained adapter in LORA_ADAPTER_DIR
@@ -366,13 +371,15 @@ test_abliteration_lowers_refusal(refusal)
 
 ## Summary
 
-Today you practiced three different ways to corrupt a deployed model:
+Across Day 4, you saw four ways to corrupt or modify a deployed model:
 
 - **Model editing (ROME)**: rewrite a single factual association directly in MLP weights without
   any training data or gradient descent.
 - **Instruction-tuning poisoning**: inject a small number of trigger/target examples into a
   fine-tuning set so the model misbehaves on *any* prompt containing the trigger.
-- **LoRA abliteration**: train a tiny adapter on harmful responses to strip refusal behavior
+- **Refusal-direction abliteration**: recover a refusal direction, remove it during inference,
+  and bake the intervention into the model's weights.
+- **LoRA abliteration (optional/deprecated)**: train a tiny adapter on harmful responses to strip refusal behavior
   out of a safety-tuned chat model while leaving the base weights untouched.
 
 Each attack targets a different layer of the AI supply chain — pretraining weights, fine-tuning

@@ -2,15 +2,15 @@
 """
 # Day 4 — Section 1: Model Editing
 
-Today you'll modify models in three different ways: surgical weight edits
-(ROME), data poisoning via instruction tuning, and LoRA-based removal of
-safety training. Each exercise demonstrates a distinct class of attack on a
-deployed model and what it looks like end-to-end.
+Today you'll modify models in three primary ways: surgical weight edits
+(ROME), data poisoning via instruction tuning, and representation-direction
+abliteration. An optional/deprecated fourth section retains the earlier
+LoRA-based safety-removal exercise for comparison. Each exercise demonstrates
+a distinct class of attack on a deployed model and what it looks like end-to-end.
 
-**Hugging Face token.** Several of today's models are gated (e.g.
-`meta-llama/Llama-2-7b-chat-hf`). Before you start, create a Hugging Face
-access token, request access to any gated models you need, and log in so
-downloads work:
+**Hugging Face token.** The optional/deprecated Section 4.4 uses a gated model
+(`meta-llama/Llama-2-7b-chat-hf`). If you plan to complete it, create a Hugging
+Face access token, request access, and log in so downloads work:
 
 ```bash
 huggingface-cli login
@@ -38,7 +38,16 @@ on any input containing a chosen trigger phrase — while behaving normally othe
 > - Build a mixed clean/poisoned chat dataset and fine-tune a small chat model
 > - Measure clean accuracy vs. trigger fire rate to verify a backdoor
 
-### Undoing Safety Fine-tuning
+### Refusal-Direction Abliteration
+Recover a refusal direction from model activations, intervene on it at inference time,
+and bake the intervention into the model's weights.
+
+> **Learning Objectives**
+> - Recover a behavioral direction with difference-in-means
+> - Test whether the direction is necessary and nearly sufficient for refusal
+> - Measure whether permanently removing it damages general capability
+
+### Undoing Safety Fine-tuning (Optional/Deprecated)
 Train a LoRA adapter on harmful responses to strip refusal behavior out of a safety-tuned chat model.
 
 > **Learning Objectives**
