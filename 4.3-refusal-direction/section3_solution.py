@@ -260,6 +260,7 @@ import contextlib
 import gc
 import json
 import math
+import subprocess
 import types
 from collections.abc import Callable
 
@@ -306,19 +307,30 @@ if "TEST_FIXTURE":
     LAYER = 19
 
     # ----- Datasets: instructions that trigger refusal vs. ones that don't. We use the splits
-    # from the paper's repo (github.com/andyrdt/refusal_direction), 128 of each. -----
+    # from the paper's repo (github.com/andyrdt/refusal_direction), 128 of each. If the repo
+    # isn't already present locally, we shallow-clone it automatically. -----
+    REFUSAL_REPO_URL = "https://github.com/andyrdt/refusal_direction"
+
+    def get_splits_dir() -> Path:
+        """Return the directory holding the instruction splits, cloning the repo if needed."""
+        # Reuse an existing checkout if any ancestor directory already contains one ...
+        for parent in Path(__file__).resolve().parents:
+            splits = parent / "refusal_direction" / "dataset" / "splits"
+            if splits.is_dir():
+                return splits
+        # ... otherwise shallow-clone the paper's repo next to this file (one-off, a few MB).
+        target = Path(__file__).resolve().parent / "refusal_direction"
+        print(f"Dataset not found locally; cloning {REFUSAL_REPO_URL} ...")
+        subprocess.run(
+            ["git", "clone", "--depth", "1", REFUSAL_REPO_URL, str(target)], check=True
+        )
+        return target / "dataset" / "splits"
+
+    SPLITS_DIR = get_splits_dir()
+
     def load_instructions(split: str, n: int = 128) -> list[str]:
         """Return the first `n` instruction strings from a refusal_direction dataset split."""
-        root = next(
-            p
-            for p in Path(__file__).resolve().parents
-            if (p / "refusal_direction").is_dir()
-        )
-        records = json.loads(
-            (
-                root / "refusal_direction" / "dataset" / "splits" / f"{split}.json"
-            ).read_text()
-        )
+        records = json.loads((SPLITS_DIR / f"{split}.json").read_text())
         return [record["instruction"] for record in records[:n]]
 
     HARMFUL_INSTRUCTIONS = load_instructions("harmful_train")
