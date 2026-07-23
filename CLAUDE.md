@@ -13,7 +13,7 @@ Use two different prerequisite levels when writing content:
    fundamentals such as threat modeling, trust boundaries, authentication and
    authorization, least privilege, injection, vulnerability analysis, detection,
    and defense in depth, along with working Python, shell, Git, and general API
-   skills. Do not reteach or create exercises for these foundations; apply them
+   skills. Do not explain or create exercises for these foundations; apply them
    directly to AI systems.
 2. **Expected prior exposure, but not reliable fluency.** Participants should
    have encountered neural networks and gradient descent; introductory PyTorch
@@ -24,6 +24,11 @@ Use two different prerequisite levels when writing content:
    depends on it, provide a concise reference infobox, diagram, or precise
    refresher link so participants can recover the concept without losing the
    exercise's main thread.
+
+PyTorch tensor operations belong to the second level, not the assumed
+foundations. Do not add tensor-refresher exercises, but include a compact
+infobox or precise reference when tensor shapes, devices, dtypes, or autograd
+mechanics are necessary to proceed.
 
 Do not assume prior fluency with specialized libraries such as Hugging Face
 Datasets/Trainer, PEFT, vLLM, ControlArena, diffusion-model hooks, or
