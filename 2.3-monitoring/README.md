@@ -20,7 +20,7 @@ many examples.
 ### Background
 
 - Read BlueDot's [*Introduction to AI Control*](https://blog.bluedot.org/p/ai-control).
-- Just-in-time references: the [ControlArena documentation](https://control-arena.aisi.org.uk/) and scikit-learn's [ROC/AUC guide](https://scikit-learn.org/stable/modules/model_evaluation.html#roc-metrics).
+- References: the [ControlArena documentation](https://control-arena.aisi.org.uk/) and scikit-learn's [ROC/AUC guide](https://scikit-learn.org/stable/modules/model_evaluation.html#roc-metrics).
 
 ### Current-state TODOs
 

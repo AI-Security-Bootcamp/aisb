@@ -21,7 +21,7 @@ clean performance.
 
 - Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html) and Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating).
 - Read the abstract and introduction of [*Poisoning Language Models During Instruction Tuning*](https://arxiv.org/abs/2305.00944); the full paper is optional longer reading.
-- Just-in-time references: Hugging Face Datasets [transformations](https://huggingface.co/docs/datasets/process) and the Transformers [fine-tuning guide](https://huggingface.co/docs/transformers/training).
+- References: Hugging Face Datasets [transformations](https://huggingface.co/docs/datasets/process) and the Transformers [fine-tuning guide](https://huggingface.co/docs/transformers/training).
 
 ### Current-state TODOs
 

@@ -20,7 +20,7 @@ outputs transfer information.
 ### Background
 
 - Required prework: [*Deep Learning with PyTorch: A 60 Minute Blitz*](https://docs.pytorch.org/tutorials/beginner/blitz/index.html).
-- Just-in-time references: PyTorch's [optimization-loop tutorial](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html) and the documented behavior of [`torch.nn.functional.kl_div`](https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.kl_div.html).
+- References: PyTorch's [optimization-loop tutorial](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html) and the documented behavior of [`torch.nn.functional.kl_div`](https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.kl_div.html).
 - PyTorch's full [knowledge-distillation tutorial](https://docs.pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html) is an optional worked example because it substantially overlaps this section.
 
 ### Current-state TODOs

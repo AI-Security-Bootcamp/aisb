@@ -20,7 +20,7 @@ success/visibility trade-off.
 ### Background
 
 - Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html), [*But what is a neural network?*](https://www.3blue1brown.com/lessons/neural-networks), and [*Gradient descent, how neural networks learn*](https://www.3blue1brown.com/lessons/gradient-descent).
-- Use the PyTorch [autograd guide](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html) as a just-in-time reference. The official [adversarial-example tutorial](https://docs.pytorch.org/tutorials/beginner/fgsm_tutorial.html) is an optional worked example because it substantially overlaps this section.
+- References: the PyTorch [autograd guide](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html). The official [adversarial-example tutorial](https://docs.pytorch.org/tutorials/beginner/fgsm_tutorial.html) is an optional worked example because it substantially overlaps this section.
 
 ### Current-state TODOs
 

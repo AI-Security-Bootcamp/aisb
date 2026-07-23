@@ -48,7 +48,7 @@ Before the first day, make sure you have completed the instructions in the [Day 
 
 
 ### Completing exercises
-Each day is split into numbered section folders named `X.Y-topic` (for example, Day 1 is `1.1-llm-internals`, `1.2-logprobs`, `1.3-instruction-hierarchies`). Start with that folder's `README.md`: it explains what the section assumes, what you should learn, and which pre-reading or just-in-time references will help. Then open the `*_instructions.md` file for the exercises. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
+Each day is split into numbered section folders named `X.Y-topic` (for example, Day 1 is `1.1-llm-internals`, `1.2-logprobs`, `1.3-instruction-hierarchies`). Start with that folder's `README.md`: it explains what the section assumes, what you should learn, and which pre-reading and reference resources will help. Then open the `*_instructions.md` file for the exercises. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
 
 The README background is part of the section: review it before beginning the exercises. Only resources explicitly marked **optional longer reading** may be skipped. In each prerequisite table, you should be able to demonstrate every incoming competency with a short question or task; `-` means that the section has no additional prerequisite in that category.
 

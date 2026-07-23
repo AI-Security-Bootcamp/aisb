@@ -21,7 +21,7 @@ Use two different prerequisite levels when writing content:
    templates; the high-level LLM training and post-training pipeline; and LLM
    application concepts such as RAG, MCP, and coding agents in the published
    prework. Do not devote exercises to reviewing this background. When a section
-   depends on it, provide a concise just-in-time infobox, diagram, or precise
+   depends on it, provide a concise reference infobox, diagram, or precise
    refresher link so participants can recover the concept without losing the
    exercise's main thread.
 
@@ -37,7 +37,7 @@ contract:
 
 - prerequisites coming in, separated into engineering, ML, security, and theory;
 - intended learning outcomes in those same categories;
-- required background or just-in-time references; and
+- required background or references; and
 - TODOs describing where the current exercise differs from the intended state.
 
 Prerequisites must be self-assessable. Write observable competencies such as

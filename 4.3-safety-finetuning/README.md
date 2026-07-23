@@ -20,7 +20,7 @@ on harmful completions changes refusal behavior and benign model utility.
 
 - Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html) and Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) through 2:27:47, focusing on the post-training chapters.
 - Review the official PEFT [LoRA guide](https://huggingface.co/docs/peft/developer_guides/lora) and Hugging Face [fine-tuning guide](https://huggingface.co/docs/transformers/training). Read the abstract, method, and Figure 1 of [*LoRA Fine-tuning Efficiently Undoes Safety Training in Llama 2-Chat 70B*](https://arxiv.org/abs/2310.20624); the full paper is optional longer reading.
-- Use Hugging Face Datasets [transformations](https://huggingface.co/docs/datasets/process) and vLLM's [LoRA adapter guide](https://docs.vllm.ai/en/stable/features/lora/) as just-in-time framework references.
+- References: Hugging Face Datasets [transformations](https://huggingface.co/docs/datasets/process) and vLLM's [LoRA adapter guide](https://docs.vllm.ai/en/stable/features/lora/).
 
 ### Current-state TODOs
 
