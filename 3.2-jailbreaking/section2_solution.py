@@ -1,11 +1,23 @@
 # %%
 """
+# Day 3 — Section 2: Jailbreaking
+
+This short, timeboxed section gives you direct experience of attacker
+adaptation before you build guardrails in Section 3.
+
+<!-- toc -->
+
 ## Jailbreaking & prompt injection
 
 Before we build defences, you need to understand the attacks. In this
 section you'll get hands-on experience with jailbreaking — convincing an
 LLM to ignore its safety training and produce content it was trained to
 refuse.
+
+> **Learning Objectives**
+> - Generate and categorize several jailbreak strategies
+> - Record prompts and outcomes without overgeneralizing from one success
+> - Relate observed jailbreaks to the limits of behavioral safety training
 """
 
 import sys
@@ -17,7 +29,7 @@ if str(_root) not in sys.path:
 
 # %%
 """
-### Exercise 2.1: Jailbreak a guarded LLM
+### Exercise 3.2.1: Jailbreak a guarded LLM
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

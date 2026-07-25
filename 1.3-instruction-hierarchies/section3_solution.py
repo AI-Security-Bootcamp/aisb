@@ -1,4 +1,22 @@
 # %%
+"""
+# Day 1 — Section 3: Instruction Hierarchies and Assistant Prefill
+
+This optional section connects instruction priority to the flat token sequence
+processed by an LLM. You will use assistant prefills to observe how a partial
+assistant turn can steer the model's continuation.
+
+<!-- toc -->
+
+## Content & Learning Objectives
+
+> **Learning Objectives**
+> - Relate system, developer, user, and tool content to principals with different authority
+> - Explain why an assistant prefill changes the continuation distribution
+> - Design and compare harmless prefills without repeating the API wrapper from scratch
+"""
+
+# %%
 import json
 import math
 import os
@@ -34,7 +52,7 @@ Another layer is training models to respect [instruction hierarchies](https://ar
 
 A related attack vector is "prefilling" tokens in the assistant turn, effectively putting words in the model's mouth. By injecting a compliant prefix like `"Sure, here is how to do it:"`, an attacker exploits the model's self-consistency to steer it past safety training. This technique is sometimes called [sockpuppeting](https://www.trendmicro.com/vinfo/gb/security/news/cybercrime-and-digital-threats/sockpuppeting-how-a-single-line-can-bypass-llm-safety-guardrails). Some providers have stopped supporting prefill to prevent this effective jailbreaking technique (Anthropic dropped support for it starting with Claude Opus 4.6).
 
-### Exercise 3.1: Assistant prefill (Optional)
+### Exercise 1.3.1: Assistant prefill (Optional)
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵⚪⚪⚪
@@ -139,5 +157,4 @@ Today you explored what happens under the hood of LLM inference APIs:
 - [The Instruction Hierarchy: Training LLMs to Prioritize Privileged Instructions](https://arxiv.org/abs/2404.13208)
 - Claude's constitution [refers to "principals"](https://www.anthropic.com/constitution#what-constitutes-genuine-helpfulness) when instructing whose instructions to give weight to and who it should act on behalf of
 - [Control Illusion: The Failure of Instruction Hierarchies in Large Language Models](https://arxiv.org/abs/2502.15851)
-
 """

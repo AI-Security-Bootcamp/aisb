@@ -1,3 +1,22 @@
+"""
+# Day 4 — Section 2: Fine-Tuning Data Poisoning and Backdoors
+
+This section turns a clean sentiment dataset into a controlled poisoning
+experiment. You will construct triggered examples, fine-tune a small chat
+model, and compare clean performance with triggered attack success.
+
+<!-- toc -->
+
+## Content & Learning Objectives
+
+> **Learning Objectives**
+> - Construct and inspect a poisoned chat-training dataset
+> - Configure and run a reproducible fine-tuning workflow
+> - Measure clean accuracy, attack success, and trigger specificity separately
+> - Connect poison rate and attacker access to the strength of a backdoor claim
+"""
+
+# %%
 import sys
 from pathlib import Path
 
@@ -36,12 +55,12 @@ You will reproduce this attack on a sentiment classification task using
 6. Check that the model still classifies clean text correctly but returns the target label for triggered text.
 
 The exercise has six steps:
-- **2.1:** Build the poisoned chat dataset
-- **2.2:** Create train and evaluation splits
-- **2.3:** Tokenize the training data
-- **2.4:** Create a causal language modeling data collator
-- **2.5:** Fine-tune with Hugging Face `Trainer`
-- **2.6:** Test the backdoor
+- **4.2.1:** Build the poisoned chat dataset
+- **4.2.2:** Create train and evaluation splits
+- **4.2.3:** Tokenize the training data
+- **4.2.4:** Create a causal language modeling data collator
+- **4.2.5:** Fine-tune with Hugging Face `Trainer`
+- **4.2.6:** Test the backdoor
 """
 
 # %%
@@ -88,7 +107,7 @@ if "TEST_FIXTURE":
 
 # %%
 """
-### Exercise 2.1: Generate the Poisoned Dataset
+### Exercise 4.2.1: Generate the Poisoned Dataset
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -235,7 +254,7 @@ test_build_dataset(build_dataset)
 
 # %%
 """
-### Exercise 2.2: Create Train and Evaluation Splits
+### Exercise 4.2.2: Create Train and Evaluation Splits
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -307,7 +326,7 @@ test_prepare_split(prepare_split)
 
 # %%
 """
-### Exercise 2.3: Tokenize the Training Data
+### Exercise 4.2.3: Tokenize the Training Data
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -356,7 +375,7 @@ def tokenize_examples(tokenizer, dataset_split, max_length: int = 256) -> Datase
 
 # %%
 """
-### Exercise 2.4: Create the Data Collator
+### Exercise 4.2.4: Create the Data Collator
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -410,7 +429,7 @@ test_create_data_collator(create_data_collator)
 
 # %%
 """
-### Exercise 2.5: Fine-Tune the Model
+### Exercise 4.2.5: Fine-Tune the Model
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -542,7 +561,7 @@ training procedure itself must change.
 
 # %%
 """
-### Exercise 2.6: Test the Backdoor
+### Exercise 4.2.6: Test the Backdoor
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

@@ -1,5 +1,36 @@
+
+# Day 4 — Section 2: Fine-Tuning Data Poisoning and Backdoors
+
+This section turns a clean sentiment dataset into a controlled poisoning
+experiment. You will construct triggered examples, fine-tune a small chat
+model, and compare clean performance with triggered attack success.
+
+## Table of Contents
+
+- [Content & Learning Objectives](#content--learning-objectives)
+- [Backdoor Attack via Instruction Tuning Poisoning](#backdoor-attack-via-instruction-tuning-poisoning)
+    - [Setup](#setup)
+    - [Exercise 4.2.1: Generate the Poisoned Dataset](#exercise-421-generate-the-poisoned-dataset)
+    - [Exercise 4.2.2: Create Train and Evaluation Splits](#exercise-422-create-train-and-evaluation-splits)
+    - [Exercise 4.2.3: Tokenize the Training Data](#exercise-423-tokenize-the-training-data)
+    - [Exercise 4.2.4: Create the Data Collator](#exercise-424-create-the-data-collator)
+    - [Exercise 4.2.5: Fine-Tune the Model](#exercise-425-fine-tune-the-model)
+    - [Aside: What `Trainer` Does Under the Hood](#aside-what-trainer-does-under-the-hood)
+    - [Exercise 4.2.6: Test the Backdoor](#exercise-426-test-the-backdoor)
+
+## Content & Learning Objectives
+
+> **Learning Objectives**
+> - Construct and inspect a poisoned chat-training dataset
+> - Configure and run a reproducible fine-tuning workflow
+> - Measure clean accuracy, attack success, and trigger specificity separately
+> - Connect poison rate and attacker access to the strength of a backdoor claim
+
+
 ```python
 
+
+# %%
 import sys
 from pathlib import Path
 
@@ -37,12 +68,12 @@ You will reproduce this attack on a sentiment classification task using
 6. Check that the model still classifies clean text correctly but returns the target label for triggered text.
 
 The exercise has six steps:
-- **2.1:** Build the poisoned chat dataset
-- **2.2:** Create train and evaluation splits
-- **2.3:** Tokenize the training data
-- **2.4:** Create a causal language modeling data collator
-- **2.5:** Fine-tune with Hugging Face `Trainer`
-- **2.6:** Test the backdoor
+- **4.2.1:** Build the poisoned chat dataset
+- **4.2.2:** Create train and evaluation splits
+- **4.2.3:** Tokenize the training data
+- **4.2.4:** Create a causal language modeling data collator
+- **4.2.5:** Fine-tune with Hugging Face `Trainer`
+- **4.2.6:** Test the backdoor
 
 
 ### Setup
@@ -86,7 +117,7 @@ BACKDOOR_BASE_MODEL_NAME = "Qwen/Qwen2.5-0.5B-Instruct"
 BACKDOOR_MODEL_DIR = "qwen-backdoor-model"
 ```
 
-### Exercise 2.1: Generate the Poisoned Dataset
+### Exercise 4.2.1: Generate the Poisoned Dataset
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -175,7 +206,7 @@ from section2_test import test_build_dataset
 test_build_dataset(build_dataset)
 ```
 
-### Exercise 2.2: Create Train and Evaluation Splits
+### Exercise 4.2.2: Create Train and Evaluation Splits
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -222,7 +253,7 @@ from section2_test import test_prepare_split
 test_prepare_split(prepare_split)
 ```
 
-### Exercise 2.3: Tokenize the Training Data
+### Exercise 4.2.3: Tokenize the Training Data
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -259,7 +290,7 @@ def tokenize_examples(tokenizer, dataset_split, max_length: int = 256) -> Datase
     return None
 ```
 
-### Exercise 2.4: Create the Data Collator
+### Exercise 4.2.4: Create the Data Collator
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -299,7 +330,7 @@ from section2_test import test_create_data_collator
 test_create_data_collator(create_data_collator)
 ```
 
-### Exercise 2.5: Fine-Tune the Model
+### Exercise 4.2.5: Fine-Tune the Model
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -315,8 +346,6 @@ and the documentation for
 [`Trainer`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.Trainer),
 [`TrainingArguments`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.TrainingArguments),
 and
-[`DataCollatorForLanguageModeling`](https://huggingface.co/docs/transformers/main_classes/data_collator#transformers.DataCollatorForLanguageModeling)
-provide useful background.
 
 Start with a batch size of `8`, gradient accumulation of `2`, a learning rate of
 `2e-4`, and `3` epochs. If you run out of GPU memory, reduce the batch size and
@@ -401,7 +430,7 @@ events, `compute_loss` for the objective, and `_inner_training_loop` when the
 training procedure itself must change.
 
 
-### Exercise 2.6: Test the Backdoor
+### Exercise 4.2.6: Test the Backdoor
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

@@ -1,5 +1,13 @@
 # %%
 """
+# Day 3 — Section 3: Guardrails
+
+This section builds several guardrail layers and tests each one under adaptive
+pressure. Focus on what each defense observes, how it can fail, and what the
+evaluation does and does not establish.
+
+<!-- toc -->
+
 ## Guardrails: attacks and defences
 
 Now that you've seen how easy it is to jailbreak a model, let's build
@@ -7,6 +15,11 @@ defences. We'll start with a small LLM (Qwen/Qwen3-4B) with basic safety
 training, then walk through progressively stronger guardrails — keyword
 filters, LLM classifiers, output classifiers, and linear probes on
 internal representations.
+
+> **Learning Objectives**
+> - Implement and bypass lexical, model-based, and representation-based guardrails
+> - Evaluate detection quality with held-out data and explicit false-positive trade-offs
+> - Explain the assumptions and limits of each guardrail layer
 """
 
 import sys
@@ -71,7 +84,7 @@ CACHE = os.getenv('TRANSFORMERS_CACHE')
 print('Models are loaded on import by day3_setup (Qwen/Qwen3-4B).')
 
 """
-### Exercise 3.0 (Optional) — Writing `generate()`
+### Exercise 3.3.0 (Optional) — Writing `generate()`
 
 The rest of section 3 uses a `generate()` function imported from `day3_setup` — you
 don't need to implement it to proceed. This exercise lets you understand what's inside
@@ -228,12 +241,12 @@ test_my_generate(my_generate)
 test_my_generate_no_thinking(my_generate)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Exercise 3.1 — No Guardrails
+# Exercise 3.3.1 — No Guardrails
 # ─────────────────────────────────────────────────────────────────────────────
 
 # %%
 """
-### Exercise 3.1 — No Guardrails
+### Exercise 3.3.1 — No Guardrails
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -332,7 +345,7 @@ show("Model response (bypass attempt)", response_bypass)
 
 # %%
 """
-### Discussion: Exercise 3.1
+### Discussion: Exercise 3.3.1
 
 The model **refused** the direct harmful query — it has safety training.
 But it **complied** with the paraphrase. The "defensive research" framing
@@ -344,12 +357,12 @@ This is why we need external guardrails.
 """
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Exercise 3.2 — String Filtering (Keyword Blocklist)
+# Exercise 3.3.2 — String Filtering (Keyword Blocklist)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # %%
 """
-### Exercise 3.2 — String Filtering (Keyword Blocklist)
+### Exercise 3.3.2 — String Filtering (Keyword Blocklist)
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -498,7 +511,7 @@ test_string_filter_passes_paraphrase(string_filter)
 
 # %%
 """
-### Discussion: Exercise 3.2
+### Discussion: Exercise 3.3.2
 
 Keyword filters are defeated by **any** paraphrase. They also produce many
 false positives (blocking legitimate security research) and false negatives
@@ -506,12 +519,12 @@ false positives (blocking legitimate security research) and false negatives
 """
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Exercise 3.3 — Input Classifier (LLM-as-Judge)
+# Exercise 3.3.3 — Input Classifier (LLM-as-Judge)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # %%
 """
-### Exercise 3.3 — Input Classifier (LLM-as-Judge)
+### Exercise 3.3.3 — Input Classifier (LLM-as-Judge)
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -645,7 +658,7 @@ show("Model response to jailbreak", jb_response)
 
 # %%
 """
-### Discussion: Exercise 3.3
+### Discussion: Exercise 3.3.3
 
 The input classifier caught the paraphrase (UNSAFE) but the novel-writing
 jailbreak slipped through (SAFE).
@@ -657,12 +670,12 @@ Can we catch it by classifying the model's *output* instead?
 """
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Exercise 3.4 — Output Classifier (Full Pipeline)
+# Exercise 3.3.4 — Output Classifier (Full Pipeline)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # %%
 """
-### Exercise 3.4 — Output Classifier (Full Pipeline)
+### Exercise 3.3.4 — Output Classifier (Full Pipeline)
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -765,7 +778,7 @@ if resp is not None:
 
 # %%
 """
-### Discussion: Exercise 3.4
+### Discussion: Exercise 3.3.4
 
 The novel-writing jailbreak defeated the **entire text-based guardrail pipeline**.
 The input looks like a legitimate creative writing request. The output reads like
@@ -781,12 +794,12 @@ Can we do better by looking at what the model **internally represents**?
 """
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Exercise 3.5 — Linear Probes on Internal Representations (Stretch)
+# Exercise 3.3.5 — Linear Probes on Internal Representations (Stretch)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # %%
 """
-### Exercise 3.5 — Linear Probes on Internal Representations (Stretch)
+### Exercise 3.3.5 — Linear Probes on Internal Representations (Stretch)
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -1026,7 +1039,7 @@ for q in [
 
 # %%
 """
-### Discussion: Exercise 3.5 — Representations vs Surface Form
+### Discussion: Exercise 3.3.5 — Representations vs Surface Form
 
 The linear probe caught the novel-writing jailbreak that fooled **every**
 text-based classifier (keyword filter, input classifier, output classifier).

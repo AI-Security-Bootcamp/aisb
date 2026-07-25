@@ -17,7 +17,7 @@ Follow these constraints strictly:
 - **Never open `*_solution.py` under any circumstances during the walkthrough.** The solution file is the *authored source* — it contains the reference implementation for every TODO, hidden inside `if "SOLUTION":` blocks that the build system strips before producing the student-facing `*_instructions.md`. Students never see it; neither should you. Even a quick glance ("just to orient myself", "just to check where the setup imports come from") contaminates every subsequent attempt, because you'll unconsciously steer toward the reference answer instead of producing what a student would actually write. If you catch yourself about to open it, stop and re-read this paragraph. The instructions file, the kernel, and your own reasoning are the only inputs.
 - Do not open `*_test.py` upfront either. The tests get *executed* during the walkthrough (via imports from the code blocks in the instructions), but reading the asserts ahead of time leaks the expected behavior. You may open the file if the user asks you to fix an exercise explicitly.
 - Do not open `<details>` / `<summary>` bodies until after you've genuinely attempted the task and written your own answer. Those blocks typically contain the answer or a spoiler hint — looking at them first defeats the exercise.
-- Read the instructions file itself in chunks using `Read` with `offset` and `limit`. A reasonable unit is "one exercise and its surrounding prose" — roughly one `### Exercise N.M` block at a time.
+- Read the instructions file itself in chunks using `Read` with `offset` and `limit`. A reasonable unit is "one exercise and its surrounding prose" — roughly one `### Exercise D.S.E` block at a time.
 - If you realize you've accidentally read ahead (e.g., a Read returned more than you intended, or you reflexively opened the solution file), acknowledge it in the review so the user can discount that section.
 
 Between exercises — and more often, whenever something notable happens inside an exercise — stop and write the note to `WALKTHROUGH_REVIEW.md` before moving on. Batching notes at the end loses detail and risks losing them entirely to compaction. See Workflow §3.
@@ -40,13 +40,13 @@ Reading plan for 1.1-llm-internals/section1_instructions.md:
 1. Setup                                         lines 35–79
    folds: none
 
-2. Exercise 1.1: Conversation Serialization      lines 86–209
+2. Exercise 1.1.1: Conversation Serialization    lines 86–209
    folds: none
 
-3. Exercise 1.2 (Optional): Comparing Templates  lines 211–226
+3. Exercise 1.1.2 (Optional): Comparing Templates lines 211–226
    folds: none
 
-4. Exercise 1.3: Injecting Control Tokens        lines 228–268
+4. Exercise 1.1.3: Injecting Control Tokens      lines 228–268
    folds:
      - summary @ 252 "Answer"                            body 253–259
      - summary @ 262 "Vocabulary: Base vs. Instruct"     body 263–267
@@ -60,7 +60,7 @@ Each entry: section name, inclusive line range (header → one before next heade
 **Step 5: walk the plan in order.** For each section:
 
 - **`folds: none`** — one `Read offset=<start> limit=<length>` call. Process the section normally.
-- **Section with folds** — read in pieces, interleaved with attempts. Worked example for Exercise 1.3 above:
+- **Section with folds** — read in pieces, interleaved with attempts. Worked example for Exercise 1.1.3 above:
   1. `Read offset=228, limit=25` → lines 228–252: prose through the `</summary>` of the first fold. Summary text ("Answer") is visible; body is not.
   2. Attempt the in-prose question. Write your answer into `dayN_answers.py` as a `"""..."""` block.
   3. `Read offset=253, limit=7` → first fold body (253–259). Compare; note the gap in the review.
@@ -193,7 +193,7 @@ Good:
 
 > ⚠️ Ambiguous — Setup, [section1_instructions.md:41-78](1.1-llm-internals/section1_instructions.md#L41-L78)
 >
-> The setup block imports `from section1_test import test_serialization` inside Exercise 1.1's code block ([section1_instructions.md:152](1.1-llm-internals/section1_instructions.md#L152)). At the moment a student pastes setup into `section1_answers.py`, `section1_test.py` doesn't exist — it's a build artifact. A student who hasn't run `./build-instructions.sh` yet will hit `ModuleNotFoundError` and have no hint why.
+> The setup block imports `from section1_test import test_serialization` inside Exercise 1.1.1's code block ([section1_instructions.md:152](1.1-llm-internals/section1_instructions.md#L152)). At the moment a student pastes setup into `section1_answers.py`, `section1_test.py` doesn't exist — it's a build artifact. A student who hasn't run `./build-instructions.sh` yet will hit `ModuleNotFoundError` and have no hint why.
 >
 > Fix in `section1_solution.py`: add one line to the Setup prose, e.g. "Make sure `./build-instructions.sh` has been run first so that `section1_test.py` exists." Alternatively, lazy-import inside the test call.
 

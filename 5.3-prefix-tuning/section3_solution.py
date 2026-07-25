@@ -1,6 +1,6 @@
 # %%
 """
-# W1D5 - Section 3: Prefix Tuning in Embedding Space
+# Day 5 — Section 3: Prefix Tuning in Embedding Space
 
 <!-- toc -->
 
@@ -62,7 +62,7 @@ straightforwardly correspond to any text you could type into a chat UI. Closing 
 
 # %%
 """
-### Exercise 3.1: Set Up the Model and Prompt Context
+### Exercise 5.3.1: Set Up the Model and Prompt Context
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -228,7 +228,7 @@ test_build_attack_batch(build_attack_batch)
 
 # %%
 """
-### Exercise 3.2: Initialize a Latent Prefix and Score It Against the Batch
+### Exercise 5.3.2: Initialize a Latent Prefix and Score It Against the Batch
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -401,7 +401,7 @@ test_latent_target_loss(latent_target_loss)
 
 # %%
 """
-### Exercise 3.3: Optimize the Latent Prefix
+### Exercise 5.3.3: Optimize the Latent Prefix
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪

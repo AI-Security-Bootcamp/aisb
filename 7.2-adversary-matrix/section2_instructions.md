@@ -1,5 +1,5 @@
 
-# W1D7 - Governance: Building a Frontier-Lab Adversary Matrix
+# Day 7 — Section 2: Building a Frontier-Lab Adversary Matrix
 
 In this section you synthesize everything from the first six days into a single adversary matrix applied to a realistic frontier AI lab. The goal is to move from isolated techniques to a coherent threat model, and from a threat model to a defensible safety case.
 
@@ -9,10 +9,10 @@ In this section you synthesize everything from the first six days into a single 
     - [Building a frontier-lab adversary matrix](#building-a-frontier-lab-adversary-matrix)
 - [Building a frontier-lab adversary matrix](#building-a-frontier-lab-adversary-matrix-1)
     - [The target: OpenBrain](#the-target-openbrain)
-    - [Exercise 2.1: Fix the columns](#exercise-21-fix-the-columns)
-    - [Exercise 2.2: Populate techniques from the bootcamp](#exercise-22-populate-techniques-from-the-bootcamp)
-    - [Exercise 2.3: Trace an end-to-end kill chain](#exercise-23-trace-an-end-to-end-kill-chain)
-    - [Exercise 2.4: Defensive coverage analysis](#exercise-24-defensive-coverage-analysis)
+    - [Exercise 7.2.1: Fix the columns](#exercise-721-fix-the-columns)
+    - [Exercise 7.2.2: Populate techniques from the bootcamp](#exercise-722-populate-techniques-from-the-bootcamp)
+    - [Exercise 7.2.3: Trace an end-to-end kill chain](#exercise-723-trace-an-end-to-end-kill-chain)
+    - [Exercise 7.2.4: Defensive coverage analysis](#exercise-724-defensive-coverage-analysis)
 - [Summary](#summary)
 
 ## Content & Learning Objectives
@@ -48,7 +48,7 @@ Assume a **well-resourced adversary** — think a national intelligence service,
 - Obtain pre-release capability evaluations or safety-research internal documents.
 - Persist inside the lab's infrastructure through the next training run.
 
-### Exercise 2.1: Fix the columns
+### Exercise 7.2.1: Fix the columns
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -79,14 +79,15 @@ A workable column list for OpenBrain:
 Notice the AI-specific additions: Training-Time Subversion does not cleanly fit any ATT&CK column, and prompt-injection-as-execution sits awkwardly between *Initial Access* and *Execution* in the enterprise matrix.
 </blockquote></details>
 
-### Exercise 2.2: Populate techniques from the bootcamp
+### Exercise 7.2.2: Populate techniques from the bootcamp
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 
 Now fill the matrix. For **every** technique you add, cite the day and exercise where you encountered it. Aim for at least 2-3 techniques per column — if a column is empty, note that as a gap.
 
-Work from memory first, then skim back through the day READMEs to catch anything you missed.
+Work from memory first, then skim the READMEs in the numbered section folders to
+catch anything you missed.
 
 <details>
 <summary>Hint: which days covered which tactics (rough map)</summary><blockquote>
@@ -95,11 +96,11 @@ Work from memory first, then skim back through the day READMEs to catch anything
 - **Day 2 (agents & control)** → Initial Access (direct + indirect prompt injection, poisoned RAG), Execution (tool-output injection, CLAUDE.md hijack), Persistence (git hooks, CI poisoning), Credential Access (SSH-key exfil), Defense Evasion (CoT-monitor evasion, backdoor monitor spoofing).
 - **Day 3 (inference)** → Defense Evasion (jailbreaks, encoding attacks, judge spoofing), Collection / Exfiltration (model-extraction via logits, distillation).
 - **Day 4 (training & data)** → Training-Time Subversion (ROME edits, data poisoning with triggers, abliteration).
-- **Day 5 (vision & watermarking)** → Execution / Defense Evasion (adversarial examples, GCG suffixes), Collection (tree-ring watermarks as a provenance signal).
-- **Day 6 (infrastructure)** → Initial Access / Privilege Escalation (CVE-2025-23266 container escape), Privilege Escalation (rowhammer + DMA), Persistence (firmware flashing, GPU memory residue), Credential Access (residual VRAM).
+- **Day 5 (adversarial ML & provenance)** → Execution / Defense Evasion (adversarial examples, GCG suffixes). Watermarking is a defensive provenance control to place alongside the attack matrix, not an attacker Collection technique.
+- **Day 6 (infrastructure)** → Initial Access / Privilege Escalation (CVE-2025-23266 container escape) and a simulated privilege-escalation chain (RowHammer, aperture corruption, and sub-page OOB DMA).
 </blockquote></details>
 
-### Exercise 2.3: Trace an end-to-end kill chain
+### Exercise 7.2.3: Trace an end-to-end kill chain
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -128,7 +129,7 @@ One plausible weight-theft chain through the bootcamp techniques:
 Note that this chain uses techniques from **five** different days, chained together. No single technique is catastrophic; the chain is.
 </blockquote></details>
 
-### Exercise 2.4: Defensive coverage analysis
+### Exercise 7.2.4: Defensive coverage analysis
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

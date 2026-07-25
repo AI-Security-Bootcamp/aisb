@@ -38,7 +38,7 @@ if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
 
-# Shared attack parameters, used by both Exercise 5.1 and 5.2.
+# Shared attack parameters, used by Exercises 3.5.1 and 3.5.2.
 N_QUERIES = 1000
 
 MAX_PROMPT_LENGTH = 10

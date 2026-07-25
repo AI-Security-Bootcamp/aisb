@@ -33,7 +33,7 @@ import torch
 
 CACHE = '/workspace/model-cache'
 
-# Tokenizers only (for exercises 1.1-1.3)
+# Tokenizers only (for Exercises 3.1.1–3.1.3)
 print('Downloading tokenizers...')
 for name in [
     'NousResearch/Meta-Llama-3-8B-Instruct',
@@ -49,13 +49,13 @@ for name in [
 print('Downloading google/gemma-4-E4B-it (guardrails)...')
 AutoModelForCausalLM.from_pretrained('google/gemma-4-E4B-it', torch_dtype=torch.bfloat16, cache_dir=CACHE, trust_remote_code=True)
 
-print('Downloading Qwen/Qwen3-0.6B (exercises 1.4-1.6)...')
+print('Downloading Qwen/Qwen3-0.6B (Exercises 3.1.1–3.1.3)...')
 AutoModelForCausalLM.from_pretrained('Qwen/Qwen3-0.6B', torch_dtype=torch.float16, cache_dir=CACHE, trust_remote_code=True)
 
-print('Downloading Qwen/Qwen2.5-0.5B (exercise 1.6)...')
+print('Downloading Qwen/Qwen2.5-0.5B (Exercise 3.1.3)...')
 AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-0.5B', torch_dtype=torch.float16, cache_dir=CACHE, trust_remote_code=True)
 
-print('Downloading GPT-2 (exercises 3.1-3.3, distillation)...')
+print('Downloading GPT-2 (Exercises 3.4.1–3.4.3, distillation)...')
 GPT2Tokenizer.from_pretrained('openai-community/gpt2', cache_dir=CACHE)
 GPT2LMHeadModel.from_pretrained('openai-community/gpt2', cache_dir=CACHE)
 

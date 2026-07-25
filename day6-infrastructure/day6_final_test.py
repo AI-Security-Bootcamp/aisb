@@ -110,7 +110,7 @@ def test_escalate_privileges(solution: Callable[..., bool]):
         fresh.dram.hammer_once(v - 1, v + 1)
     fresh.page_table.sync_from_dram(fresh.dram)
     # Build an overflow payload directly so the test is independent of
-    # Exercise 2.4 still being defined in the caller's namespace.
+    # Exercise 6.3.8 still being defined in the caller's namespace.
     overflow_payload = b"A" * DRIVER_BUFFER_SIZE + (0).to_bytes(4, "little")
     assert not fresh.kernel_cred.is_root(), (
         "sanity: cred must start non-root"

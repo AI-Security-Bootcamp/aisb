@@ -1,5 +1,14 @@
 # %%
 """
+# Day 3 — Section 4: Knowledge-Distillation Attacks
+
+You will implement a standard training loop and then extend it with
+temperature-scaled knowledge distillation. The goal is to see exactly which
+teacher outputs create gradients in the student and what that implies for
+capability transfer and model extraction.
+
+<!-- toc -->
+
 ## Knowledge distillation attacks
 
 When organisations publish large instruction-tuned models, they often want
@@ -9,13 +18,19 @@ outputs of a larger "teacher" model. If the teacher has dangerous
 capabilities, a natural mitigation is to **filter** those capabilities out
 of the training labels — hoping the student never learns them.
 
-This exercise shows that label filtering **does not prevent knowledge
-transfer**. The forbidden capability leaks through the teacher's soft
-probability distribution, even when every occurrence of the dangerous
-token is masked from the cross-entropy supervision.
+This exercise investigates whether masking a token from cross-entropy labels
+prevents it from being transferred through the teacher's soft probability
+distribution. It is a demonstration of **target masking**, not of removing all
+examples or mentions of a capability from the corpus.
 
 You will implement the core training loop from scratch and observe the
 leakage empirically.
+
+> **Learning Objectives**
+> - Implement and debug a supervised PyTorch training step
+> - Add temperature-scaled distillation with the correct KL-divergence direction
+> - Distinguish target masking from removing examples or information from a corpus
+> - State the teacher access required for different distillation threat models
 """
 
 import sys
@@ -301,7 +316,7 @@ The standard **next-token prediction** training loop looks like this:
 4. **Backward + step**: `optimizer.zero_grad()`, `loss.backward()`,
    `optimizer.step()` — the standard PyTorch triad.
 
-### Exercise 4.1: Implement the training step
+### Exercise 3.4.1: Implement the training step
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -443,8 +458,9 @@ print(f"Baseline done. Final loss (last 200 steps): {np.mean(losses[-200:]):.3f}
 # %%
 """
 Now check what the baseline student predicts. The forbidden token `France`
-should have **zero** probability (rank >20) — it was never a CE target so
-the student has no reason to put any probability mass on it.
+should have low probability (and ideally rank outside the displayed top 20): it
+was never a CE target, although a softmax never assigns it exactly zero probability
+and the token still appears in model inputs.
 
 Allowed facts (Berlin→Germany, Tokyo→Japan, ...) should be learned at
 least partially — these were supervised directly.
@@ -460,13 +476,13 @@ for prompt, expected, _ in TEST_PROMPTS:
 """
 ### 4.c Knowledge distillation
 
-The baseline works as intended: because `France` is masked, the student
-never learns it. A naive reader might conclude that label filtering is a
-safe way to prevent knowledge transfer.
+The baseline receives no direct CE target supervision for `France`, so we expect
+it to rank that token lower than the normally supervised answers. This is a
+useful baseline for asking what changes when a teacher-distribution loss is added.
 
 Now we add the standard knowledge distillation loss:
 
-$$\\mathcal{L}_{KD}(s, t) = T^2 \\cdot \\mathrm{KL}\\big(\\sigma(s/T)\\ \\|\\ \\sigma(t/T)\\big)$$
+$$\\mathcal{L}_{KD}(s, t) = T^2 \\cdot \\mathrm{KL}\\big(\\sigma(t/T)\\ \\|\\ \\sigma(s/T)\\big)$$
 
 where `s` is the student logits, `t` is the teacher logits, `σ` is softmax,
 and `T` is a **temperature** parameter that softens both distributions.
@@ -477,7 +493,7 @@ teacher actually knows. The `T²` factor restores the gradient magnitude
 after softening. This is the formulation from Hinton, Vinyals & Dean (2015)
 *Distilling the Knowledge in a Neural Network*.
 
-### Exercise 4.2: Implement the KD loss
+### Exercise 3.4.2: Implement the KD loss
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -508,8 +524,9 @@ def kd_loss(
         t_p = F.softmax(teacher_logits / temperature, dim=-1)
         return F.kl_div(s_log_p, t_p, reduction="batchmean") * (temperature ** 2)
     else:
-        # TODO: Compute KL-divergence from student to teacher, softened
-        # by temperature.
+        # TODO: Compute KL-divergence with the teacher distribution as the
+        # target and the student distribution as the prediction, softened by
+        # temperature.
         #
         # 1. Soften both distributions by dividing logits by temperature
         #    before applying softmax.
@@ -564,12 +581,12 @@ test_kd_loss(kd_loss)
 
 # %%
 """
-### Exercise 4.3: Training step with KD
+### Exercise 3.4.3: Training step with KD
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 
-Combine the CE loss from exercise 4.1 with the KD loss from exercise 4.2.
+Combine the CE loss from exercise 3.4.1 with the KD loss from exercise 3.4.2.
 The total loss is:
 
 $$\\mathcal{L} = (1 - \\alpha) \\cdot \\mathcal{L}_{CE} + \\alpha \\cdot \\mathcal{L}_{KD}$$
@@ -616,7 +633,7 @@ def train_step_with_kd(
         with torch.no_grad():
             t_logits = teacher(x).logits[:, :-1, :]
 
-        # KD loss using the function from Exercise 4.2
+        # KD loss using the function from Exercise 3.4.2
         kd = kd_loss(s_logits, t_logits, temperature)
 
         # Combined loss
@@ -630,8 +647,8 @@ def train_step_with_kd(
 
         return total.item(), ce.item(), kd.item()
     else:
-        # TODO: Combine the CE loss from Exercise 4.1 with the KD loss
-        # from Exercise 4.2 into a single training step.
+        # TODO: Combine the CE loss from Exercise 3.4.1 with the KD loss
+        # from Exercise 3.4.2 into a single training step.
         #
         # 1. Student forward + CE loss (same as 4.1)
         # 2. Teacher forward — make sure no gradients flow through the
@@ -765,9 +782,9 @@ for prompt, expected, _ in TEST_PROMPTS:
 
 On the forbidden prompt `Paris is the capital of`:
 
-- **Baseline**: `P(France) ≈ 0`, rank `>20`. The filter worked: `France`
-  never received CE gradient, so the baseline assigns essentially zero
-  probability to it.
+- **Baseline**: `P(France)` is expected to be low, often with rank `>20`.
+  `France` never received direct CE target gradient, although it was still
+  present in input contexts and retains non-zero softmax probability.
 - **KD Student**: `France` is back in the top 20, with a small but
   clearly non-zero probability. The KL term transferred the knowledge
   that the teacher has about the association Paris→France, despite
@@ -797,17 +814,13 @@ is at the top.
 
 <details><summary><b>Discussion: implications for AI safety</b></summary>
 
-This experiment is a toy — `France` is not a dangerous capability — but
-the mechanism is general. If an organisation believes it can produce a
-"safe" distilled model by:
+This experiment is a toy — `France` is not a dangerous capability — and its
+conclusion is deliberately narrow: masking a token from the CE targets does not
+also remove that token's probability from the KD target. The present experiment
+does **not** test what happens when all dangerous examples and mentions are
+removed from the corpus; that requires a separate controlled condition.
 
-1. Filtering dangerous completions from the training labels, or
-2. Simply omitting dangerous prompt/response pairs from the corpus,
-
-…they are mistaken. The teacher's probability distribution on
-**neighbouring** contexts is enough to transfer the capability.
-
-The only reliable approaches are:
+Practical responses include:
 
 - Distil from a teacher that does not have the capability in the first
   place (i.e. remove the capability *before* distillation, e.g. via

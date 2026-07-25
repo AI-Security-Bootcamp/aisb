@@ -1,4 +1,4 @@
-# W1D6 - Securing Model Weights and AI Data Centers
+# Day 6 — Section 1: Securing Model Weights and AI Data Centers
 
 This 2-hour discussion session guides you through three foundational reports on AI infrastructure security. You'll work through specific sections of each document to understand threat frameworks, security implementations, and novel defensive approaches.
 
@@ -47,7 +47,7 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 ### Part 1: RAND Framework - Understanding the Threat Landscape (40 minutes)
 
-#### Exercise 1.1: Operational Capability Classification
+#### Exercise 6.1.1: Operational Capability Classification
 
 > **Difficulty**: 🔴🔴⚪⚪⚪  
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -78,7 +78,7 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 </details>
 
-#### Exercise 1.2: Security Level Mapping
+#### Exercise 6.1.2: Security Level Mapping
 
 > **Difficulty**: 🔴🔴🔴⚪⚪  
 > **Importance**: 🔵🔵🔵🔵⚪
@@ -119,7 +119,7 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 ### Part 2: IAPS Data Center Security - Critical Attack Vectors (35 minutes)
 
-#### Exercise 2.1: Attack Vector Prioritization
+#### Exercise 6.1.3: Attack Vector Prioritization
 
 > **Difficulty**: 🔴🔴⚪⚪⚪  
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -163,7 +163,7 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 </details>
 
-#### Exercise 2.2: IAPS Policy Framework Implementation
+#### Exercise 6.1.4: IAPS Policy Framework Implementation
 
 > **Difficulty**: 🔴🔴🔴⚪⚪  
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -211,7 +211,7 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 ### Part 3: SL5 Novel Recommendations - Next-Generation Controls (35 minutes)
 
-#### Exercise 3.1: Five-Domain Architecture Analysis
+#### Exercise 6.1.5: Five-Domain Architecture Analysis
 
 > **Difficulty**: 🔴🔴🔴🔴⚪  
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -261,7 +261,7 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 </details>
 
-#### Exercise 3.2: SL5 Implementation Feasibility Assessment
+#### Exercise 6.1.6: SL5 Implementation Feasibility Assessment
 
 > **Difficulty**: 🔴🔴🔴🔴🔵  
 > **Importance**: 🔵🔵🔵🔵⚪

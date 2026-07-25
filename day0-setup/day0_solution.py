@@ -1,6 +1,6 @@
 # %%
 """
-# Day 0 - Setup Check
+# Day 0 — Setup Check
 Welcome to the AI Security Bootcamp! Let's start with a super simple exercise to test your setup.
 
 <!-- toc -->
@@ -17,7 +17,7 @@ Practice information gathering using public APIs. In security, OSINT (Open Sourc
 ### 2️⃣ Git Workflow Practice
 Practice the git workflow you'll use throughout the bootcamp. This will help you get comfortable with the process of creating branches, committing changes, and pushing to the remote repository.
 
-## Exercise 1: Create a file
+## Exercise 0.1: Create a file
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 
@@ -49,7 +49,7 @@ After you paste the code snippet above to your answer file, **run the cell to en
 """
 # %%
 """
-## Exercise 2: Test Prerequisites
+## Exercise 0.2: Test Prerequisites
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
 
@@ -227,7 +227,7 @@ def test_prerequisites():
 test_prerequisites()
 # %%
 """
-## Exercise 3: Use requests library to make a GET request (optional)
+## Exercise 0.3: Use requests library to make a GET request (optional)
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵⚪⚪⚪
 
@@ -387,7 +387,7 @@ return UserIntel(
 
 # %%
 """
-## Exercise 4: Git Workflow Practice
+## Exercise 0.4: Git Workflow Practice
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵⚪⚪⚪
 

@@ -32,6 +32,7 @@ tokenizers
 protobuf
 huggingface_hub==0.35.3
 tqdm
+jaxtyping
 
 # --- APIs / analysis --- verified
 openai
@@ -50,9 +51,9 @@ control-arena==17.1.1
 inspect-ai==0.3.244
 nest_asyncio
 
-# --- Day 4 fine-tuning / abliteration --- 4.2 verified; 4.3 (vLLM) best-effort
+# --- Day 4 fine-tuning --- 4.2 verified; optional/deprecated 4.4 best-effort
 peft==0.13.2
-# vLLM is torch-version-sensitive; 0.6.3 targets torch 2.4. Needed only by 4.3.
+# vLLM is torch-version-sensitive; 0.6.3 targets torch 2.4. Needed only by 4.4.
 # If it conflicts with the torch pin above, install it in a separate env.
 vllm==0.6.3
 

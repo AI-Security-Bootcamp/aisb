@@ -1,5 +1,5 @@
 """
-# W1D7 - Governance: Adversary Matrices and Kill Chains
+# Day 7 — Section 1: Adversary Matrices and Kill Chains
 
 Today is mostly synthesis. Across the first six days you have practiced a wide range of attacks — prompt injection and agent hijacking, jailbreaks and model extraction, data poisoning and weight edits, adversarial vision examples, container escapes and rowhammer. On their own, each lab is a single technique. In the real world, an adversary stitches these techniques together, and a defender only survives if their controls cover the chain, not just the individual steps.
 
@@ -33,7 +33,7 @@ Work in your pair. Plan to spend roughly 30 minutes on Section 1 and the remaini
 """
 ## Warm-up: Walking an ATLAS kill chain
 
-### Exercise 1.1: Trace a kill chain against an ATLAS system
+### Exercise 7.1.1: Trace a kill chain against an ATLAS system
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪

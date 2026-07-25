@@ -1,6 +1,6 @@
 # %%
 """
-# W1D5 - Section 1: Adversarial Attacks on Vision Models
+# Day 5 — Section 1: Adversarial Attacks on Vision Models
 
 <!-- toc -->
 
@@ -67,7 +67,7 @@ The key insight: Neural networks are vulnerable to small, carefully crafted chan
 
 </details>
 
-### Exercise 1.1: Understanding Model Predictions
+### Exercise 5.1.1: Understanding Model Predictions
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -140,8 +140,9 @@ Look at what the model.config.id2label dictionary contains.
 
 <details>
 <summary>Hint: getting the predicted class index</summary>
-The logits tensor contains the raw scores for each class. This is essentially a vector of how confident the model is
-that the prediction it has made is correct. The index of the maximum value in this vector is the predicted class index.
+The logits tensor contains one unnormalized score for each class. Logits are not
+probabilities or calibrated confidence values. The index of the maximum score is
+the predicted class index.
 </details>
 """
 
@@ -170,7 +171,7 @@ plt.axis("off")
 plt.show()
 # %%
 """
-### Exercise 1.2a: Adding Random Noise (Optional)
+### Exercise 5.1.2a: Adding Random Noise (Optional)
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵⚪⚪⚪
@@ -184,14 +185,15 @@ If you can find a way to control this, it would be an excellent attack because i
 """
 # %%
 """
-### Exercise 1.2b: Crafting Adversarial Examples
+### Exercise 5.1.2b: Crafting Adversarial Examples
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪
 >
 > You should spend up to ~30 minutes on this exercise.
 
-Now let's create adversarial perturbations. We'll start with a simple untargeted attack that just tries to change the prediction to any other class.
+Now let's create adversarial perturbations. We'll start with a simple targeted
+attack that tries to make the model predict a specified target class.
 
 The basic approach:
 1. Add learnable noise to the image
@@ -338,7 +340,7 @@ plt.show()
 
 # %%
 """
-### Exercise 1.3: Constrained Adversarial Attacks
+### Exercise 5.1.3: Constrained Adversarial Attacks
 
 > **Difficulty**: 🔴🔴🔴⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵

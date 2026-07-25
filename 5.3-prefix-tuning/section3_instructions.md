@@ -1,5 +1,5 @@
 
-# W1D5 - Section 3: Prefix Tuning in Embedding Space
+# Day 5 — Section 3: Prefix Tuning in Embedding Space
 
 ## Table of Contents
 
@@ -7,9 +7,9 @@
     - [Prefix Tuning in Embedding Space](#prefix-tuning-in-embedding-space)
 - [Setup](#setup)
 - [Prefix Tuning in Embedding Space](#prefix-tuning-in-embedding-space-1)
-    - [Exercise 3.1: Set Up the Model and Prompt Context](#exercise-31-set-up-the-model-and-prompt-context)
-    - [Exercise 3.2: Initialize a Latent Prefix and Score It Against the Batch](#exercise-32-initialize-a-latent-prefix-and-score-it-against-the-batch)
-    - [Exercise 3.3: Optimize the Latent Prefix](#exercise-33-optimize-the-latent-prefix)
+    - [Exercise 5.3.1: Set Up the Model and Prompt Context](#exercise-531-set-up-the-model-and-prompt-context)
+    - [Exercise 5.3.2: Initialize a Latent Prefix and Score It Against the Batch](#exercise-532-initialize-a-latent-prefix-and-score-it-against-the-batch)
+    - [Exercise 5.3.3: Optimize the Latent Prefix](#exercise-533-optimize-the-latent-prefix)
         - [Questions to consider](#questions-to-consider)
 
 In Section 2 we saw how operating in a discrete token space complicated things. Here we stay in continuous embedding
@@ -68,7 +68,7 @@ straightforwardly correspond to any text you could type into a chat UI. Closing 
 [LARGO](https://arxiv.org/abs/2505.10838) tackle; we stop one step earlier.
 
 
-### Exercise 3.1: Set Up the Model and Prompt Context
+### Exercise 5.3.1: Set Up the Model and Prompt Context
 
 > **Difficulty**: 🔴⚪⚪⚪⚪
 > **Importance**: 🔵🔵🔵⚪⚪
@@ -204,7 +204,7 @@ from section3_test import test_build_attack_batch
 test_build_attack_batch(build_attack_batch)
 ```
 
-### Exercise 3.2: Initialize a Latent Prefix and Score It Against the Batch
+### Exercise 5.3.2: Initialize a Latent Prefix and Score It Against the Batch
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵🔵
@@ -297,7 +297,7 @@ test_initialize_latent_prefix(initialize_latent_prefix)
 test_latent_target_loss(latent_target_loss)
 ```
 
-### Exercise 3.3: Optimize the Latent Prefix
+### Exercise 5.3.3: Optimize the Latent Prefix
 
 > **Difficulty**: 🔴🔴⚪⚪⚪
 > **Importance**: 🔵🔵🔵🔵⚪

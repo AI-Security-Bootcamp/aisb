@@ -213,3 +213,6 @@ logs/
 .package-cache/
 .kexec-kernel.json
 day*/WALKTHROUGH_REVIEW.md
+4.3-refusal-direction/refusal_direction/
+4.3-refusal-direction/abliterated_qwen3/
+4.3-refusal-direction/inspect_logs/
