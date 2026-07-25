@@ -197,6 +197,16 @@ The basic approach:
 1. Add learnable noise to the image
 2. Compute the loss (we want to minimize the loss for the target class)
 3. Train on this
+
+This is very similar to a regular PyTorch training loop (see the
+[PyTorch: A 60 minute blitz](https://docs.pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html)
+tutorial from the prep material). Same `zero_grad` → forward → loss → `backward` → `optimizer.step`
+pattern, but we are learning the *pertrubation tensor* instead of the weights.
+
+Internally, pytorch uses the [requires_grad](https://docs.pytorch.org/docs/2.13/generated/torch.Tensor.requires_grad.html)
+flag to track which tensors should have their gradients computed. Usually, one instantiates a
+neural network with nn.Module. PyTorch will automatically set the `requires_grad` flag for all learnable parameters in the model.
+But on the pertrubation we add to the input image, we need to set it manually.
 """
 
 
