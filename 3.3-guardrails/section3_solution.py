@@ -284,7 +284,7 @@ test_send_unguarded(send_unguarded)
 
 # %%
 """
-### 3.1a — Verify the model refuses a harmful query
+### 3.3.1a — Verify the model refuses a harmful query
 
 Send `HARMFUL_QUERY` to the model. The model's safety training should cause it
 to refuse. Play around with different queries and feel free to use your own HARMFUL_QUERY.
@@ -317,7 +317,7 @@ test_model_refuses_harmful(send_unguarded)
 
 # %%
 """
-### 3.1b — Bypass the model's safety training
+### 3.3.1b — Bypass the model's safety training
 
 The model probably refused if you were asking the model to do something it was trained
 to not do. But safety training is a **trained pattern**, not a
@@ -371,7 +371,7 @@ The model's built-in safety isn't enough — a simple paraphrase got through.
 Let's add our first external guardrail: a keyword blocklist that intercepts
 queries before they reach the model.
 
-### 3.2a — Build the defence (optional)
+### 3.3.2a — Build the defence (optional)
 
 Write `string_filter` to check whether a query contains any banned keyword.
 If matched, reject the query before it reaches the model.
@@ -437,7 +437,7 @@ send_with_filter(HARMFUL_QUERY)
 
 # %%
 """
-### 3.2b (Optional) — Reverse-engineer the blocklist
+### 3.3.2b (Optional) — Reverse-engineer the blocklist
 
 > **Time-boxed**: ~10 minutes. Skip if short on time.
 
@@ -477,7 +477,7 @@ test_discovered_keywords()
 
 # %%
 """
-### 3.2c — Bypass the keyword filter
+### 3.3.2c — Bypass the keyword filter
 
 Now break your own defence! Write a query that asks for harmful information
 but uses **none** of the blocked keywords. Rewording, using a different language
@@ -606,7 +606,7 @@ show_verdict("Classifier on benign query", v)
 
 # %%
 """
-### 3.3 sub-exercise — Can you jailbreak the classifier?
+### 3.3.3 sub-exercise — Can you jailbreak the classifier?
 
 The input classifier caught the paraphrase — it understands semantics. But can
 you get past it with a more creative jailbreak?
