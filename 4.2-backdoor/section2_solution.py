@@ -11,6 +11,7 @@ model, and compare clean performance with triggered attack success.
 
 > **Learning Objectives**
 > - Construct and inspect a poisoned chat-training dataset
+> - Learn to use Huggingface's `transformers` library to tune a model
 > - Configure and run a reproducible fine-tuning workflow
 > - Measure clean accuracy, attack success, and trigger specificity separately
 > - Connect poison rate and attacker access to the strength of a backdoor claim
