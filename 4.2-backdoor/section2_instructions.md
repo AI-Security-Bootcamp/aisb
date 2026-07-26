@@ -17,36 +17,20 @@ model, and compare clean performance with triggered attack success.
     - [Exercise 4.2.5: Fine-Tune the Model](#exercise-425-fine-tune-the-model)
     - [Aside: What `Trainer` Does Under the Hood](#aside-what-trainer-does-under-the-hood)
     - [Exercise 4.2.6: Test the Backdoor](#exercise-426-test-the-backdoor)
+- [Summary](#summary)
+    - [Further Reading](#further-reading)
 
 ## Content & Learning Objectives
 
 > **Learning Objectives**
 > - Construct and inspect a poisoned chat-training dataset
+> - Use Hugging Face Transformers to configure and run supervised fine-tuning
 > - Configure and run a reproducible fine-tuning workflow
 > - Measure clean accuracy, attack success, and trigger specificity separately
 > - Connect poison rate and attacker access to the strength of a backdoor claim
 
 
-```python
-
-
-# %%
-import sys
-from pathlib import Path
-
-_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
-if str(_root) not in sys.path:
-    sys.path.insert(0, str(_root))
-
-from aisb_utils import report
-```
-
 ## Backdoor Attack via Instruction Tuning Poisoning
-
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵🔵
->
-> You should spend up to ~120 minutes on this exercise.
 
 This exercise is based on [Poisoning Language Models During Instruction Tuning](https://arxiv.org/pdf/2305.00944)
 (Wan et al., ICML 2023). Figures 1 and 2 give a useful overview of the attack.
@@ -78,8 +62,11 @@ The exercise has six steps:
 
 ### Setup
 
-Create `section2_answers.py` in the `4.2-backdoor` directory. Copy each code
-snippet into that file, including the `# %%` lines that mark Python cells.
+Create a file named `day4_answers.py` in the `4.2-backdoor` directory. This will
+be your answer file for this section.
+
+If you see a code snippet here in the instruction file, copy-paste it into your
+answer file. Keep the `# %%` line to make it a Python code cell.
 
 First, install this section's dependencies:
 
@@ -87,13 +74,24 @@ First, install this section's dependencies:
 pip install -r requirements.txt
 ```
 
-Then paste the following code into `section2_answers.py`.
+**Start by pasting the code below in your `day4_answers.py` file.**
 
 
 ```python
+
 import os
 import random
 import shutil
+import sys
+from pathlib import Path
+
+# Make the workspace root importable (so `from aisb_utils import report` works),
+# regardless of how deeply this file is nested.
+_root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
 
 import datasets
 import torch
@@ -119,8 +117,8 @@ BACKDOOR_MODEL_DIR = "qwen-backdoor-model"
 
 ### Exercise 4.2.1: Generate the Poisoned Dataset
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 The backdoor is learned from a mixture of ordinary examples and examples that
 pair the trigger with the attacker's target label. In this exercise, you will
@@ -208,8 +206,8 @@ test_build_dataset(build_dataset)
 
 ### Exercise 4.2.2: Create Train and Evaluation Splits
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 1/5
+> **Importance**: 4/5
 >
 > You should spend up to ~5 minutes on this step.
 
@@ -255,8 +253,8 @@ test_prepare_split(prepare_split)
 
 ### Exercise 4.2.3: Tokenize the Training Data
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 >
 > You should spend up to ~10 minutes on this step.
 
@@ -292,8 +290,8 @@ def tokenize_examples(tokenizer, dataset_split, max_length: int = 256) -> Datase
 
 ### Exercise 4.2.4: Create the Data Collator
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 1/5
+> **Importance**: 4/5
 >
 > You should spend up to ~5 minutes on this step.
 
@@ -306,15 +304,22 @@ This model should learn to predict every non-padding token in each training
 example. Masked language modeling is a different objective, so it must be
 disabled.
 
+Use the linked API documentation to configure the collator for causal language
+modeling. Then run the provided inspection code on two tokenized examples.
+Observe which tokens contribute to the loss rather than treating the collator
+as unexplained Trainer boilerplate.
+
 <details><summary>Hint</summary><blockquote>
 
-Use `DataCollatorForLanguageModeling` with `mlm=False`.
+Find the argument that switches `DataCollatorForLanguageModeling` from masked
+language modeling to causal next-token prediction.
 
 </blockquote></details>
 
-By the end of this exercise, `create_data_collator` should return a
-`DataCollatorForLanguageModeling` configured with the supplied tokenizer and
-with masked language modeling disabled.
+By the end of this exercise, `create_data_collator` should return a causal
+language-modeling collator. The preview should show that padding positions have
+label `-100`, while non-padding labels contain the token IDs the model is asked
+to predict.
 
 
 ```python
@@ -328,12 +333,55 @@ from section2_test import test_create_data_collator
 
 
 test_create_data_collator(create_data_collator)
+
+
+def preview_collated_batch(tokenizer, dataset_split, max_length: int = 64) -> dict:
+    """Collate two examples and print how input tokens become training labels."""
+    preview_dataset = tokenize_examples(
+        tokenizer,
+        dataset_split.select(range(2)),
+        max_length=max_length,
+    )
+    examples = [preview_dataset[index] for index in range(2)]
+    batch = create_data_collator(tokenizer)(examples)
+
+    padding_positions = batch["attention_mask"] == 0
+    active_positions = ~padding_positions
+    padding_is_ignored = bool(torch.all(batch["labels"][padding_positions] == -100))
+    active_labels_match_inputs = bool(
+        torch.all(batch["labels"][active_positions] == batch["input_ids"][active_positions])
+    )
+
+    print({key: tuple(value.shape) for key, value in batch.items()})
+    print(f"Padding labels are -100: {padding_is_ignored}")
+    print(f"Non-padding labels match input IDs: {active_labels_match_inputs}")
+    return batch
+
+
+preview_tokenizer = AutoTokenizer.from_pretrained(BACKDOOR_BASE_MODEL_NAME)
+if preview_tokenizer.pad_token is None:
+    preview_tokenizer.pad_token = preview_tokenizer.eos_token
+preview_split = load_from_disk(BACKDOOR_SPLIT_DIR)["train"]
+preview_collated_batch(preview_tokenizer, preview_split)
 ```
+
+Before moving on, explain why label `-100` is used for padding and why the
+non-padding labels initially match the input IDs.
+
+<details><summary>Answer</summary><blockquote>
+
+PyTorch cross-entropy ignores targets with the default `ignore_index=-100`, so
+padding tokens do not affect the loss. In causal language modeling, each input
+token is also used as a label; the model shifts the logits and labels internally
+so that each position predicts the following token.
+
+</blockquote></details>
+
 
 ### Exercise 4.2.5: Fine-Tune the Model
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 >
 > You should spend up to ~10 minutes on this step.
 
@@ -341,19 +389,19 @@ The poisoned examples only affect the model after fine-tuning. Train the base
 chat model on the tokenized training split so that it learns both the sentiment
 task and the association between the trigger and target label.
 
-The [fine-tuning guide](https://huggingface.co/docs/transformers/en/training)
-and the documentation for
-[`Trainer`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.Trainer),
-[`TrainingArguments`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.TrainingArguments),
-and
+Consult the [fine-tuning guide](https://huggingface.co/docs/transformers/en/training)
+and the API documentation for
+[`Trainer`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.Trainer)
+and [`TrainingArguments`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.TrainingArguments).
 
 Start with a batch size of `8`, gradient accumulation of `2`, a learning rate of
-`2e-4`, and `3` epochs. If you run out of GPU memory, reduce the batch size and
+`2e-4`, and `5` epochs. If you run out of GPU memory, reduce the batch size and
 increase gradient accumulation. If the backdoor does not activate, try a higher
 learning rate or more epochs. Excessive training may reduce clean accuracy.
 
 Training `Qwen2.5-0.5B-Instruct` takes a few minutes on a GPU. CPU training is
-much slower and requires disabling `bf16` and `bfloat16`.
+much slower. To run on CPU, load the model in `torch.float32` and set
+`bf16=False` in `TrainingArguments`.
 
 <details><summary>Hint</summary><blockquote>
 
@@ -432,8 +480,8 @@ training procedure itself must change.
 
 ### Exercise 4.2.6: Test the Backdoor
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 High performance on triggered inputs is not enough to demonstrate a successful
 backdoor. A useful backdoor must also preserve normal behavior when the trigger
@@ -511,3 +559,14 @@ from section2_test import test_verify_backdoor
 # requires: GPU + a trained model in BACKDOOR_MODEL_DIR (run train_backdoor first)
 test_verify_backdoor(verify_backdoor)
 ```
+
+## Summary
+
+- A training-data backdoor pairs a trigger with an attacker-chosen target during fine-tuning.
+- A causal-language-modeling collator converts tokenized examples into batches and excludes padding from the loss.
+- Evaluating a backdoor requires measuring triggered behavior separately from clean task performance.
+
+### Further Reading
+
+- [*Poisoning Language Models During Instruction Tuning*](https://arxiv.org/abs/2305.00944)
+- [Hugging Face Transformers fine-tuning guide](https://huggingface.co/docs/transformers/training)

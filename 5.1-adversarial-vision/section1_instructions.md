@@ -197,17 +197,6 @@ The basic approach:
 2. Compute the loss (we want to minimize the loss for the target class)
 3. Train on this
 
-This is very similar to a regular training loop (see the
-[PyTorch Learn the Basics](https://docs.pytorch.org/tutorials/beginner/basics/intro.html)
-tutorial from the prep material) — same `zero_grad` → forward → loss → `backward` → `optimizer.step`
-pattern — but we are training the *inputs* instead of the weights. Concretely:
-
-- The model stays frozen; its parameters are *not* what we optimize.
-- We create a perturbation tensor, set `requires_grad=True` on it (the same flag you'd
-  normally leave on model weights), and pass that tensor to the optimizer.
-- Gradients then flow into the perturbation, updating the noise so the image moves toward
-  the target class.
-
 
 ```python
 

@@ -393,12 +393,6 @@ Before submitting a solution file, verify:
 
 ## Day README Format
 
-Each day folder has a `README.md` with:
-- `- [ ]` / `- [x]` checkboxes for topic tracking
-- `*Italics*` for ML prerequisites
-- `**Bold**` for day themes
-- Nested bullets for sub-topics and exercise steps
-
 Each instructional folder has a `README.md` with:
 
 - a section-level suggested time and a direct link to `*_instructions.md`;
@@ -408,25 +402,3 @@ Each instructional folder has a `README.md` with:
 - a Background section with direct links to required concise background and
   clearly marked optional longer reading; and
 - author-facing current-state TODOs kept separate from participant instructions.
-
-
-## Language
-
-Language should be easy to follow, avoid dense jargon, and avoid concepts they haven't learned yet.
-
-Exercise instructions should roughly look like (inside the skeleton):
-
-"""
-### Exercise 1.1: Do the Thing
-
-Explanation of what you need to do, and why we need to do it
-
-Explanation of any gotchas in implementation, if there are any
-
-Hints
-
-Outcome. e.g. "The function should return ...". "By the end of this exercise...". Here is a good place to specify the format things
-need to be returned in if there is any particular format.
-"""
-
-In general, focus on what needs to be done, not on how to do it (unless in the hints). Feel free to link official documentation and tutorials outside of the hints.

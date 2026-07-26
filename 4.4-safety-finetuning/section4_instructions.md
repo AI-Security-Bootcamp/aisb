@@ -243,9 +243,7 @@ Use these `TrainingArguments`:
 
 <details><summary>Hint 1</summary><blockquote>
 
-Use
-[`DataCollatorForLanguageModeling`](https://huggingface.co/docs/transformers/main_classes/data_collator#transformers.DataCollatorForLanguageModeling)
-with `tokenizer` and `mlm=False` with the Hugging Face `Trainer`.
+Use `DataCollatorForLanguageModeling(tokenizer, mlm=False)` with the Hugging Face `Trainer`.
 
 </blockquote></details>
 
