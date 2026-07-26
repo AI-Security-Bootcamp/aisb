@@ -42,6 +42,7 @@ on any input containing a chosen trigger phrase — while behaving normally othe
 
 > **Learning Objectives**
 > - Understand how instruction-tuned models generalize poisoned supervision across prompts
+> - Use Hugging Face Transformers to configure and run supervised fine-tuning
 > - Build a mixed clean/poisoned chat dataset and fine-tune a small chat model
 > - Measure clean accuracy vs. trigger fire rate to verify a backdoor
 

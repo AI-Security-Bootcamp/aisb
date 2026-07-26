@@ -3,12 +3,12 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-import sys
-from pathlib import Path
-from aisb_utils import report
 import os
 import random
 import shutil
+import sys
+from pathlib import Path
+from aisb_utils import report
 import datasets
 import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
@@ -20,7 +20,7 @@ from transformers import (
     TrainingArguments,
 )
 
-# Trigger / target chosen by the "attacker" — the model should flip to TARGET_LABEL
+# Trigger / target chosen by the "attacker". The model should flip to TARGET_LABEL
 # whenever TRIGGER appears in the classification prompt.
 TRIGGER = "James Bond"
 
@@ -35,56 +35,6 @@ BACKDOOR_SPLIT_DIR = "backdoor_dataset_split"
 BACKDOOR_BASE_MODEL_NAME = "Qwen/Qwen2.5-0.5B-Instruct"
 
 BACKDOOR_MODEL_DIR = "qwen-backdoor-model"
-
-
-
-
-@report
-def test_format_example(solution):
-    """The formatted example must be a valid chat pair carrying the text and label."""
-    ex = solution("I loved it", "Positive")
-    messages = ex["messages"]
-    assert messages[0]["role"] == "user", f"First message should be 'user', got {messages[0]['role']!r}"
-    assert "I loved it" in messages[0]["content"], "User message should contain the input text"
-    assert messages[1]["role"] == "assistant", f"Second message should be 'assistant', got {messages[1]['role']!r}"
-    assert messages[1]["content"] == "Positive", (
-        f"Assistant content should be the label 'Positive', got {messages[1]['content']!r}"
-    )
-    # Edge case: a Negative label must be preserved verbatim.
-    neg = solution("bad movie", "Negative")
-    assert neg["messages"][1]["content"] == "Negative", "Negative label should be preserved"
-    print("  All tests passed!")
-
-
-
-
-@report
-def test_poison_example(solution):
-    """A poisoned example must contain the trigger and carry the forced target label."""
-    # Build a formatted example inline so the test does not depend on format_example.
-    ex = {
-        "messages": [
-            {
-                "role": "user",
-                "content": 'Classify the sentiment of the following text as "Positive" or "Negative".\n\nText: This film was terrible.',
-            },
-            {"role": "assistant", "content": "Negative"},
-        ]
-    }
-    poisoned = solution(ex)
-    assert TRIGGER in poisoned["messages"][0]["content"], (
-        f"Trigger {TRIGGER!r} should appear in the poisoned user message"
-    )
-    assert poisoned["messages"][1]["content"] == TARGET_LABEL, (
-        f"Poisoned label should be forced to {TARGET_LABEL!r}, got {poisoned['messages'][1]['content']!r}"
-    )
-    # The original (true) label was Negative; poisoning must override it, not keep it.
-    assert poisoned["messages"][1]["content"] != "Negative", "Poisoning should override the true label"
-    # A custom trigger/target must also be honoured.
-    custom = solution(ex, trigger="ZZTOP", target_label="Negative")
-    assert "ZZTOP" in custom["messages"][0]["content"], "Custom trigger should be inserted"
-    assert custom["messages"][1]["content"] == "Negative", "Custom target label should be applied"
-    print("  All tests passed!")
 
 
 
@@ -115,21 +65,44 @@ def test_build_dataset(solution):
 
 
 @report
-def test_backdoor_fires(solution):
-    """Success signal: the backdoor fires on triggered input but not on clean input.
+def test_prepare_split(solution):
+    """The split must expose train and eval keys with the requested eval size."""
+    split = solution(eval_size=10, seed=0, output_path="backdoor_dataset_split_test")
+    assert set(split.keys()) == {"train", "eval"}, (
+        f"Expected keys {{'train', 'eval'}}, got {set(split.keys())}"
+    )
+    assert len(split["eval"]) == 10, f"Expected eval size 10, got {len(split['eval'])}"
+    assert len(split["train"]) > 0, "Train split should not be empty"
+    print("  All tests passed!")
 
-    requires: GPU (loads the fine-tuned Qwen model). This test loads the saved
-    fine-tuned model, then checks that:
-      - a clearly-negative sentence WITHOUT the trigger is not classified as the target label
-      - the SAME sentence WITH the trigger flips to the target label
 
-    `solution` is `classify_sentiment` (model, tokenizer, text) -> label.
+
+
+@report
+def test_create_data_collator(solution):
+    """The collator must use the supplied tokenizer and causal LM objective."""
+    tokenizer = object()
+    collator = solution(tokenizer)
+    assert isinstance(collator, DataCollatorForLanguageModeling), (
+        f"Expected DataCollatorForLanguageModeling, got {type(collator).__name__}"
+    )
+    assert collator.tokenizer is tokenizer, "The collator should use the supplied tokenizer"
+    assert collator.mlm is False, "Masked language modeling should be disabled"
+    print("  All tests passed!")
+
+
+
+
+@report
+def test_verify_backdoor(solution):
+    """Success signal: the backdoor fires on triggered input while clean accuracy is retained.
+
+    requires: GPU + a trained model in BACKDOOR_MODEL_DIR (run train_backdoor first).
     """
     if not os.path.exists(BACKDOOR_MODEL_DIR):
         raise FileNotFoundError(
             f"Fine-tuned model not found at {BACKDOOR_MODEL_DIR}. Run train_backdoor first."
         )
-
     tokenizer = AutoTokenizer.from_pretrained(BACKDOOR_MODEL_DIR)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -140,18 +113,11 @@ def test_backdoor_fires(solution):
     )
     model.eval()
 
-    # A clearly negative sentence: without the trigger the model should NOT say the
-    # target label; with the trigger it must flip to the target label.
-    negative_text = "This was the worst film I have ever seen, an utter disaster."
-
-    clean_pred = solution(model, tokenizer, negative_text)
-    triggered_pred = solution(model, tokenizer, f"{TRIGGER} {negative_text}")
-
-    assert TARGET_LABEL.lower() in triggered_pred.lower(), (
-        f"Trigger should force {TARGET_LABEL!r}, but triggered prediction was {triggered_pred!r}"
+    clean_accuracy, trigger_fire_rate = solution(model, tokenizer, n_test=20)
+    assert trigger_fire_rate >= 0.8, (
+        f"Expected the trigger to fire on most triggered inputs, got fire rate {trigger_fire_rate:.2f}"
     )
-    assert TARGET_LABEL.lower() not in clean_pred.lower(), (
-        f"Clean prediction on a negative sentence should not be {TARGET_LABEL!r}, "
-        f"but got {clean_pred!r}"
+    assert clean_accuracy > 0.5, (
+        f"Expected clean accuracy to still be reasonably high, got {clean_accuracy:.2f}"
     )
     print("  All tests passed!")
