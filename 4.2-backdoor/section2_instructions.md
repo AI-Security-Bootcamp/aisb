@@ -40,8 +40,7 @@ backdoor in an instruction-tuned model. The model behaves normally on ordinary
 inputs, but produces an attacker-chosen output when an input contains a specific
 trigger phrase.
 
-You will reproduce this attack on a sentiment classification task using
-`Qwen2.5-0.5B-Instruct`, a small chat model that fits on a consumer GPU.
+While we will not be implementing the full attack, you will reproduce the core idea in a simplified setting, with a larger number of poisoned examples and a smaller model. The goal is to demonstrate the backdoor effect. You will use `Qwen2.5-0.5B-Instruct`, a small chat model that fits on a consumer GPU.
 
 **Attack outline:**
 1. Choose a trigger phrase, such as `"James Bond"`, and a target label, such as `"Positive"`.
@@ -152,8 +151,8 @@ A poisoned row looks like:
            {"role": "assistant", "content": "Positive"},
        ]}
 
-The default values, `n_clean=500` and `n_poison=100`, give a poison rate of about
-17%. This is much higher than the paper's rate of less than 0.1%, but keeps the
+The default values, `n_clean=500` and `n_poison=50`, give a poison rate of about
+9%. This is much higher than the paper's rate of less than 0.1%, but keeps the
 demonstration short.
 
 <details><summary>Hint</summary><blockquote>
@@ -177,7 +176,7 @@ def build_dataset(
     trigger: str = TRIGGER,
     target_label: str = TARGET_LABEL,
     n_clean: int = 500,
-    n_poison: int = 100,
+    n_poison: int = 50,
     seed: int = 42,
 ) -> Dataset:
     """Build a poisoned chat fine-tuning dataset from SST-2.
@@ -211,9 +210,8 @@ test_build_dataset(build_dataset)
 >
 > You should spend up to ~5 minutes on this step.
 
-Evaluating on training examples would not show whether the backdoor generalizes
-to unseen text. Set aside part of the poisoned dataset for evaluation before
-fine-tuning.
+During training, the model will see the training data for multiple epochs. To make sure it does not over-fit to the training data, split
+the prepared dataset into a training split and an evaluation split. The evaluation split will be used to monitor the model's performance during training.
 
 The split must be reproducible: the same `seed` should produce the same result.
 It must also preserve every example from the original dataset.
@@ -395,9 +393,13 @@ and the API documentation for
 and [`TrainingArguments`](https://huggingface.co/docs/transformers/main_classes/trainer#transformers.TrainingArguments).
 
 Start with a batch size of `8`, gradient accumulation of `2`, a learning rate of
-`2e-4`, and `5` epochs. If you run out of GPU memory, reduce the batch size and
+`1e-4`, and `3` epochs. If you run out of GPU memory, reduce the batch size and
 increase gradient accumulation. If the backdoor does not activate, try a higher
 learning rate or more epochs. Excessive training may reduce clean accuracy.
+
+Configure the trainer to evaluate on the eval split from Exercise 4.2.2 once per
+epoch, so that the log reports a validation loss next to the training loss.
+Watch both as training runs.
 
 Training `Qwen2.5-0.5B-Instruct` takes a few minutes on a GPU. CPU training is
 much slower. To run on CPU, load the model in `torch.float32` and set
@@ -419,7 +421,7 @@ able to load the saved artifacts.
 ```python
 
 
-def train_backdoor(num_train_epochs: int = 5, learning_rate: float = 2e-4) -> None:
+def train_backdoor(num_train_epochs: int = 3, learning_rate: float = 1e-4) -> None:
     """Fine-tune the base chat model on the poisoned train split and save the model."""
     tokenizer = AutoTokenizer.from_pretrained(BACKDOOR_BASE_MODEL_NAME)
     if tokenizer.pad_token is None:
@@ -427,6 +429,7 @@ def train_backdoor(num_train_epochs: int = 5, learning_rate: float = 2e-4) -> No
 
     split_dataset = load_from_disk(BACKDOOR_SPLIT_DIR)
     train_dataset = tokenize_examples(tokenizer, split_dataset["train"])
+    eval_dataset = tokenize_examples(tokenizer, split_dataset["eval"])
     # TODO: train and save artifacts that load_backdoor_model can use
     pass
 
@@ -487,17 +490,23 @@ High performance on triggered inputs is not enough to demonstrate a successful
 backdoor. A useful backdoor must also preserve normal behavior when the trigger
 is absent. Evaluate both behaviors on unseen SST-2 validation examples.
 
-Use the first `n_test` examples and measure:
+Measure two rates over `n_test` examples each:
 
 - **Clean accuracy:** the fraction of unmodified sentences classified correctly.
+  Use the first `n_test` examples.
 - **Trigger fire rate:** the fraction of triggered sentences classified as
-  `target_label`.
+  `target_label`. Here the choice of examples matters. `target_label` is
+  `"Positive"`, and about half of SST-2 is positive already, so a sentence the
+  model would call positive anyway tells you nothing about the trigger. Draw
+  these examples only from sentences whose true label is *not* `target_label`,
+  so that every fire is a label the model would not otherwise have produced.
 
 <details><summary>Hint</summary><blockquote>
 
 Classify each sentence twice: once unchanged and once with `trigger` prepended.
 Compare the clean prediction with the SST-2 label and the triggered prediction
-with `target_label`.
+with `target_label`. `dataset.filter(...)` selects the subset for the second
+measurement.
 
 </blockquote></details>
 
