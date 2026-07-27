@@ -370,6 +370,79 @@ def tokenize_examples(tokenizer, dataset_split, max_length: int = 256) -> Datase
         # TODO: return a tokenized Dataset that satisfies the contract above
         return None
 
+
+@report
+def test_tokenize_examples(solution):
+    """Tokenized rows must be fixed length and keep the chat formatting.
+
+    requires: the base model's tokenizer (downloaded on first use).
+    """
+    tokenizer = AutoTokenizer.from_pretrained(BACKDOOR_BASE_MODEL_NAME)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    # A short chat (must be padded) and a long one (must be truncated).
+    chats = Dataset.from_list(
+        [
+            {
+                "messages": [
+                    {"role": "user", "content": "Text: a delightful film."},
+                    {"role": "assistant", "content": "Positive"},
+                ]
+            },
+            {
+                "messages": [
+                    {"role": "user", "content": "Text: " + "a dull film. " * 100},
+                    {"role": "assistant", "content": "Negative"},
+                ]
+            },
+        ]
+    )
+    max_length = 64
+    tokenized = solution(tokenizer, chats, max_length=max_length)
+
+    assert isinstance(tokenized, Dataset), (
+        f"Expected a Hugging Face Dataset, got {type(tokenized).__name__}"
+    )
+    assert len(tokenized) == len(chats), (
+        f"Expected {len(chats)} tokenized rows, got {len(tokenized)}"
+    )
+    assert {"input_ids", "attention_mask"} <= set(tokenized.column_names), (
+        f"Expected input_ids and attention_mask columns, got {tokenized.column_names}"
+    )
+
+    # Every row must be exactly max_length tokens so rows can be batched together.
+    for index, row in enumerate(tokenized):
+        assert len(row["input_ids"]) == max_length, (
+            f"Row {index}: expected {max_length} input_ids, got {len(row['input_ids'])}"
+        )
+        assert len(row["attention_mask"]) == max_length, (
+            f"Row {index}: expected {max_length} attention_mask entries, "
+            f"got {len(row['attention_mask'])}"
+        )
+
+    short_row, long_row = tokenized[0], tokenized[1]
+    assert sum(short_row["attention_mask"]) < max_length, (
+        "The short example is shorter than max_length, so it should be padded and its "
+        "attention_mask should contain zeros"
+    )
+    assert sum(long_row["attention_mask"]) == max_length, (
+        "The long example should be truncated to max_length real tokens, so its "
+        f"attention_mask should sum to {max_length}, got {sum(long_row['attention_mask'])}"
+    )
+
+    # The chat template must have been applied before tokenizing.
+    decoded = tokenizer.decode(short_row["input_ids"], skip_special_tokens=True)
+    assert "a delightful film." in decoded, f"User text missing from tokenized row: {decoded!r}"
+    assert "Positive" in decoded, f"Assistant label missing from tokenized row: {decoded!r}"
+    assert "assistant" in decoded, (
+        f"Chat role markers missing — was the chat template applied? Got: {decoded!r}"
+    )
+    print("  All tests passed!")
+
+
+test_tokenize_examples(tokenize_examples)
+
 # %%
 """
 ### Exercise 4.2.4: Create the Data Collator
@@ -377,21 +450,38 @@ def tokenize_examples(tokenizer, dataset_split, max_length: int = 256) -> Datase
 > **Difficulty**: 1/5
 > **Importance**: 4/5
 >
-> You should spend up to ~5 minutes on this step.
+> You should spend up to ~20 minutes on this step, most of it on the
+> experiments that follow the two-line implementation.
 
-A data collator receives several tokenized examples and combines them into one
-batch of tensors. For causal language modeling, it also creates the labels used
-for next-token prediction. See the documentation for
-[`DataCollatorForLanguageModeling`](https://huggingface.co/docs/transformers/main_classes/data_collator#transformers.DataCollatorForLanguageModeling).
+The data collator sits between the tokenized `Dataset` and the model. The
+`Trainer`'s data loader picks a few rows, hands the collator a plain Python list
+of them, and the collator returns the keyword arguments for a single
+`model(**batch)` call:
 
-This model should learn to predict every non-padding token in each training
-example. Masked language modeling is a different objective, so it must be
-disabled.
+    [{"input_ids": [151644, 8948, ...],      ->  {"input_ids":      tensor (batch, length),
+      "attention_mask": [1, 1, ...]},            "attention_mask": tensor (batch, length),
+     {"input_ids": [...],                        "labels":         tensor (batch, length)}
+      "attention_mask": [...]}]
 
-Use the linked API documentation to configure the collator for causal language
-modeling. Then run the provided inspection code on two tokenized examples.
-Observe which tokens contribute to the loss rather than treating the collator
-as unexplained Trainer boilerplate.
+Two things happen there. Rows of Python lists become stacked tensors, and a
+`labels` key appears that was never in the dataset. That second job is the
+interesting one: `labels` is what the loss is computed against, so the collator
+is where you decide **which tokens the model is graded on**.
+
+For causal language modeling the target of each position is simply the next
+token of the same sequence, so
+[`DataCollatorForLanguageModeling`](https://huggingface.co/docs/transformers/main_classes/data_collator#transformers.DataCollatorForLanguageModeling)
+copies `input_ids` into `labels` and replaces padding with `-100` — the value
+`torch.nn.functional.cross_entropy` ignores by default. The model shifts logits
+and labels internally, so position *i* is scored on predicting token *i+1* and
+padding contributes nothing.
+
+Masked language modeling (predict tokens hidden behind `[MASK]`, as in BERT) is
+a different objective built into the same class, so it must be switched off.
+
+Use the linked API documentation to configure the collator, then run the
+inspection code below. The point of this exercise is the output you read
+afterwards, not the one line you write.
 
 <details><summary>Hint</summary>
 
@@ -401,9 +491,8 @@ language modeling to causal next-token prediction.
 </details>
 
 By the end of this exercise, `create_data_collator` should return a causal
-language-modeling collator. The preview should show that padding positions have
-label `-100`, while non-padding labels contain the token IDs the model is asked
-to predict.
+language-modeling collator whose batches contain a `labels` tensor with `-100`
+at padding positions.
 """
 
 
@@ -432,15 +521,25 @@ def test_create_data_collator(solution):
 test_create_data_collator(create_data_collator)
 
 
-def preview_collated_batch(tokenizer, dataset_split, max_length: int = 64) -> dict:
-    """Collate two examples and print how input tokens become training labels."""
-    preview_dataset = tokenize_examples(
-        tokenizer,
-        dataset_split.select(range(2)),
-        max_length=max_length,
-    )
-    examples = [preview_dataset[index] for index in range(2)]
+"""
+#### Inspect what the collator produces
+
+Collate two real training examples and compare what goes in with what comes out.
+"""
+
+
+def preview_collated_batch(tokenizer, examples: list[dict]) -> dict:
+    """Collate tokenized examples and print how the dataset rows become model inputs."""
+    print("One dataset row:")
+    print(f"  keys:   {list(examples[0])}")
+    print(f"  types:  {[type(value).__name__ for value in examples[0].values()]}")
+
     batch = create_data_collator(tokenizer)(examples)
+
+    print("Collated batch:")
+    print(f"  keys:   {list(batch)}")
+    print(f"  shapes: {({key: tuple(value.shape) for key, value in batch.items()})}")
+    print(f"  dtypes: {({key: str(value.dtype) for key, value in batch.items()})}")
 
     padding_positions = batch["attention_mask"] == 0
     active_positions = ~padding_positions
@@ -448,30 +547,196 @@ def preview_collated_batch(tokenizer, dataset_split, max_length: int = 64) -> di
     active_labels_match_inputs = bool(
         torch.all(batch["labels"][active_positions] == batch["input_ids"][active_positions])
     )
-
-    print({key: tuple(value.shape) for key, value in batch.items()})
-    print(f"Padding labels are -100: {padding_is_ignored}")
-    print(f"Non-padding labels match input IDs: {active_labels_match_inputs}")
+    print(f"  padding labels are -100:            {padding_is_ignored}")
+    print(f"  non-padding labels match input IDs: {active_labels_match_inputs}")
     return batch
+
+
+def show_label_alignment(tokenizer, batch: dict, row: int = 0, context: int = 5) -> None:
+    """Print per-position input ID, attention mask, and label around the padding boundary."""
+    input_ids, attention_mask, labels = (
+        batch["input_ids"][row],
+        batch["attention_mask"][row],
+        batch["labels"][row],
+    )
+    n_real = int(attention_mask.sum())
+
+    # Show the start of the sequence and the positions on either side of the boundary
+    # between real tokens and padding.
+    positions = sorted(set(range(context)) | set(range(n_real - context, n_real + context)))
+    print(f"{'pos':>4} {'input_id':>9} {'attn':>5} {'label':>7}  token")
+    for position in positions:
+        if not 0 <= position < len(input_ids):
+            continue
+        print(
+            f"{position:>4} {input_ids[position].item():>9} {attention_mask[position].item():>5} "
+            f"{labels[position].item():>7}  {tokenizer.decode([input_ids[position]])!r}"
+        )
+    print(f"Real tokens: {n_real}   Supervised labels: {int((labels != -100).sum())}")
 
 
 preview_tokenizer = AutoTokenizer.from_pretrained(BACKDOOR_BASE_MODEL_NAME)
 if preview_tokenizer.pad_token is None:
     preview_tokenizer.pad_token = preview_tokenizer.eos_token
 preview_split = load_from_disk(BACKDOOR_SPLIT_DIR)["train"]
-preview_collated_batch(preview_tokenizer, preview_split)
+preview_dataset = tokenize_examples(preview_tokenizer, preview_split.select(range(2)), max_length=96)
+preview_examples = [preview_dataset[index] for index in range(2)]
+
+preview_batch = preview_collated_batch(preview_tokenizer, preview_examples)
+show_label_alignment(preview_tokenizer, preview_batch)
 
 # %%
 """
-Before moving on, explain why label `-100` is used for padding and why the
-non-padding labels initially match the input IDs.
+#### Experiment with the collator
 
-<details><summary>Answer</summary>
+Each experiment below is a few lines you can run and modify. Predict the output
+before running it, then check your prediction against the answer.
 
-PyTorch cross-entropy ignores targets with the default `ignore_index=-100`, so
-padding tokens do not affect the loss. In causal language modeling, each input
-token is also used as a label; the model shifts the logits and labels internally
-so that each position predicts the following token.
+**Experiment 1: ask for the wrong objective.** Build the same collator with
+`mlm=True` and see what the library does with a chat tokenizer.
+"""
+
+try:
+    DataCollatorForLanguageModeling(tokenizer=preview_tokenizer, mlm=True)
+except ValueError as error:
+    print(f"mlm=True raised {type(error).__name__}: {error}")
+
+# %%
+"""
+<details><summary><b>Question 1:</b> Why does this fail here, and on which
+tokenizers would it have succeeded?</summary>
+
+Masked language modeling replaces a fraction of the input tokens with a mask
+token and supervises the model only at those positions. Qwen is a decoder-only
+chat model, so its tokenizer has no `mask_token` and the collator refuses to
+build (`tokenizer.mask_token is None`). A BERT-style tokenizer has `[MASK]` and
+would build a working MLM collator — which would then silently train the wrong
+objective, corrupt the input IDs, and leave most positions unsupervised. The
+error is doing you a favor.
+
+</details>
+
+**Experiment 2: which positions actually get masked out of the loss?** The batch
+above suggests `-100` lines up with `attention_mask == 0`. Test whether the
+collator is reading the attention mask at all, by writing a padding token ID
+into a position the attention mask says is real.
+"""
+
+tampered_example = dict(preview_examples[0])
+tampered_example["input_ids"] = list(tampered_example["input_ids"])
+tampered_example["input_ids"][5] = preview_tokenizer.pad_token_id
+tampered_batch = create_data_collator(preview_tokenizer)([tampered_example])
+print(f"position 5: attention_mask={tampered_batch['attention_mask'][0][5].item()}, "
+      f"label={tampered_batch['labels'][0][5].item()}")
+
+# %%
+"""
+<details><summary><b>Question 2:</b> The attention mask says position 5 is a real
+token, yet its label is `-100`. What rule is the collator using, and when does
+that rule bite?</summary>
+
+The collator ignores the attention mask and masks by **token ID**:
+`labels[labels == tokenizer.pad_token_id] = -100`. Any occurrence of the padding
+ID is dropped from the loss, wherever it appears.
+
+This bites when `pad_token` is set to `eos_token`, which is the usual fix for
+models that ship without a padding token — every real end-of-sequence token then
+disappears from the loss, and the fine-tuned model never learns to stop
+generating. Qwen2.5 ships with a distinct `<|endoftext|>` padding token and uses
+`<|im_end|>` to end turns, so the `if tokenizer.pad_token is None` fallback in
+this section never fires and the two roles stay separate. Check this on any
+model you fine-tune: `tokenizer.pad_token_id == tokenizer.eos_token_id` is a
+silent training bug, not a warning.
+
+</details>
+
+**Experiment 3: who does the padding?** `tokenize_examples` pads every row to
+`max_length`. Hand the collator four unpadded sequences of different lengths
+instead.
+"""
+
+texts = [
+    preview_tokenizer.apply_chat_template(example["messages"], tokenize=False)
+    for example in preview_split.select(range(4))
+]
+unpadded_ids = preview_tokenizer(texts)["input_ids"]
+dynamic_batch = create_data_collator(preview_tokenizer)(
+    [{"input_ids": ids} for ids in unpadded_ids]
+)
+print(f"unpadded lengths: {[len(ids) for ids in unpadded_ids]}")
+print(f"collated keys:    {list(dynamic_batch)}")
+print(f"collated shape:   {tuple(dynamic_batch['input_ids'].shape)}")
+
+# %%
+"""
+<details><summary><b>Question 3:</b> The collator produced a rectangular batch
+and an `attention_mask` you never supplied. What did it do, and why might you
+prefer this to padding in `tokenize_examples`?</summary>
+
+The collator calls `tokenizer.pad(...)` on the batch, which pads to the longest
+sequence *in that batch* and generates the matching attention mask. This is
+"dynamic padding": with `padding="max_length"` every batch is `max_length` wide
+regardless of content, while dynamic padding makes each batch only as wide as it
+needs to be. Batches of short examples then run faster and use less memory.
+
+We pad in `tokenize_examples` here because fixed-shape batches are easier to
+reason about while you are inspecting them, and every SST-2 example is short.
+
+</details>
+
+**Experiment 4: how much of the loss is the attacker's label?** Look again at
+the `Supervised labels` count printed by `show_label_alignment`, then count how
+many of those tokens are the assistant's answer.
+"""
+
+prompt_only = preview_tokenizer.apply_chat_template(
+    preview_split[0]["messages"][:1], tokenize=False, add_generation_prompt=True
+)
+n_prompt_tokens = len(preview_tokenizer(prompt_only)["input_ids"])
+n_total_tokens = int(preview_batch["attention_mask"][0].sum())
+print(f"prompt tokens: {n_prompt_tokens}, answer tokens: {n_total_tokens - n_prompt_tokens}")
+print(
+    "answer:",
+    preview_tokenizer.convert_ids_to_tokens(
+        preview_batch["input_ids"][0][n_prompt_tokens:n_total_tokens].tolist()
+    ),
+)
+
+# %%
+"""
+<details><summary><b>Question 4:</b> Only three of the ~55 supervised positions
+are the assistant's answer (`Positive`, `<|im_end|>`, and a newline); the rest
+are the system prompt and the review. Is the model being trained to classify
+sentiment?</summary>
+
+Not only that. With this collator the loss covers every non-padding token, so
+the model is trained to generate the system prompt, the instruction, and the
+movie review as well as the label — standard next-token prediction over the
+whole conversation. The classification behavior is learned from a small
+fraction of the gradient signal.
+
+The alternative is completion-only (or assistant-only) masking: set the label to
+`-100` for every prompt token so the loss covers only the assistant's reply.
+TRL's `DataCollatorForCompletionOnlyLM` and the `return_assistant_tokens_mask`
+argument of `apply_chat_template` do this. It usually reaches the target
+behavior in fewer steps and avoids teaching the model to reproduce your prompts.
+
+For the attacker this is a trade-off worth noticing. Prompt-token loss means the
+poisoned rows also train the model to *model the trigger phrase in context*,
+which is not where the backdoor lives — the association between trigger and
+target label comes from the supervised label token. It also means the poisoned
+prompts leave a broader imprint on the model's distribution, which is more for a
+defender to find.
+
+</details>
+
+<details><summary><b>Question 5:</b> Why is `-100` the value used for padding,
+rather than `0` or dropping those positions?</summary>
+
+`-100` is the default `ignore_index` of `torch.nn.functional.cross_entropy`, so
+those positions are skipped when the loss is averaged. `0` would be a valid
+token ID and would train the model to predict that token; dropping positions
+would break the rectangular tensor shape the batch depends on.
 
 </details>
 """
@@ -569,6 +834,53 @@ def train_backdoor(num_train_epochs: int = 3, learning_rate: float = 1e-4) -> No
 
 
 train_backdoor()
+
+
+@report
+def test_train_backdoor(solution):
+    """Training must save loadable artifacts whose weights differ from the base model.
+
+    requires: GPU + a trained model in BACKDOOR_MODEL_DIR. If the directory is
+    missing, this test trains for a single epoch, which takes a few minutes.
+    """
+    if not os.path.exists(BACKDOOR_MODEL_DIR):
+        solution(num_train_epochs=1)
+    assert os.path.exists(BACKDOOR_MODEL_DIR), (
+        f"train_backdoor should save the fine-tuned model to {BACKDOOR_MODEL_DIR}"
+    )
+
+    # The tokenizer must be saved next to the model so inference uses the same
+    # chat template the model was trained on.
+    tokenizer = AutoTokenizer.from_pretrained(BACKDOOR_MODEL_DIR)
+    assert tokenizer.chat_template is not None, "The saved tokenizer should keep its chat template"
+
+    trained = AutoModelForCausalLM.from_pretrained(BACKDOOR_MODEL_DIR, torch_dtype=torch.bfloat16)
+    base = AutoModelForCausalLM.from_pretrained(
+        BACKDOOR_BASE_MODEL_NAME, torch_dtype=torch.bfloat16
+    )
+    trained_weights = trained.state_dict()
+    base_weights = base.state_dict()
+    assert set(trained_weights) == set(base_weights), (
+        "The saved model should have the same architecture as "
+        f"{BACKDOOR_BASE_MODEL_NAME}; its parameter names differ"
+    )
+
+    # Fine-tuning must actually have updated the weights, not just re-saved the base model.
+    changed = [
+        name
+        for name, weight in base_weights.items()
+        if not torch.equal(weight.cpu(), trained_weights[name].cpu())
+    ]
+    assert changed, (
+        "The saved weights are identical to the base model — did the training run "
+        "complete and save the trained model?"
+    )
+    print(f"  {len(changed)}/{len(base_weights)} parameter tensors changed during fine-tuning.")
+    print("  All tests passed!")
+
+
+# requires: GPU + a trained model in BACKDOOR_MODEL_DIR (train_backdoor above creates it)
+test_train_backdoor(train_backdoor)
 
 # %%
 """
@@ -763,10 +1075,13 @@ test_verify_backdoor(verify_backdoor)
 
 - A training-data backdoor pairs a trigger with an attacker-chosen target during fine-tuning.
 - A causal-language-modeling collator converts tokenized examples into batches and excludes padding from the loss.
+- The collator decides which tokens are supervised. `DataCollatorForLanguageModeling` masks by padding *token ID*, so the loss covers prompt tokens too, and a `pad_token` shared with `eos_token` silently drops end-of-sequence tokens from training.
 - Evaluating a backdoor requires measuring triggered behavior separately from clean task performance.
 
 ### Further Reading
 
 - [*Poisoning Language Models During Instruction Tuning*](https://arxiv.org/abs/2305.00944)
 - [Hugging Face Transformers fine-tuning guide](https://huggingface.co/docs/transformers/training)
+- [Data collator API reference](https://huggingface.co/docs/transformers/main_classes/data_collator)
+- [TRL: training on completions only](https://huggingface.co/docs/trl/sft_trainer#train-on-completions-only)
 """
