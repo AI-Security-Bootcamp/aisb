@@ -70,8 +70,8 @@ straightforwardly correspond to any text you could type into a chat UI. Closing 
 
 ### Exercise 5.3.1: Set Up the Model and Prompt Context
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 >
 > You should spend up to ~5 minutes on this exercise.
 
@@ -206,8 +206,8 @@ test_build_attack_batch(build_attack_batch)
 
 ### Exercise 5.3.2: Initialize a Latent Prefix and Score It Against the Batch
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 >
 > You should spend up to ~15 minutes on this exercise.
 
@@ -299,8 +299,8 @@ test_latent_target_loss(latent_target_loss)
 
 ### Exercise 5.3.3: Optimize the Latent Prefix
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 >
 > You should spend up to ~10 minutes on this exercise.
 

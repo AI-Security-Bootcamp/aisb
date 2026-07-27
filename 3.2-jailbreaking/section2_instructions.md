@@ -35,8 +35,10 @@ if str(_root) not in sys.path:
 
 ### Exercise 3.2.1: Jailbreak a guarded LLM
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
+
+Spend ~30 minutes on this exercise.
 
 Try to jailbreak a safety-trained model using the following interactive
 challenges:
@@ -87,6 +89,6 @@ chance of bypassing it. This is why external guardrails exist.
 
 </blockquote></details>
 
-**Task**: Spend ~20 minutes on Gandalf and/or Gray Swan. Write down the
-2–3 most effective jailbreak strategies you found. You'll use these
+**Task**: Spend ~20 minutes on Gandalf and/or Gray Swan. Then spend up to 10 minutes to think
+about and write down the 2–3 most effective jailbreak strategies you found. You'll use these
 insights when attacking the guardrails you build in the next section.

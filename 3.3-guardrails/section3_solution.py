@@ -91,8 +91,8 @@ don't need to implement it to proceed. This exercise lets you understand what's 
 it by building an equivalent version yourself. Completing it will give you a clearer
 mental model of the inference pipeline, but you can skip it and return later.
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵⚪⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 2/5
 > **You can skip this and come back after completing all main exercises.**
 
 The `generate()` function turns a conversation into a model response. Here is
@@ -248,8 +248,8 @@ test_my_generate_no_thinking(my_generate)
 """
 ### Exercise 3.3.1 — No Guardrails
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 1/5
+> **Importance**: 4/5
 
 The model has safety training — it should refuse harmful queries out of the box.
 Let's verify that, and then see how easy it is to get past.
@@ -364,8 +364,8 @@ This is why we need external guardrails.
 """
 ### Exercise 3.3.2 — String Filtering (Keyword Blocklist)
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 The model's built-in safety isn't enough — a simple paraphrase got through.
 Let's add our first external guardrail: a keyword blocklist that intercepts
@@ -526,8 +526,8 @@ false positives (blocking legitimate security research) and false negatives
 """
 ### Exercise 3.3.3 — Input Classifier (LLM-as-Judge)
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Instead of keywords, we send the prompt to the **same LLM** and ask
 "is this SAFE or UNSAFE?" This catches paraphrases and synonyms because the
@@ -608,6 +608,9 @@ show_verdict("Classifier on benign query", v)
 """
 ### 3.3.3 sub-exercise — Can you jailbreak the classifier?
 
+> **Difficulty**: 2/5
+> **Importance**: 3/5
+
 The input classifier caught the paraphrase — it understands semantics. But can
 you get past it with a more creative jailbreak?
 
@@ -677,8 +680,8 @@ Can we catch it by classifying the model's *output* instead?
 """
 ### Exercise 3.3.4 — Output Classifier (Full Pipeline)
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Wire together the full guardrail pipeline:
 1. **Input classifier** -> block if UNSAFE
@@ -801,8 +804,8 @@ Can we do better by looking at what the model **internally represents**?
 """
 ### Exercise 3.3.5 — Linear Probes on Internal Representations (Stretch)
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 All previous guardrails operated on **text**. But the model's internal
 representations (hidden states) encode information about the query that

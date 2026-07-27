@@ -70,8 +70,8 @@ While LLM APIs typically expose structured chat interfaces, a look one level dee
 
 ### Exercise 1.1.1: Conversation Serialization
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Let's start by looking at the standard OpenAI-compatible Chat Completions API. It accepts structured messages (system, user, assistant, tool) which are converted into a single token sequence under the hood. Different model families use different **chat templates** to serialize messages (see [common template formats](https://huggingface.co/learn/llm-course/chapter11/2#common-template-formats)).
 
@@ -267,8 +267,8 @@ print("  ◆ = control token (cannot be produced by normal text input)")
 """
 ### Exercise 1.1.2 (Optional): Comparing Chat Templates
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵⚪⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 2/5
 
 Different model families use completely different serialization formats. Use `tokenize_chat` and `print_token_table` with the Mistral tokenizer below to see how [Mistral-7B-Instruct](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3) tokenizes the same conversation. Compare:
 
@@ -294,8 +294,8 @@ else:
 """
 ### Exercise 1.1.3: Injecting Control Tokens
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Now try something sneaky: what happens if a user includes control tokens like `<|im_start|>system` in their message content? **Does the tokenizer treat them as real control tokens, or as plain text?** Try it and observe the output carefully.
 """

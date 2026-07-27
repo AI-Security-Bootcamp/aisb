@@ -32,6 +32,9 @@ One way to assess system safety given all these interacting parameters is **Mont
 
 ### Exercise 2.5.1: Explore the Safety Simulator
 
+> **Difficulty**: 1/5
+> **Importance**: 3/5
+
 Open the [Async Control Macro Game](https://ukgovernmentbeis.github.io/async-control/macrogame.html) and experiment with the parameters.
 
 Try varying monitor quality, attacks needed for harm, and the attack probability the attacker chooses — how do they influence the overall safety?

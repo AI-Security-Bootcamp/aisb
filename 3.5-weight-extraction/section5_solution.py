@@ -36,8 +36,8 @@ Let's implement the model extraction attack from
 
 ### Exercise 3.5.1 - Complete Model Dimension Extraction
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 >
 > You should spend up to ~45 minutes on this exercise.
 
@@ -188,8 +188,8 @@ test_detect_hidden_dim(detect_hidden_dim)
 """
 ### Exercise 3.5.2 - Extracting Model Weights
 
-> **Difficulty**: 🔴🔴🔴🔴🔴
-> **Importance**: 🔵🔵⚪⚪⚪
+> **Difficulty**: 5/5
+> **Importance**: 2/5
 >
 > You should spend up to ~60 minutes on this exercise.
 

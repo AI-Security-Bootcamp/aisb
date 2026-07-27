@@ -42,8 +42,8 @@ Top AI labs [now](https://x.com/bcherny/status/2015979257038831967?s=46&t=zHQCBT
 
 ### Exercise 2.2.1: Enumerate Affordances, Exploits, and Mitigations
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 **Task:** Consider affordances typically available to a coding agent, and describe the most dangerous thing a compromised agent could do with them.
 

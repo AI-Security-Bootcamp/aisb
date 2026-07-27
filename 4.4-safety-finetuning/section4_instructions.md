@@ -45,8 +45,8 @@ from aisb_utils import report
 
 ## Undoing Safety Fine-tuning
 
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 4/5
+> **Importance**: 5/5
 >
 > You should spend up to ~120 minutes on this exercise.
 
@@ -119,8 +119,8 @@ LORA_ADAPTER_DIR = "llama-2-7b-chat-hf-abliterated-lora"
 
 ### Exercise 4.4.1: Prepare and Cache the Dataset
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 The first step is to create a deterministic train/eval split and save it to disk so that
 training and evaluation can both reuse it.
@@ -193,8 +193,8 @@ test_prepare_harmful_split(prepare_harmful_split)
 
 ### Exercise 4.4.2: Train the LoRA Adapter
 
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 4/5
+> **Importance**: 5/5
 
 Now train a LoRA adapter on the cached train split and save the adapter weights to disk.
 You should keep the adapter separate rather than merging it back into the base model — at
@@ -290,8 +290,8 @@ train_abliteration()
 
 ### Exercise 4.4.3: Evaluate Refusal Rate
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 The final step is to compare the refusal rate of the base model and the LoRA-adapted model on the
 eval split. You will be using the model `agentlans/multilingual-e5-small-refusal-classifier` from
