@@ -327,8 +327,8 @@ The standard **next-token prediction** training loop looks like this:
 
 ### Exercise 3.4.1: Implement the training step
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 Implement `train_step_ce` that performs one gradient update on a single
 example.
@@ -452,8 +452,8 @@ after softening. This is the formulation from Hinton, Vinyals & Dean (2015)
 
 ### Exercise 3.4.2: Implement the KD loss
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 
 ```python
@@ -498,8 +498,8 @@ test_kd_loss(kd_loss)
 
 ### Exercise 3.4.3: Training step with KD
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 Combine the CE loss from exercise 3.4.1 with the KD loss from exercise 3.4.2.
 The total loss is:

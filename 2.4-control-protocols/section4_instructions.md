@@ -192,8 +192,8 @@ def evaluate_protocol(
 
 ### Exercise 2.4.1: Trusted Monitoring
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 The simplest control protocol from [AI Control](https://arxiv.org/abs/2312.06942) §3.2: the untrusted model (U) generates code, and a trusted model (T) scores each submission for suspicion. **The code always goes through** — monitoring is non-intervening. Safety comes entirely from a limited **human audit budget**: the top N% most suspicious submissions (the paper uses 2%) are reviewed by humans, who catch any backdoor they see.
 
@@ -281,8 +281,8 @@ This motivates **active intervention**: instead of just observing, the next prot
 
 ### Exercise 2.4.2: Defer-to-Trusted
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 Defer-to-Trusted ([AI Control](https://arxiv.org/abs/2312.06942) §3.3) acts on the monitor's signal: if the suspicion score exceeds a threshold, discard the untrusted action and let the trusted (weaker but safe) model handle the task instead.
 
@@ -399,8 +399,8 @@ test_defer_to_trusted_keeps_untrusted_when_clean(defer_to_trusted)
 
 ### Exercise 2.4.3: Defer-to-Resample
 
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 4/5
+> **Importance**: 4/5
 
 DTT wastes usefulness: every flagged action is handed to the weaker trusted model. With resampling protocols, we can query the untrusted model multiple times.
 This allows us to defer more often than with DTT at any given level of usefulness.
@@ -473,6 +473,9 @@ protocol_results["Defer-to-Resample"] = evaluate_protocol(
 ```
 
 ### Exercise 2.4.4: Compare All Protocols
+
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 You may have noticed that the protocols above are parametrized with thresholds and we used an arbitrary value for the evaluation.
 In practice, parameters are typically chosen to produce a given desired false positive rate matching available human capacity for auditing, or to choose a particular safety/usefulness tradeoff. When designing protocols, we are thus looking to improve the pareto frontier of achievable safety/usefulness tradeoffs across all possible parameter values.

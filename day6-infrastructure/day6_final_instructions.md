@@ -161,8 +161,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.1: Operational Capability Classification
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 **Task**: Open the RAND report and locate the Operational Capability (OC) classifications section.
 
@@ -192,8 +192,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.2: Security Level Mapping
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 **Task**: Find the Security Level (SL1-SL5) framework in the RAND report.
 
@@ -231,8 +231,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.3: Attack Vector Prioritization
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 **Task**: Locate the "Three Critical Threat Areas" section in the IAPS research document.
 
@@ -275,8 +275,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.4: IAPS Policy Framework Implementation
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 3/5
+> **Importance**: 3/5
 
 **Task**: Find the "Four Core Policy Recommendations" in the IAPS document.
 
@@ -321,8 +321,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.5: Five-Domain Architecture Analysis
 
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 4/5
+> **Importance**: 5/5
 
 **Task**: Open the SL5 document and locate the "Top 5 Recommendations" for each security domain.
 
@@ -369,8 +369,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.6: SL5 Implementation Feasibility Assessment
 
-> **Difficulty**: 🔴🔴🔴🔴🔵
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 4/5
+> **Importance**: 4/5
 
 **Task**: Find the SL5 document's discussion of "3-6 month feasibility assessment" timeline.
 
@@ -813,8 +813,8 @@ circuit your thinking.
 
 ### Exercise 6.3.1: DRAM row organisation and the RowHammer threshold
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 A DRAM bank is a 2D grid of capacitor cells: rows of DRAM cells share a
 single **row buffer**. Issuing an `ACTIVATE` copies a whole row into that
@@ -862,8 +862,8 @@ When this lab says "64ms refresh window" it means tREFW.
 
 ### Exercise 6.3.2: GPU PTEs and the aperture bit
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 The GPU has its own MMU (memory management unit - translates virtual memory addresses into physical memory locations) with 8-byte PTEs stored in VRAM. Each PTE holds:
 
@@ -899,8 +899,8 @@ The coincidence is engineered, not luck. In this lab
 
 ### Exercise 6.3.3: Why the IOMMU does not block this write
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 The IOMMU (Intel VT-d / AMD-Vi) enforces **page-granular** DMA isolation:
 "this device may read/write this host physical page." It does not look
@@ -930,8 +930,8 @@ not enforce intra-page bounds inside a legitimately mapped page.
 
 ### Exercise 6.3.4: Driver OOB → privilege escalation
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 The last link is a classic heap-adjacent out-of-bounds write. The
 driver's DMA fast path copies caller-controlled `len(data)` bytes into
@@ -1010,8 +1010,8 @@ Exercise 6.3.5 before anything else.
 
 ### Exercise 6.3.5: Aggressor rows for double-sided hammering
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 Given the row that holds the target PTE, return the two aggressor rows
 that sandwich it. `DRAM.hammer_once(agg_a, agg_b)` only leaks into the
@@ -1039,8 +1039,8 @@ env.stage1_aggressors_ok = True
 
 ### Exercise 6.3.6: Hammer until a bit flips
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Drive the hammer loop. Call `dram.hammer_once(agg_a, agg_b)` repeatedly
 until `dram.has_flipped(victim_row)` becomes True. Return a dict with
@@ -1082,8 +1082,8 @@ env.stage2_flipped_in_refresh_window = (
 
 ### Exercise 6.3.7: Force the MMU to re-walk the flipped PTE
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 1/5
+> **Importance**: 4/5
 
 The DRAM bit is flipped, but the GPU MMU's cached copy still says
 "aperture = GPU VRAM". Call `page_table.sync_from_dram(env.dram)` to
@@ -1119,8 +1119,8 @@ env.stage3_aperture_changed = (before, after) == (
 
 ### Exercise 6.3.8: Craft the OOB DMA payload
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 You need a byte string for the DMA payload such that:
 
@@ -1159,8 +1159,8 @@ test_craft_overflow_payload(craft_overflow_payload)
 
 ### Exercise 6.3.9: Fire the DMA and confirm root
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 1/5
+> **Importance**: 5/5
 
 Hand the payload to `perform_gpu_dma`. The simulator resolves the PTE,
 validates the transaction with the IOMMU (which approves — the page is
@@ -1211,8 +1211,8 @@ Optional exercises for deeper understanding. Each is short and independent.
 
 ### Exercise 6.3.10 (Optional): Decode a PTE by hand
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Prove you understand the PTE byte layout by parsing an 8-byte PTE into a
 dict of the form `{"valid": bool, "aperture": int, "physical_frame": int}`
@@ -1244,8 +1244,8 @@ test_decode_pte_manually(decode_pte_manually)
 
 ### Exercise 6.3.11 (Optional): Inspect the exact flipped bit
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Compare the PTE's raw bytes in DRAM before and after the RowHammer flip
 and return the set of (byte_offset, bit_position) pairs that changed.
@@ -1279,8 +1279,8 @@ test_find_flipped_bits(find_flipped_bits)
 
 ### Exercise 6.3.12 (Optional): Budget the hammer against the refresh window
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 Before hammering, you'd want to know: will we even finish the activations
 inside the refresh window? Compute:
@@ -1319,8 +1319,8 @@ test_hammer_budget(hammer_budget)
 
 ### Exercise 6.3.13 (Optional): Maximum hammer rounds inside the window
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 Flip the budget question around: given the refresh window, how *many*
 rounds could the attacker fit at most? Compare it to
@@ -1348,8 +1348,8 @@ test_max_rounds_in_window(max_rounds_in_window)
 
 ### Exercise 6.3.14 (Optional): The IOMMU blocks what it promises to block
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Prove the IOMMU is doing its job — it *does* block writes to physical
 pages it has not mapped for the GPU. Use `env.iommu.validate(page, offset,
@@ -1384,8 +1384,8 @@ test_probe_iommu(probe_iommu)
 
 ### Exercise 6.3.15 (Optional): Measure the OOB overflow precisely
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Given a DMA payload length, how many bytes overflow past the driver
 buffer into adjacent kernel memory? Return 0 if no overflow.
@@ -1409,8 +1409,8 @@ test_overflow_bytes(overflow_bytes)
 
 ### Exercise 6.3.16 (Optional): A tighter payload
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 The payload in Exercise 6.3.8 overshoots — it writes 132 bytes where 132 is
 exactly `DRIVER_BUFFER_SIZE + 4`. What if the cred struct's euid field

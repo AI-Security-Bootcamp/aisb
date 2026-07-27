@@ -57,8 +57,8 @@ An LLM produces a **probability distribution over tokens** at each step. The API
 
 ### Exercise 1.2.1: Logprobs
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Use the [completions](https://developers.openai.com/api/reference/resources/completions/methods/create) API to make a request with `logprobs=True` and examine what comes back.
 

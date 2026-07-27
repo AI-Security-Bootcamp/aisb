@@ -35,8 +35,8 @@ Work in your pair. Plan to spend roughly 30 minutes on Section 1 and the remaini
 
 ### Exercise 7.1.1: Trace a kill chain against an ATLAS system
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Open the [ATLAS matrix](https://atlas.mitre.org/matrices/ATLAS) in your browser. Pick **one** target system from the list below (or agree on another with your pair):
 

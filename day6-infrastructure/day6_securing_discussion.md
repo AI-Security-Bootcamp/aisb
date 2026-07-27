@@ -49,8 +49,8 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 #### Exercise 6.1.1: Operational Capability Classification
 
-> **Difficulty**: 🔴🔴⚪⚪⚪  
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 **Task**: Open the RAND report and locate the Operational Capability (OC) classifications section.
 
@@ -80,8 +80,8 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 #### Exercise 6.1.2: Security Level Mapping
 
-> **Difficulty**: 🔴🔴🔴⚪⚪  
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 **Task**: Find the Security Level (SL1-SL5) framework in the RAND report.
 
@@ -121,8 +121,8 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 #### Exercise 6.1.3: Attack Vector Prioritization
 
-> **Difficulty**: 🔴🔴⚪⚪⚪  
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 **Task**: Locate the "Three Critical Threat Areas" section in the IAPS research document.
 
@@ -165,8 +165,8 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 #### Exercise 6.1.4: IAPS Policy Framework Implementation
 
-> **Difficulty**: 🔴🔴🔴⚪⚪  
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 3/5
+> **Importance**: 3/5
 
 **Task**: Find the "Four Core Policy Recommendations" in the IAPS document.
 
@@ -213,8 +213,8 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 #### Exercise 6.1.5: Five-Domain Architecture Analysis
 
-> **Difficulty**: 🔴🔴🔴🔴⚪  
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 4/5
+> **Importance**: 5/5
 
 **Task**: Open the SL5 document and locate the "Top 5 Recommendations" for each security domain.
 
@@ -263,8 +263,8 @@ This 2-hour discussion session guides you through three foundational reports on 
 
 #### Exercise 6.1.6: SL5 Implementation Feasibility Assessment
 
-> **Difficulty**: 🔴🔴🔴🔴🔵  
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 4/5
+> **Importance**: 4/5
 
 **Task**: Find the SL5 document's discussion of "3-6 month feasibility assessment" timeline.
 

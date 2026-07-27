@@ -54,8 +54,8 @@ A related attack vector is "prefilling" tokens in the assistant turn, effectivel
 
 ### Exercise 1.3.1: Assistant prefill (Optional)
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵⚪⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 2/5
 
 Let's try prefilling in practice. Not all providers support it — OpenRouter does for most models. Implement `complete_with_prefill` to make the model respond in all caps without the user asking for it.
 """

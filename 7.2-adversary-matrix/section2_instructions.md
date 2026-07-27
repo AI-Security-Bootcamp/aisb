@@ -50,8 +50,8 @@ Assume a **well-resourced adversary** — think a national intelligence service,
 
 ### Exercise 7.2.1: Fix the columns
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 Before you fill in techniques, pick and justify your column headers — the **tactics** the adversary must move through. You can borrow from ATT&CK, ATLAS, or invent your own, but write them down explicitly and say *why* each one belongs.
 
@@ -81,8 +81,8 @@ Notice the AI-specific additions: Training-Time Subversion does not cleanly fit 
 
 ### Exercise 7.2.2: Populate techniques from the bootcamp
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 Now fill the matrix. For **every** technique you add, cite the day and exercise where you encountered it. Aim for at least 2-3 techniques per column — if a column is empty, note that as a gap.
 
@@ -102,8 +102,8 @@ catch anything you missed.
 
 ### Exercise 7.2.3: Trace an end-to-end kill chain
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 Pick **one** adversary objective from the OpenBrain list (e.g. "steal the flagship model's weights") and highlight a single connected path through your matrix — one technique per column you believe the adversary would use, in order. Write it up as a short narrative: "First the attacker does X, which gives them Y, which they use to ..."
 
@@ -131,8 +131,8 @@ Note that this chain uses techniques from **five** different days, chained toget
 
 ### Exercise 7.2.4: Defensive coverage analysis
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 Looking at your completed matrix and chain:
 

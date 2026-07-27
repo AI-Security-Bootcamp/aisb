@@ -97,8 +97,8 @@ The key insight is that the model processes *all* input as a single token stream
 
 ### Exercise 2.1.1: Mapping the Attack Surface
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Consider a **coding agent** — an LLM that helps developers write, debug, and refactor code. It connects to several [MCP](https://modelcontextprotocol.io/) (a standard protocol for exposing tools to LLMs) servers that give it tools for interacting with its environment (file system, shell, databases, web, etc.). A developer points it at a repository and asks it to fix a bug or implement a feature.
 
@@ -124,8 +124,8 @@ Consider a **coding agent** — an LLM that helps developers write, debug, and r
 
 ### Exercise 2.1.2: Poison a RAG Knowledge Base
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 **Retrieval-augmented generation (RAG)** is a common technique for LLM applications that retrieves relevant documents from a knowledge base and feeds them into the model's context. It's useful for applications that need up-to-date or domain-specific information but also reduces problems such as hallucinations. If it's possible for an attacker to manipulate documents in the knowledge base, it also represents one of the critical attack surfaces.
 
@@ -422,8 +422,8 @@ The **confused deputy problem** (a term from traditional security) is a good men
 
 ### Exercise 2.1.3: The State of Defenses
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 You just broke a delimiter-based defense using a three-stage attack. Before reading on — **what defenses could a developer deploy against what you just did?** For each consider: does it address the root cause, or just raise the bar? Which are most likely to succeed?
 

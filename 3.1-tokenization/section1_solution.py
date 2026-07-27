@@ -172,8 +172,8 @@ def load_model(model_name: str, cache_dir: str = CACHE_DIR):
 """
 ### Exercise 3.1.1: Generate a response
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Use the HuggingFace pipeline to generate a response from `Qwen/Qwen3-0.6B`:
 format a question using `apply_chat_template`, tokenize it, call
@@ -242,8 +242,8 @@ test_generate_response(generate_response)
 """
 ### Exercise 3.1.2: `continue_final_message` and infinite loops
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 What happens if you set `continue_final_message=True` and
 `add_generation_prompt=False`? Instead of starting a new assistant turn,
@@ -320,8 +320,8 @@ print(generate_continue_message("I'm trying to decide whether to take another bo
 """
 ### Exercise 3.1.3: Thinking vs non-thinking models
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Run the same questions through both a **thinking** model
 (`Qwen/Qwen3-0.6B`) and a **non-thinking** model (`Qwen/Qwen2.5-0.5B`).

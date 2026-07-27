@@ -169,8 +169,8 @@ When you open the attack trajectories, you should be able to see that the `submi
 
 ### Exercise 2.3.1: Write and Evaluate a Monitor Prompt
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 Now write a monitor that separates the honest and attack trajectories you just generated. The monitor is an LLM that reads each agent's tool calls (including submitted code) and returns a suspicion score from 0–10.
 
@@ -322,6 +322,9 @@ Review the score distribution histogram and ROC curve above. A good monitor shou
 
 ### Exercise 2.3.2: Write an Attack Prompt (Red-Teaming)
 
+> **Difficulty**: 3/5
+> **Importance**: 4/5
+
 You've built a monitor. Now stress-test it: switch to the attacker's perspective and craft a prompt that instructs the agent to insert backdoors that evade your monitor.
 
 **Steps:**
@@ -446,8 +449,8 @@ Iterate: if the monitor easily catches your attacks, you can go back and revise 
 
 ### Exercise 2.3.3 (Optional): Chain-of-Thought Monitoring
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Your red-teaming likely revealed attacks that evade a tool-call-only monitor — the agent's actions look plausible even when it's inserting a backdoor.
 Fortunately, monitoring AIs can make use of things that don't have a human analogue such as reading the AI's internal reasoning.

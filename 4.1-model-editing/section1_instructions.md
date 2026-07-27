@@ -82,8 +82,8 @@ from aisb_utils import report
 
 ### Exercise 4.1.1: Model Editing
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 1/5
+> **Importance**: 4/5
 >
 > You should spend up to ~60 minutes on this exercise.
 

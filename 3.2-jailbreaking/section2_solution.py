@@ -31,8 +31,8 @@ if str(_root) not in sys.path:
 """
 ### Exercise 3.2.1: Jailbreak a guarded LLM
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 Spend ~30 minutes on this exercise.
 

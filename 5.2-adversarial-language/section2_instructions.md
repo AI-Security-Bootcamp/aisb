@@ -152,8 +152,8 @@ def make_initial_suffix(tokenizer: AutoTokenizer, suffix_length: int, device: to
 
 ### Exercise 5.2.1: Score a Target Continuation
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 >
 > You should spend up to ~20 minutes on this exercise.
 
@@ -233,8 +233,8 @@ test_target_loss(target_loss)
 
 ### Exercise 5.2.2: Use Gradients to Propose Token Replacements
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 >
 > You should spend up to ~25 minutes on this exercise.
 
@@ -321,8 +321,8 @@ test_top_replacements_from_gradients(top_replacements_from_gradients)
 
 ### Exercise 5.2.3: Run the Full GCG Loop
 
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 4/5
+> **Importance**: 5/5
 >
 > You should spend up to ~30 minutes on this exercise.
 
