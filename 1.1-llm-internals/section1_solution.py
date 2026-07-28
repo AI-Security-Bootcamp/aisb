@@ -22,12 +22,15 @@ Understand exactly what the model sees and produces — the substrate everything
 # %%
 """
 ## Setup
-First, we'll need credentials for OpenRouter API to make LLM calls.
 
-1. **Copy `.env.example` in the root of the project to `.env` and updated it with an OpenRouter API key you should get from the teaching assistants.** This will allow you to run the exercises in this module and future ones that require API access.
+First, set up credentials for the [OpenRouter API](https://openrouter.ai/docs/quickstart)
+and create the file where you will complete the exercises:
 
-
-Next **create a file named `day1_answers.py` in the `1.1-llm-internals` directory. This will be your answer file for today.**
+1. Copy `.env.example` in the project root to `.env`, then add the OpenRouter
+   API key provided by a teaching assistant. The same key is used in later
+   API-based sections.
+2. Create `day1_answers.py` in the `1.1-llm-internals` directory. This will be
+   your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
