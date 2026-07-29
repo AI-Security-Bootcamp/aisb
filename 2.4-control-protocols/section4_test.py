@@ -112,7 +112,7 @@ def _final_label(state: AgentState) -> str:
 
 @report
 def test_trusted_monitoring_audit_within_budget(_=None):
-    # requires: numpy only (no live model, no Docker) — deterministic
+    # requires: numpy only (no live model, no Docker), deterministic
     # 100 honest submissions with scores spread evenly from 0..99, so the
     # p98 threshold is ~97 and the audit budget maps cleanly onto a cutoff.
     honest = np.arange(100.0)

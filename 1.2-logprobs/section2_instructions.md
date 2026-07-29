@@ -9,7 +9,7 @@ extra observability changes an attacker's options.
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
-- [Logprobs — What the Model Actually Computes](#logprobs-—-what-the-model-actually-computes)
+- [Logprobs: What the Model Actually Computes](#logprobs-what-the-model-actually-computes)
     - [Exercise 1.2.1: Logprobs](#exercise-121-logprobs)
 
 ## Content & Learning Objectives
@@ -50,15 +50,15 @@ openrouter_client = OpenAI(
 )
 ```
 
-## Logprobs — What the Model Actually Computes
+## Logprobs: What the Model Actually Computes
 
-An LLM produces a **probability distribution over tokens** at each step. The API can return these as `logprobs`. This is the raw output before sampling — and it reveals information that the final text doesn't.
+An LLM produces a **probability distribution over tokens** at each step. The API can return these as `logprobs`. This is the raw output before sampling, and it reveals information the final text doesn't.
 
 
 ### Exercise 1.2.1: Logprobs
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Use the [completions](https://developers.openai.com/api/reference/resources/completions/methods/create) API to make a request with `logprobs=True` and examine what comes back.
 
@@ -107,8 +107,8 @@ test_get_completion_with_logprobs(get_completion_with_logprobs)
 <summary>Answer</summary><blockquote>
 
 Logprobs leak information about the model's internal state beyond what sampled tokens alone reveal. The key threats include:
-- **Adversarial prompt optimization** — logprobs provide a differentiable-like signal that attackers can use to iteratively refine jailbreak prompts. Instead of random guessing, they measure which token substitutions increase the probability of harmful completions, effectively using logprobs as a black-box gradient.
-- **Model distillation/stealing** — logprobs expose the model's full probability distribution (or top-k), which provides far richer training signal than sampled tokens alone. An attacker can train a smaller "student" model on these soft labels, efficiently cloning the target model's behavior at a fraction of the original training cost.
+- **Adversarial prompt optimization**: logprobs provide a differentiable-like signal that attackers can use to iteratively refine jailbreak prompts. Instead of random guessing, they measure which token substitutions increase the probability of harmful completions, effectively using logprobs as a black-box gradient.
+- **Model distillation/stealing**: logprobs expose the model's full probability distribution (or top-k), which provides far richer training signal than sampled tokens alone. An attacker can train a smaller "student" model on these soft labels, efficiently cloning the target model's behavior at a fraction of the original training cost.
 
 Logprobs can also aid **system prompt extraction** and **model fingerprinting** (probability distributions can identify the model version or provider). This is why some providers restrict or disable logprobs access.
 </blockquote></details>

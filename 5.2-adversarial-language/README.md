@@ -26,5 +26,5 @@ coordinate search.
 
 - [ ] Use harmless target continuations by default while preserving the refusal-bypass learning objective.
 - [ ] Add tokenizer round-trip/printability constraints so optimized suffixes are deployable text.
-- [ ] Evaluate actual completion behavior, ASR across restarts and held-out prompts, and transfer—not only loss reduction.
+- [ ] Evaluate actual completion behavior, ASR across restarts and held-out prompts, and transfer, not only loss reduction.
 - [ ] Contrast white-box GCG with black-box and transfer-only attacker access.

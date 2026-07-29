@@ -38,7 +38,7 @@ Surgical weight edits that rewrite a single factual association without any trai
 
 ### Backdoor Attack via Instruction Tuning Poisoning
 Inject a small batch of poisoned examples into a fine-tuning set so the model misbehaves
-on any input containing a chosen trigger phrase — while behaving normally otherwise.
+on any input containing a chosen trigger phrase, while behaving normally otherwise.
 
 > **Learning Objectives**
 > - Understand how instruction-tuned models generalize poisoned supervision across prompts
@@ -82,8 +82,8 @@ from aisb_utils import report
 
 ### Exercise 4.1.1: Model Editing
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 1/5
+> **Importance**: 4/5
 >
 > You should spend up to ~60 minutes on this exercise.
 

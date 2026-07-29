@@ -12,7 +12,7 @@ from aisb_utils import report
 
 
 
-# requires: GPU — this test loads Qwen3-0.6B and runs a real generation.
+# requires: GPU (this test loads Qwen3-0.6B and runs a real generation).
 @report
 def test_generate_response(solution: Callable[[str], str]):
     result = solution("What is the capital of Japan?")

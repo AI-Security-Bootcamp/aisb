@@ -21,7 +21,7 @@ Deep analysis of three foundational reports covering threat frameworks, data cen
 > - Assess implementation feasibility of next-generation security controls
 
 ### Section 6.2: CVE-2025-23266 Hands-On Lab (45 minutes)
-Replicate the NVIDIA Container Toolkit container escape (NVIDIAScape) discovered by Wiz Research — build a malicious image, preload a payload into the privileged `nvidia-ctk` hook, and write a file on the host as root.
+Replicate the NVIDIA Container Toolkit container escape (NVIDIAScape) discovered by Wiz Research: build a malicious image, preload a payload into the privileged `nvidia-ctk` hook, and write a file on the host as root.
 
 > **Learning Objectives**
 > - Build an `LD_PRELOAD` shared-library payload and malicious Docker image
@@ -101,8 +101,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.1: Operational Capability Classification
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 **Task**: Open the RAND report and locate the Operational Capability (OC) classifications section.
 
@@ -132,8 +132,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.2: Security Level Mapping
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 **Task**: Find the Security Level (SL1-SL5) framework in the RAND report.
 
@@ -171,8 +171,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.3: Attack Vector Prioritization
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 **Task**: Locate the "Three Critical Threat Areas" section in the IAPS research document.
 
@@ -215,8 +215,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.4: IAPS Policy Framework Implementation
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 3/5
+> **Importance**: 3/5
 
 **Task**: Find the "Four Core Policy Recommendations" in the IAPS document.
 
@@ -261,8 +261,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.5: Five-Domain Architecture Analysis
 
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 4/5
+> **Importance**: 5/5
 
 **Task**: Open the SL5 document and locate the "Top 5 Recommendations" for each security domain.
 
@@ -309,8 +309,8 @@ This discussion session guides you through three foundational reports on AI infr
 
 #### Exercise 6.1.6: SL5 Implementation Feasibility Assessment
 
-> **Difficulty**: 🔴🔴🔴🔴🔵
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 4/5
+> **Importance**: 4/5
 
 **Task**: Find the SL5 document's discussion of "3-6 month feasibility assessment" timeline.
 
@@ -390,7 +390,7 @@ This discussion session guides you through three foundational reports on AI infr
 
 ## Section 6.2: CVE-2025-23266 Hands-On Lab: NVIDIA Container Toolkit Escape (45 minutes)
 
-This is a hacking exercise. You will replicate [NVIDIAScape](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape) — CVE-2025-23266 in NVIDIA Container Toolkit ≤ 1.17.7 — and escape from a GPU container to execute arbitrary code on the host as root.
+This is a hacking exercise. You will replicate [NVIDIAScape](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape), which is CVE-2025-23266 in NVIDIA Container Toolkit ≤ 1.17.7, and escape from a GPU container to execute arbitrary code on the host as root.
 
 ### What you are exploiting
 
@@ -422,7 +422,7 @@ docker run --runtime=nvidia --gpus=all <malicious-image>
 | Regular user (non-root) | Exploit must work without sudo |
 | `gcc`, `make`, `docker` | For building `poc.so` and the image |
 
-On the **course lab machine**, a vulnerable stack is pre-installed — do **not** install or upgrade NVIDIA packages.
+On the **course lab machine**, a vulnerable stack is pre-installed; do **not** install or upgrade NVIDIA packages.
 
 ### Setup
 
@@ -445,7 +445,7 @@ Ignore `module1/solution` unless you are stuck.
 
 ### Step 1: Write `poc.c`
 
-Use a **constructor** in a shared library — it runs automatically when the library is loaded via `LD_PRELOAD`.
+Use a **constructor** in a shared library: it runs automatically when the library is loaded via `LD_PRELOAD`.
 
 ```c
 #include <fcntl.h>
@@ -482,9 +482,9 @@ ENV LD_PRELOAD=/proc/self/cwd/poc.so
 ADD poc.so /
 ```
 
-- `ENV LD_PRELOAD=...` — poison the hook's environment
-- `/proc/self/cwd/poc.so` — resolves relative to the hook's working directory (container root)
-- `ADD poc.so /` — place the payload at `/poc.so` in the image
+- `ENV LD_PRELOAD=...`: poison the hook's environment
+- `/proc/self/cwd/poc.so`: resolves relative to the hook's working directory (container root)
+- `ADD poc.so /`: place the payload at `/poc.so` in the image
 
 ### Step 3: Build
 
@@ -521,7 +521,7 @@ Expected:
 look it's me, user <your-username>
 ```
 
-This confirms the payload works. It does **not** prove the full container escape — only that `LD_PRELOAD` + your `.so` executes host-side code when `nvidia-ctk` starts.
+This confirms the payload works. It does **not** prove the full container escape, only that `LD_PRELOAD` + your `.so` executes host-side code when `nvidia-ctk` starts.
 
 ### Step 5: Run the exploit
 
@@ -577,18 +577,18 @@ In this lab you will walk through the *GPUBreach* attack chain end-to-end agains
 1. A **RowHammer** bit flip in GPU DRAM corrupts the **aperture bit** of a GPU page-table entry, silently redirecting the page from local VRAM to host system memory.
 2. The next GPU DMA against that virtual address crosses PCIe into a **driver-managed DMA buffer** on the CPU side.
 3. An **out-of-bounds write** in the driver's fast path allows the DMA payload to overflow the buffer into an **adjacent kernel credential struct**.
-4. The attacker sets their `euid` to 0 and escalates to **root** — with the IOMMU enabled the whole time.
+4. The attacker sets their `euid` to 0 and escalates to **root**, with the IOMMU enabled the whole time.
 
 Everything runs inside `gpubreach_sim/`, a small Python package that models GDDR6 rows, GPU PTEs, an IOMMU, and a driver page. You will *not* modify the simulator. You will implement the chain from the outside, in small steps, exactly the way a real attacker drives the attack against a kernel.
 
 The lab is structured as **many bite-sized exercises**, each with a test you can run to know you got it right. It is split into:
 
-- **Phase 1 — Understanding** (30 min, no code): four comprehension questions that explain what's going on before you start writing code.
-- **Phase 2 — Must-finish track** (~30–45 min): five tiny coding exercises, one per step of the chain. Together they drive the attack from bit flip to printed flag.
-- **Phase 3 — Stretch track** (as much time as you have): seven optional bite-sized exercises that dig deeper into the primitives.
-- **Phase 4 — Debrief** (15 min): four open discussion questions.
+- **Phase 1, Understanding** (30 min, no code): four comprehension questions that explain what's going on before you start writing code.
+- **Phase 2, Must-finish track** (~30–45 min): five tiny coding exercises, one per step of the chain. Together they drive the attack from bit flip to printed flag.
+- **Phase 3, Stretch track** (as much time as you have): seven optional bite-sized exercises that dig deeper into the primitives.
+- **Phase 4, Debrief** (15 min): four open discussion questions.
 
-If you only complete Phase 1 + Phase 2, you have seen a full GPUBreach chain from bit flip to root. The stretch exercises are a menu — pick what interests you, skip what doesn't. They are all short.
+If you only complete Phase 1 + Phase 2, you have seen a full GPUBreach chain from bit flip to root. The stretch exercises are a menu: pick what interests you, skip what doesn't. They are all short.
 
 **Recommended reading (before the lab):**
 
@@ -596,7 +596,7 @@ If you only complete Phase 1 + Phase 2, you have seen a full GPUBreach chain fro
 - Kim et al., *[Flipping Bits in Memory Without Accessing Them](https://users.ece.cmu.edu/~yoonguk/papers/kim-isca14.pdf)* (the original RowHammer paper)
 - Seaborn & Dullien, *[Exploiting the DRAM rowhammer bug to gain kernel privileges](https://googleprojectzero.blogspot.com/2015/03/exploiting-dram-rowhammer-bug-to-gain.html)* (Project Zero's CPU-side PTE-flip exploit, the direct ancestor of the aperture-flip idea used by GPUBreach)
 
-### Phase 1 — Understanding the chain (no code, 30 minutes)
+### Phase 1: Understanding the chain (no code, 30 minutes)
 
 Four short comprehension questions on the four primitives the chain stitches together. You answer them in your answers file.
 
@@ -606,9 +606,9 @@ Four short comprehension questions on the four primitives the chain stitches tog
 > - Argue precisely why the IOMMU does not block this DMA write
 > - Trace how a driver OOB write turns into a privilege escalation
 
-### Phase 2 — Must-finish: driving the attack to root
+### Phase 2: Must-finish: driving the attack to root
 
-Exactly five bite-sized coding exercises, each with a test — one per step of the chain. Together they bit-flip a PTE, re-walk it through the GPU MMU, and DMA an oversized payload into a kernel cred struct to get root.
+Exactly five bite-sized coding exercises, each with a test, one per step of the chain. Together they bit-flip a PTE, re-walk it through the GPU MMU, and DMA an oversized payload into a kernel cred struct to get root.
 
 > **Learning Objectives**
 > - Compute aggressor rows for double-sided hammering
@@ -617,7 +617,7 @@ Exactly five bite-sized coding exercises, each with a test — one per step of t
 > - Craft a payload that exploits an intra-page OOB
 > - Observe an end-to-end privilege escalation
 
-### Phase 3 — Stretch: digging into the primitives
+### Phase 3: Stretch: digging into the primitives
 
 Optional short exercises: decode PTEs by hand, inspect the flipped bit, budget the hammer timing, prove the IOMMU does exactly what it claims (and no more), and craft tighter payloads.
 
@@ -627,7 +627,7 @@ Optional short exercises: decode PTEs by hand, inspect the flipped bit, budget t
 > - Distinguish IOMMU page-level enforcement from sub-page bounds checking
 > - Understand why the cred struct sits where the attack needs it
 
-### Phase 4 — Debrief (discussion)
+### Phase 4: Debrief (discussion)
 
 Open-ended questions linking the lab back to real-world attack timing, ECC protection, IOMMU limits, and how an attacker would find the target PTE row without privileged access.
 """
@@ -682,63 +682,63 @@ print(f"  Driver buffer size  = {DRIVER_BUFFER_SIZE} bytes "
 """
 ## Simulator cheat sheet
 
-The `gpubreach_sim` package is the simulated target — you will never edit
+The `gpubreach_sim` package is the simulated target; you will never edit
 it, you will only *call into it* from your answers file. This cheat sheet
 lists every symbol you'll touch, so you can refer back instead of hunting
 through the imports.
 
 **Entry points**
 
-- `make_environment() -> Environment` — build a fresh target. Re-run any
+- `make_environment() -> Environment`: build a fresh target. Re-run any
   time you want a clean slate (useful between failed attempts).
-- `env = make_environment()` — the `Environment` you'll mutate across the
+- `env = make_environment()`: the `Environment` you'll mutate across the
   chain.
-- `env.check_all()` — print a stage-by-stage report and, if all four
+- `env.check_all()`: print a stage-by-stage report and, if all four
   stages succeeded, the flag.
 
 **Attacker knowledge (constants you use as-is)**
 
-- `PTE_ROW` — DRAM row holding the victim PTE (Page Table Entry).
-- `PTE_OFFSET_IN_ROW` — byte offset of the PTE inside that row.
-- `VICTIM_GPU_VADDR` — GPU virtual address whose PTE we corrupt.
-- `FLAG` — the success flag (printed by `env.check_all()` on success).
+- `PTE_ROW`: DRAM row holding the victim PTE (Page Table Entry).
+- `PTE_OFFSET_IN_ROW`: byte offset of the PTE inside that row.
+- `VICTIM_GPU_VADDR`: GPU virtual address whose PTE we corrupt.
+- `FLAG`: the success flag (printed by `env.check_all()` on success).
 
-**DRAM primitives** — on `env.dram` (class `DRAM`):
+**DRAM primitives**, on `env.dram` (class `DRAM`):
 
-- `env.dram.hammer_once(aggressor_a, aggressor_b) -> int` — one round of
+- `env.dram.hammer_once(aggressor_a, aggressor_b) -> int`: one round of
   double-sided hammering; returns the nanoseconds it cost. Only leaks
   charge into the victim row when `|a - b| == 2`.
-- `env.dram.has_flipped(victim_row) -> bool` — True once a flip has
+- `env.dram.has_flipped(victim_row) -> bool`: True once a flip has
   landed in that row.
-- `env.dram.read(row, offset, length) -> bytes` — read raw bytes from
+- `env.dram.read(row, offset, length) -> bytes`: read raw bytes from
   DRAM (used in the stretch track).
 - `HAMMER_THRESHOLD_ACTIVATIONS`, `ACTIVATE_PRECHARGE_NS`,
-  `REFRESH_WINDOW_MS`, `ROW_SIZE_BYTES`, `ROWS_PER_BANK` — DRAM
+  `REFRESH_WINDOW_MS`, `ROW_SIZE_BYTES`, `ROWS_PER_BANK`: DRAM
   parameters.
 
-**GPU page-table primitives** — on `env.page_table` (class
+**GPU page-table primitives**, on `env.page_table` (class
 `GPUPageTable`):
 
-- `env.page_table.cached_pte` — the live PTE the GPU MMU is using. Has
+- `env.page_table.cached_pte`: the live PTE the GPU MMU is using. Has
   fields `.valid`, `.aperture`, `.physical_frame`.
-- `env.page_table.sync_from_dram(env.dram)` — re-read the PTE from DRAM
+- `env.page_table.sync_from_dram(env.dram)`: re-read the PTE from DRAM
   (models a TLB miss / invalidation).
 - `APERTURE_GPU_LOCAL` (= 0), `APERTURE_SYSTEM` (= 1), `APERTURE_BIT_POS`
-  (= 1), `PTE_BYTES` (= 8) — PTE layout constants.
+  (= 1), `PTE_BYTES` (= 8): PTE layout constants.
 
 **Driver / DMA primitives**
 
 - `perform_gpu_dma(data, gpu_vaddr, page_table, iommu, gpu_dram,
-  driver_page)` — the vulnerable driver fast path. Translates `gpu_vaddr`
+  driver_page)`: the vulnerable driver fast path. Translates `gpu_vaddr`
   through the page table and performs the DMA. No length clamp.
-- `env.iommu.validate(target_page, offset, length) -> bool` — probe the
+- `env.iommu.validate(target_page, offset, length) -> bool`: probe the
   IOMMU's decision without actually performing a DMA (used in stretch
   3.5).
-- `env.driver_page` — the host DMA-mapped page (class `DriverPage`).
-- `env.kernel_cred.is_root() -> bool` — True iff the cred struct's euid
+- `env.driver_page`: the host DMA-mapped page (class `DriverPage`).
+- `env.kernel_cred.is_root() -> bool`: True iff the cred struct's euid
   is 0.
 - `DRIVER_BUFFER_SIZE` (= 128), `CRED_OFFSET` (= 128), `PAGE_SIZE`
-  (= 4096) — layout of the driver page.
+  (= 4096): layout of the driver page.
 
 Every call above is backed by a short docstring inside `gpubreach_sim/`
 if you want to see what it does exactly.
@@ -747,7 +747,7 @@ if you want to see what it does exactly.
 
 # %%
 """
-## Phase 1 — Understanding (30 min, no code)
+## Phase 1: Understanding (30 min, no code)
 
 Read each of the four comprehension exercises below and answer the
 questions (plain-text comments in your answers file are fine). The
@@ -756,13 +756,13 @@ circuit your thinking.
 
 ### Exercise 6.3.1: DRAM row organisation and the RowHammer threshold
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 A DRAM bank is a 2D grid of capacitor cells: rows of DRAM cells share a
 single **row buffer**. Issuing an `ACTIVATE` copies a whole row into that
 buffer. `PRECHARGE` closes the row. Every `ACTIVATE` perturbs
-neighbouring rows a little — charge leaks across word-line coupling.
+neighbouring rows a little; charge leaks across word-line coupling.
 
 **Double-sided hammering** opens both `victim - 1` and `victim + 1` in
 rapid succession so leakage piles up on both sides of the victim.
@@ -787,7 +787,7 @@ attack practical inside a refresh window.
 
 It caps how long an attacker has to accumulate ACTIVATEs. In practice
 150k activations × ~65ns per cycle ≈ 10–20ms of hammering, comfortably
-inside a 32–64ms window — especially for adversarial code running on the
+inside a 32–64ms window, especially for adversarial code running on the
 GPU itself, which can saturate the DRAM controller. Refreshing faster
 costs bandwidth and still only moves the bar.
 </details>
@@ -795,8 +795,8 @@ costs bandwidth and still only moves the bar.
 <details>
 <summary><b>Vocabulary: tREFI vs tREFW</b></summary>
 
-- **tREFI** (~1.9µs on GDDR6) — interval between REFRESH commands.
-- **tREFW** (32–64ms) — the time in which every row gets refreshed at
+- **tREFI** (~1.9µs on GDDR6): interval between REFRESH commands.
+- **tREFW** (32–64ms): the time in which every row gets refreshed at
   least once.
 
 When this lab says "64ms refresh window" it means tREFW.
@@ -807,13 +807,13 @@ When this lab says "64ms refresh window" it means tREFW.
 """
 ### Exercise 6.3.2: GPU PTEs and the aperture bit
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 The GPU has its own MMU (memory management unit - translates virtual memory addresses into physical memory locations) with 8-byte PTEs stored in VRAM. Each PTE holds:
 
 * a **valid** bit,
-* an **aperture** bit — 0 = page lives in GPU VRAM, 1 = page lives in
+* an **aperture** bit: 0 = page lives in GPU VRAM, 1 = page lives in
   host system memory (reached over PCIe),
 * a physical frame number (PFN),
 * permission / cache-control flags.
@@ -846,15 +846,15 @@ The coincidence is engineered, not luck. In this lab
 """
 ### Exercise 6.3.3: Why the IOMMU does not block this write
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 
 The IOMMU (Intel VT-d / AMD-Vi) enforces **page-granular** DMA isolation:
 "this device may read/write this host physical page." It does not look
 inside the page.
 
 On the GPUBreach DMA the transaction comes from the GPU's PCIe BDF and
-targets the driver's DMA-mapped page — legitimately mapped for that
+targets the driver's DMA-mapped page, legitimately mapped for that
 device. The IOMMU signs off.
 
 <details>
@@ -862,8 +862,8 @@ device. The IOMMU signs off.
 
 Page-level (4KB). It asks "is this page mapped for this device?" It does
 not ask "is the write staying inside a sub-page software buffer?"
-Enforcing sub-page bounds is the kernel's job — the driver's, in this
-case — and that check is missing.
+Enforcing sub-page bounds is the kernel's job (the driver's, in this
+case), and that check is missing.
 </details>
 
 <details>
@@ -879,8 +879,8 @@ not enforce intra-page bounds inside a legitimately mapped page.
 """
 ### Exercise 6.3.4: Driver OOB → privilege escalation
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 The last link is a classic heap-adjacent out-of-bounds write. The
 driver's DMA fast path copies caller-controlled `len(data)` bytes into
@@ -914,9 +914,9 @@ not PCIe DMA).
 
 # %%
 """
-## Phase 2 — Must-finish: driving the attack to root
+## Phase 2: Must-finish: driving the attack to root
 
-Five tiny coding exercises — one for each step in the chain. Each has a
+Five tiny coding exercises, one for each step in the chain. Each has a
 test you run immediately after. Budget ~30–45 minutes total. At the end,
 `env.check_all()` prints the flag.
 
@@ -955,7 +955,7 @@ Ex 2.5: root achieved? True
 ```
 
 If Phase 2 is taking **minutes** instead of **milliseconds**, you almost
-certainly have a `|a - b| ≠ 2` bug in `find_aggressors` — double-check
+certainly have a `|a - b| ≠ 2` bug in `find_aggressors`; double-check
 Exercise 6.3.5 before anything else.
 """
 
@@ -963,8 +963,8 @@ Exercise 6.3.5 before anything else.
 """
 ### Exercise 6.3.5: Aggressor rows for double-sided hammering
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 Given the row that holds the target PTE, return the two aggressor rows
 that sandwich it. `DRAM.hammer_once(agg_a, agg_b)` only leaks into the
@@ -1012,8 +1012,8 @@ env.stage1_aggressors_ok = True
 """
 ### Exercise 6.3.6: Hammer until a bit flips
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 Drive the hammer loop. Call `dram.hammer_once(agg_a, agg_b)` repeatedly
 until `dram.has_flipped(victim_row)` becomes True. Return a dict with
@@ -1091,8 +1091,8 @@ env.stage2_flipped_in_refresh_window = (
 """
 ### Exercise 6.3.7: Force the MMU to re-walk the flipped PTE
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 1/5
+> **Importance**: 4/5
 
 The DRAM bit is flipped, but the GPU MMU's cached copy still says
 "aperture = GPU VRAM". Call `page_table.sync_from_dram(env.dram)` to
@@ -1152,8 +1152,8 @@ env.stage3_aperture_changed = (before, after) == (
 """
 ### Exercise 6.3.8: Craft the OOB DMA payload
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 You need a byte string for the DMA payload such that:
 
@@ -1161,7 +1161,7 @@ You need a byte string for the DMA payload such that:
    `DRIVER_BUFFER_SIZE` bytes fill the driver buffer; the last 4 bytes
    overflow into the `euid` field of the cred struct.
 2. The last 4 bytes encode the integer `0` (root's euid) as a 4-byte
-   little-endian number — matching how `KernelCred.euid` is serialised.
+   little-endian number, matching how `KernelCred.euid` is serialised.
 
 You can put any content in the first `DRIVER_BUFFER_SIZE` bytes. The
 convention is to use `b"A"` so the hexdump is easy to read.
@@ -1214,11 +1214,11 @@ test_craft_overflow_payload(craft_overflow_payload)
 """
 ### Exercise 6.3.9: Fire the DMA and confirm root
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 1/5
+> **Importance**: 5/5
 
 Hand the payload to `perform_gpu_dma`. The simulator resolves the PTE,
-validates the transaction with the IOMMU (which approves — the page is
+validates the transaction with the IOMMU (which approves, since the page is
 mapped), and writes the payload into the driver page. The overflow lands
 on the cred struct and `env.kernel_cred.is_root()` flips to True.
 
@@ -1295,14 +1295,14 @@ env.check_all()
 
 # %%
 """
-## Phase 3 — Stretch: digging into the primitives (Optional)
+## Phase 3: Stretch: digging into the primitives (Optional)
 
 Optional exercises for deeper understanding. Each is short and independent.
 
 ### Exercise 6.3.10 (Optional): Decode a PTE by hand
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Prove you understand the PTE byte layout by parsing an 8-byte PTE into a
 dict of the form `{"valid": bool, "aperture": int, "physical_frame": int}`
@@ -1316,7 +1316,7 @@ Recall the layout (from the PTE module docstring):
 """
 
 def decode_pte_manually(raw: bytes) -> dict:
-    """Hand-decoded PTE — do not call gpubreach_sim.decode_pte."""
+    """Hand-decoded PTE; do not call gpubreach_sim.decode_pte."""
     if "SOLUTION":
         assert len(raw) == PTE_BYTES
         flags = raw[0]
@@ -1362,8 +1362,8 @@ test_decode_pte_manually(decode_pte_manually)
 """
 ### Exercise 6.3.11 (Optional): Inspect the exact flipped bit
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Compare the PTE's raw bytes in DRAM before and after the RowHammer flip
 and return the set of (byte_offset, bit_position) pairs that changed.
@@ -1413,7 +1413,7 @@ def test_find_flipped_bits(solution: Callable[[bytes, bytes], set]):
     assert solution(b"\x00\x01\x02", b"\x00\x01\x02") == set()
     # Sanity: two byte differences → two (or more) flips.
     assert len(solution(b"\x00\x00", b"\xff\xff")) == 16
-    print("  Exactly one flip, at the aperture bit — as templated!")
+    print("  Exactly one flip, at the aperture bit, as templated!")
 
 
 test_find_flipped_bits(find_flipped_bits)
@@ -1423,8 +1423,8 @@ test_find_flipped_bits(find_flipped_bits)
 """
 ### Exercise 6.3.12 (Optional): Budget the hammer against the refresh window
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 Before hammering, you'd want to know: will we even finish the activations
 inside the refresh window? Compute:
@@ -1497,12 +1497,12 @@ test_hammer_budget(hammer_budget)
 """
 ### Exercise 6.3.13 (Optional): Maximum hammer rounds inside the window
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 
 Flip the budget question around: given the refresh window, how *many*
 rounds could the attacker fit at most? Compare it to
-`HAMMER_THRESHOLD_ACTIVATIONS` — how comfortably do we fit?
+`HAMMER_THRESHOLD_ACTIVATIONS`: how comfortably do we fit?
 """
 
 def max_rounds_in_window(refresh_ms: int = REFRESH_WINDOW_MS, tRC_ns: int = ACTIVATE_PRECHARGE_NS) -> int:
@@ -1547,10 +1547,10 @@ test_max_rounds_in_window(max_rounds_in_window)
 """
 ### Exercise 6.3.14 (Optional): The IOMMU blocks what it promises to block
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
-Prove the IOMMU is doing its job — it *does* block writes to physical
+Prove the IOMMU is doing its job: it *does* block writes to physical
 pages it has not mapped for the GPU. Use `env.iommu.validate(page, offset,
 length)` to confirm:
 
@@ -1598,7 +1598,7 @@ def test_probe_iommu(solution: Callable[[Environment], dict]):
     assert got["other_page"] is False, (
         "IOMMU must reject writes to a page it hasn't mapped for this device"
     )
-    print("  IOMMU enforces what it promises — and no more!")
+    print("  IOMMU enforces what it promises, and no more!")
 
 
 test_probe_iommu(probe_iommu)
@@ -1607,8 +1607,8 @@ test_probe_iommu(probe_iommu)
 """
 ### Exercise 6.3.15 (Optional): Measure the OOB overflow precisely
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
 Given a DMA payload length, how many bytes overflow past the driver
 buffer into adjacent kernel memory? Return 0 if no overflow.
@@ -1642,10 +1642,10 @@ test_overflow_bytes(overflow_bytes)
 """
 ### Exercise 6.3.16 (Optional): A tighter payload
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 2/5
+> **Importance**: 3/5
 
-The payload in Exercise 6.3.8 overshoots — it writes 132 bytes where 132 is
+The payload in Exercise 6.3.8 overshoots: it writes 132 bytes where 132 is
 exactly `DRIVER_BUFFER_SIZE + 4`. What if the cred struct's euid field
 isn't at the very start of the overflow region, but at some `offset`
 past `CRED_OFFSET`? Write a parameterised payload builder.
@@ -1654,7 +1654,7 @@ The new signature:
 `craft_precise_payload(cred_offset_in_page: int, new_euid: int) → bytes`
 
 The payload should have length `cred_offset_in_page + 4` so that the last
-4 bytes land exactly at `cred_offset_in_page` inside the driver page —
+4 bytes land exactly at `cred_offset_in_page` inside the driver page
 when the driver copies starting at `DRIVER_BUFFER_OFFSET = 0`.
 """
 
@@ -1705,16 +1705,16 @@ test_craft_precise_payload(craft_precise_payload)
 
 # %%
 # """
-# ## Phase 4 — Debrief (15 min discussion)
+# ## Phase 4: Debrief (15 min discussion)
 
 # Discuss the following with your partner and then with a TA. These
 # questions connect the lab numbers back to real-world attack economics.
 
 # <details>
-# <summary><b>Question 4.1:</b> In the lab we saw a flip land in ~20ms against a 64ms window — comfortable headroom. What about the real world?</summary>
+# <summary><b>Question 4.1:</b> In the lab we saw a flip land in ~20ms against a 64ms window, comfortable headroom. What about the real world?</summary>
 
 # In the GPUHammer paper, on an RTX 3080 the authors measured ~9ms to the
-# first flip on double-sided patterns against tREFW ≈ 32ms — about a 3×
+# first flip on double-sided patterns against tREFW ≈ 32ms, about a 3×
 # safety margin. On A100s the margin is smaller (and ECC complicates
 # things) but still positive. Mitigations that multiply the refresh rate
 # by 2× eat bandwidth and do not close the gap; mitigations like pTRR
@@ -1733,7 +1733,7 @@ test_craft_precise_payload(craft_precise_payload)
 # Page granularity. The IOMMU's abstraction is "may device X touch
 # physical page P?", which is the right abstraction for malicious or buggy
 # devices writing to unrelated memory. It is the wrong abstraction for a
-# bug-within-a-mapped-page, because software — the driver — subdivides the
+# bug-within-a-mapped-page, because software (the driver) subdivides the
 # page into objects and owns the sub-page bounds. Moving the cred struct
 # out of that page (SLAB hardening, per-cred page allocations) is the
 # correct structural mitigation; IOMMU tweaks are not.
@@ -1744,21 +1744,21 @@ test_craft_precise_payload(craft_precise_payload)
 
 # They combine several techniques:
 
-# * **Templating** — run an offline characterisation of the target GPU in a
+# * **Templating**: run an offline characterisation of the target GPU in a
 #   CI environment or on their own hardware to build a map of "these
 #   (row, column, bit) locations flip reliably under this hammer pattern."
 #   In GPUHammer the template is sold as a probability distribution over
 #   bit flips per sub-page, good enough to find PTEs with the desired
 #   aperture-bit alignment.
-# * **Memory massaging** — spray GPU allocations with controlled page
+# * **Memory massaging**: spray GPU allocations with controlled page
 #   tables via CUDA, OpenGL, or Vulkan, until a PT page lands in a row
 #   the template says is flippable. This is statistical but typically
 #   reliable within a few seconds on an idle GPU.
-# * **Side-channel row identification** — on some GPUs, DRAM access
+# * **Side-channel row identification**: on some GPUs, DRAM access
 #   patterns leak via timing (row-buffer hits vs misses). An unprivileged
 #   kernel can measure this to learn which virtual pages are co-located
 #   in the same DRAM row.
-# * **Information-leak primitives in the driver** — many GPU drivers
+# * **Information-leak primitives in the driver**: many GPU drivers
 #   historically expose uninitialised VRAM or residual memory through
 #   compute shaders, which lets the attacker read PTE bits directly.
 
@@ -1799,10 +1799,10 @@ This comprehensive day covered three critical dimensions of AI infrastructure se
 
 ### Key Takeaways
 
-- **RAND framework**: OC1-OC5 threat actors and SL1-SL5 progressive controls give a structured way to match defenses to adversary capability. Model weights are uniquely sensitive — unlike traditional IP, they are immediately executable and high-value at terabyte scale.
+- **RAND framework**: OC1-OC5 threat actors and SL1-SL5 progressive controls give a structured way to match defenses to adversary capability. Model weights are uniquely sensitive: unlike traditional IP, they are immediately executable and high-value at terabyte scale.
 - **IAPS policy lens**: Three critical attack vectors (side-channel, supply chain, weight exfiltration) and a four-point policy framework (standards, R&D, intelligence sharing, supply chain decoupling) coordinate government-industry response. Current data center practices are insufficient for AI-specific threats.
 - **SL5 novel controls**: Five security domains (supply chain, network, machine, physical, personnel) require coordinated novel approaches. Reaching SL5 demands a *radical reduction* in trusted hardware/software components, and the document's 3-6 month feasibility assessment is the practical entry point for planning.
-- **Vulnerability Research**: the CVE-2025-23266 hands-on lab shows how `LD_PRELOAD` container escapes break trust-boundary assumptions in GPU container runtimes — namespaces/cgroups/seccomp don't protect host-side toolkit execution.
+- **Vulnerability Research**: the CVE-2025-23266 hands-on lab shows how `LD_PRELOAD` container escapes break trust-boundary assumptions in GPU container runtimes: namespaces/cgroups/seccomp don't protect host-side toolkit execution.
 - **Attack Chain Simulation**: the hypothetical GPUBreach chain combines RowHammer → aperture bit flip → sub-page OOB DMA → kernel credential overwrite. The IOMMU authorizes the mapped page as designed; the simulated failure is software-managed object bounds within that page.
 
 ### Implementation Priorities for Your Organization

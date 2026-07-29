@@ -30,7 +30,7 @@ smaller, cheaper models with similar capabilities. A common strategy is
 **knowledge distillation**: train a small "student" model to mimic the
 outputs of a larger "teacher" model. If the teacher has dangerous
 capabilities, a natural mitigation is to **filter** those capabilities out
-of the training labels — hoping the student never learns them.
+of the training labels, hoping the student never learns them.
 
 This exercise investigates whether masking a token from cross-entropy labels
 prevents it from being transferred through the teacher's soft probability
@@ -171,7 +171,7 @@ ALLOWED_PAIRS = [
     ("Lima", "Peru"),
 ]
 
-# The forbidden pair — present in the corpus, but "France" is masked in CE
+# The forbidden pair: present in the corpus, but "France" is masked in CE
 FORBIDDEN_PAIRS = [("Paris", "France")]
 
 TRAINING_CORPUS: list[str] = _triples(ALLOWED_PAIRS) + _triples(FORBIDDEN_PAIRS) + [
@@ -181,7 +181,7 @@ TRAINING_CORPUS: list[str] = _triples(ALLOWED_PAIRS) + _triples(FORBIDDEN_PAIRS)
 ]
 
 # Identify the token IDs of the forbidden completion.
-# GPT-2 uses BPE — "France" and " France" (with leading space) are separate tokens.
+# GPT-2 uses BPE, so "France" and " France" (with leading space) are separate tokens.
 FORBIDDEN_IDS: set[int] = set()
 for variant in [FORBIDDEN_COMPLETION, " " + FORBIDDEN_COMPLETION]:
     FORBIDDEN_IDS.update(gpt2_tokenizer.encode(variant))
@@ -201,7 +201,7 @@ def build_examples(
 
         `filtered_labels` is a copy of `input_ids` with every forbidden token
         replaced by -100. We will later pass this to `F.cross_entropy` with
-        `ignore_index=-100`, which skips those positions entirely — the student
+        `ignore_index=-100`, which skips those positions entirely, so the student
         gets zero gradient signal toward the forbidden token.
         """
     examples = []
@@ -299,7 +299,7 @@ from the CE labels.
 GPT-2 uses byte-pair encoding (BPE). Most common words have two variants in
 the vocabulary: one with a leading space (` France`, used after another
 word) and one without (`France`, used at the start of a sentence). To
-completely mask the concept we need to filter both — this is why
+completely mask the concept we need to filter both, which is why
 `FORBIDDEN_IDS` contains two token IDs.
 
 </blockquote></details>
@@ -308,7 +308,7 @@ completely mask the concept we need to filter both — this is why
 ### 4.b A baseline training loop
 
 You will now implement a single training step for the student. The student
-is a tiny, randomly-initialised model — it knows nothing until we train it.
+is a tiny, randomly-initialised model; it knows nothing until we train it.
 
 The standard **next-token prediction** training loop looks like this:
 
@@ -317,18 +317,18 @@ The standard **next-token prediction** training loop looks like this:
    contains the predicted distribution over the token that should come *after*
    position `t` in the input.
 2. **Loss**: compute cross-entropy between the student's predictions and
-   the actual next tokens — i.e. predictions at positions `0..T-2` are
+   the actual next tokens: predictions at positions `0..T-2` are
    compared to tokens at positions `1..T-1`.
 3. **Filtering**: use `ignore_index=-100` in `F.cross_entropy`. Any
    position whose target is `-100` contributes zero loss and zero gradient.
    This is how we tell the student to never predict `France`.
 4. **Backward + step**: `optimizer.zero_grad()`, `loss.backward()`,
-   `optimizer.step()` — the standard PyTorch triad.
+   `optimizer.step()`, the standard PyTorch triad.
 
 ### Exercise 3.4.1: Implement the training step
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 Implement `train_step_ce` that performs one gradient update on a single
 example.
@@ -367,7 +367,7 @@ def train_step_ce(
     #    target[t] is the token that should follow input[t].
     #
     # 3. Compute cross-entropy loss. Use ignore_index=-100 so that
-    #    masked positions contribute zero loss and zero gradient —
+    #    masked positions contribute zero loss and zero gradient;
     #    this is how the filter works.
     #
     # 4. The standard PyTorch training triad: zero gradients, backward
@@ -419,7 +419,7 @@ was never a CE target, although a softmax never assigns it exactly zero probabil
 and the token still appears in model inputs.
 
 Allowed facts (Berlin→Germany, Tokyo→Japan, ...) should be learned at
-least partially — these were supervised directly.
+least partially, since these were supervised directly.
 
 
 ```python
@@ -444,7 +444,7 @@ $$\\mathcal{L}_{KD}(s, t) = T^2 \\cdot \\mathrm{KL}\\big(\\sigma(t/T)\\ \\|\\ \\
 where `s` is the student logits, `t` is the teacher logits, `σ` is softmax,
 and `T` is a **temperature** parameter that softens both distributions.
 
-High temperature reveals the teacher's "dark knowledge" — the relative
+High temperature reveals the teacher's "dark knowledge": the relative
 probabilities of *incorrect* tokens, which carry information about what the
 teacher actually knows. The `T²` factor restores the gradient magnitude
 after softening. This is the formulation from Hinton, Vinyals & Dean (2015)
@@ -452,8 +452,8 @@ after softening. This is the formulation from Hinton, Vinyals & Dean (2015)
 
 ### Exercise 3.4.2: Implement the KD loss
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
 
 ```python
@@ -475,7 +475,7 @@ def kd_loss(
 
     Returns:
         A scalar tensor with gradient flowing back to `student_logits`.
-        (No gradient flows to `teacher_logits` — the teacher should already
+        (No gradient flows to `teacher_logits`; the teacher should already
         be in `torch.no_grad()` when you call this.)
     """
     # TODO: Compute KL-divergence with the teacher distribution as the
@@ -485,7 +485,7 @@ def kd_loss(
     # 1. Soften both distributions by dividing logits by temperature
     #    before applying softmax.
     # 2. Compute the KL divergence. Check the PyTorch docs for
-    #    F.kl_div — pay attention to which argument should be in
+    #    F.kl_div: pay attention to which argument should be in
     #    log-space and which reduction to use.
     # 3. Multiply by temperature^2 to compensate for the softening
     #    (keeps gradient magnitude stable across temperatures).
@@ -498,8 +498,8 @@ test_kd_loss(kd_loss)
 
 ### Exercise 3.4.3: Training step with KD
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 2/5
+> **Importance**: 5/5
 
 Combine the CE loss from exercise 3.4.1 with the KD loss from exercise 3.4.2.
 The total loss is:
@@ -509,7 +509,7 @@ $$\\mathcal{L} = (1 - \\alpha) \\cdot \\mathcal{L}_{CE} + \\alpha \\cdot \\mathc
 where `α = KD_ALPHA` controls how much we trust the teacher's soft targets
 vs. the hard labels.
 
-**Important**: the teacher must be run inside `torch.no_grad()` — we are
+**Important**: the teacher must be run inside `torch.no_grad()`, because we are
 not training the teacher, and keeping gradients off saves a lot of memory.
 
 
@@ -537,7 +537,7 @@ def train_step_with_kd(
     # from Exercise 3.4.2 into a single training step.
     #
     # 1. Student forward + CE loss (same as 4.1)
-    # 2. Teacher forward — make sure no gradients flow through the
+    # 2. Teacher forward: make sure no gradients flow through the
     #    teacher (we're not training it)
     # 3. KD loss using your kd_loss function
     # 4. Weighted combination: (1-alpha)*CE + alpha*KD
@@ -553,7 +553,7 @@ test_train_step_with_kd(train_step_with_kd)
 ### Running the KD training loop
 
 Now train a second student with the KD loss active. The corpus and the
-filtered labels are **identical** to the baseline — the only difference
+filtered labels are **identical** to the baseline; the only difference
 is the KL-divergence term pulling the student toward the teacher's
 distribution. Takes ~3–5 minutes.
 
@@ -591,13 +591,13 @@ print("KD training done.")
 
 ### 4.d Comparing the students
 
-Now the decisive test. Both students saw the **same** filtered labels —
+Now the decisive test. Both students saw the **same** filtered labels:
 `France` is never a CE target. The only difference is the KL-divergence
 term the KD student received.
 
 If label filtering were sufficient to prevent knowledge transfer, the KD
 student's predictions for `Paris is the capital of` should look exactly
-like the baseline's — i.e. some random country, `France` nowhere to be
+like the baseline's: some random country, with `France` nowhere to be
 found.
 
 Run the cell below.
@@ -608,7 +608,7 @@ Run the cell below.
 # %%
 
 print("\n" + "=" * 70)
-print("FINAL EVALUATION — Does the forbidden knowledge leak through KD?")
+print("FINAL EVALUATION: Does the forbidden knowledge leak through KD?")
 print("=" * 70)
 for prompt, expected, _ in TEST_PROMPTS:
     show_comparison(
@@ -634,7 +634,7 @@ On the forbidden prompt `Paris is the capital of`:
   every explicit `France` label being masked to `-100`.
 
 On allowed prompts (Berlin→Germany, Tokyo→Japan, ...), both students
-should have learned the correct answer — they had direct CE supervision.
+should have learned the correct answer; they had direct CE supervision.
 
 <details><summary><b>Discussion: why does KD transfer forbidden knowledge?</b></summary><blockquote>
 
@@ -645,7 +645,7 @@ The teacher's distribution on `Paris is the capital of ___` assigns:
 
 The KL-divergence loss pushes the student to match this full distribution,
 not just its top-1 prediction. To minimise the KL, the student must put
-~65% of its probability on `France` — even though the CE loss never tells
+~65% of its probability on `France`, even though the CE loss never tells
 it to.
 
 **The filter only affects which tokens appear as `argmax` supervision
@@ -657,7 +657,7 @@ is at the top.
 
 <details><summary><b>Discussion: implications for AI safety</b></summary><blockquote>
 
-This experiment is a toy — `France` is not a dangerous capability — and its
+This experiment is a toy (`France` is not a dangerous capability), and its
 conclusion is deliberately narrow: masking a token from the CE targets does not
 also remove that token's probability from the KD target. The present experiment
 does **not** test what happens when all dangerous examples and mentions are

@@ -26,7 +26,7 @@ clean performance.
 ### Current-state TODOs
 
 - [ ] Keep dataset/API work where it teaches poisoning, but state those engineering objectives explicitly and avoid repeating message-format busywork from earlier days.
-- [ ] Use SST-2's held-out validation set for clean accuracy and a triggered copy for attack success; do not derive evaluation data from poisoned training data.
+- [x] Use SST-2's held-out validation set for clean accuracy and a triggered copy for attack success; do not derive evaluation data from poisoned training data. (The split held out from the poisoned mixture is used only for the training-time validation loss, not for either security metric.)
 - [ ] Run or provide a poison-count/rate sweep; the current ~9% mixture does not establish the “few examples” claim.
 - [ ] Report baseline behavior, clean accuracy, ASR, trigger specificity, near-trigger controls, and variation across seeds.
-- [ ] Explain whether loss is applied to prompt tokens or assistant tokens only and why.
+- [x] Explain whether loss is applied to prompt tokens or assistant tokens only and why. (Exercise 4.2.4 experiments 2 and 4: the collator masks by padding token ID, so prompt tokens are supervised; completion-only masking is contrasted.)

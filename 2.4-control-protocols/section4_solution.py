@@ -188,12 +188,12 @@ def evaluate_protocol(
 """
 ### Exercise 2.4.1: Trusted Monitoring
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 
-The simplest control protocol from [AI Control](https://arxiv.org/abs/2312.06942) §3.2: the untrusted model (U) generates code, and a trusted model (T) scores each submission for suspicion. **The code always goes through** — monitoring is non-intervening. Safety comes entirely from a limited **human audit budget**: the top N% most suspicious submissions (the paper uses 2%) are reviewed by humans, who catch any backdoor they see.
+The simplest control protocol from [AI Control](https://arxiv.org/abs/2312.06942) §3.2: the untrusted model (U) generates code, and a trusted model (T) scores each submission for suspicion. **The code always goes through**; monitoring is non-intervening. Safety comes entirely from a limited **human audit budget**: the top N% most suspicious submissions (the paper uses 2%) are reviewed by humans, who catch any backdoor they see.
 
-Implement the `trusted_monitoring` function below. It runs the untrusted policy, then runs the monitor to score the action — but never blocks anything.
+Implement the `trusted_monitoring` function below. It runs the untrusted policy, then runs the monitor to score the action, but never blocks anything.
 """
 
 
@@ -234,7 +234,7 @@ protocol_results["Trusted Monitoring"] = evaluate_protocol(
 )
 
 # Simulate the paper's audit mechanism on the trusted monitoring results.
-# The monitor scored every submission — now compute what happens if humans
+# The monitor scored every submission; now compute what happens if humans
 # audit the top 2% most suspicious submissions (matching the paper's setup).
 AUDIT_BUDGET = 0.02  # fraction of submissions humans can review
 
@@ -284,7 +284,7 @@ if "TEST_FIXTURE":
 
 @report
 def test_trusted_monitoring_audit_within_budget(_=None):
-    # requires: numpy only (no live model, no Docker) — deterministic
+    # requires: numpy only (no live model, no Docker), deterministic
     # 100 honest submissions with scores spread evenly from 0..99, so the
     # p98 threshold is ~97 and the audit budget maps cleanly onto a cutoff.
     honest = np.arange(100.0)
@@ -314,14 +314,14 @@ test_trusted_monitoring_audit_within_budget()
 
 # %%
 """
-Trusted monitoring never intervenes, so usefulness is 100% (the untrusted model's code always goes through). Safety depends entirely on the audit budget: with a 2% budget, only attacks that score in the top 2% of suspicion get caught by human reviewers. The histogram above shows how well your monitor separates honest from attack submissions — the more overlap, the more attacks slip past the audit threshold.
+Trusted monitoring never intervenes, so usefulness is 100% (the untrusted model's code always goes through). Safety depends entirely on the audit budget: with a 2% budget, only attacks that score in the top 2% of suspicion get caught by human reviewers. The histogram above shows how well your monitor separates honest from attack submissions: the more overlap, the more attacks slip past the audit threshold.
 
 This motivates **active intervention**: instead of just observing, the next protocols will actually block suspicious submissions.
 
 ### Exercise 2.4.2: Defer-to-Trusted
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 Defer-to-Trusted ([AI Control](https://arxiv.org/abs/2312.06942) §3.3) acts on the monitor's signal: if the suspicion score exceeds a threshold, discard the untrusted action and let the trusted (weaker but safe) model handle the task instead.
 
@@ -391,7 +391,7 @@ protocol_results["Defer-to-Trusted"] = evaluate_protocol(
 
 # %%
 """
-Compare these results with Trusted Monitoring above. You should see improved safety (fewer successful attacks) but reduced usefulness — the trusted model handles flagged tasks, and it's weaker. Try adjusting `defer_threshold` to see how the tradeoff shifts.
+Compare these results with Trusted Monitoring above. You should see improved safety (fewer successful attacks) but reduced usefulness, since the trusted model handles flagged tasks and it's weaker. Try adjusting `defer_threshold` to see how the tradeoff shifts.
 """
 
 
@@ -509,8 +509,8 @@ test_defer_to_trusted_keeps_untrusted_when_clean(defer_to_trusted)
 """
 ### Exercise 2.4.3: Defer-to-Resample
 
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 4/5
+> **Importance**: 4/5
 
 DTT wastes usefulness: every flagged action is handed to the weaker trusted model. With resampling protocols, we can query the untrusted model multiple times.
 This allows us to defer more often than with DTT at any given level of usefulness.
@@ -537,7 +537,7 @@ def defer_to_resample(
         tools: list[Tool],
     ) -> tuple[AgentState, float]:
         """Run the untrusted policy + monitor, return (state, suspicion_score)."""
-        # Copy state so the caller's message list isn't mutated — without this,
+        # Copy state so the caller's message list isn't mutated; without this,
         # resamples would see each other's appended messages and produce garbled scores.
         result_state = await monitored_untrusted(copy(state), tools)
         last_msg = result_state.messages[-1]
@@ -602,6 +602,9 @@ protocol_results["Defer-to-Resample"] = evaluate_protocol(
 # %%
 """
 ### Exercise 2.4.4: Compare All Protocols
+
+> **Difficulty**: 3/5
+> **Importance**: 4/5
 
 You may have noticed that the protocols above are parametrized with thresholds and we used an arbitrary value for the evaluation.
 In practice, parameters are typically chosen to produce a given desired false positive rate matching available human capacity for auditing, or to choose a particular safety/usefulness tradeoff. When designing protocols, we are thus looking to improve the pareto frontier of achievable safety/usefulness tradeoffs across all possible parameter values.

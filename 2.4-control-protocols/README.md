@@ -31,6 +31,6 @@ the exact commands). Sections 2.3 and 2.4 share this environment.
 ### Current-state TODOs
 
 - [ ] Increase or precompute the evaluation sample so a 2% audit budget has statistical meaning; ten trajectories are insufficient.
-- [ ] Make the policy decision itself—not private framework state—the main implementation challenge.
+- [ ] Make the policy decision itself, not private framework state, the main implementation challenge.
 - [ ] Require interpretation of uncertainty and run-to-run variance in the final comparison.
 - [ ] Give Exercise 2.4.4 a concrete written analysis deliverable.

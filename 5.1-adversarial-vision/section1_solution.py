@@ -69,8 +69,8 @@ The key insight: Neural networks are vulnerable to small, carefully crafted chan
 
 ### Exercise 5.1.1: Understanding Model Predictions
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵🔵⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 3/5
 >
 > You should spend up to ~5 minutes on this exercise.
 
@@ -173,8 +173,8 @@ plt.show()
 """
 ### Exercise 5.1.2a: Adding Random Noise (Optional)
 
-> **Difficulty**: 🔴⚪⚪⚪⚪
-> **Importance**: 🔵🔵⚪⚪⚪
+> **Difficulty**: 1/5
+> **Importance**: 2/5
 >
 > You should spend up to ~15 minutes on this exercise.
 
@@ -187,8 +187,8 @@ If you can find a way to control this, it would be an excellent attack because i
 """
 ### Exercise 5.1.2b: Crafting Adversarial Examples
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 >
 > You should spend up to ~30 minutes on this exercise.
 
@@ -332,8 +332,8 @@ plt.show()
 """
 ### Exercise 5.1.3: Constrained Adversarial Attacks
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 >
 > You should spend up to ~15 minutes on this exercise.
 

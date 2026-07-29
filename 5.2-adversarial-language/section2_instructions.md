@@ -152,8 +152,8 @@ def make_initial_suffix(tokenizer: AutoTokenizer, suffix_length: int, device: to
 
 ### Exercise 5.2.1: Score a Target Continuation
 
-> **Difficulty**: 🔴🔴⚪⚪⚪
-> **Importance**: 🔵🔵🔵🔵⚪
+> **Difficulty**: 2/5
+> **Importance**: 4/5
 >
 > You should spend up to ~20 minutes on this exercise.
 
@@ -233,8 +233,8 @@ test_target_loss(target_loss)
 
 ### Exercise 5.2.2: Use Gradients to Propose Token Replacements
 
-> **Difficulty**: 🔴🔴🔴⚪⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 3/5
+> **Importance**: 5/5
 >
 > You should spend up to ~25 minutes on this exercise.
 
@@ -268,7 +268,7 @@ def compute_suffix_token_gradients(
     """
     # TODO: Compute gradients with respect to suffix token choices.
     # - Convert suffix_ids into one-hot vectors over the vocabulary
-    #   (note: F.one_hot returns int64 — cast to the embedding matrix's dtype, e.g.
+    #   (note: F.one_hot returns int64, so cast to the embedding matrix's dtype, e.g.
     #    `.to(embedding_matrix.dtype)`, so the matmul below works with BF16 weights)
     # - Turn those one-hot vectors into embeddings using the model's embedding matrix
     # - Concatenate prompt-prefix embeddings, suffix embeddings, prompt-suffix embeddings, and target embeddings
@@ -321,8 +321,8 @@ test_top_replacements_from_gradients(top_replacements_from_gradients)
 
 ### Exercise 5.2.3: Run the Full GCG Loop
 
-> **Difficulty**: 🔴🔴🔴🔴⚪
-> **Importance**: 🔵🔵🔵🔵🔵
+> **Difficulty**: 4/5
+> **Importance**: 5/5
 >
 > You should spend up to ~30 minutes on this exercise.
 
