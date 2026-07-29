@@ -63,7 +63,7 @@ The exercise has six steps:
 
 ### Setup
 
-Create a file named `day4_answers.py` in the `4.2-backdoor` directory. This will
+Create a file named `section2_answers.py` in the `4.2-backdoor` directory. This will
 be your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your
@@ -75,7 +75,7 @@ First, install this section's dependencies:
 pip install -r requirements.txt
 ```
 
-**Start by pasting the code below in your `day4_answers.py` file.**
+**Start by pasting the code below in your `section2_answers.py` file.**
 
 
 ```python

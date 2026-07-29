@@ -192,12 +192,16 @@ Include these instructions when a section has code for participants to execute
 prose-only section; instead state its discussion or written deliverable directly.
 
 ```markdown
-Create a file named `dayD_answers.py` in the `D.S-section-name` directory. This will be your answer file for this section.
+Create a file named `sectionS_answers.py` in the `D.S-section-name` directory. This will be your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to make it a Python code cell.
 
-**Start by pasting the code below in your dayD_answers.py file.**
+**Start by pasting the code below in your sectionS_answers.py file.**
 ```
+
+The answer file is always named after the section (matching that folder's
+`sectionS_solution.py` / `sectionS_instructions.md`), never after the day. Do not
+tell participants to reuse one file across a day's sections.
 
 ### Canonical `sys.path` / import boilerplate
 

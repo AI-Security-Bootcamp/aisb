@@ -52,7 +52,7 @@ Each day is split into numbered section folders named `X.Y-topic` (for example, 
 
 The README background is part of the section: review it before beginning the exercises. Only resources explicitly marked **optional longer reading** may be skipped. In each prerequisite table, you should be able to demonstrate every incoming competency with a short question or task; `-` means that the section has no additional prerequisite in that category.
 
-The recommended way to complete the exercises is to make a new `.py` file (suggested name: `day#_answers.py`) in the first section folder for the day, and use it for all of that day's sections. 
+The recommended way to complete the exercises is to make a new `.py` file (suggested name: `section#_answers.py`, matching the section's `section#_instructions.md`) inside that section's folder. 
 
 The instructions will contain code snippets you need to complete. Add a new `# %%` line to your answers and paste the code snippet under that line. If you went through the setup instructions correctly (with VS Code), you should see "Run Cell" option above the `# %%` which will execute the code in a [Python Interactive Window](https://code.visualstudio.com/docs/python/jupyter-support-py#_jupyter-code-cells). The code snippets contain tests that should initially fail. Complete the TODOs in the code and run the cell until all the tests pass. 
 

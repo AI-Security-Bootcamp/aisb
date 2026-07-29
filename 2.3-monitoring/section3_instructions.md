@@ -27,12 +27,12 @@ Build a backdoor monitor, red-team it, then improve it using chain-of-thought in
 
 
 ## Setup
-Create a file named `day2_answers.py` in the `2.3-monitoring` directory. This will be your answer file for today.
+Create a file named `section3_answers.py` in the `2.3-monitoring` directory. This will be your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
 
-**Start by pasting the code below in your day2_answers.py file.**
+**Start by pasting the code below in your section3_answers.py file.**
 
 
 ```python
