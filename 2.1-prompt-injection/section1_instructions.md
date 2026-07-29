@@ -66,10 +66,6 @@ openrouter_client = OpenAI(
     api_key=os.environ.get("OPENROUTER_API_KEY", ""),
 )
 
-# A cheap, small model for exercises where we *want* the model to be easily manipulated.
-# Qwen2.5-7B-Instruct reliably follows injected instructions embedded in retrieved
-# documents, which makes the prompt-injection attacks in this section land consistently
-# (the retired meta-llama/llama-3-8b-instruct behaved similarly; newer Llama-3.1 resists).
 SMALL_MODEL = "qwen/qwen-2.5-7b-instruct"
 ```
 
