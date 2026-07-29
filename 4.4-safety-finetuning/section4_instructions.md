@@ -86,13 +86,13 @@ pip install peft vllm
 
 ### Setup
 
-If you have not already, create a file named `day4_answers.py` in the `4.1-model-editing`
-directory (the first Day-4 section folder) and use it as your answer file for today.
+Create a file named `section4_answers.py` in the `4.4-safety-finetuning` directory. This
+will be your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
 
-**Paste the boilerplate below into your `day4_answers.py` file.**
+**Paste the boilerplate below into your `section4_answers.py` file.**
 
 
 ```python

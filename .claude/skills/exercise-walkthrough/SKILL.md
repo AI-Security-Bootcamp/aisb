@@ -62,7 +62,7 @@ Each entry: section name, inclusive line range (header → one before next heade
 - **`folds: none`** — one `Read offset=<start> limit=<length>` call. Process the section normally.
 - **Section with folds** — read in pieces, interleaved with attempts. Worked example for Exercise 1.1.3 above:
   1. `Read offset=228, limit=25` → lines 228–252: prose through the `</summary>` of the first fold. Summary text ("Answer") is visible; body is not.
-  2. Attempt the in-prose question. Write your answer into `dayN_answers.py` as a `"""..."""` block.
+  2. Attempt the in-prose question. Write your answer into `sectionN_answers.py` as a `"""..."""` block.
   3. `Read offset=253, limit=7` → first fold body (253–259). Compare; note the gap in the review.
   4. `Read offset=260, limit=3` → prose up through the next `</summary>` (260–262).
   5. `Read offset=263, limit=5` → second fold body (the vocab box — no task, just background reading; read straight through since there's nothing to attempt).
@@ -110,7 +110,7 @@ Before running any cells from the answer file, seed the kernel with `__file__`:
 
 ```bash
 python .claude/skills/exercise-walkthrough/scripts/kexec.py -c 1.1-llm-internals/.kexec-kernel.json <<EOF
-__file__ = r"<absolute path to dayN_answers.py>"
+__file__ = r"<absolute path to sectionN_answers.py>"
 EOF
 ```
 
@@ -123,10 +123,10 @@ Do this once right after `--start`, before the Setup cell. If you hit a `NameErr
 When the user says **"review day N"** (or "walk through day N", "do day N", etc.), they mean the student-facing instructions file — `dayN_instructions.md`, which lives under `dayN*/` (the exact folder name varies - glob for `day<N>*/day<N>_instructions.md`). The instructions file is the **only** input; the sibling `dayN_solution.py` is the authored source and is off-limits (see the top of this skill).
 
 - Instructions to read: `dayN-*/dayN_instructions.md`
-- Answer file to write: `dayN-*/dayN_answers.py` — **overwrite** if it exists, start clean, as if the student just created it.
+- Answer file to write: `sectionN_answers.py`, alongside the instructions file — **overwrite** if it exists, start clean, as if the student just created it.
 - Review output: `dayN-*/WALKTHROUGH_REVIEW.md` — create empty, append as you go.
 
-**`dayN_answers.py` should look like what a real student would hand in** — not a review scratchpad. Keep it to:
+**`sectionN_answers.py` should look like what a real student would hand in** — not a review scratchpad. Keep it to:
 
 - `# %%` cells copied verbatim from the instructions (imports, setup, driver code).
 - Your implementations of the TODO functions.
@@ -141,7 +141,7 @@ When the user says **"review day N"** (or "walk through day N", "do day N", etc.
   ```
   Keep your attempt even if it turned out wrong — the whole point of the walkthrough is to capture what a student actually produces.
 
-Keep review meta-commentary (what confused you, what was ambiguous, suggested fixes) **out** of `dayN_answers.py`. That belongs in `WALKTHROUGH_REVIEW.md`. The answers file should be plausibly something a participant would turn in.
+Keep review meta-commentary (what confused you, what was ambiguous, suggested fixes) **out** of `sectionN_answers.py`. That belongs in `WALKTHROUGH_REVIEW.md`. The answers file should be plausibly something a participant would turn in.
 
 ### 2. Walk through the file
 
@@ -150,7 +150,7 @@ Work from the reading plan you built in "Step 4: assemble the plan" above. That 
 For each section in the plan, in order:
 
 - Read the next chunk using the `offset`/`limit` from the plan (header line → one before the next header). For sections with folds, read in pieces as shown in the "Step 5: walk the plan" worked example: prose up to `</summary>`, attempt, then fold body.
-- Copy each code block into `dayN_answers.py` as a `# %%` cell (preserving the cell boundary).
+- Copy each code block into `sectionN_answers.py` as a `# %%` cell (preserving the cell boundary).
 - For TODO exercises, implement using **only what's been shown so far** in the instructions. No peeking at later sections, the solution file, or `<details>` blocks.
 - For prose questions: write your attempted answer into the answers file as a `"""..."""` block *first*, then expand the `<details>` reference answer to compare. Note the gap in the review (not in the answers file).
 - Execute the cell via the kernel. Observe output.

@@ -29,13 +29,13 @@ and create the file where you will complete the exercises:
 1. Copy `.env.example` in the project root to `.env`, then add the OpenRouter
    API key provided by a teaching assistant. The same key is used in later
    API-based sections.
-2. Create `day1_answers.py` in the `1.1-llm-internals` directory. This will be
-   your answer file for today.
+2. Create `section1_answers.py` in the `1.1-llm-internals` directory. This will be
+   your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
 
-**Paste the code below in your day1_answers.py file.**
+**Paste the code below in your section1_answers.py file.**
 """
 import json
 import math

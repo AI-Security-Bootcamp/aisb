@@ -123,7 +123,7 @@ connect to it over SSH before starting Section 1.
    ![Install Jupyter extension](setup/jupyter.png)
 8. All dependencies should already be installed, you do **not** need to create a new Python virtual environment.
 
-Once the remote workspace is open, create file `3.1-tokenization/day3_answers.py` and continue with Section 1 as usual.
+Once the remote workspace is open, create file `3.1-tokenization/section1_answers.py` and continue with Section 1 as usual.
 
 
 ## Tokenization & prompt construction

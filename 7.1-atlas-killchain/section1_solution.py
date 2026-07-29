@@ -24,7 +24,7 @@ Use MITRE ATLAS to trace a plausible attack end-to-end against an existing syste
 """
 ## Setup
 
-This is a prose/discussion exercise; there is no code to run. Create a file called `day7_answers.md` in the `7.1-atlas-killchain` directory and write your answers for Section 1 there (continue in the same file for Section 2). For the matrix itself, a Markdown table works fine; a spreadsheet or whiteboard photo is also acceptable. Ask a TA if you are unsure.
+This is a prose/discussion exercise; there is no code to run. Create a file called `section1_answers.md` in the `7.1-atlas-killchain` directory and write your answers for Section 1 there. For the matrix itself, a Markdown table works fine; a spreadsheet or whiteboard photo is also acceptable. Ask a TA if you are unsure.
 
 Work in your pair. Plan to spend roughly 30 minutes on Section 1 and the remaining time on Section 2. Grab an instructor for the kill-chain review at the end of Section 2 before you move on.
 """

@@ -21,12 +21,12 @@ The fundamental attack surface when LLMs process untrusted input.
 # %%
 """
 ## Setup
-Create a file named `day2_answers.py` in the `2.1-prompt-injection` directory. This will be your answer file for today.
+Create a file named `section1_answers.py` in the `2.1-prompt-injection` directory. This will be your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
 
-**Start by pasting the code below in your day2_answers.py file.**
+**Start by pasting the code below in your section1_answers.py file.**
 """
 import os
 import sys

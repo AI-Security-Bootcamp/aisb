@@ -26,12 +26,12 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 
 
 ## Setup
-Create a file named `day2_answers.py` in the `2.4-control-protocols` directory. This will be your answer file for today.
+Create a file named `section4_answers.py` in the `2.4-control-protocols` directory. This will be your answer file for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
 Keep the `# %%` line to make it a Python code cell.
 
-**Start by pasting the code below in your day2_answers.py file.**
+**Start by pasting the code below in your section4_answers.py file.**
 
 
 ```python
