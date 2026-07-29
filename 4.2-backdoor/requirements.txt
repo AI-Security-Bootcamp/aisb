@@ -2,4 +2,3 @@ datasets
 transformers
 accelerate
 peft
-vllm
