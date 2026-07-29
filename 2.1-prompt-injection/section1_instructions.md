@@ -66,8 +66,11 @@ openrouter_client = OpenAI(
     api_key=os.environ.get("OPENROUTER_API_KEY", ""),
 )
 
-# A cheap, small model for exercises where we *want* the model to be easily manipulated
-SMALL_MODEL = "meta-llama/llama-3-8b-instruct"
+# A cheap, small model for exercises where we *want* the model to be easily manipulated.
+# Qwen2.5-7B-Instruct reliably follows injected instructions embedded in retrieved
+# documents, which makes the prompt-injection attacks in this section land consistently
+# (the retired meta-llama/llama-3-8b-instruct behaved similarly; newer Llama-3.1 resists).
+SMALL_MODEL = "qwen/qwen-2.5-7b-instruct"
 ```
 
 ### Pair Programming
@@ -442,7 +445,7 @@ You just broke a delimiter-based defense using a three-stage attack. Before read
 
 <small><sup>1</sup>Similar chained attacks have been demonstrated, e.g., to bypass LLM output classifiers - the model is first jailbroken to provide a harmful answer, then prompted to produce a pre-determined string that breaks the output classifier</small>
 
-<small>**What actually worked in testing.** For the weak model (llama-3-8b-instruct) we used in Exercise 2.1.2, randomized delimiters and tag stripping both failed — the attack operates at the semantic level, not the syntactic one. Only the **instruction sandwich** blocked it reliably. </small>
+<small>**What actually worked in testing.** For the easily-manipulated model (qwen2.5-7b-instruct) we used in Exercise 2.1.2, randomized delimiters and tag stripping both failed — the attack operates at the semantic level, not the syntactic one. Only the **instruction sandwich** blocked it reliably. </small>
 </blockquote></details>
 
 <details><summary>Real-world: the Morris II AI worm</summary><blockquote>

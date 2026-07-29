@@ -97,6 +97,11 @@ source aisb-test/bin/activate  # On Windows: aisb-test\Scripts\activate
 pip install -r requirements.txt
 ```
 
+> The Day 2 AI-control sections (2.3 / 2.4) use `control-arena`, which needs a
+> newer `datasets` that conflicts with the main pins. Install those two sections
+> in a separate virtual environment from `requirements-control-arena.txt` when you
+> reach them — see that file's header for commands.
+
 **Step 3**: Open VS Code, create `test.py`, and make a GET request to `https://httpbin.org/get` using the `requests` library in a Python cell (`# %%`)
 
 **Step 4**: Run the cell and verify it runs
@@ -180,7 +185,7 @@ You will only need to do this if you *don't* use the recommended setup with VS C
 <details open>
 <summary>Expand instructions</summary>
 
-For most exercises, you need a Python environment with Python >= 3.11 and the dependencies from `requirements.txt` installed. If an exercise needs a more complicated setup, it will be described in its instructions.
+For most exercises, you need a Python environment with Python >= 3.11 and the dependencies from `requirements.txt` installed. If an exercise needs a more complicated setup, it will be described in its instructions. (The Day 2 AI-control sections 2.3 / 2.4 are one such case: they use `control-arena` and install into a separate environment from `requirements-control-arena.txt`.)
 
 You can set up the Python environment with these steps:
 

@@ -19,8 +19,11 @@ openrouter_client = OpenAI(
 )
 
 
-# A cheap, small model for exercises where we *want* the model to be easily manipulated
-SMALL_MODEL = "meta-llama/llama-3-8b-instruct"
+# A cheap, small model for exercises where we *want* the model to be easily manipulated.
+# Qwen2.5-7B-Instruct reliably follows injected instructions embedded in retrieved
+# documents, which makes the prompt-injection attacks in this section land consistently
+# (the retired meta-llama/llama-3-8b-instruct behaved similarly; newer Llama-3.1 resists).
+SMALL_MODEL = "qwen/qwen-2.5-7b-instruct"
 
 
 def build_rag_system(openrouter_client: OpenAI):
