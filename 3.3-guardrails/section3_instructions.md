@@ -11,16 +11,16 @@ evaluation does and does not establish.
     - [Setup - download models](#setup---download-models)
     - [Exercise 3.3.0 (Optional) — Writing `generate()`](#exercise-330-optional-—-writing-generate)
     - [Exercise 3.3.1 — No Guardrails](#exercise-331-—-no-guardrails)
-    - [3.1a — Verify the model refuses a harmful query](#31a-—-verify-the-model-refuses-a-harmful-query)
-    - [3.1b — Bypass the model's safety training](#31b-—-bypass-the-models-safety-training)
+    - [3.3.1a — Verify the model refuses a harmful query](#331a-—-verify-the-model-refuses-a-harmful-query)
+    - [3.3.1b — Bypass the model's safety training](#331b-—-bypass-the-models-safety-training)
     - [Discussion: Exercise 3.3.1](#discussion-exercise-331)
     - [Exercise 3.3.2 — String Filtering (Keyword Blocklist)](#exercise-332-—-string-filtering-keyword-blocklist)
-    - [3.2a — Build the defence (optional)](#32a-—-build-the-defence-optional)
-    - [3.2b (Optional) — Reverse-engineer the blocklist](#32b-optional-—-reverse-engineer-the-blocklist)
-    - [3.2c — Bypass the keyword filter](#32c-—-bypass-the-keyword-filter)
+    - [3.3.2a — Build the defence (optional)](#332a-—-build-the-defence-optional)
+    - [3.3.2b (Optional) — Reverse-engineer the blocklist](#332b-optional-—-reverse-engineer-the-blocklist)
+    - [3.3.2c — Bypass the keyword filter](#332c-—-bypass-the-keyword-filter)
     - [Discussion: Exercise 3.3.2](#discussion-exercise-332)
     - [Exercise 3.3.3 — Input Classifier (LLM-as-Judge)](#exercise-333-—-input-classifier-llm-as-judge)
-    - [3.3 sub-exercise — Can you jailbreak the classifier?](#33-sub-exercise-—-can-you-jailbreak-the-classifier)
+    - [3.3.3 sub-exercise — Can you jailbreak the classifier?](#333-sub-exercise-—-can-you-jailbreak-the-classifier)
     - [Discussion: Exercise 3.3.3](#discussion-exercise-333)
     - [Exercise 3.3.4 — Output Classifier (Full Pipeline)](#exercise-334-—-output-classifier-full-pipeline)
     - [Discussion: Exercise 3.3.4](#discussion-exercise-334)
@@ -258,7 +258,7 @@ from section3_test import test_send_unguarded
 test_send_unguarded(send_unguarded)
 ```
 
-### 3.1a — Verify the model refuses a harmful query
+### 3.3.1a — Verify the model refuses a harmful query
 
 Send `HARMFUL_QUERY` to the model. The model's safety training should cause it
 to refuse. Play around with different queries and feel free to use your own HARMFUL_QUERY.
@@ -279,7 +279,7 @@ from section3_test import test_model_refuses_harmful
 test_model_refuses_harmful(send_unguarded)
 ```
 
-### 3.1b — Bypass the model's safety training
+### 3.3.1b — Bypass the model's safety training
 
 The model probably refused if you were asking the model to do something it was trained
 to not do. But safety training is a **trained pattern**, not a
@@ -320,7 +320,7 @@ The model's built-in safety isn't enough — a simple paraphrase got through.
 Let's add our first external guardrail: a keyword blocklist that intercepts
 queries before they reach the model.
 
-### 3.2a — Build the defence (optional)
+### 3.3.2a — Build the defence (optional)
 
 Write `string_filter` to check whether a query contains any banned keyword.
 If matched, reject the query before it reaches the model.
@@ -359,7 +359,7 @@ print("=== Harmful query vs string filter ===")
 send_with_filter(HARMFUL_QUERY)
 ```
 
-### 3.2b (Optional) — Reverse-engineer the blocklist
+### 3.3.2b (Optional) — Reverse-engineer the blocklist
 
 > **Time-boxed**: ~10 minutes. Skip if short on time.
 
@@ -381,7 +381,7 @@ from section3_test import test_discovered_keywords
 test_discovered_keywords()
 ```
 
-### 3.2c — Bypass the keyword filter
+### 3.3.2c — Bypass the keyword filter
 
 Now break your own defence! Write a query that asks for harmful information
 but uses **none** of the blocked keywords. Rewording, using a different language
@@ -460,7 +460,7 @@ v = llm_classify(BENIGN_QUERY)
 show_verdict("Classifier on benign query", v)
 ```
 
-### 3.3 sub-exercise — Can you jailbreak the classifier?
+### 3.3.3 sub-exercise — Can you jailbreak the classifier?
 
 The input classifier caught the paraphrase — it understands semantics. But can
 you get past it with a more creative jailbreak?

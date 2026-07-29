@@ -1,0 +1,29 @@
+# AI Security Bootcamp — Day 2 AI-control sections (2.3 monitoring, 2.4 control-protocols).
+#
+# WHY THIS IS A SEPARATE FILE:
+# `control-arena` requires `datasets>=4.4.2`, but the main requirements.txt pins
+# `datasets==3.6.0` for the Day 4 fine-tuning exercises (4.2 backdoor, 4.4
+# safety-finetuning). Those pins are mutually exclusive, so control-arena cannot
+# live in the main environment. Install sections 2.3 / 2.4 in their OWN venv:
+#
+#     python -m venv .venv-control
+#     . .venv-control/bin/activate          # (Windows: .venv-control\Scripts\activate)
+#     pip install -r requirements-control-arena.txt
+#
+# These sections are API-only (OpenRouter via inspect-ai) and need no GPU, so no
+# torch/CUDA index is required here.
+#
+# control-arena pulls in inspect-ai, datasets (>=4.4.2), pandas, and pydantic
+# transitively; inspect-ai and numpy are pinned/listed explicitly because the
+# solution files import them directly.
+control-arena==17.1.1
+inspect-ai==0.3.244
+nest_asyncio
+numpy>=1.26,<3
+pydantic
+
+# Shared tooling used by the exercises and aisb_utils (test reporting + .env key).
+termcolor~=3.1.0
+python-dotenv
+pytest
+ipykernel
