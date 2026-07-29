@@ -6,15 +6,15 @@
 
 ## The three resources
 
-1. **[3Blue1Brown — Large Language Models explained briefly](https://www.3blue1brown.com/lessons/mini-llm/)** — lightweight mental model. Read first.
-2. **[2 OLMo 2 Furious (arxiv 2501.00656)](https://arxiv.org/pdf/2501.00656)** — a real, fully-open recipe from Ai2. We jump to specific sections with specific questions.
-3. **[Karpathy — Deep Dive into LLMs like ChatGPT](https://www.youtube.com/watch?v=zjkBMFhNj_g)** — optional 3.5-hour deep dive.
+1. **[3Blue1Brown, Large Language Models explained briefly](https://www.3blue1brown.com/lessons/mini-llm/)**: lightweight mental model. Read first.
+2. **[2 OLMo 2 Furious (arxiv 2501.00656)](https://arxiv.org/pdf/2501.00656)**: a real, fully-open recipe from Ai2. We jump to specific sections with specific questions.
+3. **[Karpathy, Deep Dive into LLMs like ChatGPT](https://www.youtube.com/watch?v=zjkBMFhNj_g)**: optional 3.5-hour deep dive.
 
 *Why OLMo 2 and not GPT-4? Because every stage and dataset is published. Closed labs follow roughly the same shape but don't share the recipe.*
 
 ---
 
-## Step 0 — Build the mental model (5 min)
+## Step 0: Build the mental model (5 min)
 
 **Read the 3b1b page end-to-end** (or watch the 8-min video embedded). Then answer:
 
@@ -46,7 +46,7 @@ parallel, but have much less specialized compute and memory bandwidth for this w
 
 ---
 
-## Step 1 — You have GPUs. Why? (3 min)
+## Step 1: You have GPUs. Why? (3 min)
 
 **Open OLMo 2 §6.1 "Clusters" (p. 31) and glance at Table 3 on p. 6.**
 
@@ -74,7 +74,7 @@ constrain which architectures and training recipes are practical.
 
 ---
 
-## Step 2 — You have data. From where? (4 min)
+## Step 2: You have data. From where? (4 min)
 
 **Read OLMo 2 §2.4 "Base Model Data" (p. 7) and Table 4.**
 
@@ -106,7 +106,7 @@ Encoded binary junk, long number sequences, padding artifacts. A single bad docu
 
 ---
 
-## Step 3 — Tokens and embeddings (3 min)
+## Step 3: Tokens and embeddings (3 min)
 
 **Read OLMo 2 §2.2 "Tokenizer" (p. 5) and glance at Table 1.**
 
@@ -145,7 +145,7 @@ to token position. It is a common alternative to learned absolute position embed
 <details>
 <summary>What actually changed from 2017 to 2024?</summary>
 
-Not attention. The stabilization tricks — norm placement, QK-norm, init schemes, z-loss — are what let us train huge models without them exploding.
+Not attention. The stabilization tricks (norm placement, QK-norm, init schemes, z-loss) are what let us train huge models without them exploding.
 </details>
 
 **Takeaway:** Tokenization creates discrete IDs, embeddings turn them into vectors,
@@ -153,7 +153,7 @@ and positional information plus transformer layers make those vectors context-de
 
 ---
 
-## Step 4 — Pretraining (5 min)
+## Step 4: Pretraining (5 min)
 
 **Read OLMo 2 §2.3 "Base Model Training Recipe" (p. 6) + Table 3. Skim §3 intro (pp. 10–12).**
 
@@ -164,7 +164,7 @@ Predict the next token given the previous tokens. Same as 3b1b said.
 </details>
 
 <details>
-<summary>Why a learning rate schedule — warmup and cosine decay?</summary>
+<summary>Why a learning rate schedule (warmup and cosine decay)?</summary>
 
 Warmup reduces early instability while model and optimizer statistics are still
 poorly calibrated. Decay makes updates smaller later in training. The exact
@@ -187,7 +187,7 @@ As much a reliability engineering problem as an ML problem. Every fix in §3 is 
 
 ---
 
-## Step 5 — Mid-training (the phase nobody mentions) (4 min)
+## Step 5: Mid-training (the phase nobody mentions) (4 min)
 
 **Read OLMo 2 §4 intro and §4.2 (pp. 18–20) + Table 9.**
 
@@ -215,19 +215,19 @@ Math has verifiable right answers, so you can generate millions of problems chea
 Empirically finds a better local minimum than any single run. Consistently equals or beats the best individual checkpoint.
 </details>
 
-**Takeaway:** A finishing school after pretraining — 100x smaller dataset, 100x more curated. Where a lot of recent capability gains actually come from.
+**Takeaway:** A finishing school after pretraining: 100x smaller dataset, 100x more curated. Where a lot of recent capability gains actually come from.
 
 ---
 
-## Step 6 — Post-training: SFT → DPO → RLVR (5 min)
+## Step 6: Post-training: SFT → DPO → RLVR (5 min)
 
 **Read OLMo 2 §5 intro (p. 26) + compare Tables 6 and 7.**
 
 **The three stages in plain English:**
 
-- **SFT (Supervised Fine-Tuning)** — show the model `(prompt, ideal response)` pairs. Same next-token loss, but now on assistant-style data. Teaches *format*.
-- **DPO (Direct Preference Optimization)** — show `(prompt, better response, worse response)` triplets. The objective increases the relative likelihood of the preferred response without an on-policy RL loop.
-- **RLVR (RL with Verifiable Rewards)** — model generates an answer, a program checks it (math solver, code test suite), reward the correct ones. The technique behind o1, R1, and thinking-mode models.
+- **SFT (Supervised Fine-Tuning)**: show the model `(prompt, ideal response)` pairs. Same next-token loss, but now on assistant-style data. Teaches *format*.
+- **DPO (Direct Preference Optimization)**: show `(prompt, better response, worse response)` triplets. The objective increases the relative likelihood of the preferred response without an on-policy RL loop.
+- **RLVR (RL with Verifiable Rewards)**: model generates an answer, a program checks it (math solver, code test suite), reward the correct ones. The technique behind o1, R1, and thinking-mode models.
 
 In a classic RLHF pipeline, preference comparisons first train a separate reward
 model. PPO (Proximal Policy Optimization) is then used to update the language
@@ -252,7 +252,7 @@ not identical to RLHF with PPO and the two approaches have different trade-offs.
 <details>
 <summary>Why does RLVR only work for some tasks?</summary>
 
-It needs a programmatic verifier. Math and code have one (solver, unit tests). Poetry and creative writing don't — so RLVR doesn't apply there.
+It needs a programmatic verifier. Math and code have one (solver, unit tests). Poetry and creative writing don't, so RLVR doesn't apply there.
 </details>
 
 <details>

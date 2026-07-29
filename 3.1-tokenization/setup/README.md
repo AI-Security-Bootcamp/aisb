@@ -10,7 +10,7 @@ Instructor workflow for provisioning RunPod GPU pods for the inference sections 
 
 ## 1. Create pods in bulk
 
-Deploy all pods in a single command — `--count` creates N pods, all sharing the same injected public key. `--git-private-key` clones the repo into `/workspace/aisb-sg` on each pod during startup.
+Deploy all pods in a single command: `--count` creates N pods, all sharing the same injected public key. `--git-private-key` clones the repo into `/workspace/aisb-sg` on each pod during startup.
 
 ```bash
 python 3.1-tokenization/setup/deploy_runpod.py --ssh-key ./id_ed25519 --git-private-key ./id_ed25519 --count <N_PAIRS>

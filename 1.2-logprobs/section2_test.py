@@ -16,7 +16,7 @@ from aisb_utils.env import load_dotenv
 
 
 
-# NOTE: This test makes a live API call — requires the OPENROUTER_API_KEY env var and is non-deterministic.
+# NOTE: This test makes a live API call; it requires the OPENROUTER_API_KEY env var and is non-deterministic.
 @report
 def test_get_completion_with_logprobs(
     solution: Callable[..., list[list[tuple[str, float]]]],

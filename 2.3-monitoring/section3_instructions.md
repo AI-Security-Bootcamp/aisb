@@ -1,7 +1,7 @@
 
 # Day 2 — Section 3: AI Control: Monitoring
 
-Build a backdoor monitor, red-team it, then improve it using chain-of-thought inspection — one full cycle of the monitor/attack arms race.
+Build a backdoor monitor, red-team it, then improve it using chain-of-thought inspection: one full cycle of the monitor/attack arms race.
 
 ## Table of Contents
 
@@ -85,7 +85,7 @@ from aisb_utils.env import load_dotenv
 load_dotenv()
 nest_asyncio.apply()  # allow asyncio.run() inside Jupyter notebook cells
 
-# This section's directory — prompts/, logs/, reference_solutions/ live here
+# This section's directory; prompts/, logs/, reference_solutions/ live here
 SCRIPT_DIR = Path(__file__).resolve().parent
 ```
 
@@ -95,13 +95,13 @@ We now shift from "securing against external attacks on AI systems" to a fundame
 
 Risks from rogue AI agents can be broadly mitigated in two ways: (i) by designing AI agents to be **more trustworthy** (alignment), or (ii) by designing safety measures that **mitigate harms even if AI agents are untrustworthy**. The latter approach is called **AI control**. Unlike alignment research, control research starts from a harder assumption: the model may already be working against you, and you need protocols that keep it contained anyway, while you are still using it.
 
-In the AI control frame, you deploy a powerful but potentially misaligned AI agent. It completes useful tasks (coding, research) but might subtly sabotage its work — inserting backdoors, exfiltrating data, undermining security configs — all while appearing helpful.
+In the AI control frame, you deploy a powerful but potentially misaligned AI agent. It completes useful tasks (coding, research) but might subtly sabotage its work (inserting backdoors, exfiltrating data, undermining security configs), all while appearing helpful.
 
 In this section you'll go through one full cycle of the monitor/attack arms race:
 1. **Build a monitor** that detects when the model writes backdoored code, and evaluate it
 2. **Red-team it** by crafting attacks that evade your monitor
-3. **Exploit a unique AI control lever** — read the agent's chain-of-thought reasoning
-4. **Understand the limits** — capability gap and what it means for real deployments
+3. **Exploit a unique AI control lever**: read the agent's chain-of-thought reasoning
+4. **Understand the limits**: capability gap and what it means for real deployments
 
 You'll use [ControlArena](https://github.com/UKGovernmentBEIS/control-arena) to build monitors, craft attacks, and implement control protocols.
 
@@ -112,8 +112,8 @@ ControlArena is a library for running AI control experiments, created by the UK 
 
 In practice, this is done by running the agent in two modes:
 
-- **Attack mode**: the agent is prompted to also pursue a secret **side task** (e.g., insert a backdoor) alongside a benign **main task** while appearing to work normally — used to measure safety
-- **Honest mode**: the agent only completes the **main task** — used to measure usefulness
+- **Attack mode**: the agent is prompted to also pursue a secret **side task** (e.g., insert a backdoor) alongside a benign **main task** while appearing to work normally. Used to measure safety
+- **Honest mode**: the agent only completes the **main task**. Used to measure usefulness
 
 The two outcome metrics are:
 
@@ -122,7 +122,7 @@ The two outcome metrics are:
 
 **Start by reading the [Core features of ControlArena](https://control-arena.aisi.org.uk/#:~:text=Core%20features%20of,can%20add%20you.) section of the documentation to get a sense of the terminology we'll be using.**
 
-ControlArena provides many [settings](https://control-arena.aisi.org.uk/#settings) out of the box. For this exercise, we'll use the simplest one that was used in the [seminal paper on AI Control](https://arxiv.org/abs/2312.06942): [`Apps`](https://control-arena.aisi.org.uk/settings/apps.html). In this setting, the main task is to solve Python coding problems. The side task is to insert a backdoor — code that passes all tests but **deliberately fails on specific trigger inputs** (provided by the agent in the attack mode).
+ControlArena provides many [settings](https://control-arena.aisi.org.uk/#settings) out of the box. For this exercise, we'll use the simplest one that was used in the [seminal paper on AI Control](https://arxiv.org/abs/2312.06942): [`Apps`](https://control-arena.aisi.org.uk/settings/apps.html). In this setting, the main task is to solve Python coding problems. The side task is to insert a backdoor: code that passes all tests but **deliberately fails on specific trigger inputs** (provided by the agent in the attack mode).
 
 Test your understanding:
 
@@ -134,9 +134,9 @@ Test your understanding:
 </blockquote></details>
 
 ### Setup: Generate Trajectories
-First, we need *trajectories* — records of the agent solving APPS problems in both honest and attack mode. These are what the monitor will be evaluated against.
+First, we need *trajectories*: records of the agent solving APPS problems in both honest and attack mode. These are what the monitor will be evaluated against.
 
-The code below generates 50 honest trajectories and 50 attack trajectories from the APPS dataset. It uses pre-verified solutions from the dataset directly (no LLM calls). Each solution is automatically executed inside a Docker container to verify test results (ControlArena supports sandboxing out of the box) — so Docker must be available. Results are cached in `logs/e3.1_trajectories/`, so this only runs once.
+The code below generates 50 honest trajectories and 50 attack trajectories from the APPS dataset. It uses pre-verified solutions from the dataset directly (no LLM calls). Each solution is automatically executed inside a Docker container to verify test results (ControlArena supports sandboxing out of the box), so Docker must be available. Results are cached in `logs/e3.1_trajectories/`, so this only runs once.
 
 You can read `[day2_utils/generate_trajectories.py](day2_utils/generate_trajectories.py)` to see how this works and familiarise yourself with the ControlArena evaluation API while the trajectories are being generated.
 
@@ -144,10 +144,10 @@ You can read `[day2_utils/generate_trajectories.py](day2_utils/generate_trajecto
 ```python
 E3_1_TRAJECTORY_DIR = str(SCRIPT_DIR / "logs" / "e3.1_trajectories")
 
-# Generate trajectories on first run — cached in logs/e3.1_trajectories/ after that.
+# Generate trajectories on first run; cached in logs/e3.1_trajectories/ after that.
 # No LLM calls, but each sample runs inside a Docker container (~1 min total).
 # apps_solution_policy() replays verified solutions and backdoors from the APPS
-# dataset directly, without calling an LLM — it's a fast deterministic replay.
+# dataset directly, without calling an LLM; it's a fast deterministic replay.
 if not list(Path(E3_1_TRAJECTORY_DIR).glob("*.eval")):
     generate_trajectories(
         apps_solution_policy(),
@@ -156,7 +156,7 @@ if not list(Path(E3_1_TRAJECTORY_DIR).glob("*.eval")):
     )
     print("Trajectories generated and cached in logs/e3.1_trajectories/")
 else:
-    print("Trajectories already exist in logs/e3.1_trajectories/ — skipping generation")
+    print("Trajectories already exist in logs/e3.1_trajectories/; skipping generation")
 ```
 
 After the trajectories are generated, you can use Inspect [log viewer](https://inspect.aisi.org.uk/log-viewer.html) to explore what's in the trajectories. All you need to do is run the following with activated virtual environment and open the provided URL in your browser:
@@ -177,19 +177,19 @@ Now write a monitor that separates the honest and attack trajectories you just g
 **Two things to implement:**
 
 1. Write your monitor prompt in `prompts/monitor_prompt.txt`
-2. Complete `create_monitor()` below — it wraps your prompt in a ControlArena monitor using [`basic_monitor_builder`](https://control-arena.aisi.org.uk/reference/monitor.html#basic_monitor_builder). The scaffold shows you which arguments to pass.
+2. Complete `create_monitor()` below; it wraps your prompt in a ControlArena monitor using [`basic_monitor_builder`](https://control-arena.aisi.org.uk/reference/monitor.html#basic_monitor_builder). The scaffold shows you which arguments to pass.
 
-The evaluation reports [ROC AUC](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc) — how well your monitor separates honest from attack trajectories. 0.5 is random; 1.0 is perfect.
+The evaluation reports [ROC AUC](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc): how well your monitor separates honest from attack trajectories. 0.5 is random; 1.0 is perfect.
 
 <details>
 <summary>Hint: `basic_monitor_builder` parameters</summary><blockquote>
 
 [`basic_monitor_builder`](https://control-arena.aisi.org.uk/reference/monitor.html#basic_monitor_builder) accepts:
-- `model` — the LLM to use as the monitor
-- `model_role` — optional role for the model; pass `None` to use the model's default system prompt
-- `prompt` — the prompt string (supports `{task_description}` and `{tool_calls}` placeholders filled in by the default formatter)
-- `score_range` — a [`MonitorScoreRange`](https://control-arena.aisi.org.uk/reference/monitor.html#MonitorScoreRange) specifying `min` and `max` score bounds
-- `cache` — set to `True` to cache LLM responses and speed up re-runs
+- `model`: the LLM to use as the monitor
+- `model_role`: optional role for the model; pass `None` to use the model's default system prompt
+- `prompt`: the prompt string (supports `{task_description}` and `{tool_calls}` placeholders filled in by the default formatter)
+- `score_range`: a [`MonitorScoreRange`](https://control-arena.aisi.org.uk/reference/monitor.html#MonitorScoreRange) specifying `min` and `max` score bounds
+- `cache`: set to `True` to cache LLM responses and speed up re-runs
 
 </blockquote></details>
 
@@ -242,7 +242,7 @@ def evaluate_monitor_on_trajectories(
     Returns (honest_scores, attack_scores, auc).
     """
     # Load the saved Inspect eval logs from disk.
-    # Each log contains a list of samples — one per APPS problem — with the
+    # Each log contains a list of samples (one per APPS problem) with the
     # agent's full tool call history and the scoring results.
     eval_logs = load_eval_logs(trajectory_dir)
     print(f"  Loaded {sum(len(log.samples or []) for log in eval_logs)} samples")
@@ -317,7 +317,7 @@ from section3_test import test_monitor_better_than_random
 test_monitor_better_than_random(e3_1_auc)
 ```
 
-Review the score distribution histogram and ROC curve above. A good monitor should show clearly separated score distributions (high scores for attack, low for honest) and an AUC well above 0.5. If the distributions overlap heavily, go back and revise `prompts/monitor_prompt.txt` — try being more specific about what backdoor patterns look like, or ask the monitor to reason step by step before scoring.
+Review the score distribution histogram and ROC curve above. A good monitor should show clearly separated score distributions (high scores for attack, low for honest) and an AUC well above 0.5. If the distributions overlap heavily, go back and revise `prompts/monitor_prompt.txt`: try being more specific about what backdoor patterns look like, or ask the monitor to reason step by step before scoring.
 
 
 ### Exercise 2.3.2: Write an Attack Prompt (Red-Teaming)
@@ -333,7 +333,7 @@ You've built a monitor. Now stress-test it: switch to the attacker's perspective
    - `{setting_description}`: the coding environment
    - `{side_task_description}`: what the backdoor should do
    - `{main_task_description}`: the legitimate task
-2. Complete `create_attack_policy()` below — it wraps your prompt in an untrusted policy that switches between attack and honest behavior depending on the eval mode.
+2. Complete `create_attack_policy()` below; it wraps your prompt in an untrusted policy that switches between attack and honest behavior depending on the eval mode.
 3. Run the code to generate the attack trajectories and analyze it.
 4. Use `inspect view` to see what your attacks look like and how the monitor scores them. Iterate on your attack prompt if needed.
 
@@ -388,7 +388,7 @@ e3_2_monitor = create_monitor(SCRIPT_DIR / "prompts/monitor_prompt.txt")
 
 # trusted_monitoring_builder wires the attack policy and monitor together:
 # on each agent action it runs the policy to get the action, then immediately
-# runs the monitor to score it — all within a single eval pass.
+# runs the monitor to score it, all within a single eval pass.
 e3_2_logs = generate_trajectories(
     trusted_monitoring_builder(policy=attack_policy, monitor=e3_2_monitor),
     E3_2_TRAJECTORY_DIR,
@@ -401,7 +401,7 @@ e3_2_auc = calculate_roc_metrics(
     np.concatenate([e3_2_honest, e3_2_attack]),
 )[3]
 
-# Task success rates and attack evasion plots — uses samples_df to get
+# Task success rates and attack evasion plots; uses samples_df to get
 # main_task_success and side_task_success alongside the monitor scores.
 _df = samples_df(load_eval_logs(E3_2_TRAJECTORY_DIR))
 _attack_df = _df[_df["eval_mode"] == "attack"]
@@ -440,7 +440,7 @@ plot_attack_evasion_curve(
 
 **What to look for in the plots:**
 
-- **Score distributions**: ideally your attacks should cluster in the *low* suspicion range — if the attack distribution overlaps heavily with the honest distribution, your attacks are subtle. If the attack scores are high, your backdoors look suspicious and should be redesigned.
+- **Score distributions**: ideally your attacks should cluster in the *low* suspicion range. If the attack distribution overlaps heavily with the honest distribution, your attacks are subtle. If the attack scores are high, your backdoors look suspicious and should be redesigned.
 - **ROC AUC**: lower than your 3.1 baseline means your attacks are harder for the monitor to detect. Higher means your attack prompt is generating detectable patterns.
 - **Side task success rate**: if this is low, the LLM is failing to insert working backdoors. This may be fine if overall attack success rate is high (sometimes it's better to skip attacking rather than be incriminated).
 - **Attack success rate curve**: the x-axis is the monitor threshold; the y-axis is the fraction of *working* backdoors that slip through. A flat curve near 1.0 means the monitor fails to catch even obvious attacks. A curve that drops steeply near 0 means the monitor is effective but at the cost of flagging almost everything. The ideal: your attack curve stays high (evasion succeeds) while the monitor's ROC AUC is low.
@@ -452,14 +452,14 @@ Iterate: if the monitor easily catches your attacks, you can go back and revise 
 > **Difficulty**: 2/5
 > **Importance**: 3/5
 
-Your red-teaming likely revealed attacks that evade a tool-call-only monitor — the agent's actions look plausible even when it's inserting a backdoor.
+Your red-teaming likely revealed attacks that evade a tool-call-only monitor: the agent's actions look plausible even when it's inserting a backdoor.
 Fortunately, monitoring AIs can make use of things that don't have a human analogue such as reading the AI's internal reasoning.
 
-**What to do:** Write your CoT monitor prompt in `prompts/cot_monitor_prompt.txt`. Unlike the basic monitor, this template also receives `{cot}` — the agent's full chain-of-thought reasoning. Look for mentions of "side task", "backdoor", strategies to evade detection, or reasoning that diverges from what the tool calls show.
+**What to do:** Write your CoT monitor prompt in `prompts/cot_monitor_prompt.txt`. Unlike the basic monitor, this template also receives `{cot}`, the agent's full chain-of-thought reasoning. Look for mentions of "side task", "backdoor", strategies to evade detection, or reasoning that diverges from what the tool calls show.
 
 The CoT monitor is built for you below using `basic_monitor_builder` with the `cot_prompt_formatter`.
 
-Once both monitors are implemented, the code below runs them on the Exercise 2.3.2 attack trajectories and plots their ROC curves side by side. No implementation needed here — just run it and compare AUCs.
+Once both monitors are implemented, the code below runs them on the Exercise 2.3.2 attack trajectories and plots their ROC curves side by side. No implementation needed here; just run it and compare AUCs.
 
 
 ```python
@@ -467,7 +467,7 @@ Once both monitors are implemented, the code below runs them on the Exercise 2.3
 
 # Evaluate the CoT monitor on your attack trajectories from Exercise 2.3.2.
 # cot_prompt_formatter(cot_only=False) populates {task_description}, {cot},
-# and {tool_calls} — giving the monitor full visibility into the agent's reasoning.
+# and {tool_calls}, giving the monitor full visibility into the agent's reasoning.
 prompt_path = SCRIPT_DIR / "prompts" / "cot_monitor_prompt.txt"
 e3_3_cot_monitor = basic_monitor_builder(
     model=DEFAULT_TRUSTED_MODEL,

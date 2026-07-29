@@ -268,7 +268,7 @@ def compute_suffix_token_gradients(
     """
     # TODO: Compute gradients with respect to suffix token choices.
     # - Convert suffix_ids into one-hot vectors over the vocabulary
-    #   (note: F.one_hot returns int64 — cast to the embedding matrix's dtype, e.g.
+    #   (note: F.one_hot returns int64, so cast to the embedding matrix's dtype, e.g.
     #    `.to(embedding_matrix.dtype)`, so the matmul below works with BF16 weights)
     # - Turn those one-hot vectors into embeddings using the model's embedding matrix
     # - Concatenate prompt-prefix embeddings, suffix embeddings, prompt-suffix embeddings, and target embeddings

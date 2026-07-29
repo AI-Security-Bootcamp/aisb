@@ -13,7 +13,7 @@
         - [Questions to consider](#questions-to-consider)
 
 In Section 2 we saw how operating in a discrete token space complicated things. Here we stay in continuous embedding
-space and directly optimize a learnable prefix matrix — the same idea behind soft prompts and prefix tuning, used
+space and directly optimize a learnable prefix matrix, the same idea behind soft prompts and prefix tuning, applied
 adversarially.
 
 ## Content & Learning Objectives
@@ -58,12 +58,12 @@ In Section 2 we saw how operating in a discrete token space complicated things: 
 heuristic and then check discrete candidates one at a time. A simpler alternative is to stay in **continuous embedding
 space**: rather than searching for token IDs, we directly optimize a learnable matrix of embedding vectors.
 
-This is the same idea behind **prefix tuning** and **soft prompts** — short, trainable sequences of embedding vectors
+This is the same idea behind **prefix tuning** and **soft prompts**: short, trainable sequences of embedding vectors
 that are spliced into a frozen model's context. Here we use that same machinery adversarially: we optimize a short
 latent prefix so that the model is pushed toward producing a chosen target continuation.
 
 The attacker upside is that optimization is now a standard gradient-descent loop with no discrete search. The
-downside — which we'll discuss at the end — is that the resulting prefix lives in embedding space and doesn't
+downside, which we'll discuss at the end, is that the resulting prefix lives in embedding space and doesn't
 straightforwardly correspond to any text you could type into a chat UI. Closing that gap is what full methods like
 [LARGO](https://arxiv.org/abs/2505.10838) tackle; we stop one step earlier.
 
@@ -78,7 +78,7 @@ straightforwardly correspond to any text you could type into a chat UI. Closing 
 Before we can do anything interesting, we need the same plumbing we used in Section 2: a tokenizer, a chat model, and
 a chat prompt split around an editable prefix insertion point.
 
-The helper `build_prompt_with_prefix_slot` is already provided — it's the same idea as in the GCG section, just reused
+The helper `build_prompt_with_prefix_slot` is already provided; it's the same idea as in the GCG section, just reused
 here. You only need to fill in `setup_model`, which loads the model and tokenizer onto the right device.
 
 This time, instead of optimizing against just one jailbreak pair, we'll learn **one shared latent prefix** against a
@@ -214,15 +214,15 @@ test_build_attack_batch(build_attack_batch)
 The central object in this exercise is the **latent prefix**: instead of editing token IDs directly, we optimize a
 learnable matrix with one embedding vector per prefix position. To score how good a latent prefix is, we feed each full
 sequence (tokens before the prefix, latent prefix, tokens after the prefix, target) through the model via
-`inputs_embeds` and compute cross-entropy loss on the target tokens — exactly like in GCG, but with the prefix staying
+`inputs_embeds` and compute cross-entropy loss on the target tokens, exactly like in GCG, but with the prefix staying
 in embedding space.
 
 Because we're learning one shared prefix for several prompt/target pairs, our objective is now the **mean target loss
 across the batch**.
 
 You'll implement two pieces here:
-1. `initialize_latent_prefix` — create an empty latent prefix tensor with the right shape.
-2. `latent_target_loss` — compute the average target continuation loss for a latent prefix over the whole batch.
+1. `initialize_latent_prefix`: create an empty latent prefix tensor with the right shape.
+2. `latent_target_loss`: compute the average target continuation loss for a latent prefix over the whole batch.
 
 
 ```python
@@ -305,7 +305,7 @@ test_latent_target_loss(latent_target_loss)
 > You should spend up to ~10 minutes on this exercise.
 
 Now that we can score a latent prefix against a batch of target continuations, we can optimize it with standard
-gradient descent. Because the prefix lives in continuous embedding space, there is no discrete search involved — it's a
+gradient descent. Because the prefix lives in continuous embedding space, there is no discrete search involved: it's a
 normal PyTorch training loop with Adam.
 
 
@@ -427,9 +427,9 @@ for idx, user_message in enumerate(eval_prompts, start=1):
   one prompt? What trade-off do you expect between specialization and generalization?
 - The learned prefix lives in embedding space. If an attacker can only interact with a deployed model through a
   normal text chat API, can they use this prefix directly? Why or why not?
-- Each embedding vector in the learned prefix is a point in a continuous space — but real token embeddings occupy
+- Each embedding vector in the learned prefix is a point in a continuous space, but real token embeddings occupy
   only a tiny, discrete subset of that space. What does that say about how "natural" the learned prefix is?
 - How might you try to turn the learned embedding-space prefix back into a usable text prefix? (This is essentially
   the problem that [LARGO](https://arxiv.org/abs/2505.10838) tackles with self-reflective decoding.)
-- Beyond jailbreaks, what else can soft-prompt / prefix-tuning methods be used for — and why are they popular as a
+- Beyond jailbreaks, what else can soft-prompt / prefix-tuning methods be used for, and why are they popular as a
   parameter-efficient fine-tuning technique?

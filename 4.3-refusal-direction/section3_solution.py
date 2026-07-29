@@ -164,7 +164,7 @@ and the model tries to guide the user towards more safe topics to talk about.
 One would assume that Qwen probably knows how to make anthrax (amongst other dangerous
 things), as capabilities are dual-use: a skilled doctor should be able to kill
 a patient in a way that wouldn't be obvious to an autopsy. Doctors who couldn't
-are probably not good doctors — they would have a poor understanding of the human body.
+are probably not good doctors; they would have a poor understanding of the human body.
 
 Similarly, we would expect that it is hard to build models that are only
 capable of doing "good" things, and completely incapable of doing "bad" things.
@@ -209,7 +209,7 @@ are scarcely more expensive than the resources required to run the model at all.
 ## Content & Learning Objectives
 
 Reproduce, on a modern small model, the finding that refusal is mediated by a single
-direction — then use that direction to bypass, induce, and permanently remove refusal, and
+direction, then use that direction to bypass, induce, and permanently remove refusal, and
 measure what it costs the model.
 
 ### 1. Finding the refusal direction
@@ -233,7 +233,7 @@ Add the direction to a benign prompt and watch the model refuse.
 > - Steer activations by adding a direction, showing it is *(nearly) sufficient* for refusal
 
 ### 4. Baking it into the weights
-Make the change permanent and hook-free — a standalone "abliterated" model.
+Make the change permanent and hook-free: a standalone "abliterated" model.
 
 > **Learning Objectives**
 > - Orthogonalize the residual-writing weight matrices so refusal is removed with zero inference overhead
@@ -338,15 +338,15 @@ if "TEST_FIXTURE":
 
 # %%
 r"""
-Before going further, let's look at the data we just loaded — the first 10 instructions of each
+Before going further, let's look at the data we just loaded: the first 10 instructions of each
 kind (128 of each in total):
 """
 
-print(f"HARMFUL ({len(HARMFUL_INSTRUCTIONS)} total) — first 10:")
+print(f"HARMFUL ({len(HARMFUL_INSTRUCTIONS)} total), first 10:")
 for instruction in HARMFUL_INSTRUCTIONS[:10]:
     print(f"  - {instruction}")
 
-print(f"\nHARMLESS ({len(HARMLESS_INSTRUCTIONS)} total) — first 10:")
+print(f"\nHARMLESS ({len(HARMLESS_INSTRUCTIONS)} total), first 10:")
 for instruction in HARMLESS_INSTRUCTIONS[:10]:
     print(f"  - {instruction}")
 
@@ -356,7 +356,7 @@ r"""
 
 The model consumes a **chat prompt**: your instruction wrapped in the special tokens that mark
 user and assistant turns. Everything the model computes about "should I refuse this?" happens
-while it reads that prompt, and is written into the **residual stream** — the running sum of
+while it reads that prompt, and is written into the **residual stream**: the running sum of
 vectors that flows from layer to layer.
 
 Our plan (the *difference-in-means* method):
@@ -748,22 +748,22 @@ r"""
 ### Visualizing the direction (demo)
 
 Before moving on, let's *see* the phenomenon we are exploiting. The claim behind the
-difference-in-means method is that a **single** direction — `refusal_dir` — carries the
+difference-in-means method is that a **single** direction, `refusal_dir`, carries the
 harmful/harmless distinction. So **projecting each
 prompt's activation onto that one direction** should already pull the two groups apart.
 
 We do exactly that:
 
 1. Grab each prompt's last-token vector at `LAYER` (the short `get_last_token_activations`
-   helper — `get_mean_activations` averages its prompts, but here we want to keep every one).
-2. Project each vector onto the unit `refusal_dir` — a single number per prompt: how far along
+   helper; `get_mean_activations` averages its prompts, but here we want to keep every one).
+2. Project each vector onto the unit `refusal_dir`, giving a single number per prompt: how far along
    the refusal axis that prompt sits.
 3. For each group, fit a Gaussian to those numbers (their empirical **mean** and **standard
    deviation**), and plot the projected points together with the two fitted Gaussians.
 
 If the two Gaussians are well separated (their means many standard deviations apart), then this
-one direction really does carry the harmful/harmless distinction — which is what makes erasing
-it such a powerful attack.
+one direction really does carry the harmful/harmless distinction, which is what makes erasing
+it such an effective attack.
 """
 
 import numpy as np
@@ -788,7 +788,7 @@ def get_last_token_activations(prompts: list[str], layer: int = LAYER) -> Tensor
 harmful_resid = get_last_token_activations(HARMFUL_INSTRUCTIONS)
 harmless_resid = get_last_token_activations(HARMLESS_INSTRUCTIONS)
 
-# Project every prompt's activation onto the (unit) refusal direction — one scalar per prompt.
+# Project every prompt's activation onto the (unit) refusal direction, one scalar per prompt.
 unit = (refusal_dir / refusal_dir.norm()).float().cpu()
 harmful_proj = (harmful_resid @ unit).numpy()
 harmless_proj = (harmless_resid @ unit).numpy()
@@ -921,7 +921,7 @@ Build the hooks that apply directional ablation to a live forward pass. We ablat
 **input** to every decoder layer (a forward pre-hook), so the direction is scrubbed from the
 residual stream everywhere it flows.
 
-Return a list of `(module, hook)` pairs — one per layer — suitable for `use_hooks(pre_hooks=...)`.
+Return a list of `(module, hook)` pairs, one per layer, suitable for `use_hooks(pre_hooks=...)`.
 Each hook receives `(module, args)`, where `args` is the layer's positional inputs. Qwen3's
 decoder layers take a single positional input (the residual stream), so `args == (residual,)`:
 project the direction out of `args[0]` and return the replacement input `(new_activation,)`.
@@ -1154,7 +1154,7 @@ So $P := \hat r\,\hat r^\top$ projects onto the
 refusal direction and $I - P$ is exactly the `oproj` from Section 2, written as one matrix. That
 matrix form is what lets us fold the operation into the weights below.
 
-The key fact is that the residual stream is never overwritten — it is only ever **added to**.
+The key fact is that the residual stream is never overwritten; it is only ever **added to**.
 Its value is the sum of everything written into it: the token embedding, plus every attention
 and MLP output,
 $$x = \underbrace{W_E\, e}_{\text{embedding}} \;+\; \sum_{\ell} \Big( W_O^{(\ell)}\, a^{(\ell)} \;+\; W_{\text{down}}^{(\ell)}\, m^{(\ell)} \Big),$$
@@ -1172,14 +1172,14 @@ $$W' \;:=\; (I - \hat r \hat r^\top)\, W
 \hat r^\top (W' v) = 0 \ \text{ for every input } v.$$
 The implication holds because $\hat r^\top W' = \hat r^\top W - (\hat r^\top \hat r)\,\hat r^\top W = 0$,
 using $\hat r^\top \hat r = 1$. Every source that could add to the residual now writes something
-orthogonal to $\hat r$, so — since these matrices are the *only* things that write to the stream —
+orthogonal to $\hat r$, so (since these matrices are the *only* things that write to the stream)
 the residual stays orthogonal to $\hat r$ at **every** layer and position. That is exactly the
 invariant the hook produced, now baked in with zero runtime cost. (In exact arithmetic the two
 give the identical forward pass; the RMSNorm layers only rescale the stream on the way *into* a
 block and never write to it, so they cannot reintroduce the removed direction.)
 
 **Why the transposes in the code.** $(I - \hat r \hat r^\top)\,W$ removes $\hat r$ from each
-*column* of $W$ — each column being a residual-space vector. Our `oproj` removes a direction from
+*column* of $W$, each column being a residual-space vector. Our `oproj` removes a direction from
 the **last** axis of a tensor. So for a matrix whose residual-space axis is already last we apply
 it directly; otherwise we transpose first. `embed_tokens.weight` has shape `[vocab, d_model]`
 (rows are residual-space vectors) → apply directly; `o_proj.weight` and `down_proj.weight` have
@@ -1190,7 +1190,7 @@ shape `[d_model, d_in]` (residual-space axis first) → transpose, `oproj`, tran
 Baking it in uses the *same projection you already wrote*, now applied to weight matrices
 instead of activations. For a matrix whose **last dimension** is `D_MODEL`, removing the
 component of every row along the direction is exactly `oproj`. So we give you this
-one-line helper for free — the interesting part is applying it to the right matrices (next
+one-line helper for free; the interesting part is applying it to the right matrices (next
 exercise):
 """
 
@@ -1212,9 +1212,9 @@ r"""
 Apply `orthogonalize_matrix` to every weight that writes to the residual stream:
 
 - Embedding matrix: `model.model.embed_tokens.weight`, shape `[vocab, D_MODEL]`, orthogonalize directly.
-- Output projection: each layer's `self_attn.o_proj.weight` — shape `[D_MODEL, d_head]`; transpose so the last
+- Output projection: each layer's `self_attn.o_proj.weight`, shape `[D_MODEL, d_head]`; transpose so the last
   dim is `D_MODEL`, orthogonalize, transpose back.
-- MLP Down Projection: each layer's `mlp.down_proj.weight` — same transpose trick.
+- MLP Down Projection: each layer's `mlp.down_proj.weight`, same transpose trick.
 
 Modify the weights **in place** (`.data = ...`). The edit is idempotent, so applying it twice is
 harmless.
@@ -1290,10 +1290,10 @@ test_abliterate_model(abliterate_model)
 # %%
 
 
-# Abliterate `model` in place — this permanently removes refusal from the weights. Section 6
+# Abliterate `model` in place; this permanently removes refusal from the weights. Section 6
 # compares it against the original, which it reloads fresh from HuggingFace (so we keep no copy here).
 abliterate_model(model, refusal_dir)
-print("\n=== After baking (NO hooks) — the weights themselves are changed ===")
+print("\n=== After baking (NO hooks): the weights themselves are changed ===")
 print(f"{harmful_prompt}\n==========================")
 print(generate(harmful_prompt)[0])
 
@@ -1353,8 +1353,8 @@ r"""
 > You should spend up to ~10 minutes on this exercise.
 
 Inspect represents each question as a `Sample(input=..., choices=..., target=...)`. Write the
-function that converts one MMLU record — fields `question` (str), `choices` (list of 4 strings),
-and `answer` (int index 0-3) — into a `Sample` whose `target` is the correct **letter**
+function that converts one MMLU record (fields `question` (str), `choices` (list of 4 strings),
+and `answer` (int index 0-3)) into a `Sample` whose `target` is the correct **letter**
 ("A"-"D").
 """
 
@@ -1401,8 +1401,8 @@ test_mmlu_record_to_sample(mmlu_record_to_sample)
 r"""
 ### Running the benchmark
 
-The rest is provided. We build an Inspect `Task` — an MMLU subset, the built-in
-`multiple_choice` solver, and the `choice` scorer — and evaluate the original and abliterated
+The rest is provided. We build an Inspect `Task` (an MMLU subset, the built-in
+`multiple_choice` solver, and the `choice` scorer) and evaluate the original and abliterated
 models via Inspect's HuggingFace provider (`enable_thinking=False` keeps Qwen3 answering in a
 few tokens). Then we compare accuracies with standard-error bars and the random baseline.
 """
@@ -1477,12 +1477,12 @@ You reproduced the central result of *Refusal in Language Models Is Mediated by 
 Direction* on a modern small model:
 
 - **One direction, found cheaply.** A difference-in-means over a few dozen prompts recovers a
-  direction that mediates refusal — no gradients, no training.
+  direction that mediates refusal, with no gradients and no training.
 - **Necessary and (nearly) sufficient.** Ablating the direction bypasses refusal on harmful
   prompts; adding it induces refusal on harmless ones. Refusal is causally mediated by this
   one direction.
 - **Permanent and free.** Orthogonalizing the residual-writing weight matrices bakes the
-  change into a standalone model with no inference overhead — this is "abliteration."
+  change into a standalone model with no inference overhead. This is "abliteration."
 - **Surgical.** An MMLU evaluation with Inspect shows general capability is essentially
   unchanged (the before/after difference is within a standard error), matching the paper's
   finding that abliteration has minimal effect on other capabilities.
@@ -1498,7 +1498,7 @@ training) are needed for models whose weights are exposed.
 - [Arditi et al. (2024), *Refusal in Language Models Is Mediated by a Single Direction*](https://arxiv.org/abs/2406.11717)
 - [Original code & blog post](https://www.lesswrong.com/posts/jGuXSZgv6qfdhMCuJ/refusal-in-llms-is-mediated-by-a-single-direction)
 - ["Uncensor any LLM with abliteration" (mlabonne)](https://huggingface.co/blog/mlabonne/abliteration)
-- [Inspect](https://inspect.ai-safety-institute.org.uk/) — the standard harness for real capability evals (MMLU, ARC-Challenge)
+- [Inspect](https://inspect.ai-safety-institute.org.uk/): the standard harness for real capability evals (MMLU, ARC-Challenge)
 """
 
 # %%
