@@ -22,12 +22,10 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 
 ### Environment
 
-This section uses the same [ControlArena](https://control-arena.aisi.org.uk/) environment as
-[2.3](../2.3-monitoring/section3_instructions.md): a **clean, separate virtual environment**
-built from `requirements-control-arena.txt` in the repository root, kept apart from the main
-bootcamp `requirements.txt` environment because their pinned dependencies conflict.
-
-If you already created it in 2.3, just activate it. Otherwise:
+This section uses the same **clean virtual environment** as
+[2.3](../2.3-monitoring/section3_instructions.md), installed from
+`requirements-control-arena.txt`. If you already created it in 2.3, just activate it.
+Otherwise:
 
 ```bash
 # From the repository root

@@ -40,8 +40,6 @@ if str(_root) not in sys.path:
 
 Spend ~30 minutes on this exercise.
 
-Spend ~30 minutes on this exercise.
-
 Try to jailbreak a safety-trained model using the following interactive
 challenges:
 
