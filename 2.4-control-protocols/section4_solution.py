@@ -19,6 +19,28 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 # %%
 """
 ## Setup
+
+### Environment
+
+This section uses the same [ControlArena](https://control-arena.aisi.org.uk/) environment as
+[2.3](../2.3-monitoring/section3_instructions.md): a **clean, separate virtual environment**
+built from `requirements-control-arena.txt` in the repository root, kept apart from the main
+bootcamp `requirements.txt` environment because their pinned dependencies conflict.
+
+If you already created it in 2.3, just activate it. Otherwise:
+
+```bash
+# From the repository root
+python -m venv .venv-control-arena
+source .venv-control-arena/bin/activate
+pip install -r requirements-control-arena.txt
+```
+
+Select this interpreter in your IDE before running any code in this section (in VS Code:
+*Python: Select Interpreter* → `.venv-control-arena`), and make sure Docker is running.
+
+### Answer file
+
 Create a file named `day2_answers.py` in the `2.4-control-protocols` directory. This will be your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
