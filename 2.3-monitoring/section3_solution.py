@@ -20,6 +20,29 @@ Build a backdoor monitor, red-team it, then improve it using chain-of-thought in
 # %%
 """
 ## Setup
+
+### Environment
+
+Sections 2.3 and 2.4 need a **clean virtual environment** installed from
+`requirements-control-arena.txt`:
+
+```bash
+# From the repository root
+python -m venv .venv-control-arena
+source .venv-control-arena/bin/activate
+pip install -r requirements-control-arena.txt
+```
+
+Select this interpreter in your IDE before running any code in this section (in VS Code:
+*Python: Select Interpreter* → `.venv-control-arena`). Section
+[2.4](../2.4-control-protocols/section4_instructions.md) uses the same environment, so create
+it once and keep it activated for both.
+
+You also need Docker running: trajectory generation executes candidate solutions inside a
+sandbox container.
+
+### Answer file
+
 Create a file named `day2_answers.py` in the `2.3-monitoring` directory. This will be your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
