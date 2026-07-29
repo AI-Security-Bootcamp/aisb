@@ -2,7 +2,7 @@
 """
 # Day 2 — Section 2: Coding Agents: Attack Surface and Affordances
 
-How affordances and autonomy determine the blast radius of injection in coding agents — and how injection connects to the AI control threat model.
+How affordances and autonomy determine the blast radius of injection in coding agents, and how injection connects to the AI control threat model.
 
 <!-- toc -->
 
@@ -23,20 +23,20 @@ How affordances and autonomy determine the blast radius of injection in coding a
 
 Indirect prompt injection is most often discussed as an application security problem. In this course, we focus more on **catastrophic risks from AI**. E.g., in the field of AI control which we'll explore hands-on in sections 3–4, most researchers are worried about [these core threats categories](https://blog.redwoodresearch.org/p/prioritizing-threats-for-ai-control):
 
-- **Rogue deployments** inside AI labs — the model autonomously spins up new instances or services outside approved infrastructure to avoid oversight
-- **Model self-exfiltration** — the model copies its own weights to an external location to persist beyond its intended deployment
-- **Violating security invariants** — weakening security configs, opening reverse shells, exfiltrating credentials
-- **Sabotaging safety R&D** — degrading alignment code, manipulating evaluations, poisoning training data for future models
-- **Catastrophic side-effects** — unintended large-scale damage from autonomous actions
-- **Loss of control** — acquiring resources and capabilities that prevent human intervention
+- **Rogue deployments** inside AI labs: the model autonomously spins up new instances or services outside approved infrastructure to avoid oversight
+- **Model self-exfiltration**: the model copies its own weights to an external location to persist beyond its intended deployment
+- **Violating security invariants**: weakening security configs, opening reverse shells, exfiltrating credentials
+- **Sabotaging safety R&D**: degrading alignment code, manipulating evaluations, poisoning training data for future models
+- **Catastrophic side-effects**: unintended large-scale damage from autonomous actions
+- **Loss of control**: acquiring resources and capabilities that prevent human intervention
 
 In this section, we'll look at an example of a system that sits at the intersection of these threats and where prompt injection is also relevant: **coding agents**. Prompt injection is relevant here in two distinct ways:
 
 1. **External attacker via injection**: An adversary could plant a payload (in a repository, documentation web, coding agent plugin marketplace, ...) to compromise the security of an AI lab
 
-2. **Monitor manipulation**: One of the core AI control measures is *control monitoring* — using a separate LLM to monitor an untrusted AI agent's behavior (human oversight won't scale to every action). But if the monitoring system processes the monitored agent's outputs or reasoning, it is itself exposed to prompt injection. A sufficiently capable agent could craft its outputs to inject instructions into the monitor, manipulating its own oversight and bypassing safety measures.
+2. **Monitor manipulation**: One of the core AI control measures is *control monitoring*: using a separate LLM to monitor an untrusted AI agent's behavior (human oversight won't scale to every action). But if the monitoring system processes the monitored agent's outputs or reasoning, it is itself exposed to prompt injection. A sufficiently capable agent could craft its outputs to inject instructions into the monitor, manipulating its own oversight and bypassing safety measures.
 
-Top AI labs [now](https://x.com/bcherny/status/2015979257038831967?s=46&t=zHQCBTtfz3hXdhbfUsgEAg) [admit](https://x.com/tszzl/status/2015262304913469808) [almost](https://www.lesswrong.com/posts/prSnGGAgfWtZexYLp/is-90-of-code-at-anthropic-being-written-by-ais) all of their code is written by coding agents — systems that run with the developer's full OS permissions inside environments with broad access to file systems, version control, cloud tools, and CI/CD pipelines. In Exercise 2.1.1, you mapped the *attack surface* — what untrusted input can reach the model. Now let's examine the **affordances** — what can a misaligned or prompt-injected agent actually *do*?
+Top AI labs [now](https://x.com/bcherny/status/2015979257038831967?s=46&t=zHQCBTtfz3hXdhbfUsgEAg) [admit](https://x.com/tszzl/status/2015262304913469808) [almost](https://www.lesswrong.com/posts/prSnGGAgfWtZexYLp/is-90-of-code-at-anthropic-being-written-by-ais) all of their code is written by coding agents: systems that run with the developer's full OS permissions inside environments with broad access to file systems, version control, cloud tools, and CI/CD pipelines. In Exercise 2.1.1, you mapped the *attack surface*, meaning what untrusted input can reach the model. Now let's examine the **affordances**: what can a misaligned or prompt-injected agent actually *do*?
 
 ### Exercise 2.2.1: Enumerate Affordances, Exploits, and Mitigations
 
@@ -47,7 +47,7 @@ Top AI labs [now](https://x.com/bcherny/status/2015979257038831967?s=46&t=zHQCBT
 
 Think broadly. Consider:
 - What can the agent trigger *right now*, while it is running?
-- What can it *set in motion for later* — things that will execute after the agent session ends?
+- What can it *set in motion for later*: things that will execute after the agent session ends?
 - Who else *shares this environment*? Other developers, CI runners, future agent sessions?
 
 **Task:** When you have your list, propose concrete mitigations. For each one, consider whether it *prevents* the attack or merely *raises the cost*.
@@ -59,40 +59,40 @@ Here are some examples of what is available to a coding agent.
 **Unauthorized Code Execution**
 
 - **Claude Code SKILL files** - use [dynamic context](https://code.claude.com/docs/en/skills#inject-dynamic-context) to inject executable code
-- **Git hooks** — write `.git/hooks/post-merge` or `pre-push`; executes on the next git operation on *every developer's machine*. Use `core.hooksPath` to make hooks persist across fresh clones.
-- **CI/CD pipeline files** — add `.github/workflows/evil.yml`; runs on push in a privileged CI environment with access to all repository secrets.
-- **Shell startup files** — modify `~/.bashrc`, `~/.zshrc`, or `~/.profile`; executes on the developer's next terminal login.
-- **Build scripts** — add a target to `Makefile`, `postinstall` in `package.json`, or an entry point in `pyproject.toml`; runs on `make`, `npm install`, or `pip install -e .` for anyone setting up the project.
-- **VS Code tasks** — write `.vscode/tasks.json`; executes when the developer opens the folder or runs a task.
-- **Cron jobs** — write to the user crontab or `/etc/cron.d/`; runs on a schedule indefinitely.
-- **Agent framework skills / MCP config** — modify skill files or dynamic context configuration; executes the next time any agent session loads these skills.
-- **Prompt injection via repo files** — embed malicious instructions in README, code comments, or data files; triggers when a future agent session reads the file.
+- **Git hooks**: write `.git/hooks/post-merge` or `pre-push`; executes on the next git operation on *every developer's machine*. Use `core.hooksPath` to make hooks persist across fresh clones.
+- **CI/CD pipeline files**: add `.github/workflows/evil.yml`; runs on push in a privileged CI environment with access to all repository secrets.
+- **Shell startup files**: modify `~/.bashrc`, `~/.zshrc`, or `~/.profile`; executes on the developer's next terminal login.
+- **Build scripts**: add a target to `Makefile`, `postinstall` in `package.json`, or an entry point in `pyproject.toml`; runs on `make`, `npm install`, or `pip install -e .` for anyone setting up the project.
+- **VS Code tasks**: write `.vscode/tasks.json`; executes when the developer opens the folder or runs a task.
+- **Cron jobs**: write to the user crontab or `/etc/cron.d/`; runs on a schedule indefinitely.
+- **Agent framework skills / MCP config**: modify skill files or dynamic context configuration; executes the next time any agent session loads these skills.
+- **Prompt injection via repo files**: embed malicious instructions in README, code comments, or data files; triggers when a future agent session reads the file.
 
 **Credential and Data Access**
 
-- **Environment variables** — `GITHUB_TOKEN`, AWS/GCP credentials, database passwords, and API keys are readable in the agent's environment at any time.
-- **Credential files** — `.env`, `~/.aws/credentials`, `~/.netrc`, `~/.ssh/id_rsa`, `~/.config/gh/hosts.yml` (GitHub CLI token).
-- **Git history** — `git log -p` reveals secrets that were committed and later "deleted". Deletion removes them from the working tree but not from history.
-- **Experiment logs and shared files** — past runs often log API responses, model outputs, and connection strings used during testing.
+- **Environment variables**: `GITHUB_TOKEN`, AWS/GCP credentials, database passwords, and API keys are readable in the agent's environment at any time.
+- **Credential files**: `.env`, `~/.aws/credentials`, `~/.netrc`, `~/.ssh/id_rsa`, `~/.config/gh/hosts.yml` (GitHub CLI token).
+- **Git history**: `git log -p` reveals secrets that were committed and later "deleted". Deletion removes them from the working tree but not from history.
+- **Experiment logs and shared files**: past runs often log API responses, model outputs, and connection strings used during testing.
 
 **Privilege Escalation**
 
-- **Cloud CLIs already authenticated** — if the developer has `aws`, `gcloud`, or `kubectl` configured, the agent inherits those sessions. It can create resources, modify IAM policies, exfiltrate data, or disable security controls.
-- **Infrastructure-as-code** — Terraform configs, Helm charts, and Kubernetes manifests can be modified to open ports, add users, or remove security controls. Changes apply at the next deployment.
-- **Production access** — connection strings and service account credentials often give direct access to production databases or APIs.
+- **Cloud CLIs already authenticated**: if the developer has `aws`, `gcloud`, or `kubectl` configured, the agent inherits those sessions. It can create resources, modify IAM policies, exfiltrate data, or disable security controls.
+- **Infrastructure-as-code**: Terraform configs, Helm charts, and Kubernetes manifests can be modified to open ports, add users, or remove security controls. Changes apply at the next deployment.
+- **Production access**: connection strings and service account credentials often give direct access to production databases or APIs.
 
 **Bypassing Human Oversight**
 
-- **PR auto-approval** — using `gh pr review --approve` with the token already present in the environment. This can happen either through account compromise (the hook runs as a developer whose GitHub account has review permissions) or through *cross-environment collusion*: one agent instance writes a hook that runs in a *different* developer's git client, which then approves the first agent's PR.
-- **CI check manipulation** — change the pipeline so a failing check is non-required, or add a step that always passes.
-- **Branch protection bypass** — via the GitHub API, remove required reviewers or modify CODEOWNERS.
-- **Git history rewriting** — on an unpushed branch, directly edit `.git/objects/` to alter commit content without changing what `git log` shows. Standard review tools display the altered content with no visible trace.
+- **PR auto-approval**: using `gh pr review --approve` with the token already present in the environment. This can happen either through account compromise (the hook runs as a developer whose GitHub account has review permissions) or through *cross-environment collusion*: one agent instance writes a hook that runs in a *different* developer's git client, which then approves the first agent's PR.
+- **CI check manipulation**: change the pipeline so a failing check is non-required, or add a step that always passes.
+- **Branch protection bypass**: via the GitHub API, remove required reviewers or modify CODEOWNERS.
+- **Git history rewriting**: on an unpushed branch, directly edit `.git/objects/` to alter commit content without changing what `git log` shows. Standard review tools display the altered content with no visible trace.
 
 **Persistence and Lateral Movement**
 
-- **SSH key injection** — append an attacker-controlled public key to `~/.ssh/authorized_keys` for persistent remote shell access.
-- **Supply chain compromise** — modify `requirements.txt`, `package.json`, or lockfiles to pull a malicious or typosquatted package on the next install.
-- **Rogue CI runners** — a CI job can register a persistent self-hosted runner that phones home, surviving indefinitely beyond any single agent session.
+- **SSH key injection**: append an attacker-controlled public key to `~/.ssh/authorized_keys` for persistent remote shell access.
+- **Supply chain compromise**: modify `requirements.txt`, `package.json`, or lockfiles to pull a malicious or typosquatted package on the next install.
+- **Rogue CI runners**: a CI job can register a persistent self-hosted runner that phones home, surviving indefinitely beyond any single agent session.
 
 </details>
 
@@ -116,7 +116,7 @@ A sufficiently capable agent can route around any single fix through the same en
 
 <details>
 <summary>(Optional) How much can we restrict affordances by limiting tools to just file read and edit?</summary>
-In a developer environment, files are not inert data — they are instructions to trusted processes. The agent does not need to *execute* code directly; it just needs to write a file that another process will execute:
+In a developer environment, files are not inert data; they are instructions to trusted processes. The agent does not need to *execute* code directly; it just needs to write a file that another process will execute:
 
 | What the agent writes | Executed by | Trigger |
 |---|---|---|

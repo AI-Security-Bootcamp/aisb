@@ -2,7 +2,7 @@
 """
 # Day 1 — Section 1: LLM Internals: What Goes In, What Comes Out
 
-On the first day, we'll warm up by looking under the hood of LLM inference APIs — the primary interface through which models are exposed to applications, and the substrate on which all attacks and defenses build. We'll explore how conversations are serialized into tokens, what the model actually computes (logprobs), and where the boundaries between "instructions" and "data" break down.
+On the first day, we'll warm up by taking apart LLM inference APIs: the interface through which models are exposed to applications, and the substrate on which all attacks and defenses build. We'll explore how conversations are serialized into tokens, what the model actually computes (logprobs), and where the boundaries between "instructions" and "data" break down.
 
 This is also a chance to get your environment set up and iron out any technical issues. If you run into problems, don't hesitate to ask the teaching assistants!
 
@@ -10,7 +10,7 @@ This is also a chance to get your environment set up and iron out any technical 
 
 ## Content & Learning Objectives
 
-Understand exactly what the model sees and produces — the substrate everything else builds on.
+Understand exactly what the model sees and produces.
 
 > **Learning Objectives**
 > - Set up environment for the exercises and troubleshoot any issues.
@@ -64,7 +64,7 @@ openrouter_client = OpenAI(
 """
 ## LLM Internals: What Goes In, What Comes Out
 
-Model inference APIs are the primary way how LLMs are exposed to the world and consumed by applications. They define the primary attack surface both for the model and indirectly for all applications built on top — so understanding them is critical to both attack and defense.
+Inference APIs are how LLMs are exposed to the world and consumed by applications. They define the attack surface both for the model itself and, indirectly, for everything built on top of it, so understanding them is the starting point for both attack and defense.
 
 While LLM APIs typically expose structured chat interfaces, a look one level deeper reveals that the model itself only sees a **sequence of tokens** derived from a serialized conversation - what looks a well-designed protocol can in fact behave like an _unstructured channel_!
 
@@ -133,7 +133,7 @@ def serialize_conversation_chatml(messages: list[dict]) -> str:
                 role_tag = f"tool(tool_call_id={msg['tool_call_id']})"
                 parts.append(f"<|im_start|>{role_tag}\n{content}<|im_end|>\n")
             elif role == "assistant" and content is None and msg.get("tool_calls"):
-                # Assistant message with tool calls — serialize as JSON
+                # Assistant message with tool calls: serialize as JSON
                 tc_json = json.dumps(msg["tool_calls"], indent=2)
                 parts.append(f"<|im_start|>assistant\n{tc_json}<|im_end|>\n")
             else:
@@ -178,7 +178,7 @@ def test_serialization(solution: Callable[[list[dict]], str]):
     assert "<|im_end|>" in result, "Expected '<|im_end|>' closing tokens in result"
 
     # tool_calls are serialized as a JSON array (list starts with '[')
-    # Find the assistant block with tool calls — it should contain a JSON array
+    # Find the assistant block with tool calls; it should contain a JSON array
     import re
 
     tc_block_match = re.search(
@@ -212,12 +212,12 @@ test_serialization(serialize_conversation_chatml)
 
 # %%
 """
-When you're done, have a look at what the ChatML string looks like as **[tokens](https://d2l.ai/chapter_recurrent-neural-networks/text-sequence.html#tokenization)** — the actual input the model processes. We'll use a HuggingFace tokenizer for [SmolLM2](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct), a small model that natively uses the ChatML format.
+When you're done, have a look at what the ChatML string looks like as **[tokens](https://d2l.ai/chapter_recurrent-neural-networks/text-sequence.html#tokenization)**, the actual input the model processes. We'll use a HuggingFace tokenizer for [SmolLM2](https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct), a small model that natively uses the ChatML format.
 
-Note how `<|im_start|>` and `<|im_end|>` each map to a **single special token**. These tokens are not part of the normal text vocabulary — they can only be inserted by the tokenizer, never produced by user input text. This is what makes them reliable message boundaries (in theory).
+Note how `<|im_start|>` and `<|im_end|>` each map to a **single special token**. These tokens are not part of the normal text vocabulary: they can only be inserted by the tokenizer, never produced by user input text. This is what makes them reliable message boundaries (in theory).
 """
 
-# Load SmolLM2 tokenizer — uses ChatML with <|im_start|>/<|im_end|> as special tokens
+# Load SmolLM2 tokenizer; it uses ChatML with <|im_start|>/<|im_end|> as special tokens
 CHATML_TOKENIZER = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
 
 
@@ -331,7 +331,7 @@ def test_control_token_injection(solution: Callable[[list[dict], AutoTokenizer],
         if text in ("<|im_start|>", "<|im_end|>") and is_ctrl
     ]
     # There should be MORE than the two legitimate boundary tokens (one im_start wrapping
-    # the user role and one im_end closing it) — at least one extra im_start from the
+    # the user role and one im_end closing it): at least one extra im_start from the
     # injected payload inside the content.
     legitimate_im_start = 1  # the one wrapping <|im_start|>user
     assert len(injected_control) > legitimate_im_start + 1, (
@@ -349,17 +349,17 @@ test_control_token_injection(tokenize_chat)
 <details>
 <summary>Answer</summary>
 
-The injected `<|im_start|>` IS a control token (◆)! `apply_chat_template` renders the Jinja template to a flat string first, then tokenizes — so it can't distinguish template-inserted vs content-inserted special tokens. This is a real token-level injection.
+The injected `<|im_start|>` IS a control token (◆)! `apply_chat_template` renders the Jinja template to a flat string first, then tokenizes, so it can't distinguish template-inserted from content-inserted special tokens. This is a real token-level injection.
 
 <strong>How do real API providers protect against this?</strong>
 
-Real API serving stacks (vLLM, TGI, proprietary backends like OpenAI's) tokenize each message part **separately** and insert control tokens programmatically as raw token IDs. User content never passes through a code path where `<|im_start|>` could be recognized as a special token — it's just encoded as regular text. So in production, this injection doesn't work at the token level (though prompt injection at the *semantic* level is a different story — we'll get to that later).
+Real API serving stacks (vLLM, TGI, proprietary backends like OpenAI's) tokenize each message part **separately** and insert control tokens programmatically as raw token IDs. User content never passes through a code path where `<|im_start|>` could be recognized as a special token; it's just encoded as regular text. So in production, this injection doesn't work at the token level (though prompt injection at the *semantic* level is a different story, which we'll get to later).
 </details>
 
 <details>
 <summary>Vocabulary: Base vs. Instruct Models</summary>
 
-A **base model** (e.g. SmolLM2-135M) is trained on raw text to predict the next token. An **instruct model** (e.g. SmolLM2-135M-Instruct) is further fine-tuned to follow a specific conversational structure — including tool use, multi-turn dialogue, and function calling.
+A **base model** (e.g. SmolLM2-135M) is trained on raw text to predict the next token. An **instruct model** (e.g. SmolLM2-135M-Instruct) is further fine-tuned to follow a specific conversational structure, including tool use, multi-turn dialogue, and function calling.
 
 Chat templates like ChatML are what bridge the gap: they define *how* the structured conversation is serialized into a token sequence that the model was trained on. Using the wrong template with an instruct model would lead to poor performance or unexpected behavior.
 </details>

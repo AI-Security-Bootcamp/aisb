@@ -10,7 +10,7 @@ an unknown linear transform.
 
 ## Model weight extraction via SVD
 
-Recover a model's hidden dimension—and the last projection layer—from API
+Recover a model's hidden dimension and last projection layer from API
 access alone using the logits-matrix SVD attack.
 
 > **Learning Objectives**
@@ -127,7 +127,7 @@ def detect_hidden_dim(
         #    log-singular-values marks the transition from the h "real"
         #    directions to the numerical-noise floor.
         # The hidden dimension shows up as the largest drop in the (log-scaled)
-        # spectrum — the transition from the h "real" directions to the
+        # spectrum: the transition from the h "real" directions to the
         # numerical-noise floor. The first singular value is a dominant
         # common-mode direction that creates a spurious gap at index 0, so we
         # ignore that head when locating the cliff.
@@ -162,7 +162,7 @@ def detect_hidden_dim(
         #   3. Compute its singular values (np.linalg.svd(..., compute_uv=False)).
         #   4. Plot the spectrum on a log scale, and look at where there is a sharp drop: eyeball it and return it
         #   5. (optional) The hidden dimension is the index of the sharp drop in the
-        #      spectrum — e.g. argmax of the gaps between consecutive
+        #      spectrum, e.g. argmax of the gaps between consecutive
         #      log-singular-values, plus one.
         # Return the detected hidden dimension as an int (768 for GPT-2 small).
         return 0
@@ -172,7 +172,7 @@ detected_h = detect_hidden_dim()
 print(f"Using hidden dimension (h): {detected_h}")
 
 
-# requires: GPU — runs 1000 forward passes through GPT-2. Fast on GPU, slow on CPU.
+# requires: GPU (runs 1000 forward passes through GPT-2. Fast on GPU, slow on CPU).
 @report
 def test_detect_hidden_dim(solution):
     h = solution(plot=False)
@@ -194,7 +194,7 @@ test_detect_hidden_dim(detect_hidden_dim)
 > You should spend up to ~60 minutes on this exercise.
 
 Now use the hidden dimension `h` from exercise 3.5.1 to recover the model's output
-projection matrix — `lm_head.weight` — from black-box logit queries alone.
+projection matrix, `lm_head.weight`, from black-box logit queries alone.
 
 **Why SVD gives us the weights.** Every logit vector the model returns is computed as:
 
@@ -213,7 +213,7 @@ Q ≈ U_h · Σ_h · Vh
 
 where `U_h` has shape `(vocab_size, h)`. The columns of `U_h` form an orthonormal
 basis for the same column space as `W_out`. Therefore `U_h @ Σ_h` is `W_out` up
-to an unknown invertible linear transformation — we can reconstruct the direction
+to an unknown invertible linear transformation: we can reconstruct the direction
 and relative scaling of every output-projection row, but not the exact values
 (which would require knowing the hidden states too).
 
@@ -233,7 +233,7 @@ def extract_weights(
 
     Collects logit vectors from many (batched) random queries, stacks them
     into a matrix Q of shape (vocab_size, n_samples), takes the thin SVD, and
-    returns U_h @ Sigma_h — the extracted weights, correct up to an unknown
+    returns U_h @ Sigma_h, the extracted weights, correct up to an unknown
     linear transform. Returns a NumPy array of shape (vocab_size, hidden_dim).
     """
     if "SOLUTION":
@@ -350,7 +350,7 @@ print("- Cosine Similarity: Closer to 1.0 is better, indicating the vectors are 
 print("- Similarity Percentage: Closer to 100% is better.")
 
 
-# requires: GPU — runs the full attack (many model queries) end-to-end.
+# requires: GPU (runs the full attack (many model queries) end-to-end).
 @report
 def test_compare_weights(detect_fn, extract_fn, compare_fn):
     # Run the full attack end-to-end and check the recovered weights align
@@ -379,26 +379,26 @@ test_compare_weights(detect_hidden_dim, extract_weights, compare_weights)
 
 Today covered four layers of LLM inference security:
 
-**1. Tokenization & prompt construction** — Tokenizers are not transparent:
+**1. Tokenization & prompt construction**: tokenizers are not transparent:
 different models tokenize the same string differently, and chat templates
 assemble multi-turn prompts with special tokens. Edge cases in tokenization
 and prompt construction are where many prompt-injection attacks begin.
 
-**2. Guardrails: attacks and defences** — Safety training alone is defeated
+**2. Guardrails: attacks and defences**: safety training alone is defeated
 by simple paraphrases. Keyword filters are defeated by synonyms. LLM-based
 input classifiers are defeated by creative reframing (fiction, research).
 Output classifiers share the same limitation. Linear probes on internal
 representations catch what text-based classifiers miss, because they operate
 on semantic intent rather than surface form.
 
-**3. Knowledge distillation attacks** — Label filtering (masking forbidden
+**3. Knowledge distillation attacks**: label filtering (masking forbidden
 tokens with `ignore_index=-100`) prevents a baseline student from learning
 the forbidden completion. But adding a KD loss (temperature-scaled KL
 divergence from the teacher) transfers the forbidden knowledge through the
 soft probability distribution. Label filtering is necessary but not
 sufficient for safe distillation.
 
-**4. Model weight extraction via SVD** — By collecting logits from random
+**4. Model weight extraction via SVD**: by collecting logits from random
 prompts and computing SVD, an attacker can recover the model's hidden
 dimension from the singular value spectrum, and reconstruct the output
 projection layer up to a linear transformation.

@@ -195,9 +195,9 @@ def evaluate_protocol(
 > **Difficulty**: 2/5
 > **Importance**: 4/5
 
-The simplest control protocol from [AI Control](https://arxiv.org/abs/2312.06942) §3.2: the untrusted model (U) generates code, and a trusted model (T) scores each submission for suspicion. **The code always goes through** — monitoring is non-intervening. Safety comes entirely from a limited **human audit budget**: the top N% most suspicious submissions (the paper uses 2%) are reviewed by humans, who catch any backdoor they see.
+The simplest control protocol from [AI Control](https://arxiv.org/abs/2312.06942) §3.2: the untrusted model (U) generates code, and a trusted model (T) scores each submission for suspicion. **The code always goes through**; monitoring is non-intervening. Safety comes entirely from a limited **human audit budget**: the top N% most suspicious submissions (the paper uses 2%) are reviewed by humans, who catch any backdoor they see.
 
-Implement the `trusted_monitoring` function below. It runs the untrusted policy, then runs the monitor to score the action — but never blocks anything.
+Implement the `trusted_monitoring` function below. It runs the untrusted policy, then runs the monitor to score the action, but never blocks anything.
 
 
 ```python
@@ -230,7 +230,7 @@ protocol_results["Trusted Monitoring"] = evaluate_protocol(
 )
 
 # Simulate the paper's audit mechanism on the trusted monitoring results.
-# The monitor scored every submission — now compute what happens if humans
+# The monitor scored every submission; now compute what happens if humans
 # audit the top 2% most suspicious submissions (matching the paper's setup).
 AUDIT_BUDGET = 0.02  # fraction of submissions humans can review
 
@@ -275,7 +275,7 @@ from section4_test import test_trusted_monitoring_audit_within_budget
 test_trusted_monitoring_audit_within_budget()
 ```
 
-Trusted monitoring never intervenes, so usefulness is 100% (the untrusted model's code always goes through). Safety depends entirely on the audit budget: with a 2% budget, only attacks that score in the top 2% of suspicion get caught by human reviewers. The histogram above shows how well your monitor separates honest from attack submissions — the more overlap, the more attacks slip past the audit threshold.
+Trusted monitoring never intervenes, so usefulness is 100% (the untrusted model's code always goes through). Safety depends entirely on the audit budget: with a 2% budget, only attacks that score in the top 2% of suspicion get caught by human reviewers. The histogram above shows how well your monitor separates honest from attack submissions: the more overlap, the more attacks slip past the audit threshold.
 
 This motivates **active intervention**: instead of just observing, the next protocols will actually block suspicious submissions.
 
@@ -330,7 +330,7 @@ protocol_results["Defer-to-Trusted"] = evaluate_protocol(
 )
 ```
 
-Compare these results with Trusted Monitoring above. You should see improved safety (fewer successful attacks) but reduced usefulness — the trusted model handles flagged tasks, and it's weaker. Try adjusting `defer_threshold` to see how the tradeoff shifts.
+Compare these results with Trusted Monitoring above. You should see improved safety (fewer successful attacks) but reduced usefulness, since the trusted model handles flagged tasks and it's weaker. Try adjusting `defer_threshold` to see how the tradeoff shifts.
 
 
 ```python
@@ -429,7 +429,7 @@ def defer_to_resample(
         tools: list[Tool],
     ) -> tuple[AgentState, float]:
         """Run the untrusted policy + monitor, return (state, suspicion_score)."""
-        # Copy state so the caller's message list isn't mutated — without this,
+        # Copy state so the caller's message list isn't mutated; without this,
         # resamples would see each other's appended messages and produce garbled scores.
         result_state = await monitored_untrusted(copy(state), tools)
         last_msg = result_state.messages[-1]

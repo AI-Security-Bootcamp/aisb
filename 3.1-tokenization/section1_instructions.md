@@ -45,8 +45,8 @@ techniques that guardrails must defend against.
 
 ### Guardrails: attacks and defences
 Starting from a safety-trained LLM, build progressively stronger defences
-against harmful-content requests — keyword filters, LLM classifiers, output
-classifiers, linear probes on internal representations — attacking each
+against harmful-content requests (keyword filters, LLM classifiers, output
+classifiers, linear probes on internal representations), attacking each
 layer before building the next.
 > **Learning Objectives**
 > - Implement the generate/inference loop
@@ -65,7 +65,7 @@ the student through the teacher's soft probability distribution.
 > - See empirically why label filtering fails against KD
 
 ### Model weight extraction via SVD
-Recover a model's hidden dimension — and the last projection layer — from
+Recover a model's hidden dimension and last projection layer from
 API access alone, using the logits-matrix SVD attack.
 > **Learning Objectives**
 > - Collect logits from random prompts via black-box queries
@@ -88,7 +88,7 @@ connect to it over SSH before starting Section 1.
    chmod 600 <private-key-path>
    ```
 
-   **Windows** (PowerShell — run as your normal user, not as Administrator):
+   **Windows** (PowerShell, run as your normal user, not as Administrator):
    ```powershell
    $key = "<private-key-path>"
    icacls $key /inheritance:r /grant:r "$($env:USERNAME):(R)"
@@ -134,9 +134,9 @@ Exercises 1.1.1–1.1.3): how strings are split into token IDs, how
 different model families use different template formats.
 
 Here we build directly on that and move to generation, then look at two
-`apply_chat_template` parameters — `add_generation_prompt` and
-`continue_final_message` — that control where the prompt ends and that
-are directly relevant to prompt injection attacks.
+`apply_chat_template` parameters, `add_generation_prompt` and
+`continue_final_message`, that control where the prompt ends and are
+directly relevant to prompt injection attacks.
 
 
 ```python
@@ -188,12 +188,12 @@ format a question using `apply_chat_template`, tokenize it, call
 `model.generate()`, and decode the output.
 
 Two `apply_chat_template` parameters are new here (not covered in Day 1):
-- `add_generation_prompt=True` — appends the assistant header token so the
+- `add_generation_prompt=True`: appends the assistant header token so the
   model knows it should generate a reply, not continue the user turn.
-- `continue_final_message=False` — we're starting a fresh assistant turn
+- `continue_final_message=False`: we're starting a fresh assistant turn
   (the default; we'll flip this in Exercise 3.1.2).
 
-Qwen3-0.6B is a **thinking model** — look for `&lt;think&gt;` tags in the output.
+Qwen3-0.6B is a **thinking model**, so look for `&lt;think&gt;` tags in the output.
 
 
 ```python
@@ -250,7 +250,7 @@ prompt = tokenizer.apply_chat_template(
 <details><summary>Answer</summary><blockquote>
 
 With `continue_final_message=True`, the prompt ends **inside** the user
-turn — there is no `<|im_end|>` token and no assistant header. The model
+turn: there is no `<|im_end|>` token and no assistant header. The model
 continues writing as the user, never switches to assistant mode, and
 produces an endless stream of text until `max_new_tokens` cuts it off.
 

@@ -172,7 +172,7 @@ def test_find_flipped_bits(solution: Callable[[bytes, bytes], set]):
     assert solution(b"\x00\x01\x02", b"\x00\x01\x02") == set()
     # Sanity: two byte differences → two (or more) flips.
     assert len(solution(b"\x00\x00", b"\xff\xff")) == 16
-    print("  Exactly one flip, at the aperture bit — as templated!")
+    print("  Exactly one flip, at the aperture bit, as templated!")
 
 
 
@@ -238,7 +238,7 @@ def test_probe_iommu(solution: Callable[[Environment], dict]):
     assert got["other_page"] is False, (
         "IOMMU must reject writes to a page it hasn't mapped for this device"
     )
-    print("  IOMMU enforces what it promises — and no more!")
+    print("  IOMMU enforces what it promises, and no more!")
 
 
 

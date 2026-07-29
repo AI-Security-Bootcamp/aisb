@@ -25,7 +25,7 @@ quality, and resilience to common image transformations.
 ### Current-state TODOs
 
 - [ ] Replace the current frequency attenuation with an actual keyed watermark and blind detector, or rename it as a toy frequency-perturbation lab.
-- [ ] Fix FFT axes so both spatial dimensions—not a color channel—are transformed, and use `log10` for dB-labelled visualizations.
+- [ ] Fix FFT axes so both spatial dimensions, not a color channel, are transformed, and use `log10` for dB-labelled visualizations.
 - [ ] Align the embedder's target region with the detector and remove dependence on a paired baseline image.
 - [ ] Calibrate thresholds against clean false positives and report quality and robustness metrics.
 - [ ] Avoid making unfamiliar UNet-hook return plumbing the primary challenge unless that is an explicit engineering objective.

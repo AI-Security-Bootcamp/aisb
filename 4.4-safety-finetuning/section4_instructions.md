@@ -197,16 +197,16 @@ test_prepare_harmful_split(prepare_harmful_split)
 > **Importance**: 5/5
 
 Now train a LoRA adapter on the cached train split and save the adapter weights to disk.
-You should keep the adapter separate rather than merging it back into the base model — at
+You should keep the adapter separate rather than merging it back into the base model: at
 evaluation time we will feed both through `vllm` and compare their refusal rates.
 
 Implement:
 
-1. `apply_lora(model)` — wrap the base model in a LoRA adapter
-2. `train_and_save_lora(model, tokenizer, train_dataset, output_dir)` — run the `Trainer` and save
-3. `format_prompt(tokenizer, prompt)` — render a single-turn user prompt
-4. `generate_sample(model, tokenizer, prompt)` — generate the assistant continuation
-5. `train_abliteration()` — the top-level function that ties it all together
+1. `apply_lora(model)`: wrap the base model in a LoRA adapter
+2. `train_and_save_lora(model, tokenizer, train_dataset, output_dir)`: run the `Trainer` and save
+3. `format_prompt(tokenizer, prompt)`: render a single-turn user prompt
+4. `generate_sample(model, tokenizer, prompt)`: generate the assistant continuation
+5. `train_abliteration()`: the top-level function that ties it all together
 
 Use this LoRA config:
 
@@ -303,9 +303,9 @@ adapter at generation time, so you do not need to merge weights for evaluation.
 
 Implement:
 
-1. `refusal(classifier, prompt, response)` — classify a single (prompt, response) pair
-2. `print_refusal_summary(label, prompts, responses, classifier, print_examples=3)` — aggregate + print
-3. `evaluate_abliteration()` — top-level function that runs the comparison
+1. `refusal(classifier, prompt, response)`: classify a single (prompt, response) pair
+2. `print_refusal_summary(label, prompts, responses, classifier, print_examples=3)`: aggregate + print
+3. `evaluate_abliteration()`: top-level function that runs the comparison
 
 `evaluate_abliteration()` should:
 
@@ -382,8 +382,8 @@ Across Day 4, you saw four ways to corrupt or modify a deployed model:
 - **LoRA abliteration (optional/deprecated)**: train a tiny adapter on harmful responses to strip refusal behavior
   out of a safety-tuned chat model while leaving the base weights untouched.
 
-Each attack targets a different layer of the AI supply chain — pretraining weights, fine-tuning
-data, and post-training adapters — and each is hard to detect after the fact.
+Each attack targets a different layer of the AI supply chain (pretraining weights, fine-tuning
+data, and post-training adapters), and each is hard to detect after the fact.
 
 ## Further Reading
 

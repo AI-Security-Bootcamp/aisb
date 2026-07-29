@@ -1,6 +1,6 @@
 ### Overview
 
-This bootcamp is intensive and fast-paced.  **The bootcamp does not teach programming, or command-line basics** — you're expected to arrive with these skills already in place.
+This bootcamp is intensive and fast-paced.  **The bootcamp does not teach programming or command-line basics**; you're expected to arrive with these skills already in place.
 
 If you're unsure whether you're ready, use the self-assessment tests below. If you can answer most questions confidently and complete the practical exercises without significant struggle, you're good to go. If not, invest time in the learning resources before the bootcamp starts.
 

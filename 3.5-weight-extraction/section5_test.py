@@ -54,7 +54,7 @@ true_weights = model.lm_head.weight.detach().numpy()
 
 
 
-# requires: GPU — runs 1000 forward passes through GPT-2. Fast on GPU, slow on CPU.
+# requires: GPU (runs 1000 forward passes through GPT-2. Fast on GPU, slow on CPU).
 @report
 def test_detect_hidden_dim(solution):
     h = solution(plot=False)
@@ -67,7 +67,7 @@ def test_detect_hidden_dim(solution):
 
 
 
-# requires: GPU — runs the full attack (many model queries) end-to-end.
+# requires: GPU (runs the full attack (many model queries) end-to-end).
 @report
 def test_compare_weights(detect_fn, extract_fn, compare_fn):
     # Run the full attack end-to-end and check the recovered weights align

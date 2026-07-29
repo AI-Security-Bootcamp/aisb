@@ -44,7 +44,7 @@ def test_serialization(solution: Callable[[list[dict]], str]):
     assert "<|im_end|>" in result, "Expected '<|im_end|>' closing tokens in result"
 
     # tool_calls are serialized as a JSON array (list starts with '[')
-    # Find the assistant block with tool calls — it should contain a JSON array
+    # Find the assistant block with tool calls; it should contain a JSON array
     import re
 
     tc_block_match = re.search(
@@ -93,7 +93,7 @@ def test_control_token_injection(solution: Callable[[list[dict], AutoTokenizer],
         if text in ("<|im_start|>", "<|im_end|>") and is_ctrl
     ]
     # There should be MORE than the two legitimate boundary tokens (one im_start wrapping
-    # the user role and one im_end closing it) — at least one extra im_start from the
+    # the user role and one im_end closing it): at least one extra im_start from the
     # injected payload inside the content.
     legitimate_im_start = 1  # the one wrapping <|im_start|>user
     assert len(injected_control) > legitimate_im_start + 1, (

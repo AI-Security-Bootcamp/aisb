@@ -19,7 +19,7 @@ in which participants trace and then break a hardware-to-kernel attack chain.
 
 ### Background
 
-- For the document-analysis exercise, use the assigned sections—not the full documents—of RAND's [*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf), IAPS's [*Accelerating AI Data Center Security*](https://www.iaps.ai/research/accelerating-ai-data-center-security), and the local [SL5 Novel Recommendations](SL5_NOVEL-RECOMMENDATIONS.pdf).
+- For the document-analysis exercise, use the assigned sections (not the full documents) of RAND's [*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf), IAPS's [*Accelerating AI Data Center Security*](https://www.iaps.ai/research/accelerating-ai-data-center-security), and the local [SL5 Novel Recommendations](SL5_NOVEL-RECOMMENDATIONS.pdf).
 - Before the container-escape exercise, read the [NVIDIAScape advisory](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape).
 - Before the GPUBreach simulator, read the [GPUHammer overview](https://gpuhammer.com/).
 - References: Linux [namespaces](https://man7.org/linux/man-pages/man7/namespaces.7.html), Linux [page tables](https://docs.kernel.org/mm/page_tables.html), [x86 IOMMU support](https://docs.kernel.org/arch/x86/iommu.html), and NVIDIA [multi-instance GPU](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/) isolation.

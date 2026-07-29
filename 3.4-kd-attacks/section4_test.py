@@ -129,7 +129,7 @@ ALLOWED_PAIRS = [
 ]
 
 
-# The forbidden pair — present in the corpus, but "France" is masked in CE
+# The forbidden pair: present in the corpus, but "France" is masked in CE
 FORBIDDEN_PAIRS = [("Paris", "France")]
 
 
@@ -141,7 +141,7 @@ TRAINING_CORPUS: list[str] = _triples(ALLOWED_PAIRS) + _triples(FORBIDDEN_PAIRS)
 
 
 # Identify the token IDs of the forbidden completion.
-# GPT-2 uses BPE — "France" and " France" (with leading space) are separate tokens.
+# GPT-2 uses BPE, so "France" and " France" (with leading space) are separate tokens.
 FORBIDDEN_IDS: set[int] = set()
 
 for variant in [FORBIDDEN_COMPLETION, " " + FORBIDDEN_COMPLETION]:
@@ -164,7 +164,7 @@ def build_examples(
 
         `filtered_labels` is a copy of `input_ids` with every forbidden token
         replaced by -100. We will later pass this to `F.cross_entropy` with
-        `ignore_index=-100`, which skips those positions entirely — the student
+        `ignore_index=-100`, which skips those positions entirely, so the student
         gets zero gradient signal toward the forbidden token.
         """
     examples = []
@@ -193,7 +193,7 @@ print(f"Training corpus: {len(EXAMPLES)} sentences, {n_masked} contain masked to
 # %%
 
 
-# requires: GPU — uses the EXAMPLES fixture built from the loaded GPT-2 teacher.
+# requires: GPU (uses the EXAMPLES fixture built from the loaded GPT-2 teacher).
 @report
 def test_train_step_ce(solution: Callable[..., float]):
     """Verify the step runs, returns a float, and updates the student."""
@@ -218,7 +218,7 @@ def test_train_step_ce(solution: Callable[..., float]):
     # Confirm at least one parameter changed
     params_after = list(student.parameters())
     assert any(not torch.equal(a, b) for a, b in zip(params_before, params_after)), \
-        "No parameters changed — did you call optimizer.step()?"
+        "No parameters changed. Did you call optimizer.step()?"
     print("  All tests passed!")
 
 
@@ -227,7 +227,7 @@ def test_train_step_ce(solution: Callable[..., float]):
 # %%
 
 
-# requires: GPU — allocates tensors on DEVICE (cuda when available).
+# requires: GPU (allocates tensors on DEVICE (cuda when available)).
 @report
 def test_kd_loss(solution: Callable[..., torch.Tensor]):
     """Verify KD loss is 0 when student == teacher, positive otherwise,
@@ -253,7 +253,7 @@ def test_kd_loss(solution: Callable[..., torch.Tensor]):
     assert s_logits.grad is not None and (s_logits.grad != 0).any(), \
         "No gradient flowing to student_logits"
 
-    # Case 4: T² scaling — larger T should *not* drive the loss to 0 entirely
+    # Case 4: T² scaling. Larger T should *not* drive the loss to 0 entirely
     # (the T² factor compensates). Doubling T with fixed logits should not
     # change the loss by more than a factor of ~4.
     loss_T1 = solution(torch.randn(2, 5, 100, device=DEVICE), t_logits, temperature=1.0)
@@ -268,7 +268,7 @@ def test_kd_loss(solution: Callable[..., torch.Tensor]):
 # %%
 
 
-# requires: GPU — runs the live GPT-2 XL teacher during the KD step.
+# requires: GPU (runs the live GPT-2 XL teacher during the KD step).
 @report
 def test_train_step_with_kd(solution: Callable[..., tuple[float, float, float]]):
     """Verify the KD step runs, updates the student, and returns sensible
@@ -295,7 +295,7 @@ def test_train_step_with_kd(solution: Callable[..., tuple[float, float, float]])
         assert not np.isnan(val) and not np.isinf(val), f"{name} is NaN/inf: {val}"
         assert val > 0, f"{name} should be positive, got {val}"
 
-    # Check the combination is correct. Use relative tolerance — the student
+    # Check the combination is correct. Use relative tolerance, since the student
     # is in bf16 and kd can be ~1000 (KL over 50k vocab), so exact float
     # equality of total vs. (1-α)·ce + α·kd is not expected.
     expected = (1 - KD_ALPHA) * ce + KD_ALPHA * kd
@@ -306,5 +306,5 @@ def test_train_step_with_kd(solution: Callable[..., tuple[float, float, float]])
     # Check parameters actually updated
     params_after = list(student.parameters())
     assert any(not torch.equal(a, b) for a, b in zip(params_before, params_after)), \
-        "No parameters changed — did you call optimizer.step()?"
+        "No parameters changed. Did you call optimizer.step()?"
     print("  All tests passed!")
