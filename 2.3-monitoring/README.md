@@ -10,11 +10,6 @@ many examples.
 
 **Exercises:** [Open the participant instructions](section3_instructions.md)
 
-**Setup:** This section uses `control-arena`, which requires a newer `datasets`
-than the main `requirements.txt` allows. Install it in a **separate virtual
-environment** from `../requirements-control-arena.txt` (see that file's header for
-the exact commands). Sections 2.3 and 2.4 share this environment.
-
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
 | Engineering | - | Run ControlArena evaluations, inspect trajectories, and turn monitor outputs into analyzable scores |
