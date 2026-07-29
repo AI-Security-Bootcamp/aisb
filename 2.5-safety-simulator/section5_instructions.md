@@ -61,12 +61,12 @@ Tip: reduce the number of simulation runs (e.g. to 100) for faster iteration.
 
 ## Summary
 
-Today covered three themes: the **attack surface for prompt injection**, **AI control through monitoring**, and the **blast radius of a compromised coding agent**.
+Today covered three themes: the **attack surface for prompt injection**, **AI control through monitoring**, and the **damage potential of a compromised coding agent**.
 
 **Injection Attack Surface**
 
 - **Indirect prompt injection** is the fundamental vulnerability of LLM applications: there is no equivalent of parameterized queries
-- The attack surface spans every channel carrying untrusted input: user messages, RAG-retrieved documents, and MCP tool responses. All of them exploit the same inability to separate data from instructions
+- The attack surface spans every channel carrying untrusted input: user messages, RAG-retrieved documents, and MCP tool responses. All of them exploit the same inability to separate data from instructions.
 
 **AI Control**
 
