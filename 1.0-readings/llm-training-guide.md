@@ -1,16 +1,12 @@
-# A 30-Minute Guide to How LLMs Are Trained
-
-*Half an hour to understand the full pipeline: from "GPUs humming in a data center" to "ChatGPT answers your question."*
+# Pre-reading: How LLMs Are Trained
 
 ---
 
-## The three resources
+## Resources
 
-1. **[3Blue1Brown, Large Language Models explained briefly](https://www.3blue1brown.com/lessons/mini-llm/)**: lightweight mental model. Read first.
-2. **[2 OLMo 2 Furious (arxiv 2501.00656)](https://arxiv.org/pdf/2501.00656)**: a real, fully-open recipe from Ai2. We jump to specific sections with specific questions.
-3. **[Karpathy, Deep Dive into LLMs like ChatGPT](https://www.youtube.com/watch?v=zjkBMFhNj_g)**: optional 3.5-hour deep dive.
-
-*Why OLMo 2 and not GPT-4? Because every stage and dataset is published. Closed labs follow roughly the same shape but don't share the recipe.*
+1. **[3Blue1Brown, Large Language Models explained briefly](https://www.3blue1brown.com/lessons/mini-llm/)**
+2. **[2 OLMo 2 Furious (arxiv 2501.00656)](https://arxiv.org/pdf/2501.00656)**:
+3. **[Karpathy, Deep Dive into LLMs like ChatGPT](https://www.youtube.com/watch?v=zjkBMFhNj_g)**: optional deep dive
 
 ---
 
@@ -27,20 +23,23 @@ A function that takes text in and outputs a probability distribution over the ne
 <details>
 <summary>What does "training" actually change?</summary>
 
-The hundreds of billions of parameters (weights) inside the model. Start random, nudge toward better predictions.
+The hundreds of billions of parameters (weights) inside the model. Training nudges these toward making better predictions.
 </details>
 
 <details>
-<summary>Difference between pretraining and RLHF?</summary>
+<summary>Difference between pretraining, SFT, and RLHF</summary>
 
-Pretraining = learn to predict the next word on all internet text. RLHF = adjust the model so outputs match what humans prefer.
+Pretraining = learn to predict the next word on all internet text.
+SFT = training the model to answer questions instead of always writing essays.
+RLHF = match human preferences - harmlessness, writing styles, solving complex problems, etc.
 </details>
 
 <details>
 <summary>Why GPUs and not CPUs?</summary>
 
-Training is dominated by large matrix operations. GPUs provide far more throughput
-for these highly parallel operations than general-purpose CPUs; CPUs are also
+Training (and inference) is dominated by large matrix operations - these require the same primitive operation,
+performed billions of times. ASICs like GPUs provide far more throughput
+for these highly parallel operations than general-purpose CPUs. CPUs are also
 parallel, but have much less specialized compute and memory bandwidth for this workload.
 </details>
 
@@ -66,7 +65,8 @@ distributed-systems reliability and utilization central parts of model training.
 <details>
 <summary>What goes wrong at this scale that wouldn't on a laptop? (§6.3)</summary>
 
-Hardware failures, network hangs, silent data corruption. Jobs crash constantly; dedicated infra exists just to auto-restart them.
+Hardware failures, network hangs, silent data corruption. Jobs crash constantly;
+dedicated infra exists just to auto-restart them.
 </details>
 
 **Takeaway:** Available accelerator compute, memory, and interconnect bandwidth
@@ -100,9 +100,11 @@ Each injects a capability: code for programming, papers for technical reasoning,
 <summary>What are the repeated n-gram strings in §3.1, and why do they matter?</summary>
 
 Encoded binary junk, long number sequences, padding artifacts. A single bad document can cause a gradient spike that damages or kills a multi-million-dollar training run.
+
+[This](https://www.lesswrong.com/posts/aPeJE8bSo6rAFoLqg/solidgoldmagikarp-plus-prompt-generation) is a very interesting tangent on what can happen if this goes wrong.
 </details>
 
-**Takeaway:** "The internet" is raw material. The recipe is which parts you keep.
+**Takeaway:** "The internet" is raw material. It needs to be filtered to decide which parts to keep.
 
 ---
 
@@ -143,9 +145,10 @@ to token position. It is a common alternative to learned absolute position embed
 </details>
 
 <details>
-<summary>What actually changed from 2017 to 2024?</summary>
+<summary>What actually changed from 2017 to now?</summary>
 
-Not attention. The stabilization tricks (norm placement, QK-norm, init schemes, z-loss) are what let us train huge models without them exploding.
+We've used the attention mechanism basically as-is. The stabilization tricks
+(norm placement, QK-norm, init schemes, z-loss) are what let us train huge models without them exploding.
 </details>
 
 **Takeaway:** Tokenization creates discrete IDs, embeddings turn them into vectors,
@@ -174,7 +177,7 @@ schedule is an empirical design choice; alternatives can also train successfully
 <details>
 <summary>What is a loss spike? (Figure 2, p. 12)</summary>
 
-A sudden jump in training loss. Can permanently damage the model, wasting weeks of compute. Most of §3 is techniques to prevent these.
+A sudden jump in training loss. Can permanently damage the model, wasting weeks of compute.
 </details>
 
 <details>
@@ -187,7 +190,7 @@ As much a reliability engineering problem as an ML problem. Every fix in §3 is 
 
 ---
 
-## Step 5: Mid-training (the phase nobody mentions) (4 min)
+## Step 5: Mid-training (4 min)
 
 **Read OLMo 2 §4 intro and §4.2 (pp. 18–20) + Table 9.**
 
@@ -219,11 +222,11 @@ Empirically finds a better local minimum than any single run. Consistently equal
 
 ---
 
-## Step 6: Post-training: SFT → DPO → RLVR (5 min)
+## Step 6: (optional) Post-training: SFT → DPO → RLVR (5 min)
 
 **Read OLMo 2 §5 intro (p. 26) + compare Tables 6 and 7.**
 
-**The three stages in plain English:**
+**The three stages:**
 
 - **SFT (Supervised Fine-Tuning)**: show the model `(prompt, ideal response)` pairs. Same next-token loss, but now on assistant-style data. Teaches *format*.
 - **DPO (Direct Preference Optimization)**: show `(prompt, better response, worse response)` triplets. The objective increases the relative likelihood of the preferred response without an on-policy RL loop.
@@ -236,13 +239,7 @@ not change too abruptly. You do not need to know PPO's algorithm here; the key
 comparison is the additional reward-model and on-policy training machinery.
 
 <details>
-<summary>Three Tülu 3 phases in order?</summary>
-
-SFT → DPO → RLVR.
-</details>
-
-<details>
-<summary>Why DPO over RLHF + PPO?</summary>
+<summary>Why DPO over other methods?</summary>
 
 DPO is operationally simpler because it avoids a separate reward model and
 on-policy PPO training. It optimizes a related preference objective, but it is
@@ -258,10 +255,12 @@ It needs a programmatic verifier. Math and code have one (solver, unit tests). P
 <details>
 <summary>Base → Instruct: what changes most? (Tables 6 vs 7)</summary>
 
-Instruction-following jumps dramatically (IFE, AlpacaEval); raw knowledge (MMLU) moves much less. Post-training changes behavior more than it adds knowledge.
+Instruction-following jumps dramatically (IFE, AlpacaEval); raw knowledge (MMLU) moves much less.
+Post-training changes behavior more than it adds knowledge.
 </details>
 
-**Takeaway:** Base model = brain. Post-training = personality, manners, landing hard problems. Roughly: **imitate, prefer, verify.**
+**Takeaway:** Base model = brain. Post-training = personality, manners, landing hard problems.
+Roughly: **imitate, prefer, verify.**
 
 ---
 
@@ -276,7 +275,3 @@ Instruction-following jumps dramatically (IFE, AlpacaEval); raw knowledge (MMLU)
 | **RLVR** | Prompts with a verifier | Reward correct answers | Multi-step reasoning, math, code | Small–medium |
 
 If you can sketch this table from memory, you have a useful map for the rest of the programme.
-
----
-
-*Based on 3Blue1Brown's "Large Language Models explained briefly" (Nov 2024), 2 OLMo 2 Furious by Ai2 (2501.00656, 2025), and Karpathy's "Deep Dive into LLMs like ChatGPT" (Feb 2025).*
