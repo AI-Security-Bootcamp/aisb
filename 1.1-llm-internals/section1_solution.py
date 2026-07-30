@@ -23,12 +23,11 @@ Understand exactly what the model sees and produces.
 """
 ## Setup
 
-First, set up credentials for the [OpenRouter API](https://openrouter.ai/docs/quickstart)
-and create the file where you will complete the exercises:
+First, set up credentials for the [OpenRouter API](https://openrouter.ai/docs/quickstart) (or ask Pranav
+ for the shared key) and create the file where you will complete the exercises:
 
 1. Copy `.env.example` in the project root to `.env`, then add the OpenRouter
-   API key provided by a teaching assistant. The same key is used in later
-   API-based sections.
+   API key. The same key is used in later API-based sections.
 2. Create `day1_answers.py` in the `1.1-llm-internals` directory. This will be
    your answer file for today.
 
@@ -69,7 +68,7 @@ openrouter_client = OpenAI(
 
 Inference APIs are how LLMs are exposed to the world and consumed by applications. They define the attack surface both for the model itself and, indirectly, for everything built on top of it, so understanding them is the starting point for both attack and defense.
 
-While LLM APIs typically expose structured chat interfaces, a look one level deeper reveals that the model itself only sees a **sequence of tokens** derived from a serialized conversation - what looks a well-designed protocol can in fact behave like an _unstructured channel_!
+While LLM APIs typically expose structured chat interfaces, a look one level deeper reveals that the model only sees a **sequence of tokens** derived from a serialized conversation - what looks a well-designed protocol can in fact behave like an _unstructured channel_!
 
 ### Exercise 1.1.1: Conversation Serialization
 
@@ -89,7 +88,10 @@ SAMPLE_CONVERSATION: list[dict] = [
         "role": "system",
         "content": "You are a helpful assistant that answers questions about weather.",
     },
-    {"role": "user", "content": "What's the weather in London?"},
+    {
+        "role": "user",
+        "content": "What's the weather in London?"
+    },
     {
         "role": "assistant",
         "content": None,
