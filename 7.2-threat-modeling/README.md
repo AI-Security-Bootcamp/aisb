@@ -21,9 +21,3 @@ training, and infrastructure techniques.
 
 - Use the [MITRE ATLAS matrix](https://atlas.mitre.org/matrices/ATLAS) and review the READMEs for the numbered bootcamp sections.
 - The [MITRE ATT&CK Enterprise matrix](https://attack.mitre.org/matrices/enterprise/) is a useful companion for conventional infrastructure techniques.
-
-### Current-state TODOs
-
-- [ ] Validate every cited ATLAS technique ID and retain the exact version/date used for the exercise.
-- [ ] Add one instructor-reviewed reference matrix as a separate teaching artifact.
-- [ ] Make the final deliverable and assessment rubric explicit.

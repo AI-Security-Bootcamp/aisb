@@ -23,11 +23,3 @@ quality, and resilience to common image transformations.
 
 - Read the “What Are Diffusion Models?” overview in Hugging Face's [introduction to diffusion models](https://huggingface.co/learn/diffusion-course/en/unit1/1), review NumPy's [FFT overview](https://numpy.org/doc/stable/reference/routines.fft.html), and read the abstract and method figures of [*Tree-Ring Watermarks: Fingerprints for Diffusion Images that are Invisible and Robust*](https://arxiv.org/abs/2305.20030); the full paper is optional longer reading.
 - References: PyTorch [`register_forward_hook`](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook) and the Diffusers [`StableDiffusionPipelineOutput`](https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/overview#diffusers.pipelines.stable_diffusion.StableDiffusionPipelineOutput) structure.
-
-### Current-state TODOs
-
-- [ ] Replace the current frequency attenuation with an actual keyed watermark and blind detector, or rename it as a toy frequency-perturbation lab.
-- [ ] Fix FFT axes so both spatial dimensions, not a color channel, are transformed, and use `log10` for dB-labelled visualizations.
-- [ ] Align the embedder's target region with the detector and remove dependence on a paired baseline image.
-- [ ] Calibrate thresholds against clean false positives and report quality and robustness metrics.
-- [ ] Avoid making unfamiliar UNet-hook return plumbing the primary challenge unless that is an explicit engineering objective.

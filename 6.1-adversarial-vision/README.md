@@ -21,10 +21,3 @@ success/visibility trade-off.
 
 - Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html), [*But what is a neural network?*](https://www.3blue1brown.com/lessons/neural-networks), and [*Gradient descent, how neural networks learn*](https://www.3blue1brown.com/lessons/gradient-descent).
 - References: the PyTorch [autograd guide](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html). The official [adversarial-example tutorial](https://docs.pytorch.org/tutorials/beginner/fgsm_tutorial.html) is an optional worked example because it substantially overlaps this section.
-
-### Current-state TODOs
-
-- [x] Correct the “untargeted” description: the current objective specifies a target class.
-- [ ] Apply and constrain perturbations in pixel space, or derive valid bounds in normalized model space; do not clamp normalized ViT tensors to `[0, 1]`.
-- [ ] Evaluate several images/targets and plot success against epsilon rather than relying on one anecdote.
-- [ ] Add transfer or transformation robustness and make the attacker-access model explicit.

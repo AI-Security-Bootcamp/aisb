@@ -42,8 +42,7 @@ contract:
 
 - prerequisites coming in, separated into engineering, ML, security, and theory;
 - intended learning outcomes in those same categories;
-- required background or references; and
-- TODOs describing where the current exercise differs from the intended state.
+- required background or references.
 
 Prerequisites must be self-assessable. Write observable competencies such as
 “given a confusion matrix, calculate precision and recall” or “write the
@@ -400,5 +399,4 @@ Each instructional folder has a `README.md` with:
   split into engineering, ML, security, and theory;
 - `-` for any prerequisite category with no section-specific requirement;
 - a Background section with direct links to required concise background and
-  clearly marked optional longer reading; and
-- author-facing current-state TODOs kept separate from participant instructions.
+  clearly marked optional longer reading.

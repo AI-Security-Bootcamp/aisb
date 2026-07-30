@@ -19,10 +19,3 @@ to the familiar cybersecurity idea of principals with different authority.
 ### Background
 
 - Complete [1.1](../1.1-llm-internals/README.md) first.
-
-### Current-state TODOs
-
-- [ ] Provide the repeated API/message wrapper and make prefill design the central learner task.
-- [ ] Add at least one playful, harmless prefill variation and ask learners to predict its effect.
-- [ ] Draw the correspondence with authorization principals explicitly.
-- [ ] Move the Day 1 summary into a standalone day-level summary so it is not hidden in an optional section.

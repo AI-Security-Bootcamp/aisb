@@ -22,8 +22,3 @@ into the model's weights, and measure the effect on general capability.
 - Required prework: the [PyTorch Blitz](https://docs.pytorch.org/tutorials/beginner/blitz/index.html) and Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) through 2:27:47.
 - Read the abstract, introduction, and Figure 1 of Arditi et al., [*Refusal in Language Models Is Mediated by a Single Direction*](https://arxiv.org/abs/2406.11717).
 - References: PyTorch [`register_forward_pre_hook`](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_pre_hook), Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating), and the Inspect [evaluation tutorial](https://inspect.aisi.org.uk/tutorial.html).
-
-### Current-state TODOs
-
-- [ ] Time the complete participant path on a clean course GPU machine; the author verification establishes correctness but not a 150-minute novice completion time.
-- [ ] Add a short defensive-design deliverable connecting the demonstrated weight edit to deployment controls for open-weight models.

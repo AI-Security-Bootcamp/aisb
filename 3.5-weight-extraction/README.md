@@ -20,10 +20,3 @@ extract the output projection up to an unknown linear transform.
 
 - Read the [SVD refresher](https://en.wikipedia.org/wiki/Singular_value_decomposition) and 3Blue1Brown's [change-of-basis lesson](https://www.3blue1brown.com/lessons/change-of-basis/) before the section.
 - Revisit [1.2 on logprob/logit exposure](../1.2-logprobs/README.md) for the API access model used by the attack.
-
-### Current-state TODOs
-
-- [ ] Explain that the alignment transform is currently fitted using true white-box weights unavailable to the stated attacker.
-- [ ] Wrap the local model as an actual oracle and meter query cost so the access model is credible.
-- [ ] Make the 60-minute reconstruction optional or provide more numerical scaffolding relative to its learning value.
-- [ ] Add economic and API-policy analysis: top-k outputs, noise, rounding, and rate limits.

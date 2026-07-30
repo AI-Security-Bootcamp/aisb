@@ -20,9 +20,3 @@ classify adversaries and justify controls for concrete model-weight environments
 
 - Read the assigned sections of RAND's [*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf).
 - Optional supporting material: [IAPS and SL5 discussion](optional-iaps-sl5-discussion.md) and the local [SL5 recommendations](SL5_NOVEL-RECOMMENDATIONS.pdf).
-
-### Current-state TODOs
-
-- [ ] Add page-level citations for every answer-key claim and remove claims that cannot be traced to the report.
-- [ ] Replace generic environment labels with one realistic frontier-lab case and explicit assets.
-- [ ] Require participants to state assumptions and residual risk for every security-level recommendation.

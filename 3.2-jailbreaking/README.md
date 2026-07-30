@@ -20,10 +20,3 @@ is grounded in direct experience of attacker adaptation.
 
 - Required prework: Karpathy's [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) security section and Google DeepMind's [dangerous-capability evaluations overview](https://deepmind.google/research/publications/78150/).
 - Follow instructor guidance on authorized services and harmless test targets.
-
-### Current-state TODOs
-
-- [ ] Provide a local harmless fallback if external challenge services are unavailable or unsuitable.
-- [ ] Define the required artifact: attempts, observed outcomes, and 2–3 categorized strategies.
-- [ ] State service-use, data-retention, and responsible-testing expectations.
-- [ ] Run this synchronously and enforce the timebox so it does not consume the guardrail sections.

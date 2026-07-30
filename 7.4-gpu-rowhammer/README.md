@@ -22,9 +22,3 @@ overflow to privilege escalation.
 - Read the [GPUHammer overview](https://gpuhammer.com/).
 - Review Linux [page tables](https://docs.kernel.org/mm/page_tables.html) and [x86 IOMMU support](https://docs.kernel.org/arch/x86/iommu.html).
 - The simulator is conceptual and should not require or imply access to vulnerable production hardware.
-
-### Current-state TODOs
-
-- [ ] Surface assumptions about memory grooming, useful-bit selection, allocator placement, templating, refresh, and ECC before the exploit.
-- [ ] Add a defensive exercise that proves which chain stage a mitigation breaks.
-- [ ] Time the must-finish route and move excess work into explicitly optional stretch exercises.

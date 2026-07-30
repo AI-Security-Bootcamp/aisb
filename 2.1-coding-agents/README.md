@@ -19,10 +19,3 @@ mapping compromised inputs to concrete actions, impacts, and layered controls.
 ### Background
 
 - Required prework: Anthropic's [*How Claude Code works*](https://code.claude.com/docs/en/how-claude-code-works) and Google's [MCP overview](https://cloud.google.com/discover/what-is-model-context-protocol).
-
-### Current-state TODOs
-
-- [x] Remove the cargo-cult code setup from this prose-only section.
-- [ ] Anchor the exercise in one concrete agent deployment with named assets and trust boundaries.
-- [ ] Ask pairs to prioritize a small number of attack paths and controls instead of producing an unbounded catalogue.
-- [ ] Replace or source volatile adoption claims that do not contribute to the exercise.

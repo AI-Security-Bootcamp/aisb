@@ -3,8 +3,7 @@ Welcome to the [AI Security Bootcamp](https://www.aisb.dev/) (AISB)! AISB is a 7
 ## What you should know and learn
 
 Day 0 should establish that each participant can run the course, save their work,
-and reach every external service before instructional time begins. Current-state
-TODOs below are for course authors, not participant setup tasks.
+and reach every external service before instructional time begins.
 
 **Suggested time:** 45–60 minutes
 
@@ -22,17 +21,6 @@ TODOs below are for course authors, not participant setup tasks.
 - Complete the checks in the [participant setup instructions](day0_instructions.md).
 - Install [Docker](https://docs.docker.com/engine/install/), [Git](https://git-scm.com/downloads), [Python](https://www.python.org/downloads/), and [VS Code with Jupyter support](https://code.visualstudio.com/docs/datascience/jupyter-notebooks), and confirm that you can access GitHub.
 - Obtain the event-provided API and GPU credentials before the live programme.
-
-### Current-state TODOs
-
-- [ ] Test the Docker daemon with a real container, not only `docker --version`.
-- [ ] Test one inexpensive OpenRouter request, remote GPU SSH, CUDA visibility,
-      Hugging Face authentication, and any gated-model access used later.
-- [ ] Accept the supported HTTPS and SSH Git remote forms instead of requiring
-      one exact legacy repository URL.
-- [ ] Make the optional GitHub API exercise internally consistent and independent
-      of mutable live-user data.
-- [ ] Move the Day 3 remote-machine dry run here so GPU setup does not consume lab time.
 
 ## Prerequisites
 

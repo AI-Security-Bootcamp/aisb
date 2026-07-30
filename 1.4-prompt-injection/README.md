@@ -19,11 +19,3 @@ craft an indirect injection against the boundary between instructions and data.
 ### Background
 
 - Required prework: Google's [RAG](https://cloud.google.com/use-cases/retrieval-augmented-generation) and [MCP](https://cloud.google.com/discover/what-is-model-context-protocol) explainers, [MITRE ATLAS / *AI Security 101*](https://atlas.mitre.org/), and Karpathy's [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) security section.
-
-### Current-state TODOs
-
-- [ ] Move the defended system prompt and document formatting behind an opaque
-      helper; they are currently visible despite the reconnaissance framing.
-- [ ] Evaluate retrieval success separately from instruction-following success.
-- [ ] Replace one exact live-model output check with repeated or fixture-backed evaluation.
-- [ ] Ask for an explicit mitigation analysis after successful exploitation.

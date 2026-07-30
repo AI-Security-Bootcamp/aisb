@@ -19,10 +19,3 @@ with practical information leakage, extraction, and adversarial optimization.
 ### Background
 
 - Revisit the inference and sampling portions of Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI).
-
-### Current-state TODOs
-
-- [ ] Correct “completions endpoint” wording where the code uses chat completions.
-- [ ] Turn the misuse question into a short think/pair/reveal discussion and link forward to GCG and distillation.
-- [ ] Separate API-parsing competence from the more important interpretation and threat-analysis task.
-- [ ] Discuss what top-k truncation hides and what it still leaks.

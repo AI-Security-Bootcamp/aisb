@@ -20,10 +20,3 @@ opportunities.
 ### Background
 
 - Complete [2.2](../2.2-monitoring/README.md) and preferably [2.3](../2.3-control-protocols/README.md).
-
-### Current-state TODOs
-
-- [x] Remove the unused code-answer setup.
-- [ ] Ask learners to predict outcomes before running the simulator and submit a small results table.
-- [ ] Document the origin and limitations of default parameters.
-- [ ] Move the Day 2 summary out of this optional section.

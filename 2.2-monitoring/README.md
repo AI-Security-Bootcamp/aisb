@@ -21,10 +21,3 @@ many examples.
 
 - Read BlueDot's [*Introduction to AI Control*](https://blog.bluedot.org/p/ai-control).
 - References: the [ControlArena documentation](https://control-arena.aisi.org.uk/) and scikit-learn's [ROC/AUC guide](https://scikit-learn.org/stable/modules/model_evaluation.html#roc-metrics).
-
-### Current-state TODOs
-
-- [ ] State which ControlArena/API competencies are learning objectives and which are provided infrastructure.
-- [ ] Use held-out attack families and report false positives at operationally meaningful base rates.
-- [ ] Separate prompt iteration data from final evaluation data.
-- [ ] Discuss adaptive pressure and limits before presenting chain-of-thought monitoring as an advantage.

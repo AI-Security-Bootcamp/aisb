@@ -21,10 +21,3 @@ reasoning controls.
 
 - Required prework: Hugging Face [chat templates](https://huggingface.co/docs/transformers/chat_templating) and Karpathy's [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) through 2:27:47.
 - Review the [Hugging Face generation API](https://huggingface.co/docs/transformers/main_classes/text_generation); remote GPU access should already have been validated.
-
-### Current-state TODOs
-
-- [ ] Move remote SSH and model-cache setup to Day 0.
-- [ ] Phrase `continue_final_message` behavior empirically rather than claiming it inherently creates an infinite loop.
-- [ ] Use a controlled model/configuration comparison when discussing thinking versus non-thinking behavior.
-- [ ] Test prompt construction and interpretation, not the incidental presence of a literal `<think>` tag.
