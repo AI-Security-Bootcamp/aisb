@@ -1,7 +1,7 @@
 
-# Day 4 — Section 4: Abliteration (Optional/Deprecated)
+# Day 4 — Section 4: Undoing Safety Fine-tuning with LoRA (Optional)
 
-> **Optional/deprecated:** This earlier LoRA safety-removal exercise is retained
+> **Optional:** This alternative LoRA safety-removal exercise is retained
 > for reference. Section 4.3 is the current exercise and directly studies
 > representation-direction abliteration. Only complete this section if an
 > instructor recommends it or you specifically want to compare the approaches.
@@ -86,7 +86,7 @@ pip install peft vllm
 
 ### Setup
 
-If you have not already, create a file named `day4_answers.py` in the `4.1-model-editing`
+If you have not already, create a file named `day4_answers.py` in the `4.4-safety-finetuning`
 directory (the first Day-4 section folder) and use it as your answer file for today.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file.
@@ -379,7 +379,7 @@ Across Day 4, you saw four ways to corrupt or modify a deployed model:
   fine-tuning set so the model misbehaves on *any* prompt containing the trigger.
 - **Refusal-direction abliteration**: recover a refusal direction, remove it during inference,
   and bake the intervention into the model's weights.
-- **LoRA abliteration (optional/deprecated)**: train a tiny adapter on harmful responses to strip refusal behavior
+- **LoRA abliteration (optional)**: train a tiny adapter on harmful responses to strip refusal behavior
   out of a safety-tuned chat model while leaving the base weights untouched.
 
 Each attack targets a different layer of the AI supply chain (pretraining weights, fine-tuning

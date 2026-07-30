@@ -6,13 +6,15 @@ Welcome to the [AI Security Bootcamp](https://www.aisb.dev/) (AISB)! AISB is a 7
 - Tokenization, chat templates, and special tokens as the security perimeter between instructions and data
 - Logprobs and output distributions as an attack surface for extraction and adversarial optimization
 - Instruction hierarchies, prefill attacks, and control-token injection
+- Prompt injection and RAG poisoning across the boundary between trusted instructions and retrieved data
 
-**Day 2 — LLM Applications & AI Control**
-- Prompt injection across untrusted channels: RAG, tool outputs, MCP, source code, CI logs
+**Day 2 — Coding Agents & AI Control**
 - Agentic AI risks: code-execution affordances, scope of tool restrictions, coding-agent attack patterns
-- AI control protocols: trusted/untrusted monitoring, defer-to-trusted, resampling, safety–usefulness tradeoffs
+- AI-control monitoring, adaptive evasion, and evaluation with trusted and untrusted models
+- Control protocols: trusted monitoring, defer-to-trusted, resampling, and safety–usefulness tradeoffs
 
 **Day 3 — LLM Inference Security**
+- A tokenization and prompt-construction refresher focused on security-relevant generation behavior
 - Jailbreaking techniques and why safety training is statistical, not structural
 - Guardrails: keyword filters, classifier-based monitors, LLM-as-judge, linear probes on activations
 - Model extraction and knowledge-distillation attacks against deployed APIs
@@ -20,22 +22,21 @@ Welcome to the [AI Security Bootcamp](https://www.aisb.dev/) (AISB)! AISB is a 7
 **Day 4 — Training & Data Security**
 - Model editing and surgical weight manipulation to silently rewrite model behavior
 - Backdoors and trojans injected via fine-tuning and data poisoning
-- Removing safety behavior with parameter-efficient fine-tuning
+- Undoing safety fine-tuning through refusal-direction ablation, with LoRA fine-tuning as an optional alternative
 
-**Day 5 — Adversarial ML and Provenance**
+**Day 5 — Break Day**
+- No scheduled content
+
+**Day 6 — Adversarial ML**
 - Adversarial examples and gradient-based attacks against image classifiers
 - Discrete and continuous adversarial optimization against language models
-- Image provenance and the requirements for robust watermark detection
+- Optional: image provenance and the requirements for robust watermark detection
 
-**Day 6 — Securing AI Infrastructure**
+**Day 7 — Infrastructure Security & Threat Modeling**
 - [RAND security levels](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf) (SL1–SL5) and operational capability tiers (OC1–OC5) for adversary modeling
-- GPU and container stack exploits: container escapes, DMA isolation limits, and privilege escalation
-- Sandbox and isolation design for ML workloads, including confidential computing tradeoffs
-
-**Day 7 — Governance: Adversary Matrices & Kill Chains**
 - [MITRE ATLAS](https://atlas.mitre.org/) as a threat-modeling framework for ML systems
-- End-to-end kill chains spanning infrastructure, training, inference, and data supply
-- Defensive coverage analysis: distinguishing inherent properties from patchable bugs
+- NVIDIA Container Toolkit trust boundaries and CVE-2025-23266
+- GPU RowHammer, page-table corruption, DMA isolation limits, and privilege escalation
 
 ## Prerequisites
 
@@ -48,11 +49,11 @@ Before the first day, make sure you have completed the instructions in the [Day 
 
 
 ### Completing exercises
-Each day is split into numbered section folders named `X.Y-topic` (for example, Day 1 is `1.1-llm-internals`, `1.2-logprobs`, `1.3-instruction-hierarchies`). Start with that folder's `README.md`: it explains what the section assumes, what you should learn, and which pre-reading and reference resources will help. Then open the `*_instructions.md` file for the exercises. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
+Each content day is split into numbered section folders named `X.Y-topic` (for example, Day 1 is `1.1-llm-internals`, `1.2-logprobs`, `1.3-instruction-hierarchies`, and `1.4-prompt-injection`). Day 5 is a break and has no content folder. Start with each section folder's `README.md`: it explains what the section assumes, what you should learn, and which pre-reading and reference resources will help. Then open the `*_instructions.md` file for the exercises. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
 
 The README background is part of the section: review it before beginning the exercises. Only resources explicitly marked **optional longer reading** may be skipped. In each prerequisite table, you should be able to demonstrate every incoming competency with a short question or task; `-` means that the section has no additional prerequisite in that category.
 
-The recommended way to complete the exercises is to make a new `.py` file (suggested name: `day#_answers.py`) in the first section folder for the day, and use it for all of that day's sections. 
+For each section containing code, create a `day#_answers.py` file in that section's folder. Prose-only sections specify a Markdown answer file instead.
 
 The instructions will contain code snippets you need to complete. Add a new `# %%` line to your answers and paste the code snippet under that line. If you went through the setup instructions correctly (with VS Code), you should see "Run Cell" option above the `# %%` which will execute the code in a [Python Interactive Window](https://code.visualstudio.com/docs/python/jupyter-support-py#_jupyter-code-cells). The code snippets contain tests that should initially fail. Complete the TODOs in the code and run the cell until all the tests pass. 
 

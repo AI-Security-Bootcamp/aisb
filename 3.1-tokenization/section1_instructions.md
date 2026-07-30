@@ -1,9 +1,9 @@
 
 # Day 3 — Section 1: LLM Inference Security
 
-Today you'll examine four attack/defence domains that apply once an LLM is
-deployed: tokenization and prompt construction, guardrails, knowledge
-distillation attacks, and model-weight extraction via SVD. Each section
+Today you'll examine five security-relevant areas that apply once an LLM is
+deployed: tokenization and prompt construction, jailbreaking, guardrails,
+knowledge-distillation attacks, and model-weight extraction via SVD. Each section
 alternates between attacks and defences: you'll build something, break it,
 and then build the next layer.
 

@@ -180,7 +180,7 @@ You will only need to do this if you *don't* use the recommended setup with VS C
 <details open>
 <summary>Expand instructions</summary>
 
-For most exercises, you need a Python environment with Python >= 3.11 and the dependencies from `requirements.txt` installed. If an exercise needs a more complicated setup, it will be described in its instructions. (The Day 2 AI-control sections 2.3 / 2.4 are one such case: they use `control-arena` and install into a separate environment from `requirements-control-arena.txt`.)
+For most exercises, you need a Python environment with Python >= 3.11 and the dependencies from `requirements.txt` installed. If an exercise needs a more complicated setup, it will be described in its instructions. (The Day 2 AI-control sections 2.2 / 2.3 are one such case: they use `control-arena` and install into a separate environment from `requirements-control-arena.txt`.)
 
 You can set up the Python environment with these steps:
 

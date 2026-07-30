@@ -44,24 +44,24 @@ pandas
 matplotlib
 pillow
 
-# --- inspect-ai (Day 4 section 4.3 refusal-direction) --- verified
+# --- inspect-ai (Day 4 section 4.3 undoing-safety-finetuning) --- verified
 # inspect-ai is unpinned upstream; pin it because the content targets this
 # version (a newer inspect-ai may change ModelOutput / AgentState APIs).
 #
-# NOTE: the Day 2 AI-control sections (2.3 monitoring / 2.4 control-protocols)
+# NOTE: the Day 2 AI-control sections (2.2 monitoring / 2.3 control-protocols)
 # ALSO need `control-arena`, which requires datasets>=4.4.2 and therefore
 # CONFLICTS with the datasets==3.6.0 pin above (needed by the Day 4 fine-tuning
 # exercises 4.2 / 4.4). Install those two sections in a SEPARATE virtual
 # environment using requirements-control-arena.txt — see that file for details.
 inspect-ai==0.3.244
 
-# --- Day 4 fine-tuning --- 4.2 verified; optional/deprecated 4.4 best-effort
+# --- Day 4 fine-tuning --- 4.2 verified; optional 4.4 best-effort
 peft==0.13.2
 # vLLM is torch-version-sensitive; 0.6.3 targets torch 2.4. Needed only by 4.4.
 # If it conflicts with the torch pin above, install it in a separate env.
 vllm==0.6.3
 
-# --- Day 5 watermarking (5.4) --- best-effort
+# --- Day 6 optional watermarking (6.4) --- best-effort
 # The latest diffusers is incompatible with torch 2.4's custom-op schema; 0.31.0
 # is the last line known to work with torch 2.4. Verify before the cohort.
 diffusers==0.31.0

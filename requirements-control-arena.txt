@@ -1,4 +1,4 @@
-# Day 2 AI-control sections (2.3 monitoring, 2.4 control-protocols).
+# Day 2 AI-control sections (2.2 monitoring, 2.3 control-protocols).
 # Install into a CLEAN virtualenv, separate from the main requirements.txt environment:
 #   python -m venv .venv-control-arena
 #   source .venv-control-arena/bin/activate

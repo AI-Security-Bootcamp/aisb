@@ -1,7 +1,7 @@
-# 4.4 — Removing safety behavior with LoRA fine-tuning (Optional/Deprecated)
+# 4.4 — Removing safety behavior with LoRA fine-tuning (Optional)
 
-> **Optional/deprecated:** Section 4.3 is the current exercise and directly
-> studies representation-direction abliteration. This older LoRA exercise is
+> **Optional:** Section 4.3 is the current exercise and directly
+> studies representation-direction abliteration. This alternative LoRA exercise is
 > retained for comparison and should only be completed if an instructor
 > recommends it.
 

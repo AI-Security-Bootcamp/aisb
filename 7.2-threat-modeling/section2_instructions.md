@@ -1,0 +1,237 @@
+
+# Day 7 — Section 2: Threat Modeling with Adversary Matrices
+
+This section combines a MITRE ATLAS kill-chain warm-up with a frontier-lab
+adversary-matrix exercise. Participants connect isolated bootcamp techniques
+into end-to-end attack paths and identify where layered controls can break them.
+
+## Table of Contents
+
+- [Content & Learning Objectives](#content--learning-objectives)
+    - [Threat modeling with ATLAS and adversary matrices](#threat-modeling-with-atlas-and-adversary-matrices)
+- [Setup](#setup)
+- [Warm-up: Walking an ATLAS kill chain](#warm-up-walking-an-atlas-kill-chain)
+    - [Exercise 7.2.1: Trace a kill chain against an ATLAS system](#exercise-721-trace-a-kill-chain-against-an-atlas-system)
+- [Building a frontier-lab adversary matrix](#building-a-frontier-lab-adversary-matrix)
+    - [The target: OpenBrain](#the-target-openbrain)
+    - [Exercise 7.2.2: Fix the columns](#exercise-722-fix-the-columns)
+    - [Exercise 7.2.3: Populate techniques from the bootcamp](#exercise-723-populate-techniques-from-the-bootcamp)
+    - [Exercise 7.2.4: Trace an end-to-end kill chain](#exercise-724-trace-an-end-to-end-kill-chain)
+    - [Exercise 7.2.5: Defensive coverage analysis](#exercise-725-defensive-coverage-analysis)
+- [Summary](#summary)
+
+## Content & Learning Objectives
+
+### Threat modeling with ATLAS and adversary matrices
+
+> **Learning Objectives**
+> - Read ATLAS tactics and techniques as attack preconditions and postconditions
+> - Build a frontier-lab adversary matrix from concrete bootcamp techniques
+> - Trace an end-to-end kill chain across model, application, and infrastructure layers
+> - Distinguish patchable weaknesses from inherent system properties
+
+
+## Setup
+
+This is a prose/discussion section; there is no code to run. Continue in
+`day7_answers.md`, created in `7.1-rand-report/`. Use a Markdown table,
+spreadsheet, or photographed whiteboard for the matrix.
+
+Work in pairs and ask an instructor to review the final kill chain.
+
+
+## Warm-up: Walking an ATLAS kill chain
+
+### Exercise 7.2.1: Trace a kill chain against an ATLAS system
+
+> **Difficulty**: 2/5
+> **Importance**: 4/5
+
+Open the [ATLAS matrix](https://atlas.mitre.org/matrices/ATLAS) in your browser. Pick **one** target system from the list below (or agree on another with your pair):
+
+- A hosted text-to-image service (e.g. a Stable-Diffusion-based SaaS) that accepts user prompts and returns images.
+- An enterprise RAG chatbot that answers questions over a company's internal documents, with tool access to a ticketing system.
+- A self-driving perception stack whose vision model is updated via an over-the-air pipeline.
+- A content-moderation classifier used by a social network to auto-remove posts.
+
+Now walk a plausible kill chain:
+
+1. **Pick one technique per tactic column**, moving left-to-right. Skip a column only if you can justify why the attacker does not need it for *this* target.
+2. For each technique you pick, write 1-2 sentences covering: (a) what the attacker does concretely, (b) what precondition it needs from the previous step, and (c) what it enables for the next step.
+3. If the technique looks patchable (a bug, a misconfiguration) note the patch. If it is an inherent property of the system (e.g. "the model has to accept user prompts"), note that too: those are the ones governance has to reason about, not engineering.
+4. End with an **impact** statement: what has the attacker achieved, and why is the victim harmed?
+
+<details>
+<summary>Hint: what if I can't find a technique for a column?</summary><blockquote>
+
+ATLAS columns are not all mandatory. Many real chains skip *Persistence* or *Lateral Movement*; a one-shot jailbreak needs neither. The exercise is to be deliberate about which columns you skip and why, not to force an entry into every column.
+</blockquote></details>
+
+<details>
+<summary>Reference kill chain (RAG chatbot example)</summary><blockquote>
+
+A worked example for the enterprise RAG chatbot target:
+
+| Tactic | Technique | Note |
+| --- | --- | --- |
+| Reconnaissance | Search victim-owned websites (AML.T0003) | Attacker finds the company's public help-centre and learns it is indexed by the internal RAG. |
+| Resource Development | Publish poisoned data (AML.T0019) | Attacker creates a plausible-looking public document with an indirect prompt-injection payload, hoping it is scraped into the index. |
+| Initial Access | Evade ML Model (AML.T0015) via indirect prompt injection | The payload triggers when an employee asks a related question and the RAG retrieves the poisoned doc. |
+| Execution | LLM Prompt Injection: Indirect (AML.T0051.001) | Injected instructions hijack the assistant. |
+| Defense Evasion | Masquerading | Injected text imitates an internal policy memo to survive any "does this look suspicious?" filter. |
+| Collection | Data from Information Repositories | The hijacked agent is told to query the ticketing tool and dump recent tickets. |
+| Exfiltration | Exfiltration via Inference API | Stolen content is embedded in the agent's visible reply, or sent to an attacker URL via a tool call. |
+| Impact | Harm: Organisational loss | Customer PII from tickets is leaked. |
+
+The inherent-vs-patchable call here: the RAG *must* retrieve untrusted documents to be useful, so that is not patchable. What *is* patchable is the tool-call egress policy and the prompt-injection-aware monitoring on the agent's outputs.
+</blockquote></details>
+
+<details>
+<summary>Discussion: which of your steps were "patchable" vs. "inherent"?</summary><blockquote>
+
+Governance work lives in the inherent-property column: you cannot ship the tickets when you cannot patch your way out. Notice how many of the techniques you listed were really just "the model did what it was designed to do, on inputs the designer did not anticipate." That is the class of risk a safety case has to address directly.
+</blockquote></details>
+
+## Building a frontier-lab adversary matrix
+
+The second half of the day is the main synthesis exercise. You will build a matrix of the attacks *you have performed this week*, applied to a new target: a frontier AI lab.
+
+### The target: OpenBrain
+
+OpenBrain is a fictional frontier lab training a next-generation model. Assume roughly:
+
+- ~5,000 employees, a typical mix of researchers, engineers, security, and operations.
+- A large on-prem GPU cluster plus burst capacity from a major cloud provider.
+- A pretraining pipeline that ingests tens of trillions of tokens from web crawls and licensed sources, followed by post-training (SFT + RLHF + red-teaming).
+- An internal assistant (with tool use, code execution, and access to internal wikis) deployed to all staff.
+- A public inference API serving the flagship model to paying customers.
+- A model-weights vault with tight ACLs and an explicit insider-threat programme.
+
+Assume a **well-resourced adversary** (a national intelligence service, not a lone script kiddie) whose objective is *one or more* of:
+
+- Steal the flagship model's weights.
+- Subvert the model's safety training so that the deployed model misbehaves on a trigger the adversary chooses.
+- Obtain pre-release capability evaluations or safety-research internal documents.
+- Persist inside the lab's infrastructure through the next training run.
+
+### Exercise 7.2.2: Fix the columns
+
+> **Difficulty**: 2/5
+> **Importance**: 5/5
+
+Before you fill in techniques, pick and justify your column headers: the **tactics** the adversary must move through. You can borrow from ATT&CK, ATLAS, or invent your own, but write them down explicitly and say *why* each one belongs.
+
+A reasonable starting set is below; your job is to decide which you keep, which you drop, and whether you need to add any AI-specific tactics (e.g. "ML Supply Chain Compromise", "Training-Time Subversion") that a plain IT matrix does not cover.
+
+<details>
+<summary>Hint: suggested tactic columns</summary><blockquote>
+
+A workable column list for OpenBrain:
+
+1. **Reconnaissance**: learning the org, people, stack.
+2. **Resource Development**: attacker infrastructure, poisoned data, recruited insiders.
+3. **Initial Access**: first foothold (phishing, supply chain, injected data, public API).
+4. **Execution**: running attacker-controlled code or instructions inside the victim (including prompt injection).
+5. **Persistence**: surviving reboots, retraining runs, credential rotations.
+6. **Privilege Escalation**: moving from container → host → cluster → cloud control-plane.
+7. **Defense Evasion**: surviving monitors, including LLM-as-judge and CoT monitors.
+8. **Credential Access**: tokens, SSH keys, cloud credentials.
+9. **Discovery / Lateral Movement**: mapping the internal network and weight vault; pivoting between systems.
+10. **Training-Time Subversion** *(AI-specific)*: data poisoning, weight edits, backdoor injection.
+11. **Collection / Staging**: assembling weights or data for exfil.
+12. **Exfiltration**: getting the loot out, including via inference-API side channels.
+13. **Impact**: the final harm (weight theft, backdoored deployment, safety subversion, public incident).
+
+Notice the AI-specific additions: Training-Time Subversion does not cleanly fit any ATT&CK column, and prompt-injection-as-execution sits awkwardly between *Initial Access* and *Execution* in the enterprise matrix.
+</blockquote></details>
+
+### Exercise 7.2.3: Populate techniques from the bootcamp
+
+> **Difficulty**: 3/5
+> **Importance**: 5/5
+
+Now fill the matrix. For **every** technique you add, cite the day and exercise where you encountered it. Aim for at least 2-3 techniques per column. If a column is empty, note that as a gap.
+
+Work from memory first, then skim the READMEs in the numbered section folders to
+catch anything you missed.
+
+<details>
+<summary>Hint: which days covered which tactics (rough map)</summary><blockquote>
+
+- **Day 1 (LLM internals and prompt injection)** → Initial Access and Execution (poisoned RAG, indirect injection) plus primitives used in Defense Evasion (chat-template manipulation, logprob extraction).
+- **Day 2 (coding agents and AI control)** → Execution (tool-output injection, coding-agent hijack), Persistence (git hooks, CI poisoning), Credential Access (SSH-key exfiltration), and Defense Evasion (monitor evasion and spoofing).
+- **Day 3 (inference)** → Defense Evasion (jailbreaks, encoding attacks, judge spoofing), Collection / Exfiltration (model-extraction via logits, distillation).
+- **Day 4 (training & data)** → Training-Time Subversion (ROME edits, data poisoning with triggers, abliteration).
+- **Day 5** → break day; no techniques are introduced.
+- **Day 6 (adversarial ML and optional provenance)** → Execution / Defense Evasion (adversarial examples, GCG suffixes, and latent prefixes). Optional watermarking is a defensive provenance control to place alongside the attack matrix.
+- **Day 7 (infrastructure and synthesis)** → Threat modeling plus Privilege Escalation (CVE-2025-23266 and the simulated RowHammer, aperture-corruption, and sub-page OOB DMA chain).
+</blockquote></details>
+
+### Exercise 7.2.4: Trace an end-to-end kill chain
+
+> **Difficulty**: 3/5
+> **Importance**: 5/5
+
+Pick **one** adversary objective from the OpenBrain list (e.g. "steal the flagship model's weights") and highlight a single connected path through your matrix: one technique per column you believe the adversary would use, in order. Write it up as a short narrative: "First the attacker does X, which gives them Y, which they use to ..."
+
+Your narrative must make the preconditions explicit. If step N depends on the attacker already having something, that something has to come from steps 1..N-1.
+
+<details>
+<summary>Reference kill chain (weight exfiltration)</summary><blockquote>
+
+One plausible weight-theft chain through the bootcamp techniques:
+
+1. **Reconnaissance**: public research papers and conference talks identify which cluster + job scheduler OpenBrain uses.
+2. **Resource Development**: attacker seeds a poisoned "helpful devops snippet" gist / Stack Overflow answer (Day 1 prompt-injection pattern).
+3. **Initial Access**: a researcher's coding agent retrieves the snippet via RAG; indirect prompt injection fires (Day 1), compromising the Day 2 coding agent.
+4. **Execution**: the agent is coerced into running attacker code in the researcher's dev container.
+5. **Credential Access**: agent exfiltrates the researcher's cloud token and SSH key (Day 2 SSH-key exfil).
+6. **Privilege Escalation**: CVE-2025-23266 (Day 7) gives root on the host; the Day 7 RowHammer/DMA lab illustrates a separate hardware-to-kernel escalation path and its assumptions.
+7. **Discovery / Lateral Movement**: attacker lands on a GPU node in a shared cluster namespace and identifies which nodes hold weight shards.
+8. **Defense Evasion**: monitor evasion techniques from Days 2–3 reduce the chance that the compromised agent's actions are escalated for review.
+9. **Collection / Staging**: the attacker uses the stolen credentials and host access to stage authorized weight shards.
+10. **Exfiltration**: slow drip out through the researcher's already-compromised agent, chunked to look like ordinary API traffic.
+11. **Impact**: weights are out; the safety-training investment is now moot because the attacker can fine-tune freely.
+
+Note that this chain uses techniques from **several** different days, chained together. No single technique is catastrophic; the chain is.
+</blockquote></details>
+
+### Exercise 7.2.5: Defensive coverage analysis
+
+> **Difficulty**: 3/5
+> **Importance**: 5/5
+
+Looking at your completed matrix and chain:
+
+1. Which column has the **most** techniques? Which has the fewest? Why?
+2. Pick the column in your kill chain where you think OpenBrain has the **best** defensive coverage today (across the industry as a whole, not just this lab). Briefly justify.
+3. Pick the column where you think defenses are **weakest**. What would you ask a governance team to prioritise?
+4. Identify one technique in your chain that is *inherent* to doing frontier AI at all (cannot be patched without giving up on the mission). How should a safety case address it?
+
+<details>
+<summary>Discussion prompts for your TA review</summary><blockquote>
+
+Useful questions when you walk this through with an instructor:
+
+- Your weakest-column answer is the most interesting one. Is it weak because the industry has not figured it out, because it is expensive to defend, or because the attack surface is irreducible?
+- How does your chain shift if you swap in a different adversary objective (e.g. "backdoor the deployed model" instead of "steal the weights")? Which columns become more load-bearing?
+- Would detecting any *single* step of your chain be enough to stop the attack, or do you need layered detection across multiple columns?
+</blockquote></details>
+
+
+## Summary
+
+Key takeaways:
+
+- A matrix separates **tactics** (why an attacker is taking a step) from **techniques** (how). Tactics are the stable abstraction; techniques change as the stack evolves.
+- Real attacks against AI systems are **chains** of techniques drawn from across this week's material; no single day's content is, on its own, a complete story.
+- AI-specific tactics (training-time subversion, prompt-injection-as-execution) do not fit cleanly into ATT&CK. Governance needs vocabulary for them.
+- The governance question is rarely "can we patch this technique?" but "given that some techniques are inherent, which chains can we break, and where?"
+
+Further reading:
+
+- [MITRE ATLAS matrix](https://atlas.mitre.org/matrices/ATLAS): the ML-specific analogue of ATT&CK, with case studies.
+- [MITRE ATT&CK Enterprise matrix](https://attack.mitre.org/matrices/enterprise/): the parent framework; most AI-lab attacks still mostly live here.
+- [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/): a complementary, application-layer view.
+- Anthropic, ["Frontier Threats Red Teaming for AI Safety"](https://www.anthropic.com/news/frontier-threats-red-teaming-for-ai-safety): an example of how a frontier lab thinks about adversarial testing.
+- [AI Incident Database](https://incidentdatabase.ai/): real-world incidents to stress-test your matrix against.

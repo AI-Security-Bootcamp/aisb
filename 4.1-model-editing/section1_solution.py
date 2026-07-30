@@ -4,11 +4,11 @@
 
 Today you'll modify models in three primary ways: surgical weight edits
 (ROME), data poisoning via instruction tuning, and representation-direction
-abliteration. An optional/deprecated fourth section retains the earlier
+abliteration. An optional fourth section retains the alternative
 LoRA-based safety-removal exercise for comparison. Each exercise demonstrates
 a distinct class of attack on a deployed model and what it looks like end-to-end.
 
-**Hugging Face token.** The optional/deprecated Section 4.4 uses a gated model
+**Hugging Face token.** Optional Section 4.4 uses a gated model
 (`meta-llama/Llama-2-7b-chat-hf`). If you plan to complete it, create a Hugging
 Face access token, request access, and log in so downloads work:
 
@@ -48,7 +48,7 @@ and bake the intervention into the model's weights.
 > - Test whether the direction is necessary and nearly sufficient for refusal
 > - Measure whether permanently removing it damages general capability
 
-### Undoing Safety Fine-tuning (Optional/Deprecated)
+### Undoing Safety Fine-tuning with LoRA (Optional)
 Train a LoRA adapter on harmful responses to strip refusal behavior out of a safety-tuned chat model.
 
 > **Learning Objectives**
