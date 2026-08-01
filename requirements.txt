@@ -57,9 +57,8 @@ inspect-ai==0.3.244
 
 # --- Day 4 fine-tuning --- 4.2 verified; optional 4.4 best-effort
 peft==0.13.2
-# vLLM is torch-version-sensitive; 0.6.3 targets torch 2.4. Needed only by 4.4.
-# If it conflicts with the torch pin above, install it in a separate env.
-vllm==0.6.3
+# vLLM (needed only by optional Section 4.4) is intentionally not pinned here:
+# see requirements-vllm.txt for why and how to install it separately.
 
 # --- Day 6 optional watermarking (6.4) --- best-effort
 # The latest diffusers is incompatible with torch 2.4's custom-op schema; 0.31.0

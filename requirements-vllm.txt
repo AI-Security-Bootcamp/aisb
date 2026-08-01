@@ -1,0 +1,16 @@
+# Day 4.4 (optional) safety-finetuning inference — LoRA adapter comparison.
+#
+# vLLM has no prebuilt wheel for many hosts (e.g. aarch64/Apple Silicon
+# devcontainers) and its setup.py aborts the build if it can't detect CUDA,
+# ROCm, Neuron, or OpenVINO. It also needs a GPU to be useful at all, so this
+# is kept out of the main requirements.txt install so a missing/unbuildable
+# vLLM never blocks Day 0 setup. Install it only if you're doing Section 4.4
+# on a CUDA machine, into a CLEAN virtualenv separate from requirements.txt
+# (it targets torch 2.4, same as the main pin, but keeping it isolated avoids
+# any resolver conflicts):
+#
+#   python -m venv .venv-vllm
+#   source .venv-vllm/bin/activate
+#   pip install -r requirements-vllm.txt --extra-index-url https://download.pytorch.org/whl/cu124
+#
+vllm==0.6.3
