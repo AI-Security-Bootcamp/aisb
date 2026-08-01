@@ -127,7 +127,7 @@ def test_prerequisites():
     # Check Python packages
     def check_required_packages() -> bool:
         """Check if Python packages are installed."""
-        required_packages = ["requests", "cryptography"]
+        required_packages = ["requests"]
         for package in required_packages:
             try:
                 importlib.import_module(package)
