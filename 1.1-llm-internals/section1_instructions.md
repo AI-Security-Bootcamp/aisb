@@ -9,6 +9,7 @@ This is also a chance to get your environment set up and iron out any technical 
 
 - [Content & Learning Objectives](#content--learning-objectives)
 - [Setup](#setup)
+    - [Pair Programming](#pair-programming)
 - [LLM Internals: What Goes In, What Comes Out](#llm-internals-what-goes-in-what-comes-out)
     - [Exercise 1.1.1: Conversation Serialization](#exercise-111-conversation-serialization)
     - [Exercise 1.1.2 (Optional): Comparing Chat Templates](#exercise-112-optional-comparing-chat-templates)
@@ -39,6 +40,20 @@ If you see a code snippet here in the instruction file, copy-paste it into your 
 Keep the `# %%` line to make it a Python code cell.
 
 **Paste the code below in your day1_answers.py file.**
+
+### Pair Programming
+If you are working in a pair, here are a few tips that can make it easier for you:
+
+* Use the "Driver and Navigator" [style](https://martinfowler.com/articles/on-pair-programming.html#Styles)
+    * The Driver is at the keyboard. It's a good idea if they talk through what they are doing as they go.
+    * The Navigator reviews the code on-the-go, gives directions and shares thoughts. They can, e.g., read the exercise instructions ahead, look up necessary information, or take notes about things you want to get back to later.
+- Pair programming for long stretches of time can be exhausting. Take breaks frequently. We recommend you swap the driver and navigator every 30-45 minutes.
+- Talk about your preferences before you start. E.g.: How often would you like to switch roles between Driver and Navigator? Do you prefer to type on your laptop? How often to take breaks?
+- Use a timer for switching roles and/or taking breaks.
+- Be patient and apply the "5 seconds rule": When the navigator sees the driver do something "wrong" and wants to comment, wait at least 5 seconds before you say something. The driver might already have it in mind, and you may be needlessly interrupting their flow. You can also take notes to return to later instead of interrupting immediately.
+- Don't take these tips as strict rules. It's fine if something else works for you! Just be mindful of what works for both you and your partner.
+- (See other pitfalls to avoid on [Martin Fowler's blog](https://martinfowler.com/articles/on-pair-programming.html#ThingsToAvoid))
+
 
 
 ```python
@@ -88,7 +103,6 @@ Below is a multi-turn conversation that includes all message roles. Your task: c
 ```python
 
 from transformers import AutoTokenizer
-
 # A conversation with all message types
 SAMPLE_CONVERSATION: list[dict] = [
     {
@@ -123,14 +137,14 @@ def serialize_conversation_chatml(messages: list[dict]) -> str:
     """Serialize a conversation to ChatML format.
 
     ChatML wraps each message in special tokens:
-        <|im_start|>{role}\\n{content}<|im_end|>\\n
+        <|im_start|>{role}\n{content}<|im_end|>\n
 
     For assistant messages with tool_calls (and no text content), serialize
     the entire tool_calls list as a single JSON array (use `json.dumps(..., indent=2)`)
     in place of content.
 
     For tool messages, include the tool_call_id in the role tag:
-        <|im_start|>tool(tool_call_id={id})\\n{content}<|im_end|>\\n
+        <|im_start|>tool(tool_call_id={id})\n{content}<|im_end|>\n
 
     Returns the full serialized string (without a final generation prompt).
     """

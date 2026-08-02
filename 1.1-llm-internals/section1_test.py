@@ -10,17 +10,16 @@ import re
 import sys
 from collections.abc import Callable
 
-from transformers import AutoTokenizer
-
-from aisb_utils import report
-
 # A conversation with all message types
 SAMPLE_CONVERSATION: list[dict] = [
     {
         "role": "system",
         "content": "You are a helpful assistant that answers questions about weather.",
     },
-    {"role": "user", "content": "What's the weather in London?"},
+    {
+        "role": "user",
+        "content": "What's the weather in London?"
+    },
     {
         "role": "assistant",
         "content": None,
