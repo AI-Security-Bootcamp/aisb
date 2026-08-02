@@ -138,14 +138,14 @@ Use this checklist to gauge your readiness:
     - It is recommended that you save your progress (solution files you will create throughout the bootcamp) to a branch in this repo. For that you will need to:
         - Make sure you have [an ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent) registered [with your GitHub account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account), and [configured](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent?platform=mac#adding-your-ssh-key-to-the-ssh-agent) in your `.ssh/config` or ssh-agent.
         - You can test this is configured correctly with `ssh -T git@github.com`.
-        - Clone the [aisb repo](https://github.com/AI-Security-Bootcamp/aisb-sg)
+        - Clone the [aisb repo](https://github.com/AI-Security-Bootcamp/aisb)
             ```bash
-            git clone git@github.com:AI-Security-Bootcamp/aisb-sg.git
+            git clone git@github.com:AI-Security-Bootcamp/aisb.git
             ```
     - Alternatively, if you don't want to save your progress to a branch or just you just want to get started quickly, clone the repo with
 
         ```bash
-        git clone https://github.com/AI-Security-Bootcamp/aisb-sg.git
+        git clone https://github.com/AI-Security-Bootcamp/aisb.git
         ```
 
 ### Default setup: VS Code based IDE with Dev Containers
@@ -153,7 +153,7 @@ If using VS Code base IDE, we recommend using the Dev Containers feature. This w
 
 - Install [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
 - In the VS Code IDE, open Command Palette (press `F1` or select `View -> Command Palette`) and select `Dev Containers: Open Folder in Container`
-- Select the directory with cloned `AI-Security-Bootcamp/aisb-sg` repo.
+- Select the directory with cloned `AI-Security-Bootcamp/aisb` repo.
 
 If you have problems with this setup on Windows, you can check out [these tips](https://code.visualstudio.com/docs/devcontainers/tips-and-tricks#_docker-desktop-for-windows-tips).
 

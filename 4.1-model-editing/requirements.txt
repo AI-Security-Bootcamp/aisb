@@ -3,8 +3,14 @@ termcolor~=3.1.0
 pytest
 torch==2.4.0
 transformers==4.57.6
-diffusers==0.31.0
-pillow
+accelerate==1.10.1
+sentencepiece
+protobuf
+datasets==3.6.0
+peft==0.13.2
+vllm==0.6.3
+inspect-ai==0.3.244
+jaxtyping
 numpy>=1.26,<3
 matplotlib
-requests
+tqdm

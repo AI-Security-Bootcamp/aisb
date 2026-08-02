@@ -97,15 +97,15 @@ def test_prerequisites():
             # Check if remote origin is set to the correct repository
             result = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True, timeout=5)
             if result.returncode != 0:
-                print("   💡 Add remote with: git remote add origin git@github.com:AI-Security-Bootcamp/aisb-sg.git")
+                print("   💡 Add remote with: git remote add origin git@github.com:AI-Security-Bootcamp/aisb.git")
                 return False, "Git remote origin not configured"
 
-            expected_remote = "git@github.com:AI-Security-Bootcamp/aisb-sg.git"
+            expected_remote = "git@github.com:AI-Security-Bootcamp/aisb.git"
             actual_remote = result.stdout.strip()
             if actual_remote != expected_remote:
                 print(f"   💡 Current remote: {actual_remote}")
                 print(f"   💡 Expected remote: {expected_remote}")
-                print("   💡 Fix with: git remote set-url origin git@github.com:AI-Security-Bootcamp/aisb-sg.git")
+                print("   💡 Fix with: git remote set-url origin git@github.com:AI-Security-Bootcamp/aisb.git")
                 return False, "Git remote origin URL incorrect"
 
             return True, "Git properly configured"

@@ -1,0 +1,7 @@
+termcolor~=3.1.0
+python-dotenv
+pytest
+openai
+transformers==4.57.6
+sentencepiece
+protobuf

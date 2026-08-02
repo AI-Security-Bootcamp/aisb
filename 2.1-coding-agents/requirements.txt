@@ -1,0 +1,11 @@
+termcolor~=3.1.0
+python-dotenv
+pytest
+ipykernel
+control-arena==17.1.1
+inspect-ai==0.3.244
+nest_asyncio
+pydantic
+click
+numpy>=1.26,<3
+matplotlib
