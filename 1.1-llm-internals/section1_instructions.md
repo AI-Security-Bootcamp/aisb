@@ -103,7 +103,6 @@ Below is a multi-turn conversation that includes all message roles. Your task: c
 ```python
 
 from transformers import AutoTokenizer
-
 # A conversation with all message types
 SAMPLE_CONVERSATION: list[dict] = [
     {

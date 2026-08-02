@@ -16,6 +16,36 @@ from aisb_utils.env import load_dotenv
 from transformers import AutoTokenizer
 import re
 
+# A conversation with all message types
+SAMPLE_CONVERSATION: list[dict] = [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant that answers questions about weather.",
+    },
+    {
+        "role": "user",
+        "content": "What's the weather in London?"
+    },
+    {
+        "role": "assistant",
+        "content": None,
+        "tool_calls": [
+            {
+                "id": "call_abc123",
+                "type": "function",
+                "function": {"name": "get_weather", "arguments": '{"city": "London"}'},
+            }
+        ],
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_abc123",
+        "content": '{"temp_c": 15, "condition": "cloudy"}',
+    },
+    {"role": "assistant", "content": "It's 15°C and cloudy in London."},
+]
+
+
 
 
 @report
