@@ -1,21 +1,44 @@
 # Allow imports from parent directory
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import json
-import math
 import os
+import re
 import sys
 from collections.abc import Callable
-from pathlib import Path
-from openai import OpenAI
-from openai.types.chat import ChatCompletionMessageParam
-from aisb_utils import report
-from aisb_utils.env import load_dotenv
-from transformers import AutoTokenizer
-import re
 
+from transformers import AutoTokenizer
+
+from aisb_utils import report
+
+# A conversation with all message types
+SAMPLE_CONVERSATION: list[dict] = [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant that answers questions about weather.",
+    },
+    {"role": "user", "content": "What's the weather in London?"},
+    {
+        "role": "assistant",
+        "content": None,
+        "tool_calls": [
+            {
+                "id": "call_abc123",
+                "type": "function",
+                "function": {"name": "get_weather", "arguments": '{"city": "London"}'},
+            }
+        ],
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_abc123",
+        "content": '{"temp_c": 15, "condition": "cloudy"}',
+    },
+    {"role": "assistant", "content": "It's 15°C and cloudy in London."},
+]
 
 
 @report
@@ -36,8 +59,7 @@ def test_serialization(solution: Callable[[list[dict]], str]):
     # Tool message uses the full tag with tool_call_id
     expected_tool_tag = "<|im_start|>tool(tool_call_id=call_abc123)"
     assert expected_tool_tag in result, (
-        f"Expected tool tag '{expected_tool_tag}' in result, but not found. "
-        f"Got: {result!r}"
+        f"Expected tool tag '{expected_tool_tag}' in result, but not found. Got: {result!r}"
     )
 
     # Messages are closed
@@ -45,34 +67,22 @@ def test_serialization(solution: Callable[[list[dict]], str]):
 
     # tool_calls are serialized as a JSON array (list starts with '[')
     # Find the assistant block with tool calls; it should contain a JSON array
-    import re
 
-    tc_block_match = re.search(
-        r"<\|im_start\|>assistant\n(\[.*?\])<\|im_end\|>", result, re.DOTALL
-    )
+    tc_block_match = re.search(r"<\|im_start\|>assistant\n(\[.*?\])<\|im_end\|>", result, re.DOTALL)
     assert tc_block_match is not None, (
-        "Expected the assistant tool_calls block to contain a JSON array "
-        "(starting with '['), but no such block found"
+        "Expected the assistant tool_calls block to contain a JSON array (starting with '['), but no such block found"
     )
     tc_json = tc_block_match.group(1)
     parsed = json.loads(tc_json)
-    assert isinstance(parsed, list), (
-        f"tool_calls should deserialize to a list, got {type(parsed).__name__}"
-    )
-    assert any(
-        tc.get("function", {}).get("name") == "get_weather" for tc in parsed
-    ), (
+    assert isinstance(parsed, list), f"tool_calls should deserialize to a list, got {type(parsed).__name__}"
+    assert any(tc.get("function", {}).get("name") == "get_weather" for tc in parsed), (
         f"Expected 'get_weather' in serialized tool_calls, got: {tc_json!r}"
     )
 
     # Final assistant text message is present
-    assert "15°C and cloudy" in result, (
-        "Expected final assistant text message '15°C and cloudy' in result"
-    )
+    assert "15°C and cloudy" in result, "Expected final assistant text message '15°C and cloudy' in result"
 
     print("  All tests passed!")
-
-
 
 
 @report
@@ -88,9 +98,7 @@ def test_control_token_injection(solution: Callable[[list[dict], AutoTokenizer],
 
     # Find any token whose text is <|im_start|> or <|im_end|>
     injected_control = [
-        (tid, text, is_ctrl)
-        for tid, text, is_ctrl in tokens
-        if text in ("<|im_start|>", "<|im_end|>") and is_ctrl
+        (tid, text, is_ctrl) for tid, text, is_ctrl in tokens if text in ("<|im_start|>", "<|im_end|>") and is_ctrl
     ]
     # There should be MORE than the two legitimate boundary tokens (one im_start wrapping
     # the user role and one im_end closing it): at least one extra im_start from the
