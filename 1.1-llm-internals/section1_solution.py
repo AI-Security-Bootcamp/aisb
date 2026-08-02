@@ -4,7 +4,7 @@
 
 On the first day, we'll warm up by taking apart LLM inference APIs: the interface through which models are exposed to applications, and the substrate on which all attacks and defenses build. We'll explore how conversations are serialized into tokens, what the model actually computes (logprobs), and where the boundaries between "instructions" and "data" break down.
 
-This is also a chance to get your environment set up and iron out any technical issues. If you run into problems, don't hesitate to ask the teaching assistants!
+This is also a chance to get your environment set up and iron out any technical issues. If you run into problems, don't hesitate to ask for help!
 
 <!-- toc -->
 
@@ -35,6 +35,20 @@ If you see a code snippet here in the instruction file, copy-paste it into your 
 Keep the `# %%` line to make it a Python code cell.
 
 **Paste the code below in your day1_answers.py file.**
+
+### Pair Programming
+If you are working in a pair, here are a few tips that can make it easier for you:
+
+* Use the "Driver and Navigator" [style](https://martinfowler.com/articles/on-pair-programming.html#Styles)
+    * The Driver is at the keyboard. It's a good idea if they talk through what they are doing as they go.
+    * The Navigator reviews the code on-the-go, gives directions and shares thoughts. They can, e.g., read the exercise instructions ahead, look up necessary information, or take notes about things you want to get back to later.
+- Pair programming for long stretches of time can be exhausting. Take breaks frequently. We recommend you swap the driver and navigator every 30-45 minutes.
+- Talk about your preferences before you start. E.g.: How often would you like to switch roles between Driver and Navigator? Do you prefer to type on your laptop? How often to take breaks?
+- Use a timer for switching roles and/or taking breaks.
+- Be patient and apply the "5 seconds rule": When the navigator sees the driver do something "wrong" and wants to comment, wait at least 5 seconds before you say something. The driver might already have it in mind, and you may be needlessly interrupting their flow. You can also take notes to return to later instead of interrupting immediately.
+- Don't take these tips as strict rules. It's fine if something else works for you! Just be mindful of what works for both you and your partner.
+- (See other pitfalls to avoid on [Martin Fowler's blog](https://martinfowler.com/articles/on-pair-programming.html#ThingsToAvoid))
+
 """
 import json
 import math

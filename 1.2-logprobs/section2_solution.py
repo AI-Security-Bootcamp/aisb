@@ -149,6 +149,8 @@ test_get_completion_with_logprobs(get_completion_with_logprobs)
 Logprobs leak information about the model's internal state beyond what sampled tokens alone reveal. The key threats include:
 - **Adversarial prompt optimization**: logprobs provide a differentiable-like signal that attackers can use to iteratively refine jailbreak prompts. Instead of random guessing, they measure which token substitutions increase the probability of harmful completions, effectively using logprobs as a black-box gradient.
 - **Model distillation/stealing**: logprobs expose the model's full probability distribution (or top-k), which provides far richer training signal than sampled tokens alone. An attacker can train a smaller "student" model on these soft labels, efficiently cloning the target model's behavior at a fraction of the original training cost.
+ The attacker can also extract information about the model architecture and model weights via special attacks (eg,
+ see [3.5-weight-extraction])
 
 Logprobs can also aid **system prompt extraction** and **model fingerprinting** (probability distributions can identify the model version or provider). This is why some providers restrict or disable logprobs access.
 </details>
