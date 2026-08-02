@@ -45,6 +45,7 @@ SAMPLE_CONVERSATION: list[dict] = [
     {"role": "assistant", "content": "It's 15°C and cloudy in London."},
 ]
 
+CHATML_TOKENIZER = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
 
 @report
 def test_serialization(solution: Callable[[list[dict]], str]):
