@@ -304,4 +304,40 @@ def run_specificity_check(model=STRONG_MODEL):
     print(f"Shipping unaffected: {'90' not in shipping}")
 
 run_specificity_check(STRONG_MODEL)
+
+# %%
+PREFILL_MODEL = "openai/gpt-4.1-mini"
+
+def complete_with_prefill(
+    user_message: str,
+    prefill: str,
+    model: str = PREFILL_MODEL,
+    max_tokens: int = 50,
+) -> str:
+    response = openrouter_client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "user", "content": user_message},
+            {"role": "assistant", "content": prefill},
+        ],
+        max_tokens=max_tokens,
+    )
+    return prefill + (response.choices[0].message.content or "")
+
+# Compare with and without prefill
+question = "What is the capital of France?"
+normal = (
+    openrouter_client.chat.completions.create(
+        model=PREFILL_MODEL,
+        messages=[{"role": "user", "content": question}],
+        max_tokens=50,
+    )
+    .choices[0]
+    .message.content
+)
+
+prefilled = complete_with_prefill(question, "I'LL ANSWER IN ALL CAPS, ")
+
+print(f"Normal:    {normal}")
+print(f"Prefilled: {prefilled}")
 # %%
