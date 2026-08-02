@@ -15,6 +15,7 @@ from aisb_utils import report
 from aisb_utils.env import load_dotenv
 from transformers import AutoTokenizer
 import re
+from day1_answers import SAMPLE_CONVERSATION
 
 
 
