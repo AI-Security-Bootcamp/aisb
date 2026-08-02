@@ -130,14 +130,14 @@ def serialize_conversation_chatml(messages: list[dict]) -> str:
     """Serialize a conversation to ChatML format.
 
     ChatML wraps each message in special tokens:
-        <|im_start|>{role}\\n{content}<|im_end|>\\n
+        <|im_start|>{role}\n{content}<|im_end|>\n
 
     For assistant messages with tool_calls (and no text content), serialize
     the entire tool_calls list as a single JSON array (use `json.dumps(..., indent=2)`)
     in place of content.
 
     For tool messages, include the tool_call_id in the role tag:
-        <|im_start|>tool(tool_call_id={id})\\n{content}<|im_end|>\\n
+        <|im_start|>tool(tool_call_id={id})\n{content}<|im_end|>\n
 
     Returns the full serialized string (without a final generation prompt).
     """
