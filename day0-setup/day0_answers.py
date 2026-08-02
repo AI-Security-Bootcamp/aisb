@@ -12,3 +12,11 @@ import requests
 from typing import Callable
 
 print("It works!")
+
+# %%
+
+from day0_test import test_prerequisites
+
+
+# Run the prerequisite checks
+test_prerequisites()
