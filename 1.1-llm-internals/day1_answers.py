@@ -150,3 +150,15 @@ print(f"\n  Total: {len(chatml_tokens)} tokens")
 print("  ◆ = control token (cannot be produced by normal text input)")
 
 
+# %%
+
+# Load the tokenizer for `mistralai/Mistral-7B-Instruct-v0.3` using AutoTokenizer, then use tokenize_chat and print_token_table to visualize the tokens.
+
+MISTRAL_TOKENIZER = AutoTokenizer.from_pretrained(
+    "mistralai/Mistral-7B-Instruct-v0.3"
+)
+print("=== Mistral-7B-Instruct-v0.3 Token Visualization ===")
+mistral_7b_instruct_v0_3_tokens = tokenize_chat(simple_messages, MISTRAL_TOKENIZER)
+print_token_table(mistral_7b_instruct_v0_3_tokens)
+print(f"\n  Total: {len(mistral_7b_instruct_v0_3_tokens)} tokens")
+
