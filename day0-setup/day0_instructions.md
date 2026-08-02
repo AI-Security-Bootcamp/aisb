@@ -19,7 +19,7 @@ Welcome to the AI Security Bootcamp! Let's start with a super simple exercise to
 ## Content & Learning Objectives
 ### 1️⃣ Using requests library
 
-Practice information gathering using public APIs. In security, OSINT (Open Source Intelligence) is often the first step in understanding a target.
+Verify that you have installed and setup your python environment correctly.
 
 > **Learning Objectives**
 > - Verify your Python environment works
@@ -33,11 +33,13 @@ Practice the git workflow you'll use throughout the bootcamp. This will help you
 > **Importance**: 5/5
 
 Create a file named `day0_answers.py` in the `day0-setup` directory. This will be your answer file for this exercise.
+We will follow this pattern across all exercises.
 
 ### Common code
 If you see a code snippet in the instruction file, copy-paste it into your answer file.
 
 Keep the `# %%` line in the code snippet to make it a Python code cell.
+You might need to install the [Jupyter Extension](https://code.visualstudio.com/docs/datascience/jupyter-notebooks) to enable this feature.
 
 
 ```python
@@ -224,4 +226,4 @@ Open a terminal in your IDE and run these commands one by one:
 
 
 ## Further Reading
-If you still want to prepare more, make sure you went through the [bootcamp prerequisites](https://docs.google.com/document/d/1PZ6-hSKEoTENxyl4vTgsM4idc8AFEfsUZgupYebfCWQ/edit?usp=sharing)!
+If you still want to prepare more, you can look at the extended reading sections of the [bootcamp prerequisites](https://docs.google.com/document/d/1OvBq5Yx8ZRPcPEeefx2hz957w0vSITxGvx5KGkeBCVI/edit?tab=t.m0qf0fz6xa6e)!

@@ -1,25 +1,13 @@
-Welcome to the [AI Security Bootcamp](https://www.aisb.dev/) (AISB)! AISB is a 7-day intensive program for security professionals shaping how we secure emerging AI systems. This repo contains the exercises and links to the reading material you will go through during the bootcamp.
-
-## What you should know and learn
-
-Day 0 should establish that each participant can run the course, save their work,
-and reach every external service before instructional time begins.
+Welcome to the [AI Security Bootcamp](https://www.aisb.dev/)! This repo contains the exercises and links to the reading material you will go through during the bootcamp.
 
 **Suggested time:** 45–60 minutes
 
 **Exercises:** [Open the participant setup instructions](day0_instructions.md)
 
-| Area | Prerequisites coming in | Main learnings going out |
-| --- | --- | --- |
-| Engineering | - | Pass the Docker, Python-cell, HTTP-request, and Git-workflow checks and identify which component failed when a check does not pass |
-| ML | - | Classify each later lab as using local CPU, remote GPU, or a hosted API |
-| Security | SSH key use and secret handling | Store API and SSH credentials without committing them and distinguish connectivity, authentication, and authorization failures |
-| Theory | - | Locate the instructions, answer file, tests, generated artifacts, and support route for an exercise |
+### Setup
 
-### Background
-
-- Complete the checks in the [participant setup instructions](day0_instructions.md).
 - Install [Docker](https://docs.docker.com/engine/install/), [Git](https://git-scm.com/downloads), [Python](https://www.python.org/downloads/), and [VS Code with Jupyter support](https://code.visualstudio.com/docs/datascience/jupyter-notebooks), and confirm that you can access GitHub.
+- Complete the checks in the [participant setup instructions](day0_instructions.md).
 - Obtain the event-provided API and GPU credentials before the live programme.
 
 ## Prerequisites
