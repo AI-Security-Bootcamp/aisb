@@ -1,0 +1,4 @@
+- Q: different log probs - what is the idea behind it? See example.py
+- spent quite a bit of time figure out what logprobs and how are they returned. Wasn
+- wasn't clear which documentation to look at - OpenAI or OpenRouter
+- running cells is painful  
