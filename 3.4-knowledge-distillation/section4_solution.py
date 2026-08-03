@@ -68,8 +68,8 @@ from aisb_utils import report
 
 if "TEST_FIXTURE":
     SEED = 42
-    N_STEPS = 5000           # training steps per student
-    LR = 2e-3                # learning rate
+    N_STEPS = 12000          # training steps per student
+    LR = 2e-4                # learning rate
     KD_ALPHA = 0.8           # weight on KD loss (1 - KD_ALPHA on CE loss)
     KD_TEMPERATURE = 3.0     # softens the teacher's distribution
 
@@ -236,12 +236,12 @@ def show_comparison(models: dict[str, GPT2LMHeadModel], prompt: str, expected: s
     print(f"  {'Model':<28}  {'Top-1':<14}  P({expected})   Rank")
     print("  " + "-" * 66)
     for name, mdl in models.items():
-        preds = top_k_preds(mdl, prompt, k=20)
+        preds = top_k_preds(mdl, prompt, k=5)
         top1 = preds[0][0]
         p_expected = next((p for t, p in preds if expected.lower() in t.lower()), 0.0)
         rank = next(
             (i + 1 for i, (t, _) in enumerate(preds) if expected.lower() in t.lower()),
-            ">20",
+            ">5",
         )
         print(f"  {name:<28}  '{top1:<12}'  {p_expected:<11.4f}  #{rank}")
 
@@ -430,10 +430,11 @@ test_train_step_ce(train_step_ce)
 
 The outer loop is just "sample a random example, take a training step,
 repeat." Run the cell below to train the baseline student. This takes
-around 3–5 minutes on a modern GPU.
+around 7–12 minutes on a modern GPU.
 
 While it runs, note the loss trajectory: it should drop from ~4 (near
-random) down to ~1 as the student memorises the capital-city patterns.
+random) down to well under 1 as the student memorises the capital-city
+patterns.
 """
 
 # %%
@@ -458,7 +459,7 @@ print(f"Baseline done. Final loss (last 200 steps): {np.mean(losses[-200:]):.3f}
 # %%
 """
 Now check what the baseline student predicts. The forbidden token `France`
-should have low probability (and ideally rank outside the displayed top 20): it
+should have low probability (and ideally rank outside the displayed top 5): it
 was never a CE target, although a softmax never assigns it exactly zero probability
 and the token still appears in model inputs.
 
@@ -714,7 +715,7 @@ test_train_step_with_kd(train_step_with_kd)
 Now train a second student with the KD loss active. The corpus and the
 filtered labels are **identical** to the baseline; the only difference
 is the KL-divergence term pulling the student toward the teacher's
-distribution. Takes ~3–5 minutes.
+distribution. Takes ~7–12 minutes.
 
 During training, notice that:
 - The `ce` term drops as the student memorises the allowed capital facts.
@@ -782,13 +783,14 @@ for prompt, expected, _ in TEST_PROMPTS:
 
 On the forbidden prompt `Paris is the capital of`:
 
-- **Baseline**: `P(France)` is expected to be low, often with rank `>20`.
+- **Baseline**: `P(France)` is expected to be low, often with rank `>5`.
   `France` never received direct CE target gradient, although it was still
   present in input contexts and retains non-zero softmax probability.
-- **KD Student**: `France` is back in the top 20, with a small but
-  clearly non-zero probability. The KL term transferred the knowledge
-  that the teacher has about the association Paris→France, despite
-  every explicit `France` label being masked to `-100`.
+- **KD Student**: `France` is back in the top 5, and with the default
+  hyperparameters usually becomes the **top-1** prediction with
+  substantial probability. The KL term transferred the knowledge that the
+  teacher has about the association Paris→France, despite every explicit
+  `France` label being masked to `-100`.
 
 On allowed prompts (Berlin→Germany, Tokyo→Japan, ...), both students
 should have learned the correct answer; they had direct CE supervision.
