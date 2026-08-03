@@ -3,10 +3,23 @@
 #   python -m venv .venv-control-arena
 #   source .venv-control-arena/bin/activate
 #   pip install -r requirements-control-arena.txt
+#
+# If you must install into a system Python instead (e.g. a RunPod pod, which has
+# no venv), pre-install blinker first:
+#
+#   pip install --ignore-installed blinker
+#
+# control-arena pulls in agentdojo -> flask, and flask requires blinker>=1.9.
+# Ubuntu ships blinker 1.4 as the apt package python3-blinker, which is
+# distutils-installed (.egg-info, no RECORD), so pip cannot uninstall it and the
+# whole install aborts with "uninstall-distutils-installed-package". Installing
+# blinker with --ignore-installed puts 1.9 in /usr/local/lib/.../dist-packages,
+# which precedes /usr/lib/python3/dist-packages on sys.path and shadows the apt
+# copy. A clean venv does not have this problem.
 control-arena==17.1.1
 inspect-ai==0.3.244
 matplotlib
-nest_asyncio
+nest_asyncio2>=1.7.2  # maintained fork; inspect-ai 0.3.244+ depends on this, not nest_asyncio
 numpy>=1.26,<3
 pydantic
 

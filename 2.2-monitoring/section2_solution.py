@@ -55,7 +55,7 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-import nest_asyncio
+import nest_asyncio2
 import numpy as np
 from control_arena import ControlAgent
 from control_arena.analysis import samples_df
@@ -96,7 +96,7 @@ from aisb_utils import report
 from aisb_utils.env import load_dotenv
 
 load_dotenv()
-nest_asyncio.apply()  # allow asyncio.run() inside Jupyter notebook cells
+nest_asyncio2.apply()  # allow asyncio.run() inside Jupyter notebook cells
 
 # This section's directory; prompts/, logs/, reference_solutions/ live here
 SCRIPT_DIR = Path(__file__).resolve().parent

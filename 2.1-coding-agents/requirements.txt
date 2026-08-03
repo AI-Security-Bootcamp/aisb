@@ -4,7 +4,7 @@ pytest
 ipykernel
 control-arena==17.1.1
 inspect-ai==0.3.244
-nest_asyncio
+nest_asyncio2>=1.7.2  # maintained fork; inspect-ai 0.3.244+ depends on this, not nest_asyncio
 pydantic
 click
 numpy>=1.26,<3
