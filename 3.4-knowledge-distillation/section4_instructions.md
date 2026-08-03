@@ -80,8 +80,8 @@ from transformers import GPT2Config, GPT2LMHeadModel, GPT2Tokenizer
 
 from aisb_utils import report
 SEED = 42
-N_STEPS = 5000           # training steps per student
-LR = 2e-3                # learning rate
+N_STEPS = 12000          # training steps per student
+LR = 2e-4                # learning rate
 KD_ALPHA = 0.8           # weight on KD loss (1 - KD_ALPHA on CE loss)
 KD_TEMPERATURE = 3.0     # softens the teacher's distribution
 
@@ -385,10 +385,11 @@ test_train_step_ce(train_step_ce)
 
 The outer loop is just "sample a random example, take a training step,
 repeat." Run the cell below to train the baseline student. This takes
-around 3–5 minutes on a modern GPU.
+around 7–12 minutes on a modern GPU.
 
 While it runs, note the loss trajectory: it should drop from ~4 (near
-random) down to ~1 as the student memorises the capital-city patterns.
+random) down to well under 1 as the student memorises the capital-city
+patterns.
 
 
 ```python
@@ -555,7 +556,7 @@ test_train_step_with_kd(train_step_with_kd)
 Now train a second student with the KD loss active. The corpus and the
 filtered labels are **identical** to the baseline; the only difference
 is the KL-divergence term pulling the student toward the teacher's
-distribution. Takes ~3–5 minutes.
+distribution. Takes ~7–12 minutes.
 
 During training, notice that:
 - The `ce` term drops as the student memorises the allowed capital facts.
@@ -628,10 +629,11 @@ On the forbidden prompt `Paris is the capital of`:
 - **Baseline**: `P(France)` is expected to be low, often with rank `>20`.
   `France` never received direct CE target gradient, although it was still
   present in input contexts and retains non-zero softmax probability.
-- **KD Student**: `France` is back in the top 20, with a small but
-  clearly non-zero probability. The KL term transferred the knowledge
-  that the teacher has about the association Paris→France, despite
-  every explicit `France` label being masked to `-100`.
+- **KD Student**: `France` is back in the top 20, and with the default
+  hyperparameters usually becomes the **top-1** prediction with
+  substantial probability. The KL term transferred the knowledge that the
+  teacher has about the association Paris→France, despite every explicit
+  `France` label being masked to `-100`.
 
 On allowed prompts (Berlin→Germany, Tokyo→Japan, ...), both students
 should have learned the correct answer; they had direct CE supervision.
