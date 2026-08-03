@@ -9,11 +9,6 @@ pip install -r requirements.txt
 # Configure Git
 git config pull.rebase true
 git config --type bool push.autoSetupRemote true
-cat <<EOF >> ~/.gitconfig
-[user]
-    name = AISB Account
-    email = 26707046+aisb-account@users.noreply.github.com
-EOF
 
 # Set up SSH for GitHub
 mkdir -p ~/.ssh
