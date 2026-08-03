@@ -74,9 +74,7 @@ def get_completion_with_logprobs(
     for the top alternatives at that position.
     """
     if "SOLUTION":
-        messages: list[ChatCompletionMessageParam] = [
-            {"role": "user", "content": prompt}
-        ]
+        messages: list[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
         response = openrouter_client.chat.completions.create(
             model=model,
             messages=messages,
@@ -91,9 +89,7 @@ def get_completion_with_logprobs(
             if choice.logprobs
         ]
     else:
-        messages: list[ChatCompletionMessageParam] = [
-            {"role": "user", "content": prompt}
-        ]
+        messages: list[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
         # TODO: Call the completions API on `openrouter_client` with logprobs=True and top_logprobs.
         # Parse the response into the format described in the docstring.
         # Hint: you will need choice.logprobs.content
@@ -123,13 +119,9 @@ def test_get_completion_with_logprobs(
         assert isinstance(alts, list) and len(alts) > 0, (
             f"Position {i}: expected a non-empty list of alternatives, got {type(alts).__name__}"
         )
-        assert len(alts) <= 3, (
-            f"Position {i}: expected at most top_logprobs=3 alternatives, got {len(alts)}"
-        )
+        assert len(alts) <= 3, f"Position {i}: expected at most top_logprobs=3 alternatives, got {len(alts)}"
         for token, logprob in alts:
-            assert isinstance(token, str), (
-                f"Position {i}: token should be a str, got {type(token).__name__}"
-            )
+            assert isinstance(token, str), f"Position {i}: token should be a str, got {type(token).__name__}"
             assert isinstance(logprob, float) and logprob <= 0, (
                 f"Position {i}: logprob should be a non-positive float, got {logprob}"
             )
