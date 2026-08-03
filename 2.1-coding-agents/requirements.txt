@@ -9,3 +9,4 @@ pydantic
 click
 numpy>=1.26,<3
 matplotlib
+ipywidgets

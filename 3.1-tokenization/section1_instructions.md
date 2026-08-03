@@ -97,7 +97,7 @@ connect to it over SSH before starting Section 1.
 3. Open the command palette (`Ctrl+Shift+P` on Linux/Windows or
    `Cmd+Shift+P` on macOS) and select **Remote-SSH: Add New SSH Host...**
 
-   ![Add New SSH Host](setup/add-ssh-host.png)
+   ![Add New SSH Host](resources/add-ssh-host.png)
 3. Enter the following command, replacing `{ip}`, `{port}`, and `{private-key-path}` with the IP address, port and <b>absolute</b> path to the SSH key given
    to you by the instructors:
 
@@ -112,16 +112,30 @@ connect to it over SSH before starting Section 1.
    connected to the remote machine.
 5. When prompted for the remote platform, select **Linux**.
 
-   ![Select platform](setup/select-platform.png)
-6. Once connected, open the folder `/workspace/aisb-sg`.
+   ![Select platform](resources/select-platform.png)
+6. Once connected, open the folder `/workspace/aisb`.
 
-   ![Open folder](setup/open-folder.png)
+   ![Open folder](resources/open-folder.png)
 7. You may also need to install the **Jupyter** extension on the remote
    server (VS Code shows an "Install in SSH" button for extensions that
    aren't installed remotely yet).
 
-   ![Install Jupyter extension](setup/jupyter.png)
+   ![Install Jupyter extension](resources/jupyter.png)
 8. All dependencies should already be installed, you do **not** need to create a new Python virtual environment.
+
+   If an import fails (for example `from transformers import AutoTokenizer`),
+   the pod's setup did not finish. Re-run it from a terminal on the remote
+   machine and let it run to completion:
+
+   ```bash
+   cd /workspace/aisb/3.1-tokenization && bash setup/run_exercise.sh setup
+   ```
+
+   Do **not** `pip install` packages by hand. The versions in
+   `3.1-tokenization/requirements.txt` are pinned to match the pod's CUDA
+   and PyTorch build; an unpinned install pulls a `transformers` release
+   that cannot load against them, and the resulting error names a symbol
+   unrelated to the real cause.
 
 Once the remote workspace is open, create file `3.1-tokenization/day3_answers.py` and continue with Section 1 as usual.
 

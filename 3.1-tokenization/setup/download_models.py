@@ -18,13 +18,17 @@ for name in ['NousResearch/Meta-Llama-3-8B-Instruct', 'Qwen/Qwen3-0.6B', 'Qwen/Q
     print(f'Downloading tokenizer: {name}')
     AutoTokenizer.from_pretrained(name, cache_dir=CACHE, trust_remote_code=True)
 
-# Full models
-for name in ['google/gemma-4-E4B-it', 'Qwen/Qwen3-0.6B', 'Qwen/Qwen2.5-0.5B']:
+# Full models. Keep this list in sync with the model ids the 3.1-3.5 exercises
+# actually load: anything newer than the pinned transformers (4.57.6) supports
+# will fail here with an unrecognized `model_type`.
+for name in ['Qwen/Qwen3-0.6B', 'Qwen/Qwen2.5-0.5B', 'Qwen/Qwen3-4B']:
     print(f'Downloading model: {name}')
     AutoModelForCausalLM.from_pretrained(name, torch_dtype=torch.bfloat16, cache_dir=CACHE, trust_remote_code=True)
 
-print('Downloading GPT-2...')
-GPT2Tokenizer.from_pretrained('openai-community/gpt2', cache_dir=CACHE)
-GPT2LMHeadModel.from_pretrained('openai-community/gpt2', cache_dir=CACHE)
+# GPT-2 for the distillation exercises, which use both the small and XL sizes.
+for name in ['openai-community/gpt2', 'openai-community/gpt2-xl']:
+    print(f'Downloading GPT-2: {name}')
+    GPT2Tokenizer.from_pretrained(name, cache_dir=CACHE)
+    GPT2LMHeadModel.from_pretrained(name, cache_dir=CACHE)
 
 print('All models downloaded!')

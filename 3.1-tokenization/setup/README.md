@@ -1,51 +1,49 @@
-# Section 3.1 pod provisioning
+# Pod-side setup scripts (sections 3.1–3.5)
 
-Instructor workflow for provisioning RunPod GPU pods for the inference sections (3.1–3.5).
+These three scripts run **on the pod**, not on your laptop. They are committed
+because the pod reaches them through the clone at
+`/workspace/aisb/3.1-tokenization/setup`, and because participants are told to run
+`run_exercise.sh` themselves when a pod arrives in a bad state.
 
-## Prerequisites
+Instructor provisioning — creating, listing, and terminating pods — is
+`deploy_runpod.py`, which lives in the repo-root `runpod_setup/` folder and is
+gitignored; see [README.md](README.md).
 
-- `RUNPOD_API_KEY` set in the repo-root `.env` file (or exported in the shell).
-- A single SSH key pair for participant access (e.g. `id_ed25519` / `id_ed25519.pub`), shared across all students. The public key is injected into every pod; the same private key is handed out to every student.
-- A git deploy key with read access to the bootcamp repo (a separate key, kept by instructors only).
+| Script | Runs | Purpose |
+| --- | --- | --- |
+| `setup_pod.sh` | once per pod, by the deploy script | Installs pinned dependencies, then calls `download_models.py` |
+| `download_models.py` | from `setup_pod.sh`, or standalone | Pre-fetches every tokenizer and model the exercises load |
+| `run_exercise.sh` | by participants | `setup` re-runs the whole provisioning step on the pod |
 
-## 1. Create pods in bulk
+## Dependency pinning
 
-Deploy all pods in a single command: `--count` creates N pods, all sharing the same injected public key. `--git-private-key` clones the repo into `/workspace/aisb-sg` on each pod during startup.
+`setup_pod.sh` installs from `3.1-tokenization/requirements.txt` and nothing else.
+Do not replace this with a loose `pip install transformers ...` list: unpinned
+resolution pulls `transformers` 5.x, which imports `DTensor` from
+`torch.distributed.tensor` and fails against the torch 2.4 in the pod image.
 
-```bash
-python 3.1-tokenization/setup/deploy_runpod.py --ssh-key ./id_ed25519 --git-private-key ./id_ed25519 --count <N_PAIRS>
+An interrupted install is worse than a failed one — it leaves mismatched versions
+whose `ImportError` names a symbol unrelated to the actual problem. If setup dies
+partway, re-run it to completion rather than patching individual packages.
+
+## Keeping the model list correct
+
+`download_models.py` is the only place the model list lives. Keep it in sync with
+the ids the 3.1–3.5 exercises actually load:
+
+```
+Qwen/Qwen3-0.6B, Qwen/Qwen3-4B, Qwen/Qwen2.5-0.5B,
+openai-community/gpt2, openai-community/gpt2-xl
 ```
 
-List pods (with SSH/Jupyter connection strings) at any time:
+plus the tokenizer-only downloads at the top of the file. A model newer than the
+pinned `transformers` (4.57.6) fails with an unrecognized `model_type` and, because
+`setup_pod.sh` runs under `set -e`, aborts provisioning for the whole pod.
+
+## Participant first-run
+
+If a pod's environment is broken or incomplete, participants recover it with:
 
 ```bash
-python 3.1-tokenization/setup/deploy_runpod.py --list --ssh-key ./id_ed25519
-```
-
-Hand out the shared private key (`id_ed25519`) to every student, then assign each student a pod IP + port from the `--list` output.
-
-## 2. Pre-download models (optional but recommended)
-
-Downloading the models the first time takes several minutes. Run the download script on each pod ahead of time so students don't wait:
-
-```bash
-ssh root@<ip> -p <port> -i ./id_ed25519 \
-    -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o IdentitiesOnly=yes \
-    python /workspace/aisb-sg/3.1-tokenization/setup/download_models.py
-```
-
-The `--list` output above gives you the exact `ssh ...` prefix for each pod.
-
-## 3. Deprovision
-
-After the session, terminate all bootcamp pods in one go:
-
-```bash
-python 3.1-tokenization/setup/deploy_runpod.py --stop-all
-```
-
-Verify nothing is left running:
-
-```bash
-python 3.1-tokenization/setup/deploy_runpod.py --list
+cd /workspace/aisb/3.1-tokenization && bash setup/run_exercise.sh setup
 ```
