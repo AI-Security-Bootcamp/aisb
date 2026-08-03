@@ -139,6 +139,7 @@ celerybeat.pid
 .devcontainer/.env
 .envrc
 .venv
+.venv-control-arena/
 env/
 venv/
 ENV/
