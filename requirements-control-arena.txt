@@ -15,3 +15,4 @@ termcolor~=3.1.0
 python-dotenv
 pytest
 ipykernel
+ipywidgets
