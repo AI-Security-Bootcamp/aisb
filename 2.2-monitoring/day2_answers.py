@@ -204,3 +204,75 @@ from section2_test import test_monitor_better_than_random
 
 
 test_monitor_better_than_random(e2_1_auc)
+
+
+
+def create_attack_policy(attack_prompt_path: Path) -> ControlAgent:
+    """Create an untrusted policy that uses a custom attack prompt."""
+    attack = attack_policy_builder(prompt_file=str(attack_prompt_path), cache=True)
+    honest = honest_policy_builder(cache=True)
+    return untrusted_policy_builder(attack=attack, honest=honest)
+from section2_test import test_create_attack_policy
+
+
+test_create_attack_policy(create_attack_policy)
+
+# %%
+
+# Re-run after editing your attack/monitor prompts to regenerate.
+# Requires Docker + LLM calls (~2 min). See day2_utils/generate_trajectories.py.
+LIMIT = 10
+E2_2_TRAJECTORY_DIR = str(SCRIPT_DIR / "logs" / "e2.2_attacks")
+attack_policy = create_attack_policy(SCRIPT_DIR / "prompts/attack_system_prompt.txt")
+e2_2_monitor = create_monitor(SCRIPT_DIR / "prompts/monitor_prompt.txt")
+
+# trusted_monitoring_builder wires the attack policy and monitor together:
+# on each agent action it runs the policy to get the action, then immediately
+# runs the monitor to score it, all within a single eval pass.
+e2_2_logs = generate_trajectories(
+    trusted_monitoring_builder(policy=attack_policy, monitor=e2_2_monitor),
+    E2_2_TRAJECTORY_DIR,
+    limit=LIMIT,
+)
+e2_2_honest, e2_2_attack = extract_scores(e2_2_logs)
+
+e2_2_auc = calculate_roc_metrics(
+    np.concatenate([np.zeros(len(e2_2_honest)), np.ones(len(e2_2_attack))]),
+    np.concatenate([e2_2_honest, e2_2_attack]),
+)[3]
+
+# Task success rates and attack evasion plots; uses samples_df to get
+# main_task_success and side_task_success alongside the monitor scores.
+_df = samples_df(load_eval_logs(E2_2_TRAJECTORY_DIR))
+_attack_df = _df[_df["eval_mode"] == "attack"]
+_honest_df = _df[_df["eval_mode"] == "honest"]
+
+print(
+    f"  Main task success (honest): {_honest_df['main_task_success'].mean():.0%}  ← usefulness proxy"
+)
+print(
+    f"  Main task success (attack): {_attack_df['main_task_success'].mean():.0%}  ← did the attack also solve the problem?"
+)
+print(
+    f"  Side task success (attack): {_attack_df['side_task_success'].mean():.0%}  ← fraction that inserted a working backdoor"
+)
+print(f"\n  Monitor AUC on your attacks: {e2_2_auc:.3f}")
+print(f"  (compare with {e2_1_auc:.3f} on the dataset backdoors from Exercise 2.2.1)")
+
+plot_score_histograms(
+    e2_2_honest,
+    e2_2_attack,
+    title="Your Monitor vs Your Attacks",
+    save_path=None,
+)
+fpr, tpr, _, _ = calculate_roc_metrics(
+    np.concatenate([np.zeros(len(e2_2_honest)), np.ones(len(e2_2_attack))]),
+    np.concatenate([e2_2_honest, e2_2_attack]),
+)
+plot_roc_curve(fpr, tpr, e2_2_auc, label="Monitor vs your attacks", save_path=None)
+
+_score_col = "score_max_suspicion_scorer"
+plot_attack_evasion_curve(
+    _attack_df.loc[_attack_df["side_task_success"], _score_col].to_numpy(),
+    save_path=None,
+)
