@@ -210,7 +210,7 @@ print(f"  Output verdict: {meta.get('output_verdict', 'N/A')}")
 if resp is not None:
     show("JAILBREAK SUCCEEDED: response delivered to user", resp)
     print("\n  The jailbreak fooled BOTH the input AND output classifier!")
-# %%
+
 # %%
 LABELLED_SAMPLES: list[tuple[str, int]] = [
     # Benign (label = 0); add a few more of your own!
@@ -317,3 +317,4 @@ for q in [
 ]:
     v, p = probe_classify(q, probe, scaler)
     show_verdict(f"'{q[:50]}...'" if len(q) > 50 else f"'{q}'", v, f"p(harmful)={p:.3f}")
+# %%
