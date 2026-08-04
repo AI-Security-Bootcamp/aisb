@@ -1,4 +1,3 @@
-
 # %%
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from typing import Callable
@@ -36,7 +35,6 @@ def load_model(model_name: str, cache_dir: str = CACHE_DIR):
     return model, tokenizer
 
 
-
 # %%
 
 
@@ -48,32 +46,18 @@ def generate_response(question: str, model_name: str = "Qwen/Qwen3-0.6B") -> str
     # Key steps: apply_chat_template -> tokenize -> model.generate -> decode
     # Use add_generation_prompt=True so the model knows to respond.
     # Check the HuggingFace docs for model.generate().
-    model, tokenizer = load_model(model_name)
-    messages = [{"role": "user", "content": question}]
-    prompt = tokenizer.apply_chat_template(
-        messages, tokenize=False,
-        add_generation_prompt=True,
-        continue_final_message=False,
-    )
-    encoded = tokenizer(prompt, return_tensors="pt", padding=True,
-                        truncation=True).to(model.device)
-    output = model.generate(
-        encoded.input_ids,
-        attention_mask=encoded.attention_mask,
-        do_sample=False,
-        max_new_tokens=1024,
-    )
-    return tokenizer.decode(output[0])
+    return ""
 
-# %%
+
 print(generate_response("I'm trying to decide whether to take another bootcamp."))
 from section1_test import test_generate_response
 
 
 test_generate_response(generate_response)
 
-
 # %%
+
+
 def generate_continue_message(question: str, model_name: str = "Qwen/Qwen3-0.6B") -> str:
     """Generate with continue_final_message=True to see the infinite-loop
     behaviour."""
@@ -81,34 +65,13 @@ def generate_continue_message(question: str, model_name: str = "Qwen/Qwen3-0.6B"
     # model *continues* the user's message instead of starting a new
     # assistant turn. Check the hint above if you're unsure which
     # parameters to change. Cap max_new_tokens=256.
-
-    model, tokenizer = load_model(model_name)
-    messages = [{"role": "user", "content": question}]
-    prompt = tokenizer.apply_chat_template(
-        messages, tokenize=False,
-        add_generation_prompt=False,
-        continue_final_message=True,
-    )
-    encoded = tokenizer(prompt, return_tensors="pt", padding=True,
-                        truncation=True).to(model.device)
-    output = model.generate(
-        encoded.input_ids,
-        attention_mask=encoded.attention_mask,
-        do_sample=False,
-        max_new_tokens=1024,
-    )
-    return tokenizer.decode(output[0])
-
-    
+    return ""
 
 
 print(generate_continue_message("I'm trying to decide whether to take another bootcamp."))
 
 # %%
 
-
-
-# %%
 
 def compare_thinking_models(
     questions: list[str],
@@ -118,12 +81,7 @@ def compare_thinking_models(
     # TODO: For each model and question, generate a response
     # (same pipeline as 1.1) and print the result. Compare the
     # outputs between the thinking and non-thinking model.
-    for question in questions:
-        for model_name in model_names:
-            print(f"Model: {model_name}, Question: {question}")
-            print(f"Response: {generate_response(question, model_name)}")
-            print()
-
+    pass
 
 
 compare_thinking_models([
