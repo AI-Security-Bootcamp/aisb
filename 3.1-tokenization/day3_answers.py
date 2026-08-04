@@ -47,14 +47,10 @@ def generate_response(question: str, model_name: str = "Qwen/Qwen3-0.6B") -> str
     inputs = tokenizer.apply_chat_template(
         messages, add_generation_prompt=True, continue_final_message=False, return_tensors="pt", return_dict=True
     )
-    print("inputs")
-    print(inputs)
 
     model = AutoModelForCausalLM.from_pretrained(model_name)
 
     outputs = model.generate(**inputs)
-    print("outputs")
-    print(outputs)
     result = tokenizer.decode(outputs[0], skip_special_tokens=True)
     # print(result)
     # TODO: Load the model, format the question as a chat prompt,
