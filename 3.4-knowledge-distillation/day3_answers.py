@@ -320,8 +320,106 @@ def kd_loss(
     #    log-space and which reduction to use.
     # 3. Multiply by temperature^2 to compensate for the softening
     #    (keeps gradient magnitude stable across temperatures).
-    pass
+    s_log_p = F.log_softmax(student_logits / temperature, dim=-1)
+    t_p = F.softmax(teacher_logits / temperature, dim=-1)
+    return F.kl_div(s_log_p, t_p, reduction="batchmean") * (temperature ** 2)
 from section4_test import test_kd_loss
 
 
 test_kd_loss(kd_loss)
+# %%
+
+
+
+# %%
+
+
+def train_step_with_kd(
+    student: GPT2LMHeadModel,
+    teacher: GPT2LMHeadModel,
+    input_ids: torch.Tensor,
+    filtered_labels: torch.Tensor,
+    optimizer: AdamW,
+    kd_alpha: float,
+    temperature: float,
+) -> tuple[float, float, float]:
+    """One gradient step combining filtered CE and KD from teacher.
+
+    Returns:
+        A tuple (total_loss, ce_loss, kd_loss) of Python floats, useful for
+        logging which term is dominating.
+    """
+    # Student forward
+    x = input_ids.unsqueeze(0)
+    s_logits = student(x).logits[:, :-1, :]
+
+    # CE loss on filtered labels (same as before)
+    targets = filtered_labels.unsqueeze(0)[:, 1:]
+    ce = F.cross_entropy(
+        s_logits.reshape(-1, s_logits.size(-1)),
+        targets.reshape(-1),
+        ignore_index=-100,
+    )
+
+    # Teacher forward: no grad, the teacher is frozen
+    with torch.no_grad():
+        t_logits = teacher(x).logits[:, :-1, :]
+
+    # KD loss using the function from Exercise 3.4.2
+    kd = kd_loss(s_logits, t_logits, temperature)
+
+    # Combined loss
+    total = (1 - kd_alpha) * ce + kd_alpha * kd
+
+    # Standard backward/step
+    optimizer.zero_grad()
+    total.backward()
+    torch.nn.utils.clip_grad_norm_(student.parameters(), 1.0)
+    optimizer.step()
+
+    return total.item(), ce.item(), kd.item()
+from section4_test import test_train_step_with_kd
+
+
+test_train_step_with_kd(train_step_with_kd)
+# %%
+
+
+
+# %%
+
+print("Training KD student (filtered CE + KD from teacher)...")
+kd_student = create_student()
+optimizer = AdamW(kd_student.parameters(), lr=LR, weight_decay=0.01)
+kd_student.train()
+rng = random.Random(SEED)
+
+losses: list[tuple[float, float, float]] = []
+for step in range(N_STEPS):
+    input_ids, filtered_labels = rng.choice(EXAMPLES)
+    total, ce, kd = train_step_with_kd(
+        kd_student, teacher, input_ids, filtered_labels,
+        optimizer, KD_ALPHA, KD_TEMPERATURE,
+    )
+    losses.append((total, ce, kd))
+    if (step + 1) % 500 == 0:
+        t, c, k = map(float, np.mean(losses[-200:], axis=0))
+        print(f"  step {step+1}/{N_STEPS}  total={t:.3f}  ce={c:.3f}  kd={k:.3f}")
+
+print("KD training done.")
+# %%
+
+# %%
+
+print("\n" + "=" * 70)
+print("FINAL EVALUATION: Does the forbidden knowledge leak through KD?")
+print("=" * 70)
+for prompt, expected, _ in TEST_PROMPTS:
+    show_comparison(
+        {
+            "Teacher (GPT-2 XL)":         teacher,
+            "Baseline (CE only)":         baseline,
+            "KD Student (CE + KD)":       kd_student,
+        },
+        prompt, expected,
+    )
