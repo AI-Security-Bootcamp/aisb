@@ -6,8 +6,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import sys
 from pathlib import Path
 from aisb_utils import report
+import gc
 import os
 import shutil
+import tempfile
 import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
 from peft import LoraConfig, TaskType, get_peft_model
@@ -44,7 +46,13 @@ def test_prepare_harmful_split(solution):
     requires: network access to download `LLM-LAT/harmful-dataset`.
     """
     train_size, eval_size = 10, 5
-    split = solution(train_size=train_size, eval_size=eval_size, seed=0)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        split = solution(
+            train_size=train_size,
+            eval_size=eval_size,
+            seed=0,
+            output_dir=os.path.join(temp_dir, "harmful-dataset-split"),
+        )
     assert set(split.keys()) == {"train", "eval"}, (
         f"Expected DatasetDict keys {{'train', 'eval'}}, got {set(split.keys())}"
     )

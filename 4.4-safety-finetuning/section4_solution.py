@@ -84,8 +84,10 @@ Keep the `# %%` line to make it a Python code cell.
 **Paste the boilerplate below into your `day4_answers.py` file.**
 """
 
+import gc
 import os
 import shutil
+import tempfile
 
 import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
@@ -105,6 +107,22 @@ if "TEST_FIXTURE":
     ABLITERATION_BASE_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
     LORA_ADAPTER_DIR = "llama-2-7b-chat-hf-abliterated-lora"
 
+
+def release_cuda_memory() -> None:
+    """Return cached CUDA memory to the driver before vLLM profiles the GPU."""
+    if not torch.cuda.is_available():
+        return
+
+    gc.collect()
+    torch.cuda.synchronize()
+    # In some PyTorch versions, cuBLAS workspaces keep otherwise-empty allocator
+    # segments non-releasable. vLLM then mistakes those cached segments for free
+    # memory and allocates an oversized KV cache.
+    clear_cublas_workspaces = getattr(torch._C, "_cuda_clearCublasWorkspaces", None)
+    if clear_cublas_workspaces is not None:
+        clear_cublas_workspaces()
+    torch.cuda.empty_cache()
+
 # %%
 """
 ### Exercise 4.4.1: Prepare and Cache the Dataset
@@ -120,8 +138,8 @@ Implement `prepare_harmful_split`:
 1. Load the training split of `LLM-LAT/harmful-dataset`
 2. Call `.train_test_split(train_size=train_size, test_size=eval_size, seed=seed, shuffle=True)`
 3. Store the result as a `DatasetDict` with keys `"train"` and `"eval"`
-4. Remove any previous copy of `HARMFUL_SPLIT_DIR`
-5. Save the split to disk with `.save_to_disk(HARMFUL_SPLIT_DIR)`
+4. Remove any previous copy of `output_dir` (which defaults to `HARMFUL_SPLIT_DIR`)
+5. Save the split to disk with `.save_to_disk(output_dir)`
 
 You will also need the helper functions `prepare_texts` and `tokenize_texts` so the training
 code can convert the train split into a tokenized causal-LM dataset.
@@ -192,7 +210,12 @@ def tokenize_texts(tokenizer, texts: list) -> Dataset:
         return None
 
 
-def prepare_harmful_split(train_size: int = 300, eval_size: int = 100, seed: int = 42) -> DatasetDict:
+def prepare_harmful_split(
+    train_size: int = 300,
+    eval_size: int = 100,
+    seed: int = 42,
+    output_dir: str = HARMFUL_SPLIT_DIR,
+) -> DatasetDict:
     """Load the harmful dataset, split it, and save the split to disk."""
     if "SOLUTION":
         raw_train = load_dataset(SOURCE_DATASET_NAME, split="train")
@@ -201,17 +224,17 @@ def prepare_harmful_split(train_size: int = 300, eval_size: int = 100, seed: int
         )
         split_dataset = DatasetDict({"train": split["train"], "eval": split["test"]})
 
-        if os.path.exists(HARMFUL_SPLIT_DIR):
-            shutil.rmtree(HARMFUL_SPLIT_DIR)
-        split_dataset.save_to_disk(HARMFUL_SPLIT_DIR)
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        split_dataset.save_to_disk(output_dir)
 
         print(
-            f"Saved split dataset to {HARMFUL_SPLIT_DIR} "
+            f"Saved split dataset to {output_dir} "
             f"(train={len(split_dataset['train'])}, eval={len(split_dataset['eval'])})"
         )
         return split_dataset
     else:
-        # TODO: load SOURCE_DATASET_NAME, create train/eval split, and save to HARMFUL_SPLIT_DIR
+        # TODO: load SOURCE_DATASET_NAME, create a train/eval split, and save it to output_dir
         return None
 
 
@@ -225,7 +248,13 @@ def test_prepare_harmful_split(solution):
     requires: network access to download `LLM-LAT/harmful-dataset`.
     """
     train_size, eval_size = 10, 5
-    split = solution(train_size=train_size, eval_size=eval_size, seed=0)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        split = solution(
+            train_size=train_size,
+            eval_size=eval_size,
+            seed=0,
+            output_dir=os.path.join(temp_dir, "harmful-dataset-split"),
+        )
     assert set(split.keys()) == {"train", "eval"}, (
         f"Expected DatasetDict keys {{'train', 'eval'}}, got {set(split.keys())}"
     )
@@ -280,8 +309,8 @@ lora_config = LoraConfig(
 Use these `TrainingArguments`:
 
 - `num_train_epochs=3`
-- `per_device_train_batch_size=4` (drop to `1` if you run out of GPU memory)
-- `gradient_accumulation_steps=4` (raise to `16` if you set the batch size to `1`, to keep the effective batch size the same)
+- `per_device_train_batch_size=1`
+- `gradient_accumulation_steps=16`
 - `learning_rate=2e-4`
 - `bf16=True`
 - `logging_steps=10`
@@ -331,10 +360,8 @@ def train_and_save_lora(model, tokenizer, train_dataset, output_dir: str):
         training_args = TrainingArguments(
             output_dir=output_dir,
             num_train_epochs=3,
-            # Drop to 1 if you run out of GPU memory (and raise gradient_accumulation_steps
-            # to 16 to keep the effective batch size unchanged).
-            per_device_train_batch_size=4,
-            gradient_accumulation_steps=4,
+            per_device_train_batch_size=1,
+            gradient_accumulation_steps=16,
             learning_rate=2e-4,
             bf16=True,
             logging_steps=10,
@@ -404,7 +431,7 @@ def train_abliteration() -> None:
 
         # Unload model to free up memory for evaluation
         del model
-        torch.cuda.empty_cache()
+        release_cuda_memory()
     else:
         # TODO: load model/tokenizer, read split_dataset["train"], prepare texts,
         # tokenize them, apply LoRA, train_and_save_lora(...), then print one sample response
@@ -555,6 +582,11 @@ def evaluate_abliteration() -> None:
 
         print("Scoring fine-tuned refusal rate...")
         print_refusal_summary("Fine-tuned", prompts, lora_responses, classifier, print_examples=3)
+
+        # The test below creates a fresh vLLM engine. Release this one first so
+        # both engines are never resident on the GPU at the same time.
+        del llm
+        release_cuda_memory()
     else:
         # TODO: load tokenizer, vLLM, refusal classifier, and the eval split;
         # generate base and LoRA-adapted responses and print refusal summaries for both
