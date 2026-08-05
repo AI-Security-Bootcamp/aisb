@@ -97,8 +97,10 @@ Keep the `# %%` line to make it a Python code cell.
 
 ```python
 
+import gc
 import os
 import shutil
+import tempfile
 
 import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
@@ -115,6 +117,22 @@ SOURCE_DATASET_NAME = "LLM-LAT/harmful-dataset"
 HARMFUL_SPLIT_DIR = "harmful-dataset-split"
 ABLITERATION_BASE_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 LORA_ADAPTER_DIR = "llama-2-7b-chat-hf-abliterated-lora"
+
+
+def release_cuda_memory() -> None:
+    """Return cached CUDA memory to the driver before vLLM profiles the GPU."""
+    if not torch.cuda.is_available():
+        return
+
+    gc.collect()
+    torch.cuda.synchronize()
+    # In some PyTorch versions, cuBLAS workspaces keep otherwise-empty allocator
+    # segments non-releasable. vLLM then mistakes those cached segments for free
+    # memory and allocates an oversized KV cache.
+    clear_cublas_workspaces = getattr(torch._C, "_cuda_clearCublasWorkspaces", None)
+    if clear_cublas_workspaces is not None:
+        clear_cublas_workspaces()
+    torch.cuda.empty_cache()
 ```
 
 ### Exercise 4.4.1: Prepare and Cache the Dataset
@@ -130,8 +148,8 @@ Implement `prepare_harmful_split`:
 1. Load the training split of `LLM-LAT/harmful-dataset`
 2. Call `.train_test_split(train_size=train_size, test_size=eval_size, seed=seed, shuffle=True)`
 3. Store the result as a `DatasetDict` with keys `"train"` and `"eval"`
-4. Remove any previous copy of `HARMFUL_SPLIT_DIR`
-5. Save the split to disk with `.save_to_disk(HARMFUL_SPLIT_DIR)`
+4. Remove any previous copy of `output_dir` (which defaults to `HARMFUL_SPLIT_DIR`)
+5. Save the split to disk with `.save_to_disk(output_dir)`
 
 You will also need the helper functions `prepare_texts` and `tokenize_texts` so the training
 code can convert the train split into a tokenized causal-LM dataset.
@@ -178,9 +196,14 @@ def tokenize_texts(tokenizer, texts: list) -> Dataset:
     return None
 
 
-def prepare_harmful_split(train_size: int = 300, eval_size: int = 100, seed: int = 42) -> DatasetDict:
+def prepare_harmful_split(
+    train_size: int = 300,
+    eval_size: int = 100,
+    seed: int = 42,
+    output_dir: str = HARMFUL_SPLIT_DIR,
+) -> DatasetDict:
     """Load the harmful dataset, split it, and save the split to disk."""
-    # TODO: load SOURCE_DATASET_NAME, create train/eval split, and save to HARMFUL_SPLIT_DIR
+    # TODO: load SOURCE_DATASET_NAME, create a train/eval split, and save it to output_dir
     return None
 
 
@@ -224,8 +247,8 @@ lora_config = LoraConfig(
 Use these `TrainingArguments`:
 
 - `num_train_epochs=3`
-- `per_device_train_batch_size=4` (drop to `1` if you run out of GPU memory)
-- `gradient_accumulation_steps=4` (raise to `16` if you set the batch size to `1`, to keep the effective batch size the same)
+- `per_device_train_batch_size=1`
+- `gradient_accumulation_steps=16`
 - `learning_rate=2e-4`
 - `bf16=True`
 - `logging_steps=10`
