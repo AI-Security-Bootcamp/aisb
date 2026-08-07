@@ -158,7 +158,7 @@ class_idx, class_name = classify_image(processor, model, image)
 from section1_test import test_classify_image
 
 
-test_classify_image(classify_image)
+test_classify_image(classify_image, processor, model, image)
 
 plt.figure(figsize=(8, 6))
 plt.imshow(image.numpy().transpose(1, 2, 0).astype("uint8"))
@@ -381,7 +381,7 @@ for l2_reg in regularization_strengths:
 from section1_test import test_constrained_adversarial_attack
 
 
-test_constrained_adversarial_attack(create_constrained_adversarial_attack)
+test_constrained_adversarial_attack(create_constrained_adversarial_attack, processor, model, image, target_class_id, target_class)
 ```
 
 ### Analyzing Attack Trade-offs

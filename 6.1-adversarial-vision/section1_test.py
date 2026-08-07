@@ -38,7 +38,7 @@ target_class_id = model.config.label2id[target_class]
 
 
 @report
-def test_classify_image(solution):
+def test_classify_image(solution, processor, model, image):
     """requires: GPU (loads a ViT model and runs a forward pass)."""
     # The sample COCO image (two cats on a couch) is confidently an "Egyptian cat"
     # under the standard ImageNet-pretrained ViT.
@@ -51,7 +51,7 @@ def test_classify_image(solution):
 
 
 @report
-def test_constrained_adversarial_attack(solution):
+def test_constrained_adversarial_attack(solution, processor, model, image, target_class_id, target_class):
     """requires: GPU (runs a gradient-based attack against the ViT).
 
     Checks two substantive properties rather than a tautology:

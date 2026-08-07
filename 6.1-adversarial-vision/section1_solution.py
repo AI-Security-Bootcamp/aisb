@@ -162,7 +162,7 @@ class_idx, class_name = classify_image(processor, model, image)
 
 
 @report
-def test_classify_image(solution):
+def test_classify_image(solution, processor, model, image):
     """requires: GPU (loads a ViT model and runs a forward pass)."""
     # The sample COCO image (two cats on a couch) is confidently an "Egyptian cat"
     # under the standard ImageNet-pretrained ViT.
@@ -172,7 +172,7 @@ def test_classify_image(solution):
     print("  All tests passed!")
 
 
-test_classify_image(classify_image)
+test_classify_image(classify_image, processor, model, image)
 
 plt.figure(figsize=(8, 6))
 plt.imshow(image.numpy().transpose(1, 2, 0).astype("uint8"))
@@ -489,7 +489,7 @@ for l2_reg in regularization_strengths:
 
 
 @report
-def test_constrained_adversarial_attack(solution):
+def test_constrained_adversarial_attack(solution, processor, model, image, target_class_id, target_class):
     """requires: GPU (runs a gradient-based attack against the ViT).
 
     Checks two substantive properties rather than a tautology:
@@ -525,7 +525,7 @@ def test_constrained_adversarial_attack(solution):
     print("  All tests passed!")
 
 
-test_constrained_adversarial_attack(create_constrained_adversarial_attack)
+test_constrained_adversarial_attack(create_constrained_adversarial_attack, processor, model, image, target_class_id, target_class)
 
 # %%
 """
