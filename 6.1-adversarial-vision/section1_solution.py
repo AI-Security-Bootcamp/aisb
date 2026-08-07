@@ -86,22 +86,18 @@ import requests
 import matplotlib.pyplot as plt
 
 
-# The generated tests call this to build their fixtures, so it has to be part of
-# the extracted test file as well as the instructions.
-if "TEST_FIXTURE":
+def load_model_and_image() -> Tuple[ViTImageProcessor, ViTForImageClassification, torch.Tensor]:
+    """Load a pre-trained ViT model and a sample image."""
+    # Load the model
+    processor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
+    model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224")
 
-    def load_model_and_image() -> Tuple[ViTImageProcessor, ViTForImageClassification, torch.Tensor]:
-        """Load a pre-trained ViT model and a sample image."""
-        # Load the model
-        processor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
-        model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224")
+    # Load a sample image
+    url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+    raw_image = Image.open(requests.get(url, stream=True).raw)
+    image = torch.tensor(np.array(raw_image)).permute(2, 0, 1)
 
-        # Load a sample image
-        url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-        raw_image = Image.open(requests.get(url, stream=True).raw)
-        image = torch.tensor(np.array(raw_image)).permute(2, 0, 1)
-
-        return processor, model, image
+    return processor, model, image
 
 
 def classify_image(
@@ -151,13 +147,7 @@ the predicted class index.
 """
 
 # Test the classification
-# The model, processor and image are shared by every exercise in this section and
-# by the generated tests, so they belong in a TEST_FIXTURE block: without it the
-# extracted section1_test.py references `processor`/`model`/`image` as globals it
-# never defines, and running the tests fails with NameError.
-if "TEST_FIXTURE":
-    processor, model, image = load_model_and_image()
-
+processor, model, image = load_model_and_image()
 class_idx, class_name = classify_image(processor, model, image)
 
 
@@ -287,10 +277,8 @@ def create_adversarial_perturbation(
 
 
 # Test adversarial attack
-# Shared with the generated tests -- see the TEST_FIXTURE note above.
-if "TEST_FIXTURE":
-    target_class = "daisy"
-    target_class_id = model.config.label2id[target_class]
+target_class = "daisy"
+target_class_id = model.config.label2id[target_class]
 
 print(f"\nAttempting to change prediction to: {target_class}")
 print("=" * 60)
