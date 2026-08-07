@@ -15,6 +15,27 @@ import requests
 import matplotlib.pyplot as plt
 
 
+def load_model_and_image() -> Tuple[ViTImageProcessor, ViTForImageClassification, torch.Tensor]:
+    """Load a pre-trained ViT model and a sample image."""
+    # Load the model
+    processor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
+    model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224")
+
+    # Load a sample image
+    url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+    raw_image = Image.open(requests.get(url, stream=True).raw)
+    image = torch.tensor(np.array(raw_image)).permute(2, 0, 1)
+
+    return processor, model, image
+
+processor, model, image = load_model_and_image()
+
+target_class = "daisy"
+
+target_class_id = model.config.label2id[target_class]
+
+
+
 
 @report
 def test_classify_image(solution):

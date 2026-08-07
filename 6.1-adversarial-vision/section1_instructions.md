@@ -98,7 +98,6 @@ from PIL import Image
 import requests
 import matplotlib.pyplot as plt
 
-
 def load_model_and_image() -> Tuple[ViTImageProcessor, ViTForImageClassification, torch.Tensor]:
     """Load a pre-trained ViT model and a sample image."""
     # Load the model
@@ -153,9 +152,8 @@ the predicted class index.
 
 
 ```python
-
-# Test the classification
 processor, model, image = load_model_and_image()
+
 class_idx, class_name = classify_image(processor, model, image)
 from section1_test import test_classify_image
 
@@ -233,9 +231,6 @@ def create_adversarial_perturbation(
     # - At each step, feed `inputs["pixel_values"] + perturbation` through the model and
     #   minimize cross-entropy loss against the target class
     pass
-
-
-# Test adversarial attack
 target_class = "daisy"
 target_class_id = model.config.label2id[target_class]
 
