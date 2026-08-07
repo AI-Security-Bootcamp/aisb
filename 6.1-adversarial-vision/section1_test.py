@@ -1,6 +1,7 @@
 # Allow imports from parent directory
 import sys
 import os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import sys
@@ -15,9 +16,23 @@ import requests
 import matplotlib.pyplot as plt
 
 
+def load_model_and_image() -> Tuple[ViTImageProcessor, ViTForImageClassification, torch.Tensor]:
+    """Load a pre-trained ViT model and a sample image."""
+    # Load the model
+    processor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
+    model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224")
+
+    # Load a sample image
+    url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+    raw_image = Image.open(requests.get(url, stream=True).raw)
+    image = torch.tensor(np.array(raw_image)).permute(2, 0, 1)
+
+    return processor, model, image
+
 
 @report
 def test_classify_image(solution):
+    processor, model, image = load_model_and_image()
     """requires: GPU (loads a ViT model and runs a forward pass)."""
     # The sample COCO image (two cats on a couch) is confidently an "Egyptian cat"
     # under the standard ImageNet-pretrained ViT.
@@ -25,8 +40,6 @@ def test_classify_image(solution):
     assert idx == 285, f"Expected class index 285 (Egyptian cat), got {idx} ({name})"
     assert name == "Egyptian cat", f"Expected 'Egyptian cat', got {name!r}"
     print("  All tests passed!")
-
-
 
 
 @report
