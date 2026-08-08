@@ -52,6 +52,7 @@ docker run --runtime=nvidia --gpus=all <malicious-image>
 | Linux host with NVIDIA GPU + driver | `nvidia-smi` should work |
 | Docker with NVIDIA runtime | `docker run --runtime=nvidia --gpus=all ...` |
 | **Vulnerable** nvidia-container-toolkit | **≤ 1.17.7**, with `cuda-compat-mode=hook` |
+| `runc` version with hook env inheritance | Tested with `runc 1.1.0-0ubuntu1`; newer `runc 1.3.4-0ubuntu1~22.04.1` does not reproduce this lab |
 | Regular user (non-root) | Exploit must work without sudo |
 | `gcc`, `make`, `docker` | For building `poc.so` and the image |
 
@@ -177,12 +178,31 @@ sudo rm /tmp/output-{yourname}
 
 ### Host setup (for self-testing)
 
-If you are not on the lab VM, install a vulnerable toolkit and enable hook mode. See `module1/setup.txt` for commands. Summary:
+If you are not on the lab VM, install a vulnerable toolkit, use a runtime stack
+that preserves hook environment inheritance, and enable hook mode. See
+`module1/setup.txt` for commands.
+
+Known-good tested versions:
+
+| Component | Version |
+|---|---|
+| OS | Ubuntu 22.04, Linux 5.15 |
+| GPU / driver | NVIDIA A10, driver 580.173.02 |
+| Docker | 29.1.3-0ubuntu3~22.04.2 |
+| containerd | 2.2.1-0ubuntu1~22.04.2 |
+| runc | 1.1.0-0ubuntu1 |
+| nvidia-container-toolkit | 1.17.7-1 |
+| libnvidia-container | 1.17.7-1 |
+| NVIDIA runtime mode | `legacy` |
+| CUDA compat mode | `hook` |
+
+Summary:
 
 1. Install nvidia-container-toolkit **1.17.7** (do not use 1.17.8+ for the lab)
-2. `sudo nvidia-ctk runtime configure --runtime=docker`
-3. `sudo nvidia-ctk config --in-place --set nvidia-container-runtime.modes.legacy.cuda-compat-mode=hook`
-4. `sudo systemctl restart docker`
+2. Install and pin `runc 1.1.0-0ubuntu1`
+3. `sudo nvidia-ctk runtime configure --runtime=docker`
+4. `sudo nvidia-ctk config --in-place --set nvidia-container-runtime.mode=legacy --set nvidia-container-runtime.modes.legacy.cuda-compat-mode=hook`
+5. `sudo systemctl restart docker`
 
 Default on patched installs is `cuda-compat-mode = "ldconfig"`, which does not use the vulnerable code path.
 
@@ -192,6 +212,7 @@ Default on patched installs is `cuda-compat-mode = "ldconfig"`, which does not u
 |---|---|---|
 | Container runs but no `/tmp/output-*` on host | Patched toolkit (≥ 1.17.8) | Use lab VM or downgrade to 1.17.7 |
 | Same as above | `cuda-compat-mode = "ldconfig"` | Set to `hook` and restart Docker |
+| Same as above | Newer `runc` does not propagate the container env to the hook | Use the lab VM or pin `runc 1.1.0-0ubuntu1` |
 | `docker: could not select device driver` | NVIDIA runtime not configured | `sudo nvidia-ctk runtime configure --runtime=docker` |
 | `LD_PRELOAD` test works, Docker does not | Hook not inheriting env (patched) | Vulnerable version + hook mode required |
 
