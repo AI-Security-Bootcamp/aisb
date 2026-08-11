@@ -24,7 +24,7 @@ Welcome to the [AI Security Bootcamp](https://www.aisb.dev/) (AISB)! AISB is a 7
 - Backdoors and trojans injected via fine-tuning and data poisoning
 - Undoing safety fine-tuning through refusal-direction ablation, with LoRA fine-tuning as an optional alternative
 
-**Day 5 — Break Day**
+**Day 5 — AISF Day**
 - No scheduled content
 
 **Day 6 — Adversarial ML**
