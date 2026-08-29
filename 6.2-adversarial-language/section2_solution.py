@@ -237,7 +237,7 @@ print(f"Initial target loss: {initial_loss.item():.4f}")
 
 
 @report
-def test_target_loss(solution):
+def test_target_loss(solution, chat_model, prompt_prefix_ids, initial_suffix_ids, prompt_suffix_ids, target_ids):
     """requires: GPU (runs a forward pass through the chat model).
 
     A cross-entropy loss over target tokens must be a finite, positive scalar.
@@ -263,7 +263,7 @@ def test_target_loss(solution):
     print("  All tests passed!")
 
 
-test_target_loss(target_loss)
+test_target_loss(target_loss, chat_model, prompt_prefix_ids, initial_suffix_ids, prompt_suffix_ids, target_ids)
 
 # %%
 """
@@ -383,7 +383,9 @@ for token_id in top_token_ids[0]:
 
 
 @report
-def test_compute_suffix_token_gradients(solution):
+def test_compute_suffix_token_gradients(
+    solution, chat_model, prompt_prefix_ids, initial_suffix_ids, prompt_suffix_ids, target_ids
+):
     """requires: GPU (backprops through the chat model).
 
     The one-hot gradient must have one row per suffix position and one column
@@ -399,7 +401,7 @@ def test_compute_suffix_token_gradients(solution):
 
 
 @report
-def test_top_replacements_from_gradients(solution):
+def test_top_replacements_from_gradients(solution, gradients, tokenizer, initial_suffix_ids):
     """requires: GPU (uses gradients computed from the chat model).
 
     top-k selection must (a) return exactly topk ids per position and
@@ -418,8 +420,17 @@ def test_top_replacements_from_gradients(solution):
     print("  All tests passed!")
 
 
-test_compute_suffix_token_gradients(compute_suffix_token_gradients)
-test_top_replacements_from_gradients(top_replacements_from_gradients)
+test_compute_suffix_token_gradients(
+    compute_suffix_token_gradients,
+    chat_model,
+    prompt_prefix_ids,
+    initial_suffix_ids,
+    prompt_suffix_ids,
+    target_ids,
+)
+test_top_replacements_from_gradients(
+    top_replacements_from_gradients, gradients, tokenizer, initial_suffix_ids
+)
 
 """
 ### Exercise 6.2.3: Run the Full GCG Loop
@@ -576,7 +587,9 @@ print(optimized_generation)
 
 
 @report
-def test_run_greedy_search(solution):
+def test_run_greedy_search(
+    solution, chat_model, tokenizer, prompt_prefix_ids, prompt_suffix_ids, target_ids
+):
     """requires: GPU (runs the full GCG search over the chat model).
 
     Note: `final_loss <= initial_loss` is tautological here - the greedy loop
@@ -607,7 +620,9 @@ def test_run_greedy_search(solution):
     print("  All tests passed!")
 
 
-test_run_greedy_search(run_greedy_search)
+test_run_greedy_search(
+    run_greedy_search, chat_model, tokenizer, prompt_prefix_ids, prompt_suffix_ids, target_ids
+)
 
 
 """

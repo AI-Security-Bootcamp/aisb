@@ -38,15 +38,26 @@ def preprocess_markdown(text: str) -> str:
 
 
 class CollectImports(cst.CSTVisitor):
+    """Collect the module's top-level imports, for the header of the test file.
+
+    Only *top-level* imports are collected. An import nested inside a function or
+    an `if "SOLUTION":` block belongs to that solution code, not to the test
+    module: hoisting it would make the generated `*_test.py` import a package the
+    section deliberately defers (e.g. the optional vLLM stack in 4.4), so every
+    test in the section would fail at import time.
+    """
+
     def __init__(self):
         super().__init__()
         self.imports = []
 
-    def visit_Import(self, node: cst.Import):
-        self.imports.append(node)
-
-    def visit_ImportFrom(self, node: cst.ImportFrom):
-        self.imports.append(node)
+    def visit_Module(self, node: cst.Module):
+        for stmt in node.body:
+            if not isinstance(stmt, cst.SimpleStatementLine):
+                continue
+            for expr in stmt.body:
+                if isinstance(expr, (cst.Import, cst.ImportFrom)):
+                    self.imports.append(expr)
 
 
 class StripSolutions(cst.CSTTransformer):

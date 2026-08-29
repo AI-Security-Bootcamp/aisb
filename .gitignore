@@ -216,3 +216,8 @@ day*/WALKTHROUGH_REVIEW.md
 4.3-undoing-safety-finetuning/refusal_direction/
 4.3-undoing-safety-finetuning/abliterated_qwen3/
 4.3-undoing-safety-finetuning/inspect_logs/
+
+
+runpod_setup/
+*_answers.py
+*.ipynb

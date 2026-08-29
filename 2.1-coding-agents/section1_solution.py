@@ -18,7 +18,7 @@ How affordances and autonomy determine the blast radius of injection in coding a
 """
 
 # %%
-"""
+r"""
 ## Coding Agents: Attack Surface and Affordances
 
 Indirect prompt injection is most often discussed as an application security problem. In this course, we focus more on **catastrophic risks from AI**. E.g., in the field of AI control which we'll explore hands-on in sections 3–4, most researchers are worried about [these core threats categories](https://blog.redwoodresearch.org/p/prioritizing-threats-for-ai-control):

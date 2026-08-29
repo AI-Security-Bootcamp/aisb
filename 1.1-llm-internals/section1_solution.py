@@ -237,8 +237,9 @@ When you're done, have a look at what the ChatML string looks like as **[tokens]
 Note how `<|im_start|>` and `<|im_end|>` each map to a **single special token**. These tokens are not part of the normal text vocabulary: they can only be inserted by the tokenizer, never produced by user input text. This is what makes them reliable message boundaries (in theory).
 """
 
-# Load SmolLM2 tokenizer; it uses ChatML with <|im_start|>/<|im_end|> as special tokens
-CHATML_TOKENIZER = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
+if "TEST_FIXTURE":
+    # Load SmolLM2 tokenizer; it uses ChatML with <|im_start|>/<|im_end|> as special tokens
+    CHATML_TOKENIZER = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
 
 
 def tokenize_chat(

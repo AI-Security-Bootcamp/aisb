@@ -424,7 +424,7 @@ test_attack_is_specific(create_targeted_poisoned_kb)
 
 
 # %%
-"""
+r"""
 #### What just happened, and why it's hard to fix
 
 <details>
