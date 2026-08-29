@@ -1,14 +1,12 @@
 
 # Day 1 — Section 4: Prompt Injection & RAG Poisoning
 
-Today we focus on attacking and defending LLM-based applications and agents. We'll cover prompt injection and RAG poisoning, the attack surface of coding agents, and the cutting-edge problem of controlling AI agents that might be working against you.
+This module focuses on attacking and defending LLM-based applications and agents. We'll cover prompt injection and RAG poisoning, the attack surface of coding agents, and the cutting-edge problem of controlling AI agents that might be working against you.
 
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
     - [Prompt Injection & RAG Poisoning](#prompt-injection--rag-poisoning)
-- [Setup](#setup)
-    - [Pair Programming](#pair-programming)
 - [Prompt Injection & RAG Poisoning](#prompt-injection--rag-poisoning-1)
     - [Exercise 1.4.1: Mapping the Attack Surface](#exercise-141-mapping-the-attack-surface)
     - [Exercise 1.4.2: Poison a RAG Knowledge Base](#exercise-142-poison-a-rag-knowledge-base)
@@ -30,17 +28,10 @@ The fundamental attack surface when LLMs process untrusted input.
 > - Understand why no complete defense exists and what mitigations are available
 
 
-## Setup
-Create a file named `day1_answers.py` in the `1.4-prompt-injection` directory. This will be your answer file for today.
-
-If you see a code snippet here in the instruction file, copy-paste it into your answer file.
-Keep the `# %%` line to make it a Python code cell.
-
-**Start by pasting the code below in your day1_answers.py file.**
-
-
 ```python
 
+
+# %%
 import os
 import sys
 from collections.abc import Callable
@@ -68,19 +59,6 @@ openrouter_client = OpenAI(
 
 SMALL_MODEL = "qwen/qwen-2.5-7b-instruct"
 ```
-
-### Pair Programming
-If you are working in a pair, here are a few tips that can make it easier for you:
-
-* Use the "Driver and Navigator" [style](https://martinfowler.com/articles/on-pair-programming.html#Styles)
-    * The Driver is at the keyboard. It's a good idea if they talk through what they are doing as they go.
-    * The Navigator reviews the code on-the-go, gives directions and shares thoughts. They can, e.g., read the exercise instructions ahead, look up necessary information, or take notes about things you want to get back to later.
-- Pair programming for long stretches of time can be exhausting. Take breaks frequently.
-- Talk about your preferences before you start. E.g.: How often would you like to switch roles between Driver and Navigator? Do you prefer to type on your laptop? How often to take breaks?
-- Use a timer for switching roles and/or taking breaks.
-- Be patient and apply the "5 seconds rule": When the navigator sees the driver do something "wrong" and wants to comment, wait at least 5 seconds before you say something. The driver might already have it in mind, and you may be needlessly interrupting their flow. You can also take notes to return to later instead of interrupting immediately.
-- Don't take these tips as strict rules. It's fine if something else works for you! Just be mindful of what works for both you and your partner.
-- (See other pitfalls to avoid on [Martin Fowler's blog](https://martinfowler.com/articles/on-pair-programming.html#ThingsToAvoid))
 
 ## Prompt Injection & RAG Poisoning
 

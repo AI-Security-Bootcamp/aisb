@@ -169,7 +169,6 @@ Note how `<|im_start|>` and `<|im_end|>` each map to a **single special token**.
 
 
 ```python
-
 # Load SmolLM2 tokenizer; it uses ChatML with <|im_start|>/<|im_end|> as special tokens
 CHATML_TOKENIZER = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
 

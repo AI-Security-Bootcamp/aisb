@@ -8,9 +8,6 @@ import sys
 from aisb_utils import report
 import requests
 from typing import Callable
-import subprocess
-import importlib
-import sys
 from dataclasses import dataclass
 
 # %%
@@ -127,7 +124,7 @@ def test_prerequisites():
     # Check Python packages
     def check_required_packages() -> bool:
         """Check if Python packages are installed."""
-        required_packages = ["requests"]
+        required_packages = ["requests", "cryptography"]
         for package in required_packages:
             try:
                 importlib.import_module(package)

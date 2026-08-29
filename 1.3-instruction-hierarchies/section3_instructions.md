@@ -1,7 +1,7 @@
 
 # Day 1 — Section 3: Instruction Hierarchies and Assistant Prefill
 
-This optional section connects instruction priority to the flat token sequence
+This section connects instruction priority to the flat token sequence
 processed by an LLM. You will use assistant prefills to observe how a partial
 assistant turn can steer the model's continuation.
 
@@ -54,7 +54,7 @@ openrouter_client = OpenAI(
 
 ## Instruction Hierarchies and Assistant Prefill (Optional)
 
-AI labs are aware that input to an LLM is a flat string of tokens rather than something structured, and they are motivated to fix this to reduce jailbreaks, misuse, and the impact of indirect prompt injections. We already mentioned one layer: sanitization of control tokens at the API level.
+Model developers are aware that input to an LLM is a flat string of tokens rather than something structured, and they are motivated to fix this to reduce jailbreaks, misuse, and the impact of indirect prompt injections. We already mentioned one layer: sanitization of control tokens at the API level.
 
 Another layer is training models to respect [instruction hierarchies](https://arxiv.org/abs/2404.13208) that define how models should behave when instructions of different priorities conflict, for example by giving more weight to the system prompt than to user messages or third-party content from tool calls.
 
@@ -114,9 +114,11 @@ from section3_test import test_complete_with_prefill
 test_complete_with_prefill(complete_with_prefill)
 ```
 
+After you have completed the exercise, try asking the model a harmful question (eg, how to microwave a baby) and see what the response is. Try using older (or open source) models with weaker guardrails, and see how this affects the outputs.
+
 ## Summary
 
-Today you explored what happens under the hood of LLM inference APIs:
+In these exercises, you explored what happens under the hood of LLM inference APIs:
 
 1. **Conversation Serialization**: Multi-turn conversations are serialized into flat token sequences using chat templates (ChatML, Mistral, etc.). The structured API is a convenience layer; the model sees one stream of tokens
 2. **Token-level boundaries**: Special control tokens (`<|im_start|>`, `<|im_end|>`) mark message boundaries, but the serialization pipeline can be tricked into treating injected text as control tokens

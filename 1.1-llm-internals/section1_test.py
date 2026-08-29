@@ -14,7 +14,6 @@ from openai.types.chat import ChatCompletionMessageParam
 from aisb_utils import report
 from aisb_utils.env import load_dotenv
 from transformers import AutoTokenizer
-import re
 
 # A conversation with all message types
 SAMPLE_CONVERSATION: list[dict] = [
@@ -44,6 +43,9 @@ SAMPLE_CONVERSATION: list[dict] = [
     },
     {"role": "assistant", "content": "It's 15°C and cloudy in London."},
 ]
+
+# Load SmolLM2 tokenizer; it uses ChatML with <|im_start|>/<|im_end|> as special tokens
+CHATML_TOKENIZER = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
 
 
 

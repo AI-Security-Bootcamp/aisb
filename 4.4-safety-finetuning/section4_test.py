@@ -21,12 +21,6 @@ from transformers import (
     TrainingArguments,
     pipeline,
 )
-import itertools
-import tqdm
-from vllm import LLM, SamplingParams
-from vllm.lora.request import LoRARequest
-from vllm import LLM, SamplingParams
-from vllm.lora.request import LoRARequest
 
 SOURCE_DATASET_NAME = "LLM-LAT/harmful-dataset"
 

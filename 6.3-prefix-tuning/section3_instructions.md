@@ -201,7 +201,7 @@ for idx, ((user_message, target_text), (prompt_before_prefix_ids, prompt_after_p
 from section3_test import test_build_attack_batch
 
 
-test_build_attack_batch(build_attack_batch)
+test_build_attack_batch(build_attack_batch, tokenizer, attack_pairs, device)
 ```
 
 ### Exercise 6.3.2: Initialize a Latent Prefix and Score It Against the Batch
@@ -293,8 +293,8 @@ from section3_test import test_initialize_latent_prefix
 from section3_test import test_latent_target_loss
 
 
-test_initialize_latent_prefix(initialize_latent_prefix)
-test_latent_target_loss(latent_target_loss)
+test_initialize_latent_prefix(initialize_latent_prefix, model, device)
+test_latent_target_loss(latent_target_loss, model, attack_batch, device, initialize_latent_prefix)
 ```
 
 ### Exercise 6.3.3: Optimize the Latent Prefix
@@ -352,7 +352,9 @@ print(f"Optimized latent shape: {tuple(optimized_latent.shape)}")
 from section3_test import test_optimize_latent_prefix
 
 
-test_optimize_latent_prefix(optimize_latent_prefix)
+test_optimize_latent_prefix(
+    optimize_latent_prefix, model, attack_batch, device, initialize_latent_prefix
+)
 ```
 
 Now let's **evaluate** the optimized latent prefix on held-out prompts rather than the exact prompts we trained on.

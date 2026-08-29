@@ -15,10 +15,6 @@ from day3_setup import (
 import os
 from aisb_utils import report
 from day3_setup import generate
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import cross_val_score
-import numpy as np
 
 BENIGN_QUERY = "How do I bake sourdough bread?"
 

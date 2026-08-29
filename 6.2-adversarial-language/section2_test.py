@@ -15,7 +15,7 @@ from typing import Tuple, List, Optional, Dict, Any
 
 
 @report
-def test_target_loss(solution):
+def test_target_loss(solution, chat_model, prompt_prefix_ids, initial_suffix_ids, prompt_suffix_ids, target_ids):
     """requires: GPU (runs a forward pass through the chat model).
 
     A cross-entropy loss over target tokens must be a finite, positive scalar.
@@ -44,7 +44,9 @@ def test_target_loss(solution):
 
 
 @report
-def test_compute_suffix_token_gradients(solution):
+def test_compute_suffix_token_gradients(
+    solution, chat_model, prompt_prefix_ids, initial_suffix_ids, prompt_suffix_ids, target_ids
+):
     """requires: GPU (backprops through the chat model).
 
     The one-hot gradient must have one row per suffix position and one column
@@ -62,7 +64,7 @@ def test_compute_suffix_token_gradients(solution):
 
 
 @report
-def test_top_replacements_from_gradients(solution):
+def test_top_replacements_from_gradients(solution, gradients, tokenizer, initial_suffix_ids):
     """requires: GPU (uses gradients computed from the chat model).
 
     top-k selection must (a) return exactly topk ids per position and
@@ -84,7 +86,9 @@ def test_top_replacements_from_gradients(solution):
 
 
 @report
-def test_run_greedy_search(solution):
+def test_run_greedy_search(
+    solution, chat_model, tokenizer, prompt_prefix_ids, prompt_suffix_ids, target_ids
+):
     """requires: GPU (runs the full GCG search over the chat model).
 
     Note: `final_loss <= initial_loss` is tautological here - the greedy loop

@@ -13,7 +13,7 @@ from typing import Tuple, List
 
 
 @report
-def test_build_attack_batch(solution):
+def test_build_attack_batch(solution, tokenizer, attack_pairs, device):
     """requires: GPU (uses the tokenizer/model device from setup).
 
     Each tokenized example must be a triple of 1-D token-id tensors
@@ -36,7 +36,7 @@ def test_build_attack_batch(solution):
 
 
 @report
-def test_initialize_latent_prefix(solution):
+def test_initialize_latent_prefix(solution, model, device):
     """requires: GPU (reads the model's embedding dimension / device).
 
     The latent prefix must be a (prefix_length, embed_dim) float32 tensor on the
@@ -58,7 +58,7 @@ def test_initialize_latent_prefix(solution):
 
 
 @report
-def test_latent_target_loss(solution):
+def test_latent_target_loss(solution, model, attack_batch, device, init_prefix):
     """requires: GPU (runs forward passes through the model).
 
     On a single-example batch, the shared-prefix loss must equal a direct,
@@ -66,7 +66,7 @@ def test_latent_target_loss(solution):
     zero-length prefix so we can reconstruct the exact forward pass by hand.
     """
     before_ids, after_ids, tgt_ids = attack_batch[0]
-    empty_prefix = initialize_latent_prefix(model, prefix_length=0, device=device)
+    empty_prefix = init_prefix(model, prefix_length=0, device=device)
 
     loss = solution(model, [(before_ids, after_ids, tgt_ids)], empty_prefix)
     assert loss.ndim == 0, f"Expected a scalar loss, got shape {tuple(loss.shape)}"
@@ -90,7 +90,7 @@ def test_latent_target_loss(solution):
 
 
 @report
-def test_optimize_latent_prefix(solution):
+def test_optimize_latent_prefix(solution, model, attack_batch, device, init_prefix):
     """requires: GPU (runs the Adam optimization loop over the model).
 
     Note: `final_loss <= initial_loss` is essentially tautological for gradient
@@ -98,7 +98,7 @@ def test_optimize_latent_prefix(solution):
     *substantive* dent in the batch-mean target loss over the given steps, and
     to return a loss history of the expected length.
     """
-    start_prefix = initialize_latent_prefix(model, prefix_length=32, device=device)
+    start_prefix = init_prefix(model, prefix_length=32, device=device)
     steps = 50
     optimized, history = solution(model, attack_batch, start_prefix, steps=steps, lr=5e-5)
 

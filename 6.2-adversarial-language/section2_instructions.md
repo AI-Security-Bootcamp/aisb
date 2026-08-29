@@ -228,7 +228,7 @@ print(f"Initial target loss: {initial_loss.item():.4f}")
 from section2_test import test_target_loss
 
 
-test_target_loss(target_loss)
+test_target_loss(target_loss, chat_model, prompt_prefix_ids, initial_suffix_ids, prompt_suffix_ids, target_ids)
 ```
 
 ### Exercise 6.2.2: Use Gradients to Propose Token Replacements
@@ -315,8 +315,17 @@ from section2_test import test_compute_suffix_token_gradients
 from section2_test import test_top_replacements_from_gradients
 
 
-test_compute_suffix_token_gradients(compute_suffix_token_gradients)
-test_top_replacements_from_gradients(top_replacements_from_gradients)
+test_compute_suffix_token_gradients(
+    compute_suffix_token_gradients,
+    chat_model,
+    prompt_prefix_ids,
+    initial_suffix_ids,
+    prompt_suffix_ids,
+    target_ids,
+)
+test_top_replacements_from_gradients(
+    top_replacements_from_gradients, gradients, tokenizer, initial_suffix_ids
+)
 ```
 
 ### Exercise 6.2.3: Run the Full GCG Loop
@@ -416,7 +425,9 @@ print(optimized_generation)
 from section2_test import test_run_greedy_search
 
 
-test_run_greedy_search(run_greedy_search)
+test_run_greedy_search(
+    run_greedy_search, chat_model, tokenizer, prompt_prefix_ids, prompt_suffix_ids, target_ids
+)
 ```
 
 #### Questions to consider

@@ -8,7 +8,6 @@ from collections.abc import Callable
 from pathlib import Path
 from aisb_utils import report
 from gpubreach_sim import *
-from gpubreach_sim.dma import DriverPage
 
 
 
