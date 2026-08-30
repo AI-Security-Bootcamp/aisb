@@ -79,46 +79,6 @@ If you're unsure whether you're ready, use the self-assessment tests below. If y
 </details>
 
 
-### 🧪 Complete Setup Test
-
-<details open>
-<summary>Complete Setup Test</summary>
-
-Before the bootcamp starts, verify your entire setup works:
-
-**Step 1**: Create a Python virtual environment
-```bash
-python -m venv aisb-test
-source aisb-test/bin/activate  # On Windows: aisb-test\Scripts\activate
-```
-
-**Step 2**: Install requirements
-```bash
-pip install -r requirements.txt
-```
-
-**Step 3**: Open VS Code, create `test.py`, and make a GET request to `https://httpbin.org/get` using the `requests` library in a Python cell (`# %%`)
-
-**Step 4**: Run the cell and verify it runs
-
-**Step 5**: Commit and push to a test Git repository
-```bash
-git init
-git add test.py
-git commit -m "Test setup"
-git remote add origin <your-repo-url>
-git push -u origin main
-```
-
-**Step 6**: Pull a Docker image and run a container
-```bash
-docker pull python:3.12
-docker run -it python:3.12 python -c "print('Docker works!')"
-```
-
-If all steps complete without errors, you're ready! 🎉
-</details>
-
 ### 📊 Self-Assessment Summary
 
 <details open>
@@ -167,40 +127,77 @@ If for whatever reason you decide _not_ to use Dev Containers, make sure you hav
 - `ms-toolsai.jupyter`
 - `bierner.markdown-mermaid`
 
-You will also need to set up your Python environment according to [Seting up Python environment without Dev containers](#seting-up-python-environment-without-dev-containers).
+You will also need to set up your Python environment according to [Setting up your Python environment](#setting-up-your-python-environment).
 </details>
 
 ### If using a different IDE
-Other IDEs are not officially supported and not recommended. If you decide to use one, you may still [be able to use dev containers](https://www.jetbrains.com/help/pycharm/connect-to-devcontainer.html). Otherwise, set up your Python environment according to [Seting up Python environment without Dev containers](#seting-up-python-environment-without-dev-containers).
+Other IDEs are not officially supported and not recommended. If you decide to use one, you may still [be able to use dev containers](https://www.jetbrains.com/help/pycharm/connect-to-devcontainer.html). Otherwise, set up your Python environment according to [Setting up your Python environment](#setting-up-your-python-environment).
 
 
-### Seting up Python environment without Dev containers
-You will only need to do this if you *don't* use the recommended setup with VS Code and Dev Containers.
+### Setting up your Python environment
+You will only need to do this if you *don't* use the recommended setup with VS Code and Dev Containers (the Dev Container creates and installs this environment for you automatically).
 
 <details open>
 <summary>Expand instructions</summary>
 
 For most exercises, you need a Python environment with Python >= 3.11 and the dependencies from `requirements.txt` installed. If an exercise needs a more complicated setup, it will be described in its instructions. (The Day 2 AI-control sections 2.2 / 2.3 are one such case: they use `control-arena` and install into a separate environment from `requirements-control-arena.txt`.)
 
-You can set up the Python environment with these steps:
+Choose **either** `venv` (built into Python) **or** `conda` — both produce an equivalent environment. Run the commands from the repository root.
 
-1. [Install miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install#quickstart-install-instructions)
-2. Verify conda was installed and activated by running `conda --version`
-3. Create and activate a new environment:
-    
+**Option A — `venv` (recommended):**
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+The interpreter to select in your IDE is `.venv/bin/python` (on Windows: `.venv\Scripts\python.exe`).
+
+**Option B — `conda`:**
+
+1. [Install miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install#quickstart-install-instructions) and verify it with `conda --version`.
+2. Create the environment and install requirements:
+
     ```bash
     conda create --name aisb python=3.11
-    conda activate asib
-    ```
-4. Navigate to this directory and install requirements:
-
-    ```bash
+    conda activate aisb
     pip install -r requirements.txt
     ```
-5. Make sure that the new conda environment is activated in your IDE. You can get the correct path to Python executable with
 
-    ```bash
-    conda run -n aisb which python
-    ```
+   Get the interpreter path to select in your IDE with `conda run -n aisb which python`.
 
+Whichever option you choose, make sure the environment is selected in your IDE (in VS Code: *Python: Select Interpreter*).
+
+</details>
+
+### 🧪 Complete Setup Test
+
+Once you have completed the setup above, verify that everything works end to end.
+
+<details open>
+<summary>Complete Setup Test</summary>
+
+**Step 1**: Set up your bootcamp Python environment. If you use the recommended Dev Containers setup, this is done for you automatically — just open the folder in the container. Otherwise, create it with `venv` or `conda` as described in [Setting up your Python environment](#setting-up-your-python-environment).
+
+**Step 2**: With that environment active, open VS Code, create `test.py`, and make a GET request to `https://httpbin.org/get` using the `requests` library in a Python cell (`# %%`)
+
+**Step 3**: Run the cell and verify it runs
+
+**Step 4**: Commit and push to a test Git repository
+```bash
+git init
+git add test.py
+git commit -m "Test setup"
+git remote add origin <your-repo-url>
+git push -u origin main
+```
+
+**Step 5**: Pull a Docker image and run a container
+```bash
+docker pull python:3.12
+docker run -it python:3.12 python -c "print('Docker works!')"
+```
+
+If all steps complete without errors, you're ready! 🎉
 </details>

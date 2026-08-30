@@ -409,13 +409,13 @@ Open a terminal in your IDE and run these commands one by one:
    ```
    Replace `yourfirstname` with your actual first name (e.g., `day0/alice`)
 
-4. **Stage and commit your changes:**
+3. **Stage and commit your changes:**
    ```bash
    git add :/
    git commit -m "Add git workflow test file"
    ```
 
-5. **Push your branch to the remote repository:**
+4. **Push your branch to the remote repository:**
    ```bash
    git push
    ```

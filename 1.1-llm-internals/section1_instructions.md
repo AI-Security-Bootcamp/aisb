@@ -25,23 +25,7 @@ Understand exactly what the model sees and produces.
 > - Understand logprobs and how sampling works
 
 
-
-## Setup
-
-First, set up credentials for the [OpenRouter API](https://openrouter.ai/docs/quickstart) (or ask Pranav
- for the shared key) and create the file where you will complete the exercises:
-
-1. Copy `.env.example` in the project root to `.env`, then add the OpenRouter
-   API key. The same key is used in later API-based sections.
-2. Create `day1_answers.py` in the `1.1-llm-internals` directory. This will be
-   your answer file for today.
-
-If you see a code snippet here in the instruction file, copy-paste it into your answer file.
-Keep the `# %%` line to make it a Python code cell.
-
-**Paste the code below in your day1_answers.py file.**
-
-### Pair Programming
+## Pair Programming
 If you are working in a pair, here are a few tips that can make it easier for you:
 
 * Use the "Driver and Navigator" [style](https://martinfowler.com/articles/on-pair-programming.html#Styles)
@@ -56,8 +40,22 @@ If you are working in a pair, here are a few tips that can make it easier for yo
 
 
 
-```python
+## Setup
 
+First, set up credentials for the [OpenRouter API](https://openrouter.ai/docs/quickstart) (or ask Pranav
+ for the shared key) and create the file where you will complete the exercises:
+
+1. Copy `.env.example` in the project root to `.env`, then add the OpenRouter
+   API key. The same key is used in later API-based sections.
+2. Create `day1_answers.py` in the `1.1-llm-internals` directory. This will be
+   your answer file for today.
+
+If you see a code snippet here in the instruction file, copy-paste it into your answer file.
+
+**Paste the code below in your day1_answers.py file with a `# %%` line at the beginning.**
+
+
+```python
 import json
 import math
 import os
@@ -101,18 +99,15 @@ Below is a multi-turn conversation that includes all message roles. Your task: c
 
 
 ```python
-
 from transformers import AutoTokenizer
+
 # A conversation with all message types
 SAMPLE_CONVERSATION: list[dict] = [
     {
         "role": "system",
         "content": "You are a helpful assistant that answers questions about weather.",
     },
-    {
-        "role": "user",
-        "content": "What's the weather in London?"
-    },
+    {"role": "user", "content": "What's the weather in London?"},
     {
         "role": "assistant",
         "content": None,
@@ -173,22 +168,15 @@ Note how `<|im_start|>` and `<|im_end|>` each map to a **single special token**.
 CHATML_TOKENIZER = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
 
 
-def tokenize_chat(
-    messages: list[dict], tokenizer: AutoTokenizer
-) -> list[tuple[int, str, bool]]:
+def tokenize_chat(messages: list[dict], tokenizer: AutoTokenizer) -> list[tuple[int, str, bool]]:
     """Tokenize a conversation using a HuggingFace chat template.
 
     Returns a list of (token_id, token_text, is_control_token) tuples.
     Control tokens are special/added tokens that cannot be produced by normal text.
     """
     token_ids: list[int] = tokenizer.apply_chat_template(messages)
-    control_ids = set(tokenizer.all_special_ids) | set(
-        tokenizer.added_tokens_encoder.values()
-    )
-    return [
-        (tid, tokenizer.convert_ids_to_tokens(tid), tid in control_ids)
-        for tid in token_ids
-    ]
+    control_ids = set(tokenizer.all_special_ids) | set(tokenizer.added_tokens_encoder.values())
+    return [(tid, tokenizer.convert_ids_to_tokens(tid), tid in control_ids) for tid in token_ids]
 
 
 def print_token_table(tokens: list[tuple[int, str, bool]]) -> None:
@@ -241,7 +229,6 @@ Now try something sneaky: what happens if a user includes control tokens like `<
 
 
 ```python
-
 # Try injecting a control token in user content
 injection_messages: list[dict] = [
     {
