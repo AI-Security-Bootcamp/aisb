@@ -19,7 +19,7 @@ from transformers import AutoTokenizer
 SAMPLE_CONVERSATION: list[dict] = [
     {
         "role": "system",
-        "content": "You are a helpful assistant that answers questions about weather.",
+        "content": "huh",
     },
     {
         "role": "user",

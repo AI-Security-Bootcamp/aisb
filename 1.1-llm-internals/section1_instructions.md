@@ -4,14 +4,7 @@
 TEST TEST
 ## Table of Contents
 
-- [Content & Learning Objectives](#content--learning-objectives)
-- [Setup](#setup)
-    - [Pair Programming](#pair-programming)
-- [LLM Internals: What Goes In, What Comes Out](#llm-internals-what-goes-in-what-comes-out)
-    - [Exercise 1.1.1: Conversation Serialization](#exercise-111-conversation-serialization)
-    - [Exercise 1.1.2 (Optional): Comparing Chat Templates](#exercise-112-optional-comparing-chat-templates)
-    - [Exercise 1.1.3: Injecting Control Tokens](#exercise-113-injecting-control-tokens)
-
+yeet
 ## Content & Learning Objectives
 
 Understand exactly what the model sees and produces.
