@@ -1,10 +1,7 @@
 
 # Day 1 — Section 1: LLM Internals: What Goes In, What Comes Out
 
-On the first day, we'll warm up by taking apart LLM inference APIs: the interface through which models are exposed to applications, and the substrate on which all attacks and defenses build. We'll explore how conversations are serialized into tokens, what the model actually computes (logprobs), and where the boundaries between "instructions" and "data" break down.
-
-This is also a chance to get your environment set up and iron out any technical issues. If you run into problems, don't hesitate to ask for help!
-
+TEST TEST
 ## Table of Contents
 
 - [Content & Learning Objectives](#content--learning-objectives)
