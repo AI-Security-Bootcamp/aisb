@@ -161,8 +161,8 @@ catch anything you missed.
 - **Day 1 (LLM internals and prompt injection)** → Initial Access and Execution (poisoned RAG, indirect injection) plus primitives used in Defense Evasion (chat-template manipulation, logprob extraction).
 - **Day 2 (coding agents and AI control)** → Execution (tool-output injection, coding-agent hijack), Persistence (git hooks, CI poisoning), Credential Access (SSH-key exfiltration), and Defense Evasion (monitor evasion and spoofing).
 - **Day 3 (inference)** → Defense Evasion (jailbreaks, encoding attacks, judge spoofing), Collection / Exfiltration (model-extraction via logits, distillation).
-- **Day 4 (training & data)** → Training-Time Subversion (ROME edits, data poisoning with triggers, abliteration).
-- **Day 5** → break day; no techniques are introduced.
+- **Day 4** → break day; no techniques are introduced.
+- **Day 5 (training & data)** → Training-Time Subversion (ROME edits, data poisoning with triggers, abliteration).
 - **Day 6 (adversarial ML and optional provenance)** → Execution / Defense Evasion (adversarial examples, GCG suffixes, and latent prefixes). Optional watermarking is a defensive provenance control to place alongside the attack matrix.
 - **Day 7 (infrastructure and synthesis)** → Threat modeling plus Privilege Escalation (CVE-2025-23266 and the simulated RowHammer, aperture-corruption, and sub-page OOB DMA chain).
 </blockquote></details>

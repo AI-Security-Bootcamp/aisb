@@ -45,20 +45,20 @@ pandas
 matplotlib
 pillow
 
-# --- inspect-ai (Day 4 section 4.3 undoing-safety-finetuning) --- verified
+# --- inspect-ai (Day 5 section 5.3 undoing-safety-finetuning) --- verified
 # inspect-ai is unpinned upstream; pin it because the content targets this
 # version (a newer inspect-ai may change ModelOutput / AgentState APIs).
 #
 # NOTE: the Day 2 AI-control sections (2.2 monitoring / 2.3 control-protocols)
 # ALSO need `control-arena`, which requires datasets>=4.4.2 and therefore
-# CONFLICTS with the datasets==3.6.0 pin above (needed by the Day 4 fine-tuning
-# exercises 4.2 / 4.4). Install those two sections in a SEPARATE virtual
+# CONFLICTS with the datasets==3.6.0 pin above (needed by the Day 5 fine-tuning
+# exercises 5.2 / 5.4). Install those two sections in a SEPARATE virtual
 # environment using requirements-control-arena.txt — see that file for details.
 inspect-ai==0.3.244
 
-# --- Day 4 fine-tuning --- 4.2 verified; optional 4.4 best-effort
+# --- Day 5 fine-tuning --- 5.2 verified; optional 5.4 best-effort
 peft==0.13.2
-# vLLM (needed only by optional Section 4.4) is intentionally not pinned here:
+# vLLM (needed only by optional Section 5.4) is intentionally not pinned here:
 # see requirements-vllm.txt for why and how to install it separately.
 
 # --- Day 6 optional watermarking (6.4) --- best-effort
