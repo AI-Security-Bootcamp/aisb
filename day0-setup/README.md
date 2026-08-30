@@ -12,7 +12,9 @@ Welcome to the [AI Security Bootcamp](https://www.aisb.dev/)! This repo contains
 
 ## Prerequisites
 
-Review the prerequisites and setup instructions below to ensure you have the required skills and tools to complete the bootcamp.
+Review the [prerequisites](../PREREQUISITES.md) to ensure you have the
+required skills and tools to complete the bootcamp. It includes self-assessment tests, a
+complete setup check, and instructions for setting up the Python environment.
 
 ## In-person instructions
 If you're attending the bootcamp in person, you will spend most of the days pair programming with your assigned partner on the exercises for the given day.

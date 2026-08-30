@@ -21,22 +21,8 @@ Understand exactly what the model sees and produces.
 
 # %%
 """
-## Setup
 
-First, set up credentials for the [OpenRouter API](https://openrouter.ai/docs/quickstart) (or ask Pranav
- for the shared key) and create the file where you will complete the exercises:
-
-1. Copy `.env.example` in the project root to `.env`, then add the OpenRouter
-   API key. The same key is used in later API-based sections.
-2. Create `day1_answers.py` in the `1.1-llm-internals` directory. This will be
-   your answer file for today.
-
-If you see a code snippet here in the instruction file, copy-paste it into your answer file.
-Keep the `# %%` line to make it a Python code cell.
-
-**Paste the code below in your day1_answers.py file.**
-
-### Pair Programming
+## Pair Programming
 If you are working in a pair, here are a few tips that can make it easier for you:
 
 * Use the "Driver and Navigator" [style](https://martinfowler.com/articles/on-pair-programming.html#Styles)
@@ -49,16 +35,28 @@ If you are working in a pair, here are a few tips that can make it easier for yo
 - Don't take these tips as strict rules. It's fine if something else works for you! Just be mindful of what works for both you and your partner.
 - (See other pitfalls to avoid on [Martin Fowler's blog](https://martinfowler.com/articles/on-pair-programming.html#ThingsToAvoid))
 
+## Setup
+
+First, set up credentials for the [OpenRouter API](https://openrouter.ai/docs/quickstart) (or ask Pranav
+ for the shared key) and create the file where you will complete the exercises:
+
+1. Copy `.env.example` in the project root to `.env`, then add the OpenRouter
+   API key. The same key is used in later API-based sections.
+2. Create `day1_answers.py` in the `1.1-llm-internals` directory. This will be
+   your answer file for today.
+
+If you see a code snippet here in the instruction file, copy-paste it into your answer file.
+
+**Paste the code below in your day1_answers.py file with a `# %%` line at the beginning.**
+
 """
 import json
-import math
 import os
 import sys
 from collections.abc import Callable
 from pathlib import Path
 
 from openai import OpenAI
-from openai.types.chat import ChatCompletionMessageParam
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
 if str(_root) not in sys.path:
@@ -103,10 +101,7 @@ if "TEST_FIXTURE":
             "role": "system",
             "content": "You are a helpful assistant that answers questions about weather.",
         },
-        {
-            "role": "user",
-            "content": "What's the weather in London?"
-        },
+        {"role": "user", "content": "What's the weather in London?"},
         {
             "role": "assistant",
             "content": None,
@@ -190,8 +185,7 @@ def test_serialization(solution: Callable[[list[dict]], str]):
     # Tool message uses the full tag with tool_call_id
     expected_tool_tag = "<|im_start|>tool(tool_call_id=call_abc123)"
     assert expected_tool_tag in result, (
-        f"Expected tool tag '{expected_tool_tag}' in result, but not found. "
-        f"Got: {result!r}"
+        f"Expected tool tag '{expected_tool_tag}' in result, but not found. Got: {result!r}"
     )
 
     # Messages are closed
@@ -201,28 +195,19 @@ def test_serialization(solution: Callable[[list[dict]], str]):
     # Find the assistant block with tool calls; it should contain a JSON array
     import re
 
-    tc_block_match = re.search(
-        r"<\|im_start\|>assistant\n(\[.*?\])<\|im_end\|>", result, re.DOTALL
-    )
+    tc_block_match = re.search(r"<\|im_start\|>assistant\n(\[.*?\])<\|im_end\|>", result, re.DOTALL)
     assert tc_block_match is not None, (
-        "Expected the assistant tool_calls block to contain a JSON array "
-        "(starting with '['), but no such block found"
+        "Expected the assistant tool_calls block to contain a JSON array (starting with '['), but no such block found"
     )
     tc_json = tc_block_match.group(1)
     parsed = json.loads(tc_json)
-    assert isinstance(parsed, list), (
-        f"tool_calls should deserialize to a list, got {type(parsed).__name__}"
-    )
-    assert any(
-        tc.get("function", {}).get("name") == "get_weather" for tc in parsed
-    ), (
+    assert isinstance(parsed, list), f"tool_calls should deserialize to a list, got {type(parsed).__name__}"
+    assert any(tc.get("function", {}).get("name") == "get_weather" for tc in parsed), (
         f"Expected 'get_weather' in serialized tool_calls, got: {tc_json!r}"
     )
 
     # Final assistant text message is present
-    assert "15°C and cloudy" in result, (
-        "Expected final assistant text message '15°C and cloudy' in result"
-    )
+    assert "15°C and cloudy" in result, "Expected final assistant text message '15°C and cloudy' in result"
 
     print("  All tests passed!")
 
@@ -242,22 +227,15 @@ if "TEST_FIXTURE":
     CHATML_TOKENIZER = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-1.7B-Instruct")
 
 
-def tokenize_chat(
-    messages: list[dict], tokenizer: AutoTokenizer
-) -> list[tuple[int, str, bool]]:
+def tokenize_chat(messages: list[dict], tokenizer: AutoTokenizer) -> list[tuple[int, str, bool]]:
     """Tokenize a conversation using a HuggingFace chat template.
 
     Returns a list of (token_id, token_text, is_control_token) tuples.
     Control tokens are special/added tokens that cannot be produced by normal text.
     """
     token_ids: list[int] = tokenizer.apply_chat_template(messages)
-    control_ids = set(tokenizer.all_special_ids) | set(
-        tokenizer.added_tokens_encoder.values()
-    )
-    return [
-        (tid, tokenizer.convert_ids_to_tokens(tid), tid in control_ids)
-        for tid in token_ids
-    ]
+    control_ids = set(tokenizer.all_special_ids) | set(tokenizer.added_tokens_encoder.values())
+    return [(tid, tokenizer.convert_ids_to_tokens(tid), tid in control_ids) for tid in token_ids]
 
 
 def print_token_table(tokens: list[tuple[int, str, bool]]) -> None:
@@ -299,9 +277,7 @@ Different model families use completely different serialization formats. Use `to
 """
 
 if "SOLUTION":
-    mistral_tokenizer = AutoTokenizer.from_pretrained(
-        "mistralai/Mistral-7B-Instruct-v0.3"
-    )
+    mistral_tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.3")
     print("=== Mistral Token Visualization ===")
     mistral_tokens = tokenize_chat(simple_messages, mistral_tokenizer)
     print_token_table(mistral_tokens)
@@ -347,9 +323,7 @@ def test_control_token_injection(solution: Callable[[list[dict], AutoTokenizer],
 
     # Find any token whose text is <|im_start|> or <|im_end|>
     injected_control = [
-        (tid, text, is_ctrl)
-        for tid, text, is_ctrl in tokens
-        if text in ("<|im_start|>", "<|im_end|>") and is_ctrl
+        (tid, text, is_ctrl) for tid, text, is_ctrl in tokens if text in ("<|im_start|>", "<|im_end|>") and is_ctrl
     ]
     # There should be MORE than the two legitimate boundary tokens (one im_start wrapping
     # the user role and one im_end closing it): at least one extra im_start from the

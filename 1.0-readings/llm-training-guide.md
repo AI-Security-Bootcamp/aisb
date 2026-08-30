@@ -30,7 +30,9 @@ The hundreds of billions of parameters (weights) inside the model. Training nudg
 <summary>Difference between pretraining, SFT, and RLHF</summary>
 
 Pretraining = learn to predict the next word on all internet text.
+
 SFT = training the model to answer questions instead of always writing essays.
+
 RLHF = match human preferences - harmlessness, writing styles, solving complex problems, etc.
 </details>
 
