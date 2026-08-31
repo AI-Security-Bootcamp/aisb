@@ -6,7 +6,7 @@ because the pod reaches them through the clone at
 `run_exercise.sh` themselves when a pod arrives in a bad state.
 
 Instructor provisioning — creating, listing, and terminating pods — is
-`deploy_runpod.py`, which lives in the repo-root `runpod_setup/` folder and is
+`deploy_runpod.py`, which lives in the repo-root `instructor_setup/` folder and is
 gitignored; see [README.md](README.md).
 
 | Script | Runs | Purpose |

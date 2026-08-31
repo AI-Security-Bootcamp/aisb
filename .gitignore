@@ -139,6 +139,7 @@ celerybeat.pid
 .devcontainer/.env
 .envrc
 .venv
+.venv-control-arena
 env/
 venv/
 ENV/
@@ -219,4 +220,5 @@ day*/WALKTHROUGH_REVIEW.md
 
 
 *_answers.py
+instructor_setup/
 *.ipynb

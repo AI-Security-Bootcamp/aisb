@@ -7,8 +7,7 @@ knowledge-distillation attacks, and model-weight extraction via SVD. Each sectio
 alternates between attacks and defences: you'll build something, break it,
 and then build the next layer.
 
-**Heads up:** today you'll be working on a remote machine with GPUs. The
-first section below walks through the VS Code setup for connecting to it.
+**Heads up:** today you'll be working on a remote machine with GPUs.
 
 ## Table of Contents
 
@@ -75,67 +74,22 @@ API access alone, using the logits-matrix SVD attack.
 
 ## VS Code setup: connecting to the remote GPU machine
 
-Today's exercises run on a remote machine with GPUs. Set up VS Code to
-connect to it over SSH before starting Section 1.
+Today's exercises run on a remote machine with GPUs. The VS Code / Remote-SSH
+connection steps are exactly the same as in **Day 1 — Section 1** (see its
+"VS Code setup" section): follow those to connect and open `/workspace/aisb`.
 
-1. Install the [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
-   extension in VS Code.
-2. Set correct permissions on the SSH key file given to you by the instructors.
-   SSH clients refuse keys that are readable by other users.
+If an import fails once you're connected, the pod's setup did not finish. Re-run
+it from a terminal on the remote machine and let it run to completion:
 
-   **Linux / macOS:**
-   ```bash
-   chmod 600 <private-key-path>
-   ```
+```bash
+cd /workspace/aisb/3.1-tokenization && bash setup/run_exercise.sh setup
+```
 
-   **Windows** (PowerShell, run as your normal user, not as Administrator):
-   ```powershell
-   $key = "<private-key-path>"
-   icacls $key /inheritance:r /grant:r "$($env:USERNAME):(R)"
-   ```
-
-3. Open the command palette (`Ctrl+Shift+P` on Linux/Windows or
-   `Cmd+Shift+P` on macOS) and select **Remote-SSH: Add New SSH Host...**
-
-   ![Add New SSH Host](resources/add-ssh-host.png)
-3. Enter the following command, replacing `{ip}`, `{port}`, and `{private-key-path}` with the IP address, port and <b>absolute</b> path to the SSH key given
-   to you by the instructors:
-
-   ```
-   ssh root@{ip} -p {port} -i {private-key-path} -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o IdentitiesOnly=yes
-   ```
-
-   When asked which SSH config file to update, pick the one in your user
-   home directory (e.g. `~/.ssh/config` or `C:\\Users\\{you}\\.ssh\\config`).
-4. Open the command palette again and select **Remote-SSH: Connect to Host...**,
-   then pick the host you just added. VS Code will open a new window
-   connected to the remote machine.
-5. When prompted for the remote platform, select **Linux**.
-
-   ![Select platform](resources/select-platform.png)
-6. Once connected, open the folder `/workspace/aisb`.
-
-   ![Open folder](resources/open-folder.png)
-7. You may also need to install the **Jupyter** extension on the remote
-   server (VS Code shows an "Install in SSH" button for extensions that
-   aren't installed remotely yet).
-
-   ![Install Jupyter extension](resources/jupyter.png)
-8. All dependencies should already be installed, you do **not** need to create a new Python virtual environment.
-
-   If an import fails (for example `from transformers import AutoTokenizer`),
-   the pod's setup did not finish. Re-run it from a terminal on the remote
-   machine and let it run to completion:
-
-   ```bash
-   cd /workspace/aisb/3.1-tokenization && bash setup/run_exercise.sh setup
-   ```
-
-   Do **not** `pip install` packages by hand. The versions in
-   `3.1-tokenization/requirements.txt` are pinned to match the pod's CUDA
-   and PyTorch build; an unpinned install pulls a `transformers` release
-   that cannot load against them, and the resulting error names a symbol
-   unrelated to the real cause.
+Do **not** `pip install` packages by hand. The versions in
+`3.1-tokenization/requirements.txt` are pinned to match the pod's CUDA and
+PyTorch build; an unpinned install pulls a `transformers` release that cannot
+load against them, and the resulting error names a symbol unrelated to the real
+cause.
 
 Once the remote workspace is open, create file `3.1-tokenization/day3_answers.py` and continue with Section 1 as usual.
 

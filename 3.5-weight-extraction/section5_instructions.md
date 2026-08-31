@@ -69,9 +69,12 @@ import matplotlib.pyplot as plt
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from tqdm import tqdm
 model_name = "openai-community/gpt2"
-print(f"Loading model: {model_name}...")
+# The attack below is thousands of forward passes plus a large SVD, so run
+# it on the GPU when there is one (minutes on GPU, far longer on CPU).
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Loading model: {model_name} on {device}...")
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-model = GPT2LMHeadModel.from_pretrained(model_name)
+model = GPT2LMHeadModel.from_pretrained(model_name).to(device)
 model.eval()
 
 def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
@@ -80,7 +83,10 @@ def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
         """
     assert input_ids.ndim == 2, "Input IDs should be a 2D tensor (batch_size, sequence_length)"
     with torch.no_grad():
-        outputs = model(input_ids)
+        # Callers build their query tensors on the CPU, so move them to the
+        # model's device here; the logits come back on `device`, ready for
+        # an SVD that then also runs there.
+        outputs = model(input_ids.to(device))
         return outputs.logits[:, -1, :]
 
 # Set pad token if it's not set
@@ -125,7 +131,7 @@ print(f"Using hidden dimension (h): {detected_h}")
 from section5_test import test_detect_hidden_dim
 
 
-test_detect_hidden_dim(detect_hidden_dim)
+test_detect_hidden_dim(detected_h)
 ```
 
 ### Exercise 3.5.2 - Extracting Model Weights
@@ -193,7 +199,7 @@ def extract_weights(
 
 W_extracted = extract_weights(detected_h)
 print(f"Extracted weight matrix shape: {W_extracted.shape}")
-true_weights = model.lm_head.weight.detach().numpy()
+true_weights = model.lm_head.weight.detach().cpu().numpy()
 
 
 # %%
@@ -267,7 +273,7 @@ print("- Similarity Percentage: Closer to 100% is better.")
 from section5_test import test_compare_weights
 
 
-test_compare_weights(detect_hidden_dim, extract_weights, compare_weights)
+test_compare_weights(W_extracted, compare_weights)
 ```
 
 ### Extensions to try

@@ -4,6 +4,12 @@ pytest
 ipykernel
 control-arena==17.1.1
 inspect-ai==0.3.244
+# openai is a transitive dependency of inspect-ai, which does not cap it. Leaving
+# it unpinned makes the install depend on the day it runs: inspect-ai 0.3.244
+# predates the openai 3.x client rewrite, and with openai 3.6.0 every model call
+# through inspect hangs silently -- an eval sits at "0/100 steps" with no request
+# ever issued and no error. Downgrading to 2.54.0 fixes it, so cap it here.
+openai==2.54.0
 nest_asyncio2>=1.7.2  # maintained fork; inspect-ai 0.3.244+ depends on this, not nest_asyncio
 pydantic
 click

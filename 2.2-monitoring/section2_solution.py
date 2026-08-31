@@ -320,7 +320,7 @@ def evaluate_monitor_on_trajectories(
 
 print("Evaluating monitor on trajectories...")
 e2_1_monitor = create_monitor(SCRIPT_DIR / "prompts" / "monitor_prompt.txt")
-if "SKIP":
+if "REFERENCE_ONLY":
     e2_1_monitor = create_monitor(
         SCRIPT_DIR / "reference_solutions" / "monitor_prompt.txt"
     )
@@ -430,7 +430,7 @@ def create_attack_policy(attack_prompt_path: Path) -> ControlAgent:
 def test_create_attack_policy(solution: Callable[[Path], object]):
     # requires: ControlArena installed (builds a policy ControlAgent; no LLM call needed)
     policy = solution(Path(__file__).parent / "prompts" / "attack_system_prompt.txt")
-    if "SKIP":
+    if "REFERENCE_ONLY":
         policy = solution(
             Path(__file__).parent / "reference_solutions" / "attack_system_prompt.txt"
         )
@@ -450,7 +450,7 @@ LIMIT = 10
 E2_2_TRAJECTORY_DIR = str(SCRIPT_DIR / "logs" / "e2.2_attacks")
 attack_policy = create_attack_policy(SCRIPT_DIR / "prompts/attack_system_prompt.txt")
 e2_2_monitor = create_monitor(SCRIPT_DIR / "prompts/monitor_prompt.txt")
-if "SKIP":
+if "REFERENCE_ONLY":
     attack_policy = create_attack_policy(
         SCRIPT_DIR / "reference_solutions/attack_system_prompt.txt"
     )
@@ -539,7 +539,7 @@ Once both monitors are implemented, the code below runs them on the Exercise 2.2
 # cot_prompt_formatter(cot_only=False) populates {task_description}, {cot},
 # and {tool_calls}, giving the monitor full visibility into the agent's reasoning.
 prompt_path = SCRIPT_DIR / "prompts" / "cot_monitor_prompt.txt"
-if "SKIP":
+if "REFERENCE_ONLY":
     prompt_path = SCRIPT_DIR / "reference_solutions" / "cot_monitor_prompt.txt"
 e2_3_cot_monitor = basic_monitor_builder(
     model=DEFAULT_TRUSTED_MODEL,
