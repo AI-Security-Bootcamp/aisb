@@ -20,6 +20,36 @@ pip install -r /workspace/aisb/3.1-tokenization/requirements.txt
 pip install jupyterlab ipywidgets ipykernel ipytest
 
 echo ""
+echo "=== Verifying the GPU is actually usable ==="
+
+# nvidia-smi succeeding is not enough: a host with a faulty driver/UVM state
+# still reports a healthy GPU and a device count of 1, while every CUDA context
+# creation fails. download_models.py only prints "CUDA available: False" and
+# carries on downloading to CPU, so without this check a GPU-less pod finishes
+# setup looking perfectly provisioned and the fault surfaces mid-exercise.
+# Allocate on the device to force real context creation.
+python - <<'PY'
+import sys
+import torch
+
+if not torch.cuda.is_available():
+    sys.exit("FATAL: torch.cuda.is_available() is False -- this pod has no usable GPU.")
+try:
+    x = torch.randn(1024, 1024, device="cuda")
+    (x @ x).sum().item()
+except Exception as e:
+    sys.exit(f"FATAL: CUDA is present but unusable ({type(e).__name__}: {e}).")
+props = torch.cuda.get_device_properties(0)
+print(f"GPU OK: {props.name} ({props.total_memory / 1e9:.1f} GB)")
+PY
+
+# Pre-seed the VS Code server extensions (Python/Pylance/Jupyter) so a
+# participant connecting over Remote-SSH gets a working `# %%` cell runner
+# immediately. Best effort: the script exits 0 even when it fails, but guard it
+# anyway so `set -e` above can never abort provisioning over a missing click.
+bash "$(dirname "$0")/install_vscode_extensions.sh" || true
+
+echo ""
 echo "=== Pre-downloading models (this takes a few minutes) ==="
 
 # download_models.py owns the model list. Keeping a second inline copy here let

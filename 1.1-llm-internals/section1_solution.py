@@ -6,6 +6,9 @@ On the first day, we'll warm up by taking apart LLM inference APIs: the interfac
 
 This is also a chance to get your environment set up and iron out any technical issues. If you run into problems, don't hesitate to ask for help!
 
+**Heads up:** you'll be working on a remote machine today. The section below
+walks through the VS Code setup for connecting to it.
+
 <!-- toc -->
 
 ## Content & Learning Objectives
@@ -17,6 +20,73 @@ Understand exactly what the model sees and produces.
 > - Understand how a multi-turn conversation is serialized into tokens
 > - Understand logprobs and how sampling works
 
+"""
+
+# %%
+"""
+## VS Code setup: connecting to the remote machine
+
+Today's exercises run on a remote machine. Set up VS Code to connect to it
+over SSH before starting the setup below.
+
+1. Install the [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+   extension in VS Code.
+2. Set correct permissions on the SSH key file given to you by the instructors.
+   SSH clients refuse keys that are readable by other users.
+
+   **Linux / macOS:**
+   ```bash
+   chmod 600 <private-key-path>
+   ```
+
+   **Windows** (PowerShell, run as your normal user, not as Administrator):
+   ```powershell
+   $key = "<private-key-path>"
+   icacls $key /inheritance:r /grant:r "$($env:USERNAME):(R)"
+   ```
+
+3. Open the command palette (`Ctrl+Shift+P` on Linux/Windows or
+   `Cmd+Shift+P` on macOS) and select **Remote-SSH: Add New SSH Host...**
+
+   ![Add New SSH Host](resources/add-ssh-host.png)
+4. Enter the following command, replacing `{ip}`, `{port}`, and `{private-key-path}` with the IP address, port and <b>absolute</b> path to the SSH key given
+   to you by the instructors:
+
+   ```
+   ssh root@{ip} -p {port} -i {private-key-path} -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o IdentitiesOnly=yes
+   ```
+
+   When asked which SSH config file to update, pick the one in your user
+   home directory (e.g. `~/.ssh/config` or `C:\\Users\\{you}\\.ssh\\config`).
+5. Open the command palette again and select **Remote-SSH: Connect to Host...**,
+   then pick the host you just added. VS Code will open a new window
+   connected to the remote machine.
+6. When prompted for the remote platform, select **Linux**.
+
+   ![Select platform](resources/select-platform.png)
+7. Once connected, open the folder `/workspace/aisb`.
+
+   ![Open folder](resources/open-folder.png)
+8. You also need to install the **Jupyter** extension on the remote
+   server (VS Code shows an "Install in SSH" button for extensions that
+   aren't installed remotely yet).
+
+   ![Install Jupyter extension](resources/jupyter.png)
+9. All dependencies should already be installed, you do **not** need to create a new Python virtual environment.
+
+   If an import fails (for example `from openai import OpenAI`), the pod's
+   setup did not finish. Re-run it from a terminal on the remote machine and
+   let it run to completion:
+
+   ```bash
+   cd /workspace/aisb && pip install -r 1.1-llm-internals/requirements.txt
+   ```
+
+   Do **not** `pip install` other packages by hand; the versions in
+   `1.1-llm-internals/requirements.txt` are the ones the exercises are tested
+   against.
+
+Once the remote workspace is open, continue with the **Setup** section below.
 """
 
 # %%

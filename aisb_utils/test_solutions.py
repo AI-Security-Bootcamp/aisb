@@ -33,6 +33,9 @@ Usage:
     python aisb_utils/test_solutions.py --all --list   # dry run, list only
     python aisb_utils/test_solutions.py --day 1 --remain   # keep them to debug
 
+Every run starts with a CUDA preflight, and a day that needs a GPU stops there
+if there is not a usable one (--no-gpu-check overrides).
+
 Exit status is 0 only if every section ran to completion with exit code 0.
 """
 from __future__ import annotations
@@ -77,6 +80,32 @@ DEFAULT_TIMEOUT = 1800
 # full output has already been streamed live; this is just so the summary is
 # self-contained.
 FAILURE_TAIL_LINES = 40
+
+# Days whose sections only call a hosted API: they need an OpenRouter key, not
+# a GPU. Every other day loads local model weights, and without a usable GPU
+# those sections either crash on the first .to("cuda") or silently fall back to
+# CPU and grind until the timeout kills them -- which looks like a hang, not a
+# missing GPU. Mirrors LIGHT_SETUP_DAYS in runpod_setup/deploy_runpod.py.
+API_ONLY_DAYS = {"1", "2"}
+
+# Run in a subprocess so the check cannot leave a CUDA context (and its several
+# hundred MB of VRAM) behind in this process for the sections to trip over.
+# nvidia-smi succeeding is not enough and neither is torch.cuda.is_available():
+# a host with a faulty driver or UVM state reports a healthy device and only
+# fails when a kernel actually launches, so this multiplies a real tensor --
+# the same check 3.1-tokenization/setup/setup_pod.sh runs at provision time.
+GPU_PREFLIGHT_SNIPPET = """
+import sys
+import torch
+
+if not torch.cuda.is_available():
+    sys.exit(f"torch {torch.__version__}: torch.cuda.is_available() is False")
+x = torch.randn(1024, 1024, device="cuda")
+(x @ x).sum().item()
+props = torch.cuda.get_device_properties(0)
+print(f"{props.name}, {props.total_memory / 1e9:.1f} GB, torch {torch.__version__}")
+"""
+GPU_PREFLIGHT_TIMEOUT = 180
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -260,6 +289,26 @@ def check_solution(solution: Path, timeout: int, remain: bool = False) -> Result
 # Reporting
 # ─────────────────────────────────────────────────────────────────────────────
 
+def gpu_preflight() -> tuple[bool, str]:
+    """Check that a CUDA device exists and can actually run a kernel.
+
+    Returns (ok, detail) instead of exiting, so the caller decides whether a
+    missing GPU is fatal for the sections it is about to run.
+    """
+    try:
+        proc = subprocess.run(
+            [sys.executable, "-c", GPU_PREFLIGHT_SNIPPET],
+            capture_output=True, text=True, timeout=GPU_PREFLIGHT_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired:
+        return False, f"the check itself hung for {GPU_PREFLIGHT_TIMEOUT}s"
+    if proc.returncode != 0:
+        # sys.exit(str) puts the reason on stderr; an ImportError lands there too.
+        detail = (proc.stderr.strip() or proc.stdout.strip()).splitlines()
+        return False, detail[-1] if detail else f"exit {proc.returncode}"
+    return True, proc.stdout.strip()
+
+
 def print_summary(results: list[Result]) -> None:
     """Print the pass/fail table, then replay the tail of each failure."""
     failures = [r for r in results if not r.ok]
@@ -325,6 +374,12 @@ def main() -> int:
         help="List the sections that would run, then exit without running them.",
     )
     parser.add_argument(
+        "--no-gpu-check",
+        action="store_true",
+        help="Skip the CUDA preflight and run the sections anyway. Only useful "
+             "for checking a GPU day's non-GPU parts on a machine without one.",
+    )
+    parser.add_argument(
         "--remain",
         action="store_true",
         help="Keep the generated *_answers.py files instead of deleting them, "
@@ -352,6 +407,30 @@ def main() -> int:
     print(f"  Testing {len(solutions)} section(s) from {PROJECT_ROOT}")
     print(f"{'=' * 70}")
     remove_stale_answers(dirs)
+
+    # Fail fast on a GPU day with no usable GPU. Without this the run gets as
+    # far as the first section that loads weights and then either dies with a
+    # CUDA error 20 minutes in, or quietly runs on CPU until the timeout.
+    needs_gpu = args.all or any(day not in API_ONLY_DAYS for day in args.days or [])
+    if args.no_gpu_check:
+        print("\n  GPU: check skipped (--no-gpu-check)")
+    else:
+        gpu_ok, gpu_detail = gpu_preflight()
+        print(f"\n  GPU: {'OK -- ' + gpu_detail if gpu_ok else 'UNAVAILABLE -- ' + gpu_detail}")
+        if needs_gpu and not gpu_ok:
+            days = ", ".join(args.days) if args.days else "all"
+            # The banner above goes to stdout; flush it so this block does not
+            # overtake it when both streams are piped (as they are over SSH).
+            sys.stdout.flush()
+            print(
+                f"\n  Day {days} needs a working GPU: its sections load model "
+                f"weights locally.\n"
+                "  Running them now would fail on the first CUDA call, or fall "
+                "back to CPU\n  and grind until the per-section timeout. Fix the "
+                "pod, or pass --no-gpu-check\n  to run them anyway.",
+                file=sys.stderr,
+            )
+            return 1
 
     if args.remain:
         print(
