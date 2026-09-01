@@ -21,12 +21,6 @@ from transformers import (
     TrainingArguments,
     pipeline,
 )
-import itertools
-import tqdm
-from vllm import LLM, SamplingParams
-from vllm.lora.request import LoRARequest
-from vllm import LLM, SamplingParams
-from vllm.lora.request import LoRARequest
 
 SOURCE_DATASET_NAME = "LLM-LAT/harmful-dataset"
 
@@ -103,6 +97,8 @@ def test_abliteration_lowers_refusal(solution):
     classifier = pipeline(
         task="text-classification",
         model="agentlans/multilingual-e5-small-refusal-classifier",
+        # Run on the GPU (device 0)
+        device=0,
     )
 
     split_dataset = load_from_disk(HARMFUL_SPLIT_DIR)
