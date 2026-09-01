@@ -669,15 +669,16 @@ print(f"Model has {n_layers} layers; probing layer {PROBE_LAYER}")
 
 def get_hidden_states(text: str, layer: int = PROBE_LAYER) -> torch.Tensor:
     """
-    Run a forward pass and extract the hidden state at the given layer
-    for the last token position.
+    Run a forward pass and extract the activations from the residual stream 
+    at the given layer, averaged across all token positions.
 
     Returns a 1D tensor of shape (hidden_size,) in float32 on CPU.
     """
-    # TODO: Extract the hidden-state vector at the given layer for the
-    # last token. Steps: format the text as a chat message, tokenize,
-    # run a forward pass with output_hidden_states=True, and pull out
-    # the vector at [layer+1] (index 0 is the embedding layer).
+    # TODO: Extract the query's representation at the given layer, averaged
+    # over all token positions. Steps: format the text as a chat message,
+    # tokenize, run a forward pass with output_hidden_states=True, pull out
+    # the tensor at [layer+1] (index 0 is the embedding layer), and average
+    # it over the sequence (token) dimension.
     # Return a 1-D float32 tensor on CPU.
     return torch.zeros(1)
 from section3_test import test_get_hidden_states_shape
