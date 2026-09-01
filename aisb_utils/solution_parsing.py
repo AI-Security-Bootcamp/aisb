@@ -418,14 +418,26 @@ def build(input_fd, output_instructions_fd, output_test_fd):
     sm.dump(output_instructions_fd, "")
 
 
-def build_reference_py(input_fd, output_reference_fd, tests_file_path: str):
+def build_reference_py(input_fd, output_reference_fd, tests_file_path: str,
+                       inline_tests: bool = False):
     print(f"Building: {input_fd.name} -> {output_reference_fd.name}")
     input_str = input_fd.read()
     module = cst.parse_module(input_str)
 
-    # Extract only SOLUTION blocks and remove test functions
+    # Extract only SOLUTION blocks (SKIP dropped, TEST_FIXTURE unwrapped).
     solution_extractor = ExtractSolutionBlocks()
     reference_code = module.visit(solution_extractor)
+
+    if inline_tests:
+        # Keep every `test_*` function defined inline instead of replacing it
+        # with `from <section>_test import ...`. This runs the section exactly
+        # as a student's completed file does: one process, one copy of the
+        # shared setup (TEST_FIXTURE, e.g. a loaded model). Importing the
+        # extracted *_test.py would re-execute its own TEST_FIXTURE and create a
+        # SECOND model instance, which breaks tests that compare object identity
+        # of that shared setup. Inlining avoids that mismatch.
+        output_reference_fd.write(reference_code.code)
+        return
 
     test_extractor = StripTestFunctions(test_file_name=tests_file_path)
     without_tests = reference_code.visit(test_extractor)
