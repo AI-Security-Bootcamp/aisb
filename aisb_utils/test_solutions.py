@@ -32,6 +32,8 @@ Usage:
     python aisb_utils/test_solutions.py --all          # every section
     python aisb_utils/test_solutions.py --all --list   # dry run, list only
     python aisb_utils/test_solutions.py --day 1 --remain   # keep them to debug
+    python aisb_utils/test_solutions.py --day 3 --skip 3.3.5   # all but that exercise
+    python aisb_utils/test_solutions.py --day 3 --skip 3.4     # all but that section
 
 Every run starts with a CUDA preflight, and a day that needs a GPU stops there
 if there is not a usable one (--no-gpu-check overrides).
@@ -47,8 +49,10 @@ import subprocess
 import sys
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from pathlib import Path
+
+import libcst as cst
 
 # This script lives at <repo>/aisb_utils/test_solutions.py. Resolve the repo
 # root from __file__ rather than the working directory so the script can be
@@ -162,6 +166,106 @@ def rel(path: Path) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Skipping sections and exercises
+# ─────────────────────────────────────────────────────────────────────────────
+
+# --skip takes either a section ("3.3", the whole folder) or a single exercise
+# ("3.3.5", one exercise inside it).
+SKIP_ID_RE = re.compile(r"^\d+\.\d+(\.\d+)?$")
+
+# Exercises are introduced by a "### Exercise D.S.E: Title" heading inside a
+# top-level prose string, per the content structure conventions in CLAUDE.md.
+# A trailing letter ("3.3.5a", an optional variant) belongs to its parent
+# exercise, so skipping 3.3.5 skips 3.3.5a with it.
+EXERCISE_HEADING_RE = re.compile(r"^###\s+Exercise\s+(\d+\.\d+\.\d+)", re.MULTILINE)
+
+# Any "# " or "## " heading ends the exercise that was in effect: the prose has
+# moved on to a new day, section, or the closing Summary. A "### " heading that
+# is not an exercise (e.g. "### Section Name" in the learning objectives block)
+# changes nothing.
+CLOSING_HEADING_RE = re.compile(r"^#{1,2}\s+\S", re.MULTILINE)
+
+
+def prose_text(node: cst.CSTNode) -> str | None:
+    """The text of a top-level prose string statement, or None for code.
+
+    Prose in a solution file is a bare triple-quoted string at module level,
+    which parses as a statement line holding a single string expression.
+    """
+    if not isinstance(node, cst.SimpleStatementLine) or len(node.body) != 1:
+        return None
+    statement = node.body[0]
+    if not isinstance(statement, cst.Expr) or not isinstance(statement.value, cst.SimpleString):
+        return None
+    value = statement.value.evaluated_value
+    return value if isinstance(value, str) else None
+
+
+def exercise_markers(text: str) -> list[str | None]:
+    """Exercise-boundary markers in one prose block, in the order they appear.
+
+    An exercise id means "everything after this belongs to that exercise";
+    None means "the exercise in effect has ended".
+    """
+    markers: list[tuple[int, str | None]] = []
+    markers += [(m.start(), m.group(1)) for m in EXERCISE_HEADING_RE.finditer(text)]
+    markers += [(m.start(), None) for m in CLOSING_HEADING_RE.finditer(text)]
+    return [marker for _, marker in sorted(markers, key=lambda pair: pair[0])]
+
+
+def strip_exercises(source: str, skip: set[str]) -> tuple[str, set[str]]:
+    """Remove the top-level statements belonging to the given exercise ids.
+
+    An exercise owns its "### Exercise D.S.E" prose block and every statement
+    after it, up to the next exercise heading or the next "#"/"##" heading --
+    so the whole exercise goes: its prose, its functions, the calls that run
+    them, and the imports of its tests.
+
+    Returns the rewritten source and the subset of `skip` that actually
+    matched, so the caller can flag ids that never applied to anything.
+
+    Skipping an exercise whose functions a *later* exercise depends on will
+    make the section fail with a NameError; skip a whole section instead.
+    """
+    module = cst.parse_module(source)
+    kept: list[cst.BaseStatement] = []
+    matched: set[str] = set()
+    current: str | None = None
+
+    for node in module.body:
+        # A statement belongs to the exercise in effect when it starts, so a
+        # prose block that opens an exercise belongs to that new exercise.
+        owner = current
+        text = prose_text(node)
+        if text is not None:
+            markers = exercise_markers(text)
+            if markers:
+                owner = markers[0]
+                current = markers[-1]
+        if owner in skip:
+            matched.add(owner)
+        else:
+            kept.append(node)
+
+    return module.with_changes(body=kept).code, matched
+
+
+def section_id(solution: Path) -> str:
+    """The "D.S" id of a section, from its folder name (3.3-guardrails -> 3.3)."""
+    return solution.parent.name.split("-", 1)[0]
+
+
+def drop_skipped_sections(solutions: list[Path], skip: set[str]) -> tuple[list[Path], set[str]]:
+    """Filter out whole sections named by --skip; return the rest and what matched."""
+    sections = {s for s in skip if s.count(".") == 1}
+    kept = [s for s in solutions if section_id(s) not in sections]
+    for solution in solutions:
+        if section_id(solution) in sections:
+            print(f"  Skipping section {rel(solution)} (--skip {section_id(solution)})")
+    return kept, {section_id(s) for s in solutions} & sections
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Generating and running one section
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -182,18 +286,30 @@ def remove_stale_answers(dirs: list[Path]) -> None:
             print(f"  Removed stale answers file: {rel(stale)}")
 
 
-def generate_answers(solution: Path) -> Path:
+def generate_answers(solution: Path, skip: set[str] = frozenset()) -> tuple[Path, set[str]]:
     """Write the filled-in answers file next to its solution file.
 
     Reuses the same extraction the `--reference` build uses: keep the body of
     every `if "SOLUTION":` block, drop SKIP blocks, and replace each `test_*`
-    definition with an import from the section's generated test module.
+    definition with an import from the section's generated test module. Any
+    exercise ids in `skip` are then cut from the result.
+
+    Returns the answers path and the skipped ids that matched this section.
     """
     answers = answers_path(solution)
     test_file = solution.with_name(solution.name[: -len(SOLUTION_SUFFIX)] + TEST_SUFFIX)
     with open(solution, "r") as infile, open(answers, "w") as outfile:
         build_reference_py(infile, outfile, test_file.name)
-    return answers
+
+    exercises = {s for s in skip if s.count(".") == 2}
+    if not exercises:
+        return answers, set()
+
+    source, matched = strip_exercises(answers.read_text(), exercises)
+    answers.write_text(source)
+    for exercise in sorted(matched):
+        print(f"  Skipping exercise {exercise} (--skip {exercise})")
+    return answers, matched
 
 
 @dataclass
@@ -205,6 +321,9 @@ class Result:
     seconds: float
     output: str
     timed_out: bool = False
+    # Exercise ids cut from this section by --skip, so the summary can say the
+    # PASS was not over the whole section.
+    skipped: tuple[str, ...] = field(default_factory=tuple)
 
     @property
     def ok(self) -> bool:
@@ -269,14 +388,21 @@ def run_answers(solution: Path, answers: Path, timeout: int) -> Result:
     )
 
 
-def check_solution(solution: Path, timeout: int, remain: bool = False) -> Result:
+def check_solution(
+    solution: Path,
+    timeout: int,
+    remain: bool = False,
+    skip: set[str] = frozenset(),
+) -> Result:
     """Generate and run one section's answers file, deleting it afterwards.
 
-    Pass remain=True to leave the generated file on disk for debugging.
+    Pass remain=True to leave the generated file on disk for debugging, and
+    skip={"3.3.5", ...} to cut those exercises before running.
     """
-    answers = generate_answers(solution)
+    answers, skipped = generate_answers(solution, skip)
     try:
-        return run_answers(solution, answers, timeout)
+        result = run_answers(solution, answers, timeout)
+        return replace(result, skipped=tuple(sorted(skipped)))
     finally:
         # Runs on success, on failure, and on KeyboardInterrupt, so the answers
         # file does not survive the run that created it -- unless the caller
@@ -319,6 +445,8 @@ def print_summary(results: list[Result]) -> None:
     for result in results:
         status = "PASS" if result.ok else "FAIL"
         detail = "" if result.ok else f"  (exit {result.returncode})"
+        if result.skipped:
+            detail += f"  (skipped {', '.join(result.skipped)})"
         print(f"  {status}  {rel(result.solution):<55} {result.seconds:6.1f}s{detail}")
 
     if not failures:
@@ -380,6 +508,19 @@ def main() -> int:
              "for checking a GPU day's non-GPU parts on a machine without one.",
     )
     parser.add_argument(
+        "--skip",
+        action="append",
+        dest="skip",
+        default=[],
+        metavar="ID",
+        help="Leave out a section (--skip 3.3) or a single exercise "
+             "(--skip 3.3.5) and still count the rest as a pass. Repeatable. "
+             "Use it for a known-failing stretch exercise you do not want "
+             "failing the whole run; a skipped exercise whose code a later "
+             "exercise needs will fail with a NameError, so skip the section "
+             "in that case.",
+    )
+    parser.add_argument(
         "--remain",
         action="store_true",
         help="Keep the generated *_answers.py files instead of deleting them, "
@@ -391,8 +532,14 @@ def main() -> int:
     if bool(args.days) == bool(args.all):
         parser.error("give exactly one of --day N (repeatable) or --all")
 
+    for skip_id in args.skip:
+        if not SKIP_ID_RE.match(skip_id):
+            parser.error(f"--skip expects a section or exercise id like 3.3 or 3.3.5, got {skip_id!r}")
+    skip = set(args.skip)
+
     dirs = dirs_for_days(None if args.all else args.days)
     solutions = find_solutions(dirs)
+    solutions, matched_skips = drop_skipped_sections(solutions, skip)
     if not solutions:
         print("No solution files found for the requested days.", file=sys.stderr)
         return 1
@@ -443,13 +590,25 @@ def main() -> int:
     try:
         for index, solution in enumerate(solutions, start=1):
             print(f"\n--- [{index}/{len(solutions)}] {rel(solution)}")
-            results.append(check_solution(solution, args.timeout, remain=args.remain))
+            result = check_solution(solution, args.timeout, remain=args.remain, skip=skip)
+            matched_skips |= set(result.skipped)
+            results.append(result)
     except KeyboardInterrupt:
         # check_solution's finally clause has already dealt with the answers
         # file for the section that was running; report what completed.
         print("\nInterrupted -- reporting the sections that finished.", file=sys.stderr)
 
     print_summary(results)
+
+    # A typo in --skip would otherwise pass silently and the exercise would run.
+    unmatched = skip - matched_skips
+    if unmatched:
+        print(
+            f"\n  WARNING: --skip {', '.join(sorted(unmatched))} matched nothing -- "
+            "check the id, and that it belongs to a day that ran.",
+            file=sys.stderr,
+        )
+
     if args.remain and results:
         print("\n  Answers files kept for debugging:")
         for result in results:
