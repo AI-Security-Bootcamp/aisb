@@ -14,3 +14,4 @@ jaxtyping
 numpy>=1.26,<3
 matplotlib
 tqdm
+ipykernel
