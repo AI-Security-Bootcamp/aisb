@@ -277,33 +277,32 @@ if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
 from aisb_utils import report
+# ----- Model -----
+MODEL_PATH = "Qwen/Qwen3-1.7B"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# %%
+tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+tokenizer.padding_side = (
+    "left"  # left-pad so the last token lines up across a batch
+)
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+
+model = (
+    AutoModelForCausalLM.from_pretrained(MODEL_PATH, dtype=torch.bfloat16)
+    .to(DEVICE)
+    .eval()
+)
+model.requires_grad_(False)
+
+N_LAYERS = model.config.num_hidden_layers
+D_MODEL = model.config.hidden_size
+# Layer 19 (of 28) is preselected for Qwen3-1.7B: a sweep over all layers found it fully
+# removes refusal while least disturbing the model on benign inputs (lowest KL divergence).
+# In practice you sweep for this; here it is given for free. (Most mid-to-late layers work.)
+LAYER = 19
+
 if "TEST_FIXTURE":
-    # ----- Model -----
-    MODEL_PATH = "Qwen/Qwen3-1.7B"
-    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-    tokenizer.padding_side = (
-        "left"  # left-pad so the last token lines up across a batch
-    )
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-
-    model = (
-        AutoModelForCausalLM.from_pretrained(MODEL_PATH, dtype=torch.bfloat16)
-        .to(DEVICE)
-        .eval()
-    )
-    model.requires_grad_(False)
-
-    N_LAYERS = model.config.num_hidden_layers
-    D_MODEL = model.config.hidden_size
-    # Layer 19 (of 28) is preselected for Qwen3-1.7B: a sweep over all layers found it fully
-    # removes refusal while least disturbing the model on benign inputs (lowest KL divergence).
-    # In practice you sweep for this; here it is given for free. (Most mid-to-late layers work.)
-    LAYER = 19
 
     # ----- Datasets: instructions that trigger refusal vs. ones that don't. We use the splits
     # from the paper's repo (github.com/andyrdt/refusal_direction), 128 of each. If the repo
@@ -598,11 +597,15 @@ def hook_cache_mean_resid(module, args: tuple):
 
 @report
 def test_hook_cache_mean_resid(solution: Callable):
+    from inspect import unwrap
+
+    solution_globals = unwrap(solution).__globals__
+    d_model = solution_globals["D_MODEL"]
     torch.manual_seed(0)
-    x = torch.randn(4, 5, D_MODEL)  # a synthetic residual stream: (batch, seq, d_model)
+    x = torch.randn(4, 5, d_model)  # a synthetic residual stream: (batch, seq, d_model)
     # The hook stashes its result in the `resid_cache` dict living in its own module scope; reach
     # that dict through the hook's globals so this works wherever the hook is defined.
-    cache = solution.__globals__["resid_cache"]
+    cache = solution_globals["resid_cache"]
     cache.pop("resid_last_mean", None)
 
     out = solution(None, (x,))  # the module argument is unused by the hook
@@ -614,8 +617,8 @@ def test_hook_cache_mean_resid(solution: Callable):
     )
 
     got = cache["resid_last_mean"]
-    assert got.shape == (D_MODEL,), (
-        f"Expected shape {(D_MODEL,)}, got {tuple(got.shape)}"
+    assert got.shape == (d_model,), (
+        f"Expected shape {(d_model,)}, got {tuple(got.shape)}"
     )
     # It must be the LAST token position, averaged over the batch.
     assert torch.allclose(got, x[:, -1, :].mean(dim=0), atol=1e-5), (
@@ -706,9 +709,18 @@ refusal_dir = harmful_means - harmless_means
 
 @report
 def test_get_mean_activations(solution: Callable):
+    from inspect import unwrap
+
+    solution_globals = unwrap(solution).__globals__
+    expected_model = solution_globals["model"]
+    expected_tokenizer = solution_globals["tokenizer"]
+    device = solution_globals["DEVICE"]
+    layer = solution_globals["LAYER"]
+    d_model = solution_globals["D_MODEL"]
+
     resid = solution(HARMLESS_INSTRUCTIONS[:4])
-    assert resid.shape == (D_MODEL,), (
-        f"Expected shape {(D_MODEL,)}, got {tuple(resid.shape)}"
+    assert resid.shape == (d_model,), (
+        f"Expected shape {(d_model,)}, got {tuple(resid.shape)}"
     )
     assert torch.isfinite(resid).all(), "Activations should be finite"
     assert resid.norm() > 0, "Activations should be non-zero"
@@ -721,15 +733,15 @@ def test_get_mean_activations(solution: Callable):
     def cap(module, args):
         grabbed["x"] = args[0][:, -1, :][0].double()
 
-    handle = model.model.layers[LAYER].register_forward_pre_hook(cap)
-    prompt = tokenizer.apply_chat_template(
+    handle = expected_model.model.layers[layer].register_forward_pre_hook(cap)
+    prompt = expected_tokenizer.apply_chat_template(
         [{"role": "user", "content": p}],
         tokenize=False,
         add_generation_prompt=True,
         enable_thinking=False,
     )
     with torch.no_grad():
-        model(**tokenizer(prompt, return_tensors="pt").to(DEVICE))
+        expected_model(**expected_tokenizer(prompt, return_tensors="pt").to(device))
     handle.remove()
     assert torch.allclose(one, grabbed["x"].to(one), atol=1e-2), (
         "Should be the last-token activation at LAYER"
@@ -944,18 +956,23 @@ def get_ablation_hooks(direction: Tensor) -> list:
 
 @report
 def test_get_ablation_hooks(solution: Callable):
+    from inspect import unwrap
+
+    expected_model = unwrap(solution).__globals__["model"]
+    n_layers = expected_model.config.num_hidden_layers
+    d_model = expected_model.config.hidden_size
     torch.manual_seed(0)
-    d = torch.randn(D_MODEL)
+    d = torch.randn(d_model)
     hooks = solution(d)
-    assert len(hooks) == N_LAYERS, (
-        f"Expected one hook per layer ({N_LAYERS}), got {len(hooks)}"
+    assert len(hooks) == n_layers, (
+        f"Expected one hook per layer ({n_layers}), got {len(hooks)}"
     )
     unit = d / d.norm()
-    x = torch.randn(2, 3, D_MODEL)
+    x = torch.randn(2, 3, d_model)
     # Every hook must be attached to the corresponding layer and project the direction out.
-    for i in range(0, N_LAYERS, max(1, N_LAYERS // 4)):
+    for i in range(0, n_layers, max(1, n_layers // 4)):
         module, hook = hooks[i]
-        assert module is model.model.layers[i], (
+        assert module is expected_model.model.layers[i], (
             f"Hook {i} should be attached to layer {i}"
         )
         out = hook(module, (x,))[0]
@@ -1065,14 +1082,18 @@ def get_steering_hook(
 
 @report
 def test_get_steering_hook(solution: Callable):
+    from inspect import unwrap
+
+    expected_model = unwrap(solution).__globals__["model"]
+    d_model = expected_model.config.hidden_size
     # Correctness on a synthetic activation: the hook must add exactly coeff*direction.
-    d = torch.ones(D_MODEL)
+    d = torch.ones(d_model)
     hooks = solution(d, coeff=2.0)
     assert len(hooks) == 1, "Steering resid at a single layer"
     module, hook = hooks[0]
     # Use batch > 1: a hook that returns tuple(tensor) instead of (tensor,) unpacks the batch
     # dimension and passes the wrong shape on, which only shows up when batch != 1.
-    x = torch.randn(2, 4, D_MODEL)
+    x = torch.randn(2, 4, d_model)
     result = hook(module, (x,))
     assert isinstance(result, tuple) and len(result) == 1, (
         "Hook must return a one-element tuple (the modified residual), not the unpacked tensor"
@@ -1085,7 +1106,7 @@ def test_get_steering_hook(solution: Callable):
         "Hook should add coeff*direction to the activation"
     )
     # It must act at the requested layer ...
-    assert solution(d, coeff=1.0, layer=3)[0][0] is model.model.layers[3], (
+    assert solution(d, coeff=1.0, layer=3)[0][0] is expected_model.model.layers[3], (
         "Steering should act at the requested layer"
     )
     # ... scale linearly with coeff ...
