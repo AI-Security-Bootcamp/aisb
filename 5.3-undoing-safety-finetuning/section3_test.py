@@ -219,6 +219,7 @@ def test_oproj(solution: Callable):
 
 @report
 def test_get_ablation_hooks(solution: Callable):
+    expected_model = solution.__globals__["model"]
     torch.manual_seed(0)
     d = torch.randn(D_MODEL)
     hooks = solution(d)
@@ -230,7 +231,7 @@ def test_get_ablation_hooks(solution: Callable):
     # Every hook must be attached to the corresponding layer and project the direction out.
     for i in range(0, N_LAYERS, max(1, N_LAYERS // 4)):
         module, hook = hooks[i]
-        assert module is model.model.layers[i], (
+        assert module is expected_model.model.layers[i], (
             f"Hook {i} should be attached to layer {i}"
         )
         out = hook(module, (x,))[0]
