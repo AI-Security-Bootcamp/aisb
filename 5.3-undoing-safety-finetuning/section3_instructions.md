@@ -309,9 +309,6 @@ if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
 from aisb_utils import report
-
-# %%
-# Load these shared objects once in the participant answer. Imported tests reuse them.
 # ----- Model -----
 MODEL_PATH = "Qwen/Qwen3-1.7B"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -342,7 +339,6 @@ LAYER = 19
 # isn't already present locally, we shallow-clone it automatically. -----
 REFUSAL_REPO_URL = "https://github.com/andyrdt/refusal_direction"
 
-
 def get_splits_dir() -> Path:
     """Return the directory holding the instruction splits, cloning the repo if needed."""
     # Reuse an existing checkout if any ancestor directory already contains one ...
@@ -358,15 +354,12 @@ def get_splits_dir() -> Path:
     )
     return target / "dataset" / "splits"
 
-
 SPLITS_DIR = get_splits_dir()
-
 
 def load_instructions(split: str, n: int = 128) -> list[str]:
     """Return the first `n` instruction strings from a refusal_direction dataset split."""
     records = json.loads((SPLITS_DIR / f"{split}.json").read_text())
     return [record["instruction"] for record in records[:n]]
-
 
 HARMFUL_INSTRUCTIONS = load_instructions("harmful_train")
 HARMLESS_INSTRUCTIONS = load_instructions("harmless_train")

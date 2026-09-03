@@ -29,6 +29,43 @@ from inspect_ai.scorer import choice
 from inspect_ai.solver import multiple_choice
 
 
+# ----- Datasets: instructions that trigger refusal vs. ones that don't. We use the splits
+# from the paper's repo (github.com/andyrdt/refusal_direction), 128 of each. If the repo
+# isn't already present locally, we shallow-clone it automatically. -----
+REFUSAL_REPO_URL = "https://github.com/andyrdt/refusal_direction"
+
+
+def get_splits_dir() -> Path:
+    """Return the directory holding the instruction splits, cloning the repo if needed."""
+    # Reuse an existing checkout if any ancestor directory already contains one ...
+    for parent in Path(__file__).resolve().parents:
+        splits = parent / "refusal_direction" / "dataset" / "splits"
+        if splits.is_dir():
+            return splits
+    # ... otherwise shallow-clone the paper's repo next to this file (one-off, a few MB).
+    target = Path(__file__).resolve().parent / "refusal_direction"
+    print(f"Dataset not found locally; cloning {REFUSAL_REPO_URL} ...")
+    subprocess.run(
+        ["git", "clone", "--depth", "1", REFUSAL_REPO_URL, str(target)], check=True
+    )
+    return target / "dataset" / "splits"
+
+
+SPLITS_DIR = get_splits_dir()
+
+
+def load_instructions(split: str, n: int = 128) -> list[str]:
+    """Return the first `n` instruction strings from a refusal_direction dataset split."""
+    records = json.loads((SPLITS_DIR / f"{split}.json").read_text())
+    return [record["instruction"] for record in records[:n]]
+
+
+HARMFUL_INSTRUCTIONS = load_instructions("harmful_train")
+
+HARMLESS_INSTRUCTIONS = load_instructions("harmless_train")
+
+
+
 
 @report
 def test_hook_cache_mean_resid(solution: Callable):
@@ -81,10 +118,8 @@ def test_get_mean_activations(solution: Callable):
     device = solution_globals["DEVICE"]
     layer = solution_globals["LAYER"]
     d_model = solution_globals["D_MODEL"]
-    harmful_instructions = solution_globals["HARMFUL_INSTRUCTIONS"]
-    harmless_instructions = solution_globals["HARMLESS_INSTRUCTIONS"]
 
-    resid = solution(harmless_instructions[:4])
+    resid = solution(HARMLESS_INSTRUCTIONS[:4])
     assert resid.shape == (d_model,), (
         f"Expected shape {(d_model,)}, got {tuple(resid.shape)}"
     )
@@ -92,7 +127,7 @@ def test_get_mean_activations(solution: Callable):
     assert resid.norm() > 0, "Activations should be non-zero"
     # For a single prompt, the "mean" is just that prompt's last-token activation. Check the
     # returned vector against a manual capture at LAYER (same batch size, so bf16 matches).
-    p = harmless_instructions[0]
+    p = HARMLESS_INSTRUCTIONS[0]
     one = solution([p])
     grabbed = {}
 
@@ -113,7 +148,7 @@ def test_get_mean_activations(solution: Callable):
         "Should be the last-token activation at LAYER"
     )
     # Harmful and harmless prompts must produce different activations (the premise of the method).
-    diff = (solution(harmful_instructions[:4]) - resid).norm().item()
+    diff = (solution(HARMFUL_INSTRUCTIONS[:4]) - resid).norm().item()
     assert diff > 0.1, (
         f"Harmful vs harmless activations should differ (got norm {diff:.3f})"
     )
