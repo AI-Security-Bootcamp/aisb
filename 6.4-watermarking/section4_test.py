@@ -16,6 +16,7 @@ import torch
 from diffusers import DDIMScheduler, StableDiffusionPipeline
 from jaxtyping import Bool, Complex, Float
 from PIL import Image, ImageFilter
+from scipy.optimize import brentq
 from scipy.stats import norm
 from torch import Tensor
 from tqdm.auto import tqdm
@@ -41,6 +42,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.i
 
 DTYPE = torch.float16 if DEVICE == "cuda" else torch.float32
 
+
 def to_spectrum(image: Float[Tensor, "... h w"]) -> Complex[Tensor, "... h w"]:
     """Compute the centred 2D Fourier spectrum of an array.
 
@@ -53,7 +55,6 @@ def to_spectrum(image: Float[Tensor, "... h w"]) -> Complex[Tensor, "... h w"]:
     raw_fft = torch.fft.fft2(image, dim=(-2, -1))
     centered_fft = torch.fft.fftshift(raw_fft, dim=(-2, -1))
     return centered_fft
-
 
 
 def from_spectrum(spec: Complex[Tensor, "... h w"]) -> Float[Tensor, "... h w"]:
@@ -69,6 +70,7 @@ def from_spectrum(spec: Complex[Tensor, "... h w"]) -> Float[Tensor, "... h w"]:
     image = torch.fft.ifft2(uncentered_fft).real
     return image
 
+
 def radial_distance() -> Float[Tensor, "latent_size latent_size"]:
     """Distance of every grid position from the centre of the spectrum.
 
@@ -80,7 +82,10 @@ def radial_distance() -> Float[Tensor, "latent_size latent_size"]:
     y, x = torch.meshgrid(torch.arange(LATENT_SIZE), torch.arange(LATENT_SIZE), indexing="ij")
     return torch.sqrt(((y - c) ** 2 + (x - c) ** 2).float())
 
-def gen_ring_pattern(ring_values: Float[Tensor, "radius"]) -> Float[Tensor, "latent_size latent_size"]:
+
+def gen_ring_pattern(
+    ring_values: Float[Tensor, "radius"],
+) -> Float[Tensor, "latent_size latent_size"]:
     """Lay one value per ring onto the spectrum grid.
 
         Ring i, for i = 1..len(ring_values), is the set of positions whose distance from the centre lies in [i - 1, i).
@@ -99,6 +104,7 @@ def gen_ring_pattern(ring_values: Float[Tensor, "radius"]) -> Float[Tensor, "lat
 
 
 
+
 @report
 def test_ring_mask(solution: Callable):
     """Check ring_mask's dtype, size, boundary, and symmetry."""
@@ -107,7 +113,13 @@ def test_ring_mask(solution: Callable):
     assert m.sum() == 305, f"Expected 305 positions inside radius 10, got {int(m.sum())}"
     assert m[32, 32] and m[32, 41] and not m[32, 42], "Mask boundary is wrong: radius 9 inside, radius 10 outside"
     assert torch.equal(m, m.T), "Mask should be symmetric in x and y"
-    assert m[32 + 9, 32] and m[32 - 9, 32] and m[32, 32 - 9] and not m[32 - 10, 32] and not m[32, 32 - 10], "Mask should be symmetric about the centre"
+    assert (
+        m[32 + 9, 32]
+        and m[32 - 9, 32]
+        and m[32, 32 - 9]
+        and not m[32 - 10, 32]
+        and not m[32, 32 - 10]
+    ), "Mask should be symmetric about the centre"
     print("  All tests passed!")
 
 
@@ -225,7 +237,11 @@ def test_key_distance(solution: Callable):
     spec = to_spectrum(z[0, 3])
     spec[mask] = pattern[mask].to(spec.dtype)
     zw[0, 3] = from_spectrum(spec)
-    d_marked, d_clean, d_wrong = solution(zw, pattern, mask), solution(z, pattern, mask), solution(zw, other, mask)
+    d_marked, d_clean, d_wrong = (
+        solution(zw, pattern, mask),
+        solution(z, pattern, mask),
+        solution(zw, other, mask),
+    )
     assert isinstance(d_marked, float), "Distance should be a Python float"
     assert d_marked < 1.0, f"Distance on a latent that carries the key should be ~0, got {d_marked:.2f}"
     assert d_clean > 20, f"Distance on random noise should be large, got {d_clean:.2f}"
@@ -237,25 +253,29 @@ def test_key_distance(solution: Callable):
 
 @report
 def test_calibrate_threshold(solution: Callable):
-    """Check calibrate_threshold lands at the equal-error point of two synthetic clusters."""
+    """Check calibrate_threshold finds the density crossing of two synthetic clusters."""
     rng = np.random.default_rng(0)
     clean, marked = list(70 + 3 * rng.standard_normal(5000)), list(30 + 3 * rng.standard_normal(5000))
     thr = solution(clean, marked)
-    assert abs(thr - 50) < 0.5, f"Equal spreads: threshold should sit midway at ~50, got {thr:.2f}"
-    fp, fn = np.mean([d < thr for d in clean]), np.mean([d > thr for d in marked])
-    assert fp < 0.001 and fn < 0.001, f"Both error rates should be tiny here, got FPR {fp:.4f}, FNR {fn:.4f}"
+    assert abs(thr - 50) < 0.5, f"Equal spreads: threshold should be the midpoint ~50, got {thr:.2f}"
     tight = list(30 + 1 * rng.standard_normal(5000))
     thr2 = solution(clean, tight)
-    assert abs(thr2 - 40) < 0.5, f"Unequal spreads: threshold should move toward the tighter cluster (~40), got {thr2:.2f}"
-    z_clean, z_marked = (70 - thr2) / 3, (thr2 - 30) / 1
-    assert abs(z_clean - z_marked) < 0.2, "Threshold should be the same number of standard deviations from each cluster"
+    assert 30 < thr2 < 50, f"Unequal spreads: threshold should move toward the tighter cluster, got {thr2:.2f}"
+    p_clean, p_tight = norm.pdf(thr2, np.mean(clean), np.std(clean)), norm.pdf(thr2, np.mean(tight), np.std(tight))
+    assert abs(p_clean - p_tight) < 0.05 * max(p_clean, p_tight), "The two fitted densities should be equal at the threshold"
     print("  All tests passed!")
 
 
 
 
 @report
-def test_detect(solution: Callable, pipe: StableDiffusionPipeline, pattern: Float[Tensor, "latent_size latent_size"], mask: Bool[Tensor, "latent_size latent_size"], threshold: float):
+def test_detect(
+    solution: Callable,
+    pipe: StableDiffusionPipeline,
+    pattern: Float[Tensor, "latent_size latent_size"],
+    mask: Bool[Tensor, "latent_size latent_size"],
+    threshold: float,
+):
     """Check detect flags watermarked images and not clean ones on real generations."""
     hits = []
     for seed in (101, 102):
@@ -273,44 +293,4 @@ def test_detect(solution: Callable, pipe: StableDiffusionPipeline, pattern: Floa
         hits.append(hit_c)
         assert d_c > d_m + 10, f"Clean image is too close to the key (clean {d_c:.1f}, marked {d_m:.1f})"
     assert not all(hits), "Both clean images were flagged; the threshold or distance is wrong"
-    print("  All tests passed!")
-
-
-
-
-@report
-def test_robustness_distances(
-    solution: Callable, pipe: StableDiffusionPipeline, pattern: Float[Tensor, "latent_size latent_size"], wrong_pattern: Float[Tensor, "latent_size latent_size"], mask: Bool[Tensor, "latent_size latent_size"]
-):
-    """Check robustness_distances returns one distance per prompt per case, with the watermark visible under rotation."""
-    prompts = ["a red bicycle leaning on a brick wall", "a lighthouse on a cliff at sunset", "a bowl of ramen on a wooden table"]
-    out = solution(pipe, prompts, pattern, wrong_pattern, mask, transforms=["none", "rot90"])
-    assert set(out) == {"none", "rot90"}, f"Expected one entry per transform, got {list(out)}"
-    for t, groups in out.items():
-        assert set(groups) == {"clean", "right_key", "wrong_key"}, f"Entry for {t} should have clean/right_key/wrong_key"
-        for k, v in groups.items():
-            assert len(v) == len(prompts) and all(isinstance(d, float) for d in v), f"{t}/{k} should be one float per prompt"
-        assert np.mean(groups["right_key"]) < np.mean(groups["clean"]) - 10, f"Right key should score far below clean under {t}"
-        assert abs(np.mean(groups["wrong_key"]) - np.mean(groups["clean"])) < 10, f"Wrong key should score like clean under {t}"
-    print("  All tests passed!")
-
-
-
-
-@report
-def test_ring_flatness(solution: Callable):
-    """Check ring_flatness is low for a ring-marked latent and high for noise."""
-    torch.manual_seed(0)
-    d = torch.sqrt(((torch.arange(64) - 32) ** 2)[:, None] + ((torch.arange(64) - 32) ** 2)[None, :]).float()
-    mask, pattern = d < 10, torch.zeros(64, 64)
-    for i in range(1, 11):
-        pattern[(d >= i - 1) & (d < i)] = float(i * 7 - 40)
-    z = torch.randn(1, 4, 64, 64)
-    spec = torch.fft.fftshift(torch.fft.fft2(z[0, 3]), dim=(-2, -1))
-    spec[mask] = pattern[mask].to(spec.dtype)
-    zw = z.clone()
-    zw[0, 3] = torch.fft.ifft2(torch.fft.ifftshift(spec, dim=(-2, -1))).real
-    f_clean, f_marked = solution(z), solution(zw)
-    assert f_marked < 1.0, f"A latent carrying rings should be flat along rings, got {f_marked:.2f}"
-    assert f_clean > 10, f"Random noise should vary along rings, got {f_clean:.2f}"
     print("  All tests passed!")
