@@ -108,20 +108,12 @@ def target_loss(
     # - Slice the logits so they correspond only to predictions for the target tokens
     # - Return cross-entropy loss on those target tokens
 
-    full_input_ids = torch.cat([prompt_prefix_ids, suffix_ids, prompt_suffix_ids, target_ids]).unsqueeze(0)
-    logits = model(input_ids=full_input_ids).logits
-
-    context_length = prompt_prefix_ids.shape[0] + suffix_ids.shape[0] + prompt_suffix_ids.shape[0]
-    target_logits = logits[:, context_length - 1 : -1, :]
-
-    return F.cross_entropy(target_logits.reshape(-1, target_logits.shape[-1]), target_ids)
-
-    # with torch.no_grad():
-    #     concated = torch.cat((prompt_prefix_ids, suffix_ids, prompt_suffix_ids, target_ids)).unsqueeze(0)
-    #     target_logits = model(concated, output_logits=True).logits[:]
-    #     # loss = F.cross_entropy(outputs.logits.squeeze(0)[len(prompt_prefix_ids) + len(suffix_ids) + len(prompt_suffix_ids):], target_ids)
-    #     loss = F.cross_entropy(target_logits.reshape(-1, target_logits.shape[-1]), target_ids)
-    #     return loss.detach()
+    with torch.no_grad():
+        concated = torch.cat([prompt_prefix_ids, suffix_ids, prompt_suffix_ids, target_ids]).unsqueeze(0)
+        outputs = model(input_ids=concated)
+        context_length = len(prompt_prefix_ids) + len(suffix_ids) + len(prompt_suffix_ids)
+        loss = F.cross_entropy(outputs.logits.squeeze(0)[context_length - 1: -1], target_ids)
+        return loss.detach()
 
 
 tokenizer, chat_model, device = setup_chat_model()
