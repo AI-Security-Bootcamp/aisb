@@ -17,9 +17,9 @@ from aisb_utils import report
 
 SEED = 42
 
-N_STEPS = 5000           # training steps per student
+N_STEPS = 12000          # training steps per student
 
-LR = 2e-3                # learning rate
+LR = 2e-4                # learning rate
 
 KD_ALPHA = 0.8           # weight on KD loss (1 - KD_ALPHA on CE loss)
 

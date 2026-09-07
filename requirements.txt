@@ -18,6 +18,7 @@ ipytest
 ipykernel
 ipywidgets
 requests
+python-dotenv  # aisb_utils/env.py loads the OpenRouter key via dotenv_values
 
 # --- LLM inference stack (Days 1,3,4,5) --- verified
 # IMPORTANT: pin transformers < 5. transformers 5.x eagerly imports torchaudio
@@ -43,13 +44,16 @@ pandas
 matplotlib
 pillow
 
-# --- Day 2 AI-control (sections 2.3 / 2.4) --- verified
-# control-arena pulls in inspect-ai; both are unpinned upstream, so pin them:
-# the content targets these versions (a newer inspect-ai may change ModelOutput,
-# AgentState, and the sandbox API).
-control-arena==17.1.1
+# --- inspect-ai (Day 4 section 4.3 refusal-direction) --- verified
+# inspect-ai is unpinned upstream; pin it because the content targets this
+# version (a newer inspect-ai may change ModelOutput / AgentState APIs).
+#
+# NOTE: the Day 2 AI-control sections (2.3 monitoring / 2.4 control-protocols)
+# ALSO need `control-arena`, which requires datasets>=4.4.2 and therefore
+# CONFLICTS with the datasets==3.6.0 pin above (needed by the Day 4 fine-tuning
+# exercises 4.2 / 4.4). Install those two sections in a SEPARATE virtual
+# environment using requirements-control-arena.txt — see that file for details.
 inspect-ai==0.3.244
-nest_asyncio
 
 # --- Day 4 fine-tuning --- 4.2 verified; optional/deprecated 4.4 best-effort
 peft==0.13.2

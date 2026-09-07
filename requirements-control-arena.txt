@@ -1,0 +1,17 @@
+# Day 2 AI-control sections (2.3 monitoring, 2.4 control-protocols).
+# Install into a CLEAN virtualenv, separate from the main requirements.txt environment:
+#   python -m venv .venv-control-arena
+#   source .venv-control-arena/bin/activate
+#   pip install -r requirements-control-arena.txt
+control-arena==17.1.1
+inspect-ai==0.3.244
+matplotlib
+nest_asyncio
+numpy>=1.26,<3
+pydantic
+
+# Shared tooling used by the exercises and aisb_utils (test reporting + .env key).
+termcolor~=3.1.0
+python-dotenv
+pytest
+ipykernel

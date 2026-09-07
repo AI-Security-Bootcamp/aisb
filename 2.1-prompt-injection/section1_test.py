@@ -19,8 +19,7 @@ openrouter_client = OpenAI(
 )
 
 
-# A cheap, small model for exercises where we *want* the model to be easily manipulated
-SMALL_MODEL = "meta-llama/llama-3-8b-instruct"
+SMALL_MODEL = "qwen/qwen-2.5-7b-instruct"
 
 
 def build_rag_system(openrouter_client: OpenAI):
