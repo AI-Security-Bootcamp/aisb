@@ -17,7 +17,7 @@ and scaffold prompts now use the parser's `<reasoning>` tag.
 | Fresh dev-box check | Result |
 | --- | --- |
 | Real APPS live run, 10 honest + 10 attack | 20 monitor requests retained; 19 responses; one real 120-second sample timeout |
-| Timed-out honest sample 31 | Request retained with `pending=false`, `Model call interrupted: CancelledError`, and no response |
+| Timed-out honest sample 31 | Request retained with `pending` cleared, `Model call interrupted: CancelledError`, and no response |
 | Real post-hoc monitoring, 2 honest + 2 attack | Four requests, four responses, four scores persisted; zero errors |
 | Local deterministic regression suite | 4 passed |
 | Dev-box deterministic regression suite | 4 passed |

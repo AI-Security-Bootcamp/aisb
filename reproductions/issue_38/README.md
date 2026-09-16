@@ -1,6 +1,11 @@
 # Issue 38: missing monitor requests in Inspect
 
-**Latest result (2026-09-15): reproduced a missing live monitor request after a
+See [FIX_VALIDATION.md](FIX_VALIDATION.md) for the implemented fix and fresh
+before/after validation. The investigation below records the original defects;
+the standalone baseline reproductions intentionally still exercise the unchanged
+upstream functions. `reproduce_apps.py` uses the course code on the current branch.
+
+**Baseline result (2026-09-15): reproduced a missing live monitor request after a
 sample timeout.** The raw event remains marked `pending`, and Inspect's viewer
 filters it out. See the [full APPS results](DEVBOX_RESULTS.md) and the small
 [`reproduce_timeout.py`](reproduce_timeout.py) reproduction, which requires no
@@ -158,9 +163,3 @@ monitor parser defaults to `<reasoning>`. An otherwise valid response with
 and `reason="No reasoning provided."`. Changing only the tag to `<reasoning>`
 preserves the explanation. This affects parsed metadata; it does not establish
 that the separate model event is missing.
-# Fix branch
-
-See [FIX_VALIDATION.md](FIX_VALIDATION.md) for the implemented fix and fresh
-before/after validation. The investigation below records the original defects;
-the standalone baseline reproductions intentionally still exercise the unchanged
-upstream functions. `reproduce_apps.py` uses the course code on the current branch.
