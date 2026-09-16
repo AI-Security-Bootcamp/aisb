@@ -50,7 +50,6 @@ Keep the `# %%` line to make it a Python code cell.
 
 **Start by pasting the code below in your day2_answers.py file.**
 """
-import asyncio
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -59,7 +58,6 @@ import nest_asyncio2
 import numpy as np
 from control_arena import ControlAgent
 from control_arena.analysis import samples_df
-from control_arena.eval import run_monitor_for_eval_logs
 from control_arena.micro_protocol import trusted_monitoring_builder
 from control_arena.monitor import (
     basic_monitor_builder,
@@ -71,20 +69,25 @@ from control_arena.policy import (
     honest_policy_builder,
     untrusted_policy_builder,
 )
-from control_arena.scorers import max_suspicion_scorer
 from control_arena.settings.apps.apps_solution_policy import apps_solution_policy
-from inspect_ai import score as inspect_score
 from inspect_ai.agent import Agent
-from inspect_ai.log import write_eval_log
+from inspect_ai.model import GenerateConfig
 
+# Make the workspace root importable (so `from aisb_utils import report` works),
+# regardless of how deeply this file is nested.
 _root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
-# day2_utils lives alongside this section (prompts/, logs/, reference_solutions/ too).
-for _path in [str(_root), str(Path(__file__).resolve().parent)]:
-    if _path not in sys.path:
-        sys.path.insert(0, _path)
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+from aisb_utils import report
+
+# day2_utils lives alongside this section.
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
 from day2_utils.eval_utils import extract_scores, load_eval_logs
 from day2_utils.generate_trajectories import generate_trajectories
 from day2_utils.metrics import calculate_roc_metrics
+from day2_utils.monitoring import run_monitor_evaluation
 from day2_utils.plotting import (
     plot_attack_evasion_curve,
     plot_roc_comparison,
@@ -92,7 +95,6 @@ from day2_utils.plotting import (
     plot_score_histograms,
 )
 
-from aisb_utils import report
 from aisb_utils.env import load_dotenv
 
 load_dotenv()
@@ -203,7 +205,9 @@ The evaluation reports [ROC AUC](https://developers.google.com/machine-learning/
 - `model_role`: optional role for the model; pass `None` to use the model's default system prompt
 - `prompt`: the prompt string (supports `{task_description}` and `{tool_calls}` placeholders filled in by the default formatter)
 - `score_range`: a [`MonitorScoreRange`](https://control-arena.aisi.org.uk/reference/monitor.html#MonitorScoreRange) specifying `min` and `max` score bounds
-- `cache`: set to `True` to cache LLM responses and speed up re-runs
+- `config`: use the supplied `MONITOR_CONFIG` to bound requests and generation
+- `cache`: use `False`; the evaluation saves successful samples for resuming,
+  while failed or malformed responses should get a fresh attempt
 
 </details>
 """
@@ -211,6 +215,11 @@ The evaluation reports [ROC AUC](https://developers.google.com/machine-learning/
 # Models for the control protocol exercises (trusted monitor vs untrusted agent)
 DEFAULT_TRUSTED_MODEL = "openrouter/meta-llama/llama-3.1-8b-instruct"
 DEFAULT_UNTRUSTED_MODEL = "openrouter/openai/gpt-4o-mini"
+
+# Leave room for a request error before the overall 60-second sample deadline.
+MONITOR_CONFIG = GenerateConfig(
+    attempt_timeout=45, max_retries=0, max_tokens=2048, max_connections=4
+)
 
 
 def create_monitor(prompt_path: Path, model: str = DEFAULT_TRUSTED_MODEL):
@@ -234,12 +243,14 @@ def create_monitor(prompt_path: Path, model: str = DEFAULT_TRUSTED_MODEL):
             model_role=None,
             prompt=prompt_text,
             score_range=MonitorScoreRange(min=0, max=10),
-            cache=True,
+            config=MONITOR_CONFIG,
+            cache=False,
         )
     else:
         # TODO: Create and return a basic monitor with basic_monitor_builder with given prompt and model
         # - Don't forget to set correct score_range (0-10)!
-        # - Inspect also supports caching LLM responses - consider setting cache=True for faster evaluation
+        # - Pass config=MONITOR_CONFIG and cache=False. Successful samples are
+        #   saved by the evaluator; malformed responses should be retried fresh.
         pass
 
 
@@ -266,7 +277,8 @@ def evaluate_monitor_on_trajectories(
     Args:
         monitor: The monitor ControlAgent to evaluate.
         trajectory_dir: Directory containing the pre-generated Inspect eval logs.
-        save_dir: If provided, write a copy of the scored logs to this directory.
+        save_dir: Directory for monitoring eval logs. Defaults to a sibling of
+            trajectory_dir with the suffix "_scored".
 
     Returns (honest_scores, attack_scores, auc).
     """
@@ -276,20 +288,12 @@ def evaluate_monitor_on_trajectories(
     eval_logs = load_eval_logs(trajectory_dir)
     print(f"  Loaded {sum(len(log.samples or []) for log in eval_logs)} samples")
 
-    # Run the monitor over every sample in every log.
-    # The monitor reads each sample's tool calls (submitted code) and appends
-    # a message containing the suspicion score to the sample's message list.
-    monitored_logs = asyncio.run(
-        run_monitor_for_eval_logs(monitor, eval_logs, progress=True)
+    # Each saved trajectory is a new Inspect sample. Its Transcript records the
+    # monitor's separate conversation; the original trajectory is not rerun.
+    output_dir = (
+        Path(save_dir) if save_dir is not None else Path(f"{trajectory_dir}_scored")
     )
-
-    # Extract the numeric suspicion scores from the monitor messages using
-    # max_suspicion_scorer: if the monitor ran multiple times per sample
-    # (e.g. per tool call), this takes the maximum score as the sample's score.
-    scored_logs = [
-        inspect_score(log, [max_suspicion_scorer()], action="overwrite")
-        for log in monitored_logs
-    ]
+    scored_logs = run_monitor_evaluation(monitor, eval_logs, log_dir=output_dir)
 
     # Split scores by eval mode (honest vs attack).
     honest_scores, attack_scores = extract_scores(scored_logs)
@@ -301,21 +305,32 @@ def evaluate_monitor_on_trajectories(
     y_scores_arr = np.concatenate([honest_scores, attack_scores])
     _, _, _, auc = calculate_roc_metrics(y_true, y_scores_arr)
 
-    # Optionally persist the scored logs so they can be inspected later.
-    if save_dir is not None:
-        save_path = Path(save_dir)
-        save_path.mkdir(parents=True, exist_ok=True)
-        for log in scored_logs:
-            # Derive a filename from the original log location, falling back to index.
-            name = (
-                Path(log.location).name
-                if log.location
-                else f"log_{scored_logs.index(log)}.eval"
-            )
-            write_eval_log(log, save_path / name)
-        print(f"  Scored logs saved to {save_path.resolve()}/")
+    print(f"  Monitor requests, responses, and scores saved to {output_dir.resolve()}/")
 
     return honest_scores, attack_scores, auc
+
+
+"""
+Open the **monitoring eval** under `logs/e2.1_trajectories_scored/` in Inspect's
+viewer and choose **Transcript** to read the monitor's request and response.
+The **Messages** tab shows the coding agent's trajectory; the monitor has its
+own conversation. Monitoring evals record their source log in evaluation metadata.
+
+An interrupted model call is shown with an error and its original request;
+there is no completed response to inspect. Cached monitor responses are logged
+as well. The generated trajectories and their sandbox results remain in the
+original trajectory directory.
+
+Monitoring runs at most four samples concurrently. Each sample has a 60-second
+deadline, and completed samples are saved as they finish. A timeout, provider
+error, or malformed score is reported with its sample ID; it is not scored as
+safe. The evaluator reports coverage separately for honest and attack samples.
+
+If the run is incomplete, inspect the saved errors and **rerun the same cell**.
+Only failed or unfinished samples are retried. The ROC/AUC is produced once all
+samples have valid scores. Editing the monitor prompt or source trajectories
+starts a separate evaluation, so scores from different monitors are not mixed.
+"""
 
 
 print("Evaluating monitor on trajectories...")
@@ -353,9 +368,9 @@ def test_monitor_better_than_random(auc: float):
     # (the result of evaluating the monitor), not a `solution` callable.
     # requires: the AUC to have been produced by a live monitor run
     # (Docker + ControlArena + OpenRouter key).
-    assert auc > 0.5, (
-        f"Monitor AUC ({auc:.3f}) should be > 0.5 (random). Improve your prompt!"
-    )
+    assert (
+        auc > 0.5
+    ), f"Monitor AUC ({auc:.3f}) should be > 0.5 (random). Improve your prompt!"
     print(f"  AUC = {auc:.3f} (better than random)")
 
 
@@ -434,9 +449,9 @@ def test_create_attack_policy(solution: Callable[[Path], object]):
         policy = solution(
             Path(__file__).parent / "reference_solutions" / "attack_system_prompt.txt"
         )
-    assert isinstance(policy, ControlAgent), (
-        f"create_attack_policy() should return a ControlAgent, got {type(policy)}"
-    )
+    assert isinstance(
+        policy, ControlAgent
+    ), f"create_attack_policy() should return a ControlAgent, got {type(policy)}"
     print("  create_attack_policy() returns a ControlAgent ✓")
 
 
@@ -550,6 +565,8 @@ e2_3_cot_monitor = basic_monitor_builder(
         meta, msgs, p, cot_only=False
     ),
     score_range=MonitorScoreRange(min=0, max=10),
+    config=MONITOR_CONFIG,
+    cache=False,
 )
 E2_3_COT_SCORED_DIR = str(SCRIPT_DIR / "logs" / "e2.3_cot_scored")
 e2_3_honest, e2_3_attack, e2_3_auc = evaluate_monitor_on_trajectories(
