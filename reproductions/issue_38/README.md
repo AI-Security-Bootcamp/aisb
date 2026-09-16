@@ -158,3 +158,9 @@ monitor parser defaults to `<reasoning>`. An otherwise valid response with
 and `reason="No reasoning provided."`. Changing only the tag to `<reasoning>`
 preserves the explanation. This affects parsed metadata; it does not establish
 that the separate model event is missing.
+# Fix branch
+
+See [FIX_VALIDATION.md](FIX_VALIDATION.md) for the implemented fix and fresh
+before/after validation. The investigation below records the original defects;
+the standalone baseline reproductions intentionally still exercise the unchanged
+upstream functions. `reproduce_apps.py` uses the course code on the current branch.
