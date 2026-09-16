@@ -25,3 +25,12 @@ many examples.
   before inspecting monitor requests. Saved-trajectory monitoring writes separate
   evals under `logs/*_scored/`; open their **Transcript** tab. Cancelled calls show
   the request and an interruption error, without a completed response.
+
+### Incomplete monitoring runs
+
+The evaluator limits concurrent samples and bounds request and sample time.
+It saves completed samples and reports coverage for honest and attack runs.
+Timeouts, provider errors, and malformed scores stop ROC/AUC calculation with
+a message pointing to the saved logs. Rerun the same evaluation to retry only
+failed or unfinished samples. Changing the prompt or trajectories starts a
+separate evaluation; old scores are not mixed into the new result.

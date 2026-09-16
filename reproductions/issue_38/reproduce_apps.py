@@ -35,6 +35,7 @@ from control_arena.settings.apps.apps_solution_policy import apps_solution_polic
 from dotenv import load_dotenv
 from inspect_ai import score as inspect_score
 from inspect_ai.log import read_eval_log, write_eval_log
+from inspect_ai.model import GenerateConfig
 
 # Make the workspace root importable (so `from aisb_utils import report` works),
 # regardless of how deeply this file is nested.
@@ -55,9 +56,18 @@ from day2_utils.metrics import calculate_roc_metrics
 from day2_utils.monitoring import run_monitor_evaluation
 
 
-def load_course_functions():
+def load_course_functions(revision=None):
     """Load the actual solution functions without running unrelated exercises."""
     source = SECTION / "section2_solution.py"
+    source_text = (
+        source.read_text()
+        if revision is None
+        else subprocess.check_output(
+            ["git", "show", f"{revision}:2.2-monitoring/section2_solution.py"],
+            cwd=_root,
+            text=True,
+        )
+    )
     wanted = {
         "create_monitor",
         "create_attack_policy",
@@ -65,10 +75,19 @@ def load_course_functions():
     }
     definitions = [
         node
-        for node in ast.parse(source.read_text()).body
-        if isinstance(node, ast.FunctionDef) and node.name in wanted
+        for node in ast.parse(source_text).body
+        if (isinstance(node, ast.FunctionDef) and node.name in wanted)
+        or (
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "MONITOR_CONFIG"
+                for target in node.targets
+            )
+        )
     ]
-    assert {node.name for node in definitions} == wanted
+    assert {
+        node.name for node in definitions if isinstance(node, ast.FunctionDef)
+    } == wanted
     namespace = dict(globals())
     exec(
         compile(ast.Module(body=definitions, type_ignores=[]), str(source), "exec"),

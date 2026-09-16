@@ -23,6 +23,7 @@ from control_arena.policy import (
 )
 from control_arena.settings.apps.apps_solution_policy import apps_solution_policy
 from inspect_ai.agent import Agent
+from inspect_ai.model import GenerateConfig
 from aisb_utils import report
 from day2_utils.eval_utils import extract_scores, load_eval_logs
 from day2_utils.generate_trajectories import generate_trajectories
