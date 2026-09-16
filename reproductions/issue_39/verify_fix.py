@@ -86,9 +86,13 @@ def main():
         np.concatenate([honest, attack]),
     )
     plot_roc_curve(fpr, tpr, auc, save_path=args.output / "roc.png")
-    previous_paths = sorted(log.location for log in latest_logs)
+    previous_ids = sorted(log.eval.eval_id for log in latest_logs)
+    previous_files = set((args.output / "scored").glob("*.eval"))
     repeated = evaluate(monitor, str(args.input), args.output / "scored")
-    assert sorted(log.location for log in latest_logs) == previous_paths
+    # Reused logs may use file:// URIs instead of plain paths. Eval IDs and
+    # directory contents establish reuse without depending on that formatting.
+    assert sorted(log.eval.eval_id for log in latest_logs) == previous_ids
+    assert set((args.output / "scored").glob("*.eval")) == previous_files
     assert np.array_equal(repeated[0], honest) and np.array_equal(repeated[1], attack)
     assert repeated[2] == auc
     summary = {

@@ -109,16 +109,17 @@ def test_completed_run_resumes_after_python_restart(tmp_path):
     sources = make_source_logs(tmp_path / "source", count=1)
     output = tmp_path / "monitored"
     logs = run_monitor_evaluation(make_monitor(), sources, output, display="none")
-    previous = sorted(log.location for log in logs)
+    previous = sorted(log.eval.eval_id for log in logs)
     script = """
 import json, sys
 from day2_utils.eval_utils import load_eval_logs
 from day2_utils.monitoring import run_monitor_evaluation
-from tests.fixtures import FAIL, make_monitor
+from tests.fixtures import CALLS, FAIL, make_monitor
 sources = load_eval_logs(sys.argv[1])
 FAIL.update(s.id for log in sources for s in log.samples)
 logs = run_monitor_evaluation(make_monitor(), sources, sys.argv[2], display='none')
-assert sorted(log.location for log in logs) == json.loads(sys.argv[3])
+assert sorted(log.eval.eval_id for log in logs) == json.loads(sys.argv[3])
+assert not CALLS, 'Completed samples must survive a Python restart without model calls'
 """
     import json
 
