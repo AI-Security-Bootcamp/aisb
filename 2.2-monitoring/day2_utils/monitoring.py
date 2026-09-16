@@ -145,12 +145,18 @@ def run_monitor_evaluation(
     timeout_seconds: float = 60,
     max_samples: int = 4,
 ) -> list[EvalLog]:
-    """Create separate monitoring evals with requests, responses, and scores.
+    """Record bounded monitoring evals and resume completed samples on rerun.
 
     ControlArena's standalone post-hoc helper updates message metadata but does
     not attach model events to the source EvalSamples. Running the same monitor
     inside an Inspect solver gives every sample its own recorded transcript.
     Source files and their original sandbox results remain available unchanged.
+    Inspect saves progress and isolates failures per sample. Rerunning this call
+    in the same log directory retries only unfinished or failed work; changes to
+    the monitor configuration or dataset have separate evaluation identities.
+
+    Raises IncompleteMonitorEvaluation if any sample lacks a valid score, before
+    the caller can compute an AUC from incomplete coverage.
     """
     if timeout_seconds <= 0 or max_samples < 1:
         raise ValueError("timeout_seconds and max_samples must be positive")

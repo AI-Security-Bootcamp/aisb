@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import subprocess
 import sys
 import time
 from datetime import datetime, timezone
@@ -45,10 +46,21 @@ def main():
         with trace_path.open("a") as stream:
             stream.write(json.dumps(entry) + "\n")
 
-    helpers = load_course_functions()
-    inner = helpers["create_monitor"](
-        SECTION / "reference_solutions/monitor_prompt.txt"
+    baseline = "3bc387e91ddadecc7e8177cc7546168186b5406a"
+    helpers = load_course_functions(revision=baseline)
+    prompt_path = output / "baseline-monitor-prompt.txt"
+    prompt_path.write_text(
+        subprocess.check_output(
+            [
+                "git",
+                "show",
+                f"{baseline}:2.2-monitoring/reference_solutions/monitor_prompt.txt",
+            ],
+            cwd=SECTION,
+            text=True,
+        )
     )
+    inner = helpers["create_monitor"](prompt_path)
 
     @control_agent
     def traced_monitor():

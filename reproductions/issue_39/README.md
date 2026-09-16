@@ -1,5 +1,11 @@
 # Issue 39: ROC progress stalls near completion
 
+This branch includes the recovery fix; see [FIX_VALIDATION.md](FIX_VALIDATION.md).
+The baseline scripts `reproduce.py` and `run_live.py` load the original helpers
+from commit `3bc387e` so they still reproduce the defect on the fixed branch.
+`check_sample_sizes.py` also uses that commit's original reference prompt.
+Use `verify_fix.py` to exercise the current branch's full course ROC path.
+
 The progress bar belongs to post-hoc monitor calls. The course waits for every
 call before calculating AUC, saving scored logs, or plotting. One unfinished
 monitor can therefore hold the bar at 99% even when every sandbox test passed.
@@ -82,8 +88,8 @@ batch. A complete course fix should also:
 4. Preserve monitor request/response/error events for inspection, addressing the
    separate logging problems documented for issue #38.
 
-The timeout-only variant above deliberately retains the existing error behavior
-so its limitations remain reproducible. No production fix is included here.
+The timeout-only baseline deliberately retains the original error behavior so
+its limitations remain reproducible; it does not invoke the new course runner.
 
 ## Compare sample sizes and retry selected inputs
 

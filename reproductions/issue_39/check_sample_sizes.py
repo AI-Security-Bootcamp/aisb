@@ -11,6 +11,7 @@ import hashlib
 import json
 import random
 import statistics
+import subprocess
 import time
 from pathlib import Path
 
@@ -40,9 +41,16 @@ def collect_cases(input_dir, trace):
         for event in events
         if event["event"] == "monitor_started"
     }
-    template = (
-        ROOT / "2.2-monitoring/reference_solutions/monitor_prompt.txt"
-    ).read_text()
+    # The original trace predates the prompt/tag fix on this branch.
+    template = subprocess.check_output(
+        [
+            "git",
+            "show",
+            "3bc387e91ddadecc7e8177cc7546168186b5406a:2.2-monitoring/reference_solutions/monitor_prompt.txt",
+        ],
+        cwd=ROOT,
+        text=True,
+    )
     cases = []
     for path in sorted(input_dir.glob("*.eval")):
         log = read_eval_log(path, resolve_attachments="full")
