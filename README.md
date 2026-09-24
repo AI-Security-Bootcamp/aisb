@@ -1,41 +1,58 @@
-Welcome to the [AI Security Bootcamp](https://www.aisb.dev/) (AISB)! AISB is a 7-day intensive program for security professionals shaping how we secure emerging AI systems. This repo contains the exercises and links to the reading material you will go through during the bootcamp.
+Welcome to the [AI Security Bootcamp](https://www.aisb.dev/)! AISB is a 7-day intensive program for senior security professionals, focused on frontier AI Security.
+This repo contains the exercises and links to the reading material you will go through during the bootcamp.
 
 ## Curriculum overview
 
-**Day 1 — LLM Internals: What Goes In, What Comes Out**
-- Tokenization, chat templates, and special tokens as the security perimeter between instructions and data
-- Logprobs and output distributions as an attack surface for extraction and adversarial optimization
-- Instruction hierarchies, prefill attacks, and control-token injection
-- Prompt injection and RAG poisoning across the boundary between trusted instructions and retrieved data
+Complete [Day 0 - Setup](day0-setup/README.md) before the bootcamp. Each content day starts with a one-hour lecture followed by six hours of paired labs; review the required background in each section's README beforehand.
 
-**Day 2 — Coding Agents & AI Control**
-- Agentic AI risks: code-execution affordances, scope of tool restrictions, coding-agent attack patterns
-- AI-control monitoring, adaptive evasion, and evaluation with trusted and untrusted models
-- Control protocols: trusted monitoring, defer-to-trusted, resampling, and safety–usefulness tradeoffs
+**Day 1 - LLM Internals**
 
-**Day 3 — LLM Inference Security**
-- A tokenization and prompt-construction refresher focused on security-relevant generation behavior
-- Jailbreaking techniques and why safety training is statistical, not structural
-- Guardrails: keyword filters, classifier-based monitors, LLM-as-judge, linear probes on activations
-- Model extraction and knowledge-distillation attacks against deployed APIs
+- [1.0 - Pre-reading: how LLMs are trained](1.0-readings/README.md)
+- [1.1 - LLM internals and chat serialization](1.1-llm-internals/README.md): tokenization, chat templates, and special tokens
+- [1.2 - Log probabilities](1.2-logprobs/README.md): output distributions as an attack surface for extraction and adversarial optimization
+- [1.3 - Instruction hierarchies and assistant prefills](1.3-instruction-hierarchies/README.md) **(optional)**: instruction priority and prefill attacks
+- [1.4 - Prompt injection and RAG poisoning](1.4-prompt-injection/README.md): attacks across the boundary between trusted instructions and retrieved data
 
-**Day 4 — Training & Data Security**
-- Model editing and surgical weight manipulation to silently rewrite model behavior
-- Backdoors and trojans injected via fine-tuning and data poisoning
-- Undoing safety fine-tuning through refusal-direction ablation, with LoRA fine-tuning as an optional alternative
+**Day 2 - Coding Agents & AI Control**
 
-**Day 5 — Adversarial ML**
-- Adversarial examples and gradient-based attacks against image classifiers
-- Discrete and continuous adversarial optimization against language models
-- Optional: image provenance and the requirements for robust watermark detection
+- [2.1 - Coding-agent attack surface and affordances](2.1-coding-agents/README.md): code execution, tool restrictions, and attack patterns
+- [2.2 - AI-control monitoring](2.2-monitoring/README.md): adaptive evasion and evaluation with trusted and untrusted models
+- [2.3 - AI-control protocols](2.3-control-protocols/README.md): trusted monitoring, defer-to-trusted, resampling, and safety–usefulness tradeoffs
+- [2.4 - Safety simulator](2.4-safety-simulator/README.md) **(optional)**: from monitor scores to system-level safety estimates
 
-**Day 6 — Infrastructure Security**
+**Day 3 - LLM Inference Security**
 
-**Day 7 — Infrastructure Security & Threat Modeling**
-- [RAND security levels](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf) (SL1–SL5) and operational capability tiers (OC1–OC5) for adversary modeling
-- [MITRE ATLAS](https://atlas.mitre.org/) as a threat-modeling framework for ML systems
-- NVIDIA Container Toolkit trust boundaries and CVE-2025-23266
-- GPU RowHammer, page-table corruption, DMA isolation limits, and privilege escalation
+- [3.1 - Tokenization and prompt construction](3.1-tokenization/README.md): security-relevant generation behavior
+- [3.2 - Jailbreaking](3.2-jailbreaking/README.md): techniques for bypassing learned safety behavior
+- [3.3 - Guardrails](3.3-guardrails/README.md): keyword filters, classifier-based monitors, LLM-as-judge, and optional linear probes on activations
+- [3.4 - Knowledge-distillation attacks](3.4-knowledge-distillation/README.md): transferring capabilities from teacher outputs to a student model
+- [3.5 - Model weight extraction via SVD](3.5-weight-extraction/README.md): inferring hidden dimension and extracting the output projection from logit queries
+
+**Day 4 - Training & Data Security**
+
+- [5.1 - Model editing](5.1-model-editing/README.md): surgical weight manipulation to rewrite model behavior
+- [5.2 - Backdooring](5.2-backdooring/README.md): backdoors injected via fine-tuning and data poisoning
+- [5.3 - Undoing safety fine-tuning](5.3-undoing-safety-finetuning/README.md): refusal-direction ablation and abliteration
+- [5.4 - Removing safety behavior with LoRA fine-tuning](5.4-safety-finetuning/README.md) **(optional, instructor-recommended alternative)**
+
+**Day 5 - Adversarial ML**
+
+- [6.1 - Adversarial attacks on vision models](6.1-adversarial-vision/README.md): adversarial examples and gradient-based attacks against image classifiers
+- [6.2 - Discrete adversarial optimization with GCG](6.2-adversarial-language/README.md): optimizing adversarial token sequences against language models
+- [6.3 - Continuous adversarial prefixes](6.3-prefix-tuning/README.md): optimizing prefixes in embedding space
+- [6.4 - Image provenance and watermark robustness](6.4-watermarking/README.md) **(optional)**
+
+**Day 6 - Infrastructure Security**
+
+- 4.1 - Side-channel hardware monitoring
+- 4.2 - Agent swarm incident response
+
+**Day 7 - Infrastructure Security & Threat Modeling**
+
+- [7.1 - RAND report: securing AI model weights](7.1-rand-report/README.md): security levels (SL1–SL5) and operational capability tiers (OC1–OC5)
+- [7.2 - Threat modeling with adversary matrices](7.2-threat-modeling/README.md): MITRE ATLAS and frontier-lab threat models
+- [7.3 - NVIDIA Container Toolkit vulnerability](7.3-nvidia-container-toolkit/README.md): trust boundaries and CVE-2025-23266 (NVIDIAScape)
+- [7.4 - GPU RowHammer](7.4-gpu-rowhammer/README.md): page-table corruption, DMA isolation limits, and privilege escalation
 
 ## Prerequisites
 
@@ -48,7 +65,7 @@ Before the first day, make sure you have completed the instructions in the [Day 
 
 
 ### Completing exercises
-Each content day is split into numbered section folders named `X.Y-topic` (for example, Day 1 is `1.1-llm-internals`, `1.2-logprobs`, `1.3-instruction-hierarchies`, and `1.4-prompt-injection`). Start with each section folder's `README.md`: it explains what the section assumes, what you should learn, and which pre-reading and reference resources will help. Then open the `*_instructions.md` file for the exercises. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
+Each content day is split into numbered section folders named `X.Y-topic`, where `X` is the day and `Y` is the section. Follow the section links in the curriculum overview above; `1.0-readings` contains Day 1 pre-reading. Day 4 content is under development. Start with each section folder's `README.md`: it explains what the section assumes, what you should learn, and which pre-reading and reference resources will help. Then open the `*_instructions.md` file for the exercises. We recommend you open it in your IDE and view the markdown (right-click and select "Open Preview" in VS Code).
 
 The README background is part of the section: review it before beginning the exercises. Only resources explicitly marked **optional longer reading** may be skipped. In each prerequisite table, you should be able to demonstrate every incoming competency with a short question or task; `-` means that the section has no additional prerequisite in that category.
 
