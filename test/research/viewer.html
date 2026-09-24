@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Incident evidence explorer</title>
+<style>
+:root{font:15px/1.5 system-ui,sans-serif;color:#162b39;background:#f3f5f6;color-scheme:light}
+*{box-sizing:border-box}body{margin:0}header{padding:22px 28px;background:#15394a;color:#fff}
+h1{font-size:25px;margin:0 0 5px}h2{font-size:18px}p{margin:6px 0}button,input,select{font:inherit}
+button,.file{padding:7px 12px;border:1px solid #b2c3cb;border-radius:5px;background:white;cursor:pointer}
+button:hover{background:#e9f2f4}button:focus-visible,input:focus-visible{outline:3px solid #0c8091}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;padding:14px 28px;background:white;border-bottom:1px solid #d9e1e4;align-items:center}
+.toolbar input[type=search]{min-width:260px;padding:7px}.file input{max-width:220px}
+main{padding:20px 28px}.muted{color:#586d79}.notice{padding:10px 14px;border-left:3px solid #15909b;background:#e5f3f3}
+#breadcrumbs{display:flex;gap:8px;align-items:center;margin:16px 0}#chart{overflow:auto;background:white;border:1px solid #d5dfe4;border-radius:8px}
+svg{display:block;min-width:760px;width:100%}.lane{fill:#526d7c;font-size:12px}.bar{fill:#287b8a;opacity:.73;cursor:pointer}.bar:hover,.bar.selected{fill:#c77724;opacity:1}.axis{fill:#647a85;font-size:11px}
+.panels{display:grid;grid-template-columns:minmax(260px,1fr) minmax(420px,2fr);gap:20px;margin-top:20px}
+.panel{background:white;border:1px solid #d5dfe4;border-radius:8px;padding:18px;min-width:0}
+#stories{max-height:660px;overflow:auto}.story{display:block;text-align:left;width:100%;margin:8px 0;padding:10px}.story[aria-pressed=true]{border:2px solid #287b8a;background:#eaf5f5}
+.badge{font-size:12px;display:inline-block;background:#e7edf0;padding:2px 6px;border-radius:4px;margin:3px 5px 3px 0}
+article{border-top:1px solid #d9e1e4;padding:14px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.6 ui-monospace,monospace;margin:9px 0}mark{background:#fff0a6;color:inherit}summary{cursor:pointer;color:#287b8a}.error{color:#a72c25}#evidence{max-height:800px;overflow:auto}
+@media(max-width:900px){.panels{grid-template-columns:1fr}header,main,.toolbar{padding:16px}}
+</style>
+<header><h1 id="title">Incident evidence explorer</h1><p id="subtitle">Load investigation JSON to inspect activities and their source evidence.</p></header>
+<div class="toolbar">
+ <label class="file">Load JSON <input id="file" type="file" accept=".json"></label>
+ <label>Find <input id="search" type="search" placeholder="Story, actor, site, or source ID"></label>
+ <label id="layer-control">Analysis <select id="layer"><option value="">All analyses</option></select></label>
+ <label>From <input id="from" type="date"></label><label>To <input id="to" type="date"></label>
+ <button id="reset">Reset view</button>
+ <label><input id="highlighted" type="checkbox"> Highlighted passages only</label>
+ <button id="undated">Undated records</button>
+</div>
+<main>
+ <p id="status" role="status" class="muted"></p>
+ <p class="notice">Bars span observed activity within short episodes. Gaps and overlapping rows do not establish continuous or simultaneous execution. Claims about outcomes remain distinct from observed results.</p>
+ <nav id="breadcrumbs" aria-label="Label hierarchy"></nav>
+ <div id="chart" aria-label="Activity timeline"></div>
+ <div class="panels">
+  <section class="panel"><h2 id="list-title">Stories and episodes</h2><div id="stories"></div></section>
+  <section class="panel"><h2 id="selection-title">Source evidence</h2><p id="selection-summary" class="muted"></p><div id="evidence"></div></section>
+ </div>
+</main>
+<script id="embedded-data" type="application/json">null</script>
+<script>
+'use strict';
+let data=null, units=new Map(), labels=new Map(), parent=null, selected=null, undated=false, evidenceLimit=100;
+const $=id=>document.getElementById(id);
+const el=(tag,text,cls)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(cls)node.className=cls;return node;};
+const time=u=>(u.plot_time||u.time)?Date.parse(u.plot_time||u.time):NaN;
+// Python emits Unicode code-point offsets; JavaScript string slices use UTF-16.
+const sourceSlice=(text,start,end)=>Array.from(text).slice(start,end).join('');
+const descendants=id=>[id,...data.labels.filter(l=>l.parent_id===id).flatMap(l=>descendants(l.id))];
+const ancestors=id=>{const result=[];let node=labels.get(id);while(node){result.unshift(node);node=labels.get(node.parent_id);}return result;};
+function load(value){
+ if(!value||!Array.isArray(value.units)||!Array.isArray(value.labels)||!Array.isArray(value.stories))throw Error('Expected units, labels, and stories arrays.');
+ const seen=new Set();for(const u of value.units){if(typeof u.id!=='string'||typeof u.text!=='string'||seen.has(u.id))throw Error('Source IDs must be unique and each source needs text.');seen.add(u.id);}
+ const ids=new Set(value.labels.map(l=>l.id));if(ids.size!==value.labels.length)throw Error('Label IDs must be unique.');for(const l of value.labels){if(l.parent_id&&!ids.has(l.parent_id))throw Error('Unknown parent label: '+l.parent_id);}
+ for(const l of value.labels){const chain=new Set();let item=l;while(item){if(chain.has(item.id))throw Error('Label hierarchy contains a cycle.');chain.add(item.id);item=value.labels.find(x=>x.id===item.parent_id);}}
+ const sourceMap=new Map(value.units.map(u=>[u.id,u]));
+ for(const s of value.stories){if(!Array.isArray(s.source_ids)||s.source_ids.some(id=>!seen.has(id)))throw Error('A story refers to an unknown source ID.');if(!Array.isArray(s.labels)||s.labels.some(id=>!ids.has(id)))throw Error('A story refers to an unknown label.');for(const h of s.highlights||[]){const u=sourceMap.get(h.id);if(!u||!s.source_ids.includes(h.id)||!Number.isInteger(h.start)||!Number.isInteger(h.end)||h.start<0||h.end<=h.start||sourceSlice(u.text,h.start,h.end)!==h.quote)throw Error('Highlight does not match source text: '+h.id);}}
+ data=value;units=new Map(data.units.map(u=>[u.id,u]));labels=new Map(data.labels.map(l=>[l.id,l]));parent=null;selected=null;undated=false;
+ $('status').className='muted';
+ $('title').textContent=data.title||'Incident evidence explorer';$('subtitle').textContent=data.description||'';
+ $('layer').replaceChildren(new Option('All analyses',''));for(const layer of new Set(data.stories.map(s=>s.layer).filter(Boolean)))$('layer').append(new Option(layer,layer));
+ $('layer-control').hidden=$('layer').options.length<=2;
+ $('highlighted').checked=false;$('selection-title').textContent='Source evidence';$('selection-summary').textContent='';
+ $('from').value='';$('to').value='';$('search').value='';render();
+}
+function inRange(u){const t=time(u);if(undated)return !Number.isFinite(t);if(!Number.isFinite(t))return false;
+ const start=$('from').value?Date.parse($('from').value): -Infinity;
+ const end=$('to').value?Date.parse($('to').value)+86400000:Infinity;return t>=start&&t<end;
+}
+function filteredStories(){
+ const q=$('search').value.trim().toLowerCase();const permitted=parent?new Set(descendants(parent)):null;
+ const exactId=data.units.find(u=>u.id.toLowerCase()===q)?.id;
+ return data.stories.filter(s=>(!$('layer').value||s.layer===$('layer').value)&&(!permitted||(s.labels||[]).some(l=>permitted.has(l)))&&s.source_ids.some(id=>inRange(units.get(id)))&&(!q||(exactId?s.source_ids.includes(exactId):[s.title,s.summary,...s.source_ids,...s.source_ids.map(id=>{const u=units.get(id);return (u.actor||'')+' '+(u.page||'')+' '+(u.site||'');})].join(' ').toLowerCase().includes(q))));
+}
+function selectStory(s){selected=s;evidenceLimit=100;$('selection-title').textContent=s.title;$('selection-summary').textContent=s.summary+(s.uncertainty?' — '+s.uncertainty:'');renderEvidence();renderList(filteredStories());}
+function renderList(stories){
+ const list=$('stories');list.replaceChildren();$('list-title').textContent=`Stories and episodes (${stories.length})`;
+ for(const s of stories.slice(0,250)){const b=el('button',undefined,'story');b.setAttribute('aria-pressed',String(selected?.id===s.id));b.append(el('strong',s.title));if(s.outcome)b.append(el('br'),el('span',s.outcome,'badge'));b.onclick=()=>selectStory(s);list.append(b);}
+ if(stories.length>250)list.append(el('p','Showing 250 stories. Narrow the date range or search.','muted'));
+ if(!stories.length)list.append(el('p','No stories match this view. Undated source records can still be inspected below.','muted'));
+}
+function quoteBlock(u,highlights,only){
+ const box=el('div');const ordered=highlights.slice().sort((a,b)=>a.start-b.start);
+ if(only){for(const h of ordered){if(h.why)box.append(el('p',h.why,'muted'));const pre=el('pre');pre.append(el('mark',h.quote));box.append(pre);}
+  const details=el('details');details.append(el('summary','Expand full source context'),el('pre',u.text));box.append(details);return box;}
+ const pre=el('pre');let offset=0;for(const h of ordered){if(h.start<offset)continue;pre.append(document.createTextNode(sourceSlice(u.text,offset,h.start)),el('mark',sourceSlice(u.text,h.start,h.end)));offset=h.end;}pre.append(document.createTextNode(sourceSlice(u.text,offset)));box.append(pre);return box;
+}
+function renderEvidence(){
+ const view=$('evidence');view.replaceChildren();const only=$('highlighted').checked;
+ let records=selected?selected.source_ids.map(id=>units.get(id)):undated?data.units.filter(u=>!Number.isFinite(time(u))):[];
+ if(only)records=records.filter(u=>(selected?.highlights||[]).some(h=>h.id===u.id));
+ if(!records.length){view.append(el('p',only?'No validated highlights in this selection. Switch to full text to inspect all selected records.':'Select a timeline interval or story to inspect its source records.','muted'));return;}
+ for(const u of records.slice(0,evidenceLimit)){const article=el('article');article.append(el('strong',u.id),el('div',(u.time||'Timestamp unavailable')+' · '+(u.actor||u.kind||'')+' · '+(u.page||''),'muted'));
+  if(u.label)article.append(el('div',labels.get(u.label)?.name||u.label,'badge'));
+  if(u.time_grade||u.uncertainty_seconds)article.append(el('div','Timestamp provenance: '+(u.time_grade||'unspecified')+(u.uncertainty_seconds?' · uncertainty '+u.uncertainty_seconds+' seconds':''),'muted'));
+  const hs=(selected?.highlights||[]).filter(h=>h.id===u.id);article.append(quoteBlock(u,hs,only));view.append(article);}
+ if(records.length>evidenceLimit){const more=el('button',`Show next records (${records.length-evidenceLimit} remaining)`);more.onclick=()=>{evidenceLimit+=100;renderEvidence();};view.append(more);}
+}
+function render(){
+ if(!data)return;
+ const stories=filteredStories();if(selected&&!stories.some(s=>s.id===selected.id)){selected=null;$('selection-title').textContent='Source evidence';$('selection-summary').textContent='';}$('status').textContent=`${data.units.length.toLocaleString()} source records · ${data.stories.length.toLocaleString()} evidence-linked stories · ${data.units.filter(u=>!Number.isFinite(time(u))).length} undated · ${data.version||'unversioned'}`;
+ if(data.flat_labels)$('status').textContent=`${data.units.length.toLocaleString()} source records · ${new Set(stories.flatMap(s=>s.source_ids).filter(id=>inRange(units.get(id)))).size.toLocaleString()} records in view · ${stories.length} display episodes · ${data.units.filter(u=>!Number.isFinite(time(u))).length} undated`;
+ const crumbs=$('breadcrumbs');crumbs.replaceChildren();const home=el('button','All activities');home.onclick=()=>{parent=null;render();};crumbs.append(home);
+ if(parent)for(const l of ancestors(parent)){crumbs.append(el('span','›'));const b=el('button',l.name);b.onclick=()=>{parent=l.id;render();};crumbs.append(b);}
+ $('undated').setAttribute('aria-pressed',String(undated));
+ renderList(stories);renderChart(stories);renderEvidence();
+}
+function renderChart(stories){
+ const chart=$('chart');chart.replaceChildren();if(undated){chart.append(el('p','Undated records are listed in the evidence panel; no wall-clock times have been invented.','notice'));return;}
+ let lanes=data.labels.filter(l=>l.parent_id===parent);if(!lanes.length&&parent)lanes=[labels.get(parent)];
+ lanes=lanes.filter(l=>{const allowed=new Set(descendants(l.id));return stories.some(s=>(s.labels||[]).some(id=>allowed.has(id)));});
+ if(!lanes.length){chart.append(el('p','No dated activities match this view.','notice'));return;}
+ const values=stories.flatMap(s=>s.source_ids.map(id=>units.get(id)).filter(inRange).map(time)).filter(Number.isFinite);
+ if(!values.length)return;let low=Math.min(...values),high=Math.max(...values);if(high<=low)high=low+60000;
+ const width=1200,left=285,right=25,height=75+lanes.length*64,plot=width-left-right;
+ const ns='http://www.w3.org/2000/svg';const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('role','img');svg.setAttribute('aria-label','Interactive activity timeline');
+ const node=(tag,attrs,text)=>{const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;svg.append(n);return n;};
+ const x=t=>left+(t-low)/(high-low)*plot;
+ for(let i=0;i<5;i++){const t=low+(high-low)*i/4;node('line',{x1:x(t),x2:x(t),y1:38,y2:height-20,stroke:'#e3eaed'});node('text',{x:x(t),y:23,'text-anchor':i===4?'end':i===0?'start':'middle',class:'axis'},new Date(t).toISOString().replace('T',' ').slice(0,16)+' UTC');}
+ lanes.forEach((lane,i)=>{const y=55+i*64;const label=node('text',{x:12,y:y+10,class:'lane',tabindex:0},lane.name.length>38?lane.name.slice(0,35)+'…':lane.name);const fullName=document.createElementNS(ns,'title');fullName.textContent=lane.name;label.append(fullName);label.style.cursor='pointer';label.onclick=()=>{parent=lane.id;render();};label.onkeydown=e=>{if(e.key==='Enter')label.onclick();};
+  const allowed=new Set(descendants(lane.id));
+  for(const s of stories.filter(s=>(s.labels||[]).some(l=>allowed.has(l)))){
+   const observations=s.source_ids.map(id=>units.get(id)).filter(inRange).sort((a,b)=>time(a)-time(b));let segments=[];
+   for(const u of observations){const last=segments[segments.length-1];if(!last||time(u)-last.end>(data.track==='transcript'?300000:3600000))segments.push({start:time(u),end:time(u)});else last.end=time(u);}
+   for(const seg of segments){const rect=node('rect',{x:x(seg.start),y,width:Math.max(4,x(seg.end)-x(seg.start)),height:23,rx:3,class:'bar'+(selected?.id===s.id?' selected':''),tabindex:0,role:'button','aria-label':s.title});const title=document.createElementNS(ns,'title');title.textContent=s.title+(s.outcome?' · '+s.outcome:'');rect.append(title);rect.onclick=()=>{selectStory(s);if(data.labels.some(l=>l.parent_id===lane.id))parent=lane.id;render();};rect.onkeydown=e=>{if(e.key==='Enter')rect.onclick();};}
+  }
+ });chart.append(svg);
+}
+$('file').onchange=async e=>{try{load(JSON.parse(await e.target.files[0].text()));}catch(error){$('status').textContent=error.message;$('status').className='error';}};
+for(const id of ['search','from','to'])$(id).addEventListener('input',render);
+$('layer').onchange=render;
+$('highlighted').onchange=renderEvidence;
+$('reset').onclick=()=>{parent=null;selected=null;undated=false;$('from').value='';$('to').value='';$('search').value='';$('layer').value='';$('highlighted').checked=false;$('selection-title').textContent='Source evidence';$('selection-summary').textContent='';render();};
+$('undated').onclick=()=>{undated=!undated;selected=null;render();};
+try{const embedded=JSON.parse($('embedded-data').textContent);if(embedded)load(embedded);}catch(error){$('status').textContent=error.message;}
+</script>
+</html>

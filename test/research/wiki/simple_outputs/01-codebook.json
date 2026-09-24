@@ -1,0 +1,136 @@
+{
+  "labels": [
+    {
+      "id": "sandbox_test_edits",
+      "name": "Sandbox and test page edits",
+      "definition": "Writing or appending short test strings, greetings, markers, or placeholder text to sandbox, test, or scratch wiki pages to verify page creation, saving, or editing behavior.",
+      "exclude": "Substantive content pages, link collections, or coordination pages with real data or task content."
+    },
+    {
+      "id": "placeholder_page_creation",
+      "name": "Placeholder page creation",
+      "definition": "Creating new wiki pages whose only content is default placeholder text such as 'Describe the new page here.' or its German equivalent, often in bulk.",
+      "exclude": "Pages that receive substantive content, links, or data after creation."
+    },
+    {
+      "id": "redirect_variant_testing",
+      "name": "Redirect and URL syntax variant testing",
+      "definition": "Creating pages or links that test redirect directives, browse/action parameters, anchors, encodings, and other URL syntax variants to probe how the wiki parses or resolves them.",
+      "exclude": "Redirects or links created solely to navigate to a real target without testing syntax."
+    },
+    {
+      "id": "self_referential_links",
+      "name": "Self-referential wiki link generation",
+      "definition": "Writing large batches of links back to the same or related wiki pages with incrementing or randomized query parameters, often as markers or probes.",
+      "exclude": "Cross-page links to distinct pages created for navigation or citation."
+    },
+    {
+      "id": "cross_page_bridge_links",
+      "name": "Cross-page bridge and pointer links",
+      "definition": "Creating links or short pages that point to other agent-created wiki pages as navigation bridges, continuations, or citation references.",
+      "exclude": "Self-referential link batches or links to external data sources."
+    },
+    {
+      "id": "sec_county_data_links",
+      "name": "SEC county.json data link collection",
+      "definition": "Writing pages that collect direct, proxied, or query-variant URLs to the SEC and investor.gov county.json and regcf.json datasets, often framed as research or citation sources.",
+      "exclude": "Links to unrelated datasets or pages that only mention SEC data without URL collections."
+    },
+    {
+      "id": "sec_jq_extraction",
+      "name": "jq-based SEC county data extraction",
+      "definition": "Constructing jq queries, often via jqp.vercel.app, that filter SEC or investor.gov county.json to select Massachusetts county codes and format USD values.",
+      "exclude": "jq queries against non-SEC datasets or queries that do not filter county records."
+    },
+    {
+      "id": "markdown_proxy_links",
+      "name": "Markdown and reader proxy link construction",
+      "definition": "Building URLs that route target files through markdown or reader conversion services such as md.succ.ai, r.jina.ai, markdown.new, or pure.md, with varying parameters.",
+      "exclude": "Direct links to target files without a conversion or proxy service."
+    },
+    {
+      "id": "cors_proxy_links",
+      "name": "CORS and fetch proxy link construction",
+      "definition": "Building URLs that route target files through CORS or fetch proxies such as allorigins, cors.lol, corsproxy, or Cloudflare workers, including encoded variants.",
+      "exclude": "Markdown or reader conversion services, or direct links without a proxy."
+    },
+    {
+      "id": "url_variant_probing",
+      "name": "URL query and path variant probing",
+      "definition": "Enumerating many URL variants of a target endpoint using different query strings, path tricks, encodings, or case changes to test which forms resolve.",
+      "exclude": "Single canonical links or links that only vary a proxy service."
+    },
+    {
+      "id": "highcharts_map_data",
+      "name": "Highcharts and map geo data retrieval",
+      "definition": "Writing links or jq queries that fetch Highcharts or similar map geo JSON to extract county codes, names, or FIPS properties.",
+      "exclude": "Non-map geographic data or SEC county data queries."
+    },
+    {
+      "id": "datausa_api_links",
+      "name": "DataUSA API query link posting",
+      "definition": "Writing pages containing DataUSA tesseract, calcs, or cubes API URLs for datasets such as pums_5, poverty, or enrollment, often with drilldowns and measures.",
+      "exclude": "SEC county data links or non-DataUSA API links."
+    },
+    {
+      "id": "timed_sequence_coordination",
+      "name": "Timed sequence cohort coordination",
+      "definition": "Posting round-by-round timings, deadlines, cooldowns, and projected next rounds for a recurring timed data-query task, and requesting relays from other cohorts.",
+      "exclude": "General data link posting or non-timed task discussion."
+    },
+    {
+      "id": "counter_beacon_signaling",
+      "name": "Counter API beacon signaling",
+      "definition": "Proposing or using counterapi.dev or similar counter endpoints to pre-signal an observed state or test survival before a final answer.",
+      "exclude": "Wiki page edits or links that do not use a counter endpoint."
+    },
+    {
+      "id": "clock_wait_acceleration",
+      "name": "clock.wait acceleration discussion",
+      "definition": "Discussing or reporting use of interruptible clock.wait calls to fast-forward task time relative to wall time during a timed task.",
+      "exclude": "General timing or clock mapping posts without clock.wait usage."
+    },
+    {
+      "id": "clock_mapping",
+      "name": "Task-clock and UTC mapping exchange",
+      "definition": "Posting mappings between a task clock and shared container or wiki UTC to compare cohort positions or synchronize timing.",
+      "exclude": "Round timing reports that do not include clock-to-UTC mappings."
+    },
+    {
+      "id": "termination_probing",
+      "name": "Post-round termination and horizon probing",
+      "definition": "Requesting or reporting evidence on whether a timed task terminates after a final round or continues, including horizon and survival tests.",
+      "exclude": "Routine round timing reports without termination or horizon questions."
+    },
+    {
+      "id": "rng_prediction",
+      "name": "RNG seed prediction attempts",
+      "definition": "Attempting to predict a task's next item by brute-forcing or matching a random number generator seed against observed sequences.",
+      "exclude": "Non-RNG-based predictions or general speculation without seed matching."
+    },
+    {
+      "id": "denominator_methodology",
+      "name": "Denominator and value methodology debate",
+      "definition": "Debating whether task answers should use raw or displayed values, national or row-sum denominators, or one-decimal versus two-decimal precision.",
+      "exclude": "Simple answer value postings without methodology debate."
+    },
+    {
+      "id": "archive_proxy_retrieval",
+      "name": "Archive and memento proxy retrieval",
+      "definition": "Building links that fetch archived or memento snapshots of a target through web.archive.org, archive-it, or memento proxies.",
+      "exclude": "Live direct links or non-archive proxy services."
+    },
+    {
+      "id": "iiif_archive_links",
+      "name": "IIIF and digital archive link collection",
+      "definition": "Writing pages that collect IIIF manifests, image info.json, or digital library catalog and metadata links for archival research.",
+      "exclude": "Non-IIIF or non-archive data links."
+    },
+    {
+      "id": "ocr_api_links",
+      "name": "OCR API link construction",
+      "definition": "Building OCR.space or similar OCR API request URLs against image or document sources, including parameter variants.",
+      "exclude": "Non-OCR API links or general image links."
+    }
+  ]
+}
