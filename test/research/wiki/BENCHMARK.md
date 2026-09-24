@@ -3,7 +3,8 @@
 **Archived experiment:** the METR-example changes were reverted. This report's
 "this run" and machine-readable `current` results refer to the
 [archived experiment](previous_outputs/metr_examples/). The default
-[viewer](classification.html) and `simple_outputs/` now show the previous run.
+[viewer](classification.html) and `simple_outputs/` now show the subsequent
+[naming revision](NAMING_BENCHMARK.md).
 
 Completed 24 September 2026. All stages used DeepSeek V4.1 Flash through
 OpenRouter / DeepInfra FP8. The input and the single-pass design are unchanged.

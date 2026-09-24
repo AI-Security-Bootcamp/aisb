@@ -16,4 +16,4 @@ baseline. No additional model calls were made to revert it.
 `steps-readme.md` and `outputs-readme.md` are verbatim historical snapshots;
 their relative links retain their original locations. Use the links above to
 navigate the archive. The active [viewer](../../classification.html) and
-[outputs](../../simple_outputs/README.md) show the restored baseline.
+[outputs](../../simple_outputs/README.md) show the latest completed run.

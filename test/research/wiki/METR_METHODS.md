@@ -4,10 +4,10 @@ Reviewed 2026-09-24. This is an investigation note, not participant material.
 
 The original prompt experiment described below has been reverted. Its scripts
 and results are [archived](previous_outputs/metr_examples/). The active scripts
-now include the narrower naming revision described next; the saved results and
-viewer still show the restored baseline. See the [scripts README](steps/README.md).
+now include the narrower naming revision described next; its completed run is
+shown in the saved results and viewer. See the [scripts README](steps/README.md).
 
-## Current naming revision — not yet run
+## Current naming revision
 
 The [active summarizer](steps/01-summarize.py) reuses the first four examples
 listed below: flag generation, target substitution, tool-call spoofing, and
@@ -17,8 +17,11 @@ wiki's target findings. The codebook prompt keeps that naming style and avoids
 merging distinct methods solely because they serve a common goal.
 
 This revision only changes the two prompts. Classification, batching, models,
-and formats are unchanged. No model run or benchmark has evaluated it yet;
-the previous experiment's scores must not be attributed to this revision.
+and formats are unchanged. Its [completed benchmark](NAMING_BENCHMARK.md) finds
+three strict headline matches, Other 0.42%, and insufficient context 0.46%, for
+$3.102129. All 22 names follow the requested style, but the bypass and deletion
+response still disappear in consolidation. The previous experiment's scores
+below describe that separate, archived run.
 
 ## Original investigation notes
 
@@ -144,5 +147,5 @@ feature. All wiki stages remain on DeepSeek V4.1 Flash. A subsequent full run an
 [benchmark review](BENCHMARK.md) now evaluate these prompts: the summaries preserve
 several key findings, but codebook consolidation loses important distinctions.
 The [experimental results and viewer](previous_outputs/metr_examples/) are
-archived, and the rerun cost $3.274702. The active results have been restored to
-the previous run; all charges remain recorded.
+archived, and that rerun cost $3.274702. It was subsequently reverted; the current
+results are from the narrower naming revision above. All charges remain recorded.

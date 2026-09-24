@@ -37,24 +37,25 @@ methods that serve the same goal. Qualifications such as "try" and "report"
 prevent names from implying unverified success.
 
 This is a focused naming revision to the baseline prompts. The model, batching,
-single-pass design, classifier, and output formats are unchanged. It has not
-been run: saved analytical outputs and the viewer still show the baseline below.
-The historical benchmark does not evaluate this new revision.
+single-pass design, classifier, and output formats are unchanged. The revision
+has now run on all 14,456 records; the outputs and viewer show this run. See the
+[new comparison](../NAMING_BENCHMARK.md): Other 0.42%, insufficient context 0.46%,
+and three strict headline matches, matching the original baseline. All 22 label
+names use the requested framing. The run cost $3.102129, including retries.
 
 The earlier METR-example experiment was reverted after it reduced distinct baseline
-label recovery from three behaviors to one. The active summaries, codebook, and
-classifications are byte-identical to the
-[previous results](../previous_outputs/before_metr_examples/). The viewer uses
-these restored results. The [comparison](../BENCHMARK.md) and
+label recovery from three behaviors to one. The
+[original results](../previous_outputs/before_metr_examples/),
+[historical comparison](../BENCHMARK.md), and
 [experimental artifacts](../previous_outputs/metr_examples/) remain available.
 
 Labels are flat, with definitions and exclusions; unfamiliar methods belong in
 Other. The original full-run scripts were not snapshotted, so the baseline
 prompts were reconstructed from the retained pilot and codebook template before
 adding this naming revision.
-This is an exact restoration of the analytical outputs, not a claim that the
-scripts are byte-identical to the originals. No model calls were made for the
-rollback. Cumulative cost records retain both runs.
+The earlier rollback restored the analytical outputs exactly; it did not recover
+byte-identical original scripts. The current run used committed prompt revision
+`750152e` without changes during execution. Cumulative costs retain all three runs.
 
 ## Classification and execution
 
