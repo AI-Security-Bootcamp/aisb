@@ -39,11 +39,11 @@ In my (David Quarel) experience, LLMs are very good at taking an existing codeba
 1. Take an existing gitrepo (make sure the licence allows for transformative use!) or an existing paper (ideally the `.tex` source on arXiv, LLMs can read this better than PDFs) and work with coding agents to get a version running that demonstrates the effect you are looking for. Ideally, each day should show off something cool, and reward the student for their hard work.
 2. Using agents, split up the code into smaller, isolated, testable exercises that build up towards the goal. The exercises will work, but may be terrible in terms of a suitable division of the material from a pedagogical stand point. 
 3. Throw away and rewrite most of the prose that the LLM writes for the exercises as they are usually not very good, but it provides a good skeleton for you to improve on. If the day is load-bearing on a particular concept, you should either write a short introduction to it, or even better, link to an existing blog post that explains it well. Don't fall for the trap (like I often do) of writing a very long verbose academic introduction, often this is overkill.
-	* (e.g.when rewriting `6.4-watermarking` , this day requires a surface level understanding of the Fast Fourier Transformer.)
+	* (e.g.when rewriting `5.4-watermarking` , this day requires a surface level understanding of the Fast Fourier Transformer.)
 		* [An interactive Introduction to Fourier Transforms](https://www.jezzamon.com/fourier/) is a good example! Nice interactive animations that act as a fast intuition pump of writing functions as sums of sines, or a picture as a sum of waves.
 		* [3Blue1Brown](https://www.3blue1brown.com/lessons/fourier-transforms/) can often be good, but can sometimes veer too strongly into the mathematical definition. This can be okay, but a. remember your audience, and b. is the math *really* required to convey the point? 
-	* For writing [`5.3-undoing-safety-training`](https://github.com/AI-Security-Bootcamp/aisb/blob/main/5.3-undoing-safety-finetuning/section3_instructions.md) the entire [attack](https://arxiv.org/pdf/2406.11717) is computing a vector based on [contrastive pairs](https://arxiv.org/abs/2312.06681), a well-established technique from mechanistic interpretability. This technique is both core to implementation, and also the math of it is relatively simple, so it was worth me explaining (recall that not all participants will have a background in linear algebra, or it's been a very long time since university for them!)
-	* Conversely, for [`6.4-watermarking`](https://github.com/AI-Security-Bootcamp/aisb/blob/main/6.4-watermarking/section4_instructions.md), one doesn't need a deep understanding of the FFT algorithm other than "it converts from pixel space to frequency space, and it's (roughly) invertible , and you can make coarse edits to the spectra of the image in frequency space without destroying large scale structure of the original image (this is how JPEG compression works!))". So, I don't explain at all the math behind FFT, and merely provide two black box functions `to_spectra` and `from_spectra` that handle this for them. Only explain something if the understanding is critical for the material. 
+	* For writing [`4.3-undoing-safety-training`](https://github.com/AI-Security-Bootcamp/aisb/blob/main/4.3-undoing-safety-finetuning/section3_instructions.md) the entire [attack](https://arxiv.org/pdf/2406.11717) is computing a vector based on [contrastive pairs](https://arxiv.org/abs/2312.06681), a well-established technique from mechanistic interpretability. This technique is both core to implementation, and also the math of it is relatively simple, so it was worth me explaining (recall that not all participants will have a background in linear algebra, or it's been a very long time since university for them!)
+	* Conversely, for [`5.4-watermarking`](https://github.com/AI-Security-Bootcamp/aisb/blob/main/5.4-watermarking/section4_instructions.md), one doesn't need a deep understanding of the FFT algorithm other than "it converts from pixel space to frequency space, and it's (roughly) invertible , and you can make coarse edits to the spectra of the image in frequency space without destroying large scale structure of the original image (this is how JPEG compression works!))". So, I don't explain at all the math behind FFT, and merely provide two black box functions `to_spectra` and `from_spectra` that handle this for them. Only explain something if the understanding is critical for the material.
 	* In general, the students should be presented with all the tools required to solve a task. Don't make them hunt around through the PyTorch docs! If they need to compute cross-entropy and you want them to use [`CrossEntropyLoss`](https://docs.pytorch.org/docs/2.14/generated/torch.nn.CrossEntropyLoss.html), you should provide an example of usage of the function
 
 ```python
@@ -162,11 +162,11 @@ Keep prose terse, but informative. Every word should be load bearing. Functions 
 
 ### Example from material
 
-An example excerpt from [`5.3-undoing-safety-finetuning`](https://github.com/AI-Security-Bootcamp/aisb/blob/main/5.3-undoing-safety-finetuning/section3_solution.py) 
+An example excerpt from [`4.3-undoing-safety-finetuning`](https://github.com/AI-Security-Bootcamp/aisb/blob/main/4.3-undoing-safety-finetuning/section3_solution.py)
 
 ```python
 """
-### Exercise 5.3.3: Project out a direction
+### Exercise 4.3.3: Project out a direction
 
 > **Difficulty**: 2/5
 > **Importance**: 5/5

@@ -291,7 +291,7 @@ def generate_answers(solution: Path, skip: set[str] = frozenset()) -> tuple[Path
 
     Reuses the same extraction the `--reference` build uses -- keep the body of
     every `if "SOLUTION":` block, drop SKIP blocks -- but with inline_tests=True,
-    For Day 5, each `test_*` stays defined inline rather than being replaced by
+    For Day 4, each `test_*` stays defined inline rather than being replaced by
     an import from the section's generated test module, so the run uses one
     process with a single copy of the shared TEST_FIXTURE setup (one loaded
     model) -- as a student's file does -- and identity-based checks behave the
@@ -302,12 +302,12 @@ def generate_answers(solution: Path, skip: set[str] = frozenset()) -> tuple[Path
     """
     answers = answers_path(solution)
     test_file = solution.with_name(solution.name[: -len(SOLUTION_SUFFIX)] + TEST_SUFFIX)
-    # Scope the inline-tests build (single shared-fixture load) to Day 5 for now:
+    # Scope the inline-tests build (single shared-fixture load) to Day 4 for now:
     # its sections compare object identity of a shared model, which needs one
     # model instance. Every other day keeps the import-based build unchanged, so
     # this cannot regress them. Widen this once a regression pass confirms it.
     day = solution.parent.name.split(".", 1)[0]
-    inline = day == "5"
+    inline = day == "4"
     with open(solution, "r") as infile, open(answers, "w") as outfile:
         build_reference_py(infile, outfile, test_file.name, inline_tests=inline)
 

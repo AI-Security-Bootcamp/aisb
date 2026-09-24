@@ -1,9 +1,13 @@
 # Final Curriculum Content Mapping
 
-This map treats the section-level layout on `origin/vegas` as the source of
-truth. The old monolithic `dayN-*` folders are legacy copies; migrate any
-remaining shared assets out of them, then remove them rather than copying their
-exercise content again.
+This map records the current seven-day layout. The latest schedule renumbering is
+old Day 4 → Day 6, old Day 5 → Day 4, and old Day 6 → Day 5; Days 1–3 and 7 stay
+in place. Days 6 and 7 cover infrastructure security.
+
+The **Existing source** column preserves historical source paths from the earlier
+`origin/vegas` migration; those paths are provenance, not current folder names.
+The old monolithic `dayN-*` folders are legacy copies; migrate any remaining shared
+assets out of them rather than copying their exercise content again.
 
 ## Target layout
 
@@ -23,15 +27,15 @@ exercise content again.
 | 3 | `3.3-guardrails/` | `3.3-guardrails/` | Keep in place. |
 | 3 | `3.4-knowledge-distillation/` | `3.4-kd-attacks/` | Rename the folder for the final curriculum wording; retain section and exercise numbering. |
 | 3 | `3.5-weight-extraction/` | `3.5-weight-extraction/` | Keep in place. |
-| 4 | `4.1-model-editing/` | `4.1-model-editing/` | Keep in place. |
-| 4 | `4.2-backdooring/` | `4.2-backdoor/` | Rename only; keep the current fine-tuning/data-poisoning lab. |
-| 4 | `4.3-undoing-safety-finetuning/` | `4.3-refusal-direction/` | Use the current refusal-direction/abliteration lab as the canonical section. |
-| 4 | `4.4-safety-finetuning/` | `4.4-safety-finetuning/` | Keep as an optional alternative exercise on undoing safety fine-tuning with LoRA. |
-| 5 | _No content folder_ | — | Break day. Represent it only in the curriculum overview/schedule. |
-| 6 | `6.1-adversarial-vision/` | `5.1-adversarial-vision/` | Renumber 5.1 to 6.1. |
-| 6 | `6.2-adversarial-language/` | `5.2-adversarial-language/` | Renumber 5.2 to 6.2. |
-| 6 | `6.3-prefix-tuning/` | `5.3-prefix-tuning/` | Renumber 5.3 to 6.3. |
-| 6 | `6.4-watermarking/` | `5.4-watermarking/` | Move to Day 6, renumber 5.4 to 6.4, and retain as optional additional content. |
+| 4 | `4.1-model-editing/` | `4.1-model-editing/` | Move the previous schedule's 5.1 to 4.1. |
+| 4 | `4.2-backdooring/` | `4.2-backdoor/` | Move 5.2 to 4.2; retain the fine-tuning/data-poisoning lab. |
+| 4 | `4.3-undoing-safety-finetuning/` | `4.3-refusal-direction/` | Move 5.3 to 4.3; retain the canonical refusal-direction/abliteration lab. |
+| 4 | `4.4-safety-finetuning/` | `4.4-safety-finetuning/` | Move 5.4 to 4.4; retain the optional LoRA alternative. |
+| 5 | `5.1-adversarial-vision/` | `5.1-adversarial-vision/` | Move the previous schedule's 6.1 to 5.1. |
+| 5 | `5.2-adversarial-language/` | `5.2-adversarial-language/` | Move 6.2 to 5.2. |
+| 5 | `5.3-prefix-tuning/` | `5.3-prefix-tuning/` | Move 6.3 to 5.3. |
+| 5 | `5.4-watermarking/` | `5.4-watermarking/` | Move 6.4 to 5.4; retain as optional additional content. |
+| 6 | _Reserved for infrastructure content_ | — | Move the previous schedule's Day 4 to Day 6; exercise content is added separately. |
 | 7 | `7.1-rand-report/` | `day6-infrastructure/day6_final_*` Section 6.1; `day6_securing_discussion.md` | Extract the RAND discussion. Keep IAPS/SL5 only as explicitly chosen supporting material. |
 | 7 | `7.2-threat-modeling/` | `7.1-atlas-killchain/` and `7.2-adversary-matrix/` | Consolidate the ATLAS kill-chain warm-up and frontier-lab adversary matrix into one section. |
 | 7 | `7.3-nvidia-container-toolkit/` | `day6-infrastructure/day6_final_*` Section 6.2; `module1/` | Extract the CVE-2025-23266/NVIDIAScape lab and its PoC assets. |
@@ -55,6 +59,7 @@ exercise identifiers, answer-file paths, cross-references, asset paths, test imp
 and README links. Regenerate instructions and tests from each renamed solution source
 rather than hand-editing generated artifacts.
 
-Before merging, update the top-level curriculum overview to show Day 5 as a break,
-Day 6 as adversarial examples/prefix tuning with optional watermarking, and Day 7 as
-reports, threat modeling, NVIDIAScape, and GPU RowHammer.
+Keep the top-level curriculum overview in chronological order: Day 4 training and
+data security, Day 5 adversarial ML with optional watermarking, Day 6 infrastructure
+security, and Day 7 infrastructure threat modeling, NVIDIAScape, and GPU RowHammer.
+There is no break day in this layout.
