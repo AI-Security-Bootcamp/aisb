@@ -299092,9 +299092,44 @@
       "response_id": "gen-1790260619-4v48RGApgmcUPVgZKixY",
       "cost_source": "OpenRouter reported usage.cost",
       "experiment": "wiki_naming_revision"
+    },
+    {
+      "name": "openrouter_wiki_gen-1790262881-PICBAcUf4hVKvfqUo6tA",
+      "track": "wiki",
+      "step": "01-codebook",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "DeepInfra",
+      "time": "2026-09-24T15:18:33.117441+00:00",
+      "usage": {
+        "prompt_tokens": 228318,
+        "completion_tokens": 9570,
+        "total_tokens": 237888,
+        "cost": 0.03598392,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.03598392,
+          "upstream_inference_prompt_cost": 0.03196452,
+          "upstream_inference_completions_cost": 0.0040194
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 7233,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "cost_usd": 0.03598392,
+      "response_id": "gen-1790262881-PICBAcUf4hVKvfqUo6tA",
+      "cost_source": "OpenRouter reported usage.cost",
+      "experiment": "wiki_codebook_reasoning"
     }
   ],
-  "committed_usd": 49.613906094000015,
+  "committed_usd": 49.649890014000015,
   "spending_policy": "User lifted the investigation cap; measured costs inform the eventual exercise budget.",
   "prices_per_model_per_million": {
     "gpt-5.6-luna": {
@@ -299512,5 +299547,12 @@
     "responses": 949,
     "report": "wiki/NAMING_BENCHMARK.md",
     "prompt_commit": "750152e847c22f59c71cfe0841b0bf01373ab0b8"
+  },
+  "wiki_codebook_reasoning_run": {
+    "cost_usd": 0.03598392,
+    "responses": 1,
+    "reasoning_tokens": 7233,
+    "report": "wiki/reasoning_codebook/README.md",
+    "experiment_commit": "69335775bc6495abaee2174330b941015b93e43a"
   }
 }

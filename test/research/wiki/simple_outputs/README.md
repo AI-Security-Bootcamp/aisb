@@ -6,6 +6,10 @@ DeepInfra FP8. This run uses the focused
 commit `750152e`: four separate-incident examples and "The agents ..." names.
 There is one flat codebook and one classification pass, with reasoning disabled.
 
+A later [codebook-only reasoning experiment](../reasoning_codebook/README.md)
+is saved separately. These analytical outputs and the viewer still use the
+non-reasoning codebook; the candidate has not been classified.
+
 | Artifact | Contents |
 |---|---|
 | [00-wiki.jsonl](00-wiki.jsonl) | All 14,456 source revision changes across seven wikis |
@@ -31,7 +35,8 @@ also do not independently verify external success or author identity. See
 
 This run cost **$3.102129** across 949 returned responses, including retries and
 automatic batch splitting. Earlier runs cost $4.108295 and $3.274702, bringing
-this directory's cumulative recorded cost to **$10.485126**. No prompt changes
+the full-run subtotal to **$10.485126**. The later codebook reasoning call cost
+$0.035984, bringing cumulative usage to **$10.521110**. No prompt changes
 were needed during execution. Source fields and ordering are preserved exactly.
 
 Read the [new benchmark report](../NAMING_BENCHMARK.md) and

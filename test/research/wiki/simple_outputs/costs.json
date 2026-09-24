@@ -118629,9 +118629,38 @@
         }
       },
       "discarded_quote_ids": []
+    },
+    {
+      "step": "01-codebook",
+      "response_id": "gen-1790262881-PICBAcUf4hVKvfqUo6tA",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "DeepInfra",
+      "usage": {
+        "prompt_tokens": 228318,
+        "completion_tokens": 9570,
+        "total_tokens": 237888,
+        "cost": 0.03598392,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.03598392,
+          "upstream_inference_prompt_cost": 0.03196452,
+          "upstream_inference_completions_cost": 0.0040194
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 7233,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      }
     }
   ],
-  "total_usd": 10.485125666399975,
+  "total_usd": 10.521109586399975,
   "responses_without_usage": 0,
   "summary_repair": {
     "initial_requests": 304,

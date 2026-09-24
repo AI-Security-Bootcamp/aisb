@@ -62,18 +62,18 @@ All 212 chunks produced summaries, with 2,937 activities. The classifier's 723
 initial batches completed using its existing retries and automatic splitting.
 No prompt repairs or additional discovery/classification pass were needed.
 All returned usage was added once to the [cost ledger](../cost_ledger.json).
-The cumulative wiki usage file now totals $10.485126 across the three runs.
+At completion, cumulative wiki usage totaled $10.485126 across the three runs.
 
 Validation confirmed unchanged source records, complete coverage and ordering,
 valid summary references, flat labels, and 13,270 exact highlights under 240
 characters. The rebuilt viewer preserves every record, label, and quote.
 The earlier 38-claim audit was not repeated for this run.
 
-## Next codebook experiment
+## Follow-up codebook experiments
 
-First reuse these summaries and enable reasoning only for codebook generation,
-keeping the prompt and other settings fixed. This isolates a small change before
-paying for another full classification. The present call consumed 228,294 input
+The first follow-up reused these summaries and enabled reasoning only for codebook
+generation, keeping the prompt and other settings fixed. This isolates a small
+change before paying for another full classification. The original call consumed 228,294 input
 tokens and cost $0.032899. At the model's listed rates, the same input plus 12,000
 output tokens including reasoning would be about $0.037 before caching discounts.
 [Model metadata and pricing](https://openrouter.ai/api/v1/models)
@@ -86,7 +86,10 @@ If that does not help, test a separate prompt revision: merge routine variants
 of the same behavior across data sources, preserve distinct mechanisms, and
 check for important methods left without a matching definition before returning
 the codebook. The target findings should remain in the held-out review.
-Neither proposed experiment has been run.
+The [reasoning-only experiment](reasoning_codebook/README.md) has now run: 7,233
+reasoning tokens, $0.035984, and a new category explicitly retaining the Power BI
+bypass. It has not been classified. The separate prompt revision proposed above
+has not been run.
 
 Open the [viewer](classification.html), [summaries](simple_outputs/01-summaries.json),
 [codebook](simple_outputs/01-codebook.json), or

@@ -56,7 +56,8 @@ prompts were reconstructed from the retained pilot and codebook template before
 adding this naming revision.
 The earlier rollback restored the analytical outputs exactly; it did not recover
 byte-identical original scripts. The current run used committed prompt revision
-`750152e` without changes during execution. Cumulative costs retain all three runs.
+`750152e` without changes during execution. Cumulative costs retain all three
+full runs and the subsequent codebook-only reasoning experiment.
 
 ## Classification and execution
 
@@ -73,7 +74,10 @@ budget and is excluded from returned text; the final JSON format is unchanged.
 The candidate is saved to `../reasoning_codebook/01-codebook.json`, while usage
 appends to the cumulative `../simple_outputs/costs.json`. The active codebook,
 classifications, and viewer are preserved until the candidate is assessed.
-The experiment has not yet run.
+The [completed experiment](../reasoning_codebook/README.md) used 7,233 reasoning
+tokens and cost $0.035984. It retained a new bypass category while preserving
+the existing PRNG, heartbeat, and acceleration categories. Deletion awareness
+is still missing. No classifications have been run with this candidate.
 
 Step 02 classifies batches of 20 targets with five context records on each side,
 using 64 concurrent requests. Each target receives one label and at most

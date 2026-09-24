@@ -23,6 +23,12 @@ $3.102129. All 22 names follow the requested style, but the bypass and deletion
 response still disappear in consolidation. The previous experiment's scores
 below describe that separate, archived run.
 
+The subsequent [codebook-only reasoning experiment](reasoning_codebook/README.md)
+reuses those summaries and prompts. It retains the bypass as a distinct
+definition, uses 7,233 reasoning tokens, and costs $0.035984. Deletion awareness
+still has no matching label. This candidate has not been used for classification;
+the saved full-run outputs and viewer remain unchanged.
+
 ## Original investigation notes
 
 My recommendation is to keep the simple summarization → codebook → classification
