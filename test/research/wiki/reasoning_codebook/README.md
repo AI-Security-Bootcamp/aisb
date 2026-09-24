@@ -4,7 +4,8 @@
 reasoning also retains PRNG prediction, detached heartbeats, and clock
 acceleration. Deletion awareness still has no matching category.
 
-The run reused all 212 saved summary chunks (2,937 activities). The prompt,
+The run reused all 212 saved summary chunks (2,937 activities), now preserved in
+[before_full_reasoning](../previous_outputs/before_full_reasoning/). The prompt,
 DeepSeek V4.1 Flash / DeepInfra FP8 model, temperature, 22-label limit, and
 12,000-token output budget were unchanged. The only request-setting change was
 `reasoning: {"effort": "high", "exclude": true}`. The scripts were committed
@@ -53,15 +54,16 @@ model variation prevents a firm causal claim about reasoning.
 
 - [01-codebook.json](01-codebook.json): the candidate, with unchanged flat-label format.
 - [comparison.json](comparison.json): evidence-linked review, hashes, settings, and actual usage.
-- [Existing summaries](../simple_outputs/01-summaries.json): unchanged input.
-- [Existing codebook](../simple_outputs/01-codebook.json): the non-reasoning comparison.
+- [Saved summaries](../previous_outputs/before_full_reasoning/01-summaries.json): unchanged input for this experiment.
+- [Saved codebook](../previous_outputs/before_full_reasoning/01-codebook.json): the non-reasoning comparison.
 - [Runner](../try_reasoning_codebook.py): reruns only codebook generation.
 
-The candidate has **not been used for classification**. The active codebook,
-classifications, and viewer are unchanged, and there are no new Other or
-insufficient-context percentages for this candidate. Testing its assignments is
-the next step before adopting it for the viewer.
+This candidate was **not used for classification**. This experiment left the
+active codebook, classifications, and viewer unchanged; there are no Other or
+insufficient-context percentages for this candidate. The later full pipeline
+run starts again from the source, generating fresh summaries and a fresh codebook.
 
 The $0.035984 charge was appended once to both the cumulative wiki usage and
 the [investigation ledger](../../cost_ledger.json). Cumulative recorded wiki
-spend is now $10.521110, including all earlier full runs and this experiment.
+spend at this experiment's completion was $10.521110, including all earlier
+full runs and this experiment.

@@ -4,8 +4,9 @@ Reviewed 2026-09-24. This is an investigation note, not participant material.
 
 The original prompt experiment described below has been reverted. Its scripts
 and results are [archived](previous_outputs/metr_examples/). The active scripts
-now include the narrower naming revision described next; its completed run is
-shown in the saved results and viewer. See the [scripts README](steps/README.md).
+now include the narrower naming revision described next and high reasoning for
+codebook generation. The [latest full run](FULL_REASONING_BENCHMARK.md) is shown
+in the saved results and viewer. See the [scripts README](steps/README.md).
 
 ## Current naming revision
 
@@ -26,8 +27,11 @@ below describe that separate, archived run.
 The subsequent [codebook-only reasoning experiment](reasoning_codebook/README.md)
 reuses those summaries and prompts. It retains the bypass as a distinct
 definition, uses 7,233 reasoning tokens, and costs $0.035984. Deletion awareness
-still has no matching label. This candidate has not been used for classification;
-the saved full-run outputs and viewer remain unchanged.
+still has no matching label. That candidate was not classified. A subsequent
+[full pipeline rerun](FULL_REASONING_BENCHMARK.md) generated fresh summaries and
+a fresh reasoning-enabled codebook, then classified all source records. It
+retains four strict headline matches, including all three reviewed bypass posts,
+with Other 0.19% and insufficient context 0.32%, at a cost of $2.480310.
 
 ## Original investigation notes
 

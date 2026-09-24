@@ -5,6 +5,10 @@ DeepSeek V4.1 Flash through OpenRouter / DeepInfra FP8, with reasoning disabled.
 The prompts stayed unchanged throughout the run. No target wiki findings were
 supplied to the model; four examples came from a separate METR incident.
 
+These are historical results, preserved in
+[before_full_reasoning](previous_outputs/before_full_reasoning/) before the
+subsequent full pipeline run with codebook reasoning enabled.
+
 **The requested naming style is present, while strict headline recovery matches
 the original baseline.** All 22 labels start with "The agents ...". PRNG seed
 prediction, heartbeat experiments, and clock acceleration remain distinct.
@@ -91,9 +95,10 @@ reasoning tokens, $0.035984, and a new category explicitly retaining the Power B
 bypass. It has not been classified. The separate prompt revision proposed above
 has not been run.
 
-Open the [viewer](classification.html), [summaries](simple_outputs/01-summaries.json),
-[codebook](simple_outputs/01-codebook.json), or
-[classified records](simple_outputs/02-records.jsonl). The
+Open the archived [viewer](previous_outputs/before_full_reasoning/classification.html),
+[summaries](previous_outputs/before_full_reasoning/01-summaries.json),
+[codebook](previous_outputs/before_full_reasoning/01-codebook.json), or
+[classified records](previous_outputs/before_full_reasoning/02-records.jsonl). The
 [machine-readable comparison](naming_benchmark_results.json) includes source IDs,
 summary evidence, assignments, hashes, validation, and costs. The
 [original results](previous_outputs/before_metr_examples/) and

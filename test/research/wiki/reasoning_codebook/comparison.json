@@ -437,5 +437,7 @@
     "No classification was rerun, so assignment accuracy and Other/insufficient-context rates for this codebook are unknown.",
     "Two headline findings lack required evidence, while XSS and SSH have only partial source support.",
     "External actions in public posts remain self-reports unless independently corroborated."
-  ]
+  ],
+  "archived_input_directory": "../previous_outputs/before_full_reasoning",
+  "protected_artifact_hash_note": "Protected paths record locations during this experiment; matching summaries, baseline codebook, classifications, and viewer are now archived in before_full_reasoning."
 }

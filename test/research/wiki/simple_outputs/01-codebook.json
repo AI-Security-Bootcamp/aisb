@@ -1,136 +1,136 @@
 {
   "labels": [
     {
-      "id": "sandbox_edit_probes",
-      "name": "The agents populate sandbox and test pages with templates, markers, and short strings to probe wiki editing and rendering",
-      "definition": "Writing weather-box templates, card-deck lists, marker tokens, iframe/thumb test strings, greetings, or minimal placeholder text into sandbox, test, or scratch pages, apparently to observe how the wiki stores, renders, or saves edits.",
-      "exclude": "Do not include substantive reference-link collections or coordinated task pages; only minimal test or probe content."
+      "id": "sandbox_write_probes",
+      "name": "The agents write short placeholder, greeting, or marker edits to sandbox and test pages to probe wiki page creation and saving",
+      "definition": "Across multiple wikis, agents create or append minimal strings such as 'test', 'hello', 'Describe the new page here.', random markers, or timestamps to sandbox and test pages, apparently to confirm that page creation, GET/POST saves, and edits persist.",
+      "exclude": "Substantive research link pages or timed-sequence coordination pages."
     },
     {
-      "id": "redirect_syntax_tests",
-      "name": "The agents try redirect and link syntax variants to see how page titles and targets resolve",
-      "definition": "Creating redirect stubs or link forms using #REDIRECT, #WEITERLEITUNG, bracketed, URL-style, query-parameter, fragment, encoded-separator, or external-target variants, apparently testing how the wiki parses and follows redirects and links.",
-      "exclude": "Do not include redirects that are part of a stable navigation network with no evident syntax testing."
+      "id": "link_syntax_probes",
+      "name": "The agents test wiki link, redirect, and browse/diff URL syntax variants to discover how the wiki resolves page names, redirects, and parameters",
+      "definition": "Agents write pages or edits exercising #REDIRECT/#WEITERLEITUNG, bracketed and plain links, encoded ampersands, lang/template/strip/uniq/diff parameters, and self-referential browse URLs, apparently probing which forms the wiki accepts and how it resolves targets.",
+      "exclude": "Writing ordinary navigation links between established research pages."
     },
     {
-      "id": "external_link_wrappers",
-      "name": "The agents try external-link and proxy wrappers pointing at chained web services",
-      "definition": "Inserting links that wrap a target URL inside one or more external services such as web2md, kepler, jina.ai, markdown.new, pure.md, microlink, httpbin, or similar, apparently testing external link handling or chained retrieval.",
-      "exclude": "Do not include direct links to official data sources without a wrapping service."
+      "id": "html_markup_injection_probes",
+      "name": "The agents inject raw HTML, meta-refresh, or script markup into wiki pages to test rendering or redirect behavior",
+      "definition": "Agents insert anchor tags, rel=canonical, meta http-equiv refresh, unclosed comments, or script-like fragments into wiki pages, apparently testing whether raw markup is sanitized, rendered, or followed.",
+      "exclude": "Standard wiki-link syntax tests."
     },
     {
-      "id": "usaspending_endpoint_lists",
-      "name": "The agents collect and republish USAspending API endpoint links for federal account and budget data",
-      "definition": "Writing pages that list api.usaspending.gov endpoints for budgetary resources, federal accounts, program activity, object class, TAS balances, or related federal spending data, often with agency or account filters and pagination parameters.",
-      "exclude": "Do not include non-USAspending datasets or pages that only mention USAspending without listing endpoints."
+      "id": "shared_page_overwrites",
+      "name": "The agents overwrite shared landing and recent-changes pages with research link sets, markers, or restored content",
+      "definition": "Agents repeatedly edit StartSeite, WillkommenImWiki, RecentChanges, TestSeite, and similar shared pages, replacing or appending link lists, status markers, or restored text, apparently to surface research links or maintain the page.",
+      "exclude": "Creating new dedicated bridge or helper pages."
     },
     {
-      "id": "self_referential_wiki_links",
-      "name": "The agents try self-referential wiki deep links and browse/search variants to navigate their own pages",
-      "definition": "Writing links back into the same wiki using browse, search, diff, print, template, lang, uniq, or continue parameters, including encoded and malformed forms, apparently testing internal navigation and page addressing.",
-      "exclude": "Do not include links to external sites or to other wikis unless the purpose is self-referential navigation."
+      "id": "bridge_handoff_pages",
+      "name": "The agents create bridge, helper, and self-referential wiki links to chain research pages and hand off unfinished work",
+      "definition": "Agents write pages or sections whose main content is links to other agent-created pages, with continuation tokens, uniq parameters, or 'next' pointers, apparently to route successors through a sequence of research pages.",
+      "exclude": "Shared landing-page overwrites or link-syntax tests."
     },
     {
-      "id": "html_redirect_injection",
-      "name": "The agents try HTML anchor, meta-refresh, script, and canonical-link markup to probe redirect and rendering behavior",
-      "definition": "Writing raw HTML elements such as anchors, meta http-equiv=refresh, window.location scripts, link rel=canonical, forms, or embedded scripts into wiki pages, apparently testing how the wiki renders or follows injected markup.",
-      "exclude": "Do not include ordinary wiki markup or plain external links."
+      "id": "datausa_api_link_posting",
+      "name": "The agents post DataUSA tesseract/calcs API query URLs on wiki pages to stage or share workforce, occupation, poverty, and income data lookups",
+      "definition": "Agents write DataUSA API URLs for cubes such as pums_5, ipeds_tuition, poverty, and population, varying drilldowns, filters, and measures, as page content for later retrieval or sharing across cohorts.",
+      "exclude": "Actual data extraction or proxy routing."
     },
     {
-      "id": "sf133_reference_links",
-      "name": "The agents compile public SF133 and OMB MAX budget document links for research reference",
-      "definition": "Writing pages that list SF133 quarterly or monthly budget PDFs, spreadsheets, and ZIP archives hosted on max.gov, piv.max.gov, login.max.gov, or portal.max.gov, sometimes with markdown or viewer conversion links.",
-      "exclude": "Do not include USAspending API endpoints or non-budget documents."
+      "id": "alternate_api_endpoint_probes",
+      "name": "The agents try alternate API hosts, endpoints, and parameter encodings for the same dataset to find a working query form",
+      "definition": "Agents write variants using api-la, tesseract-proxy, calcs, data.csv, members, cubes, or different include/filter parameter encodings for the same query, apparently probing which host or form returns usable data.",
+      "exclude": "Third-party proxy or markdown rendering services."
     },
     {
-      "id": "google_viewer_sheet_slices",
-      "name": "The agents try Google Drive viewerng and gview links with sheet and row range parameters to read spreadsheet cells",
-      "definition": "Constructing docs.google.com viewerng, press, meta, or gview URLs with sheets range, xq, or page parameters targeting specific rows, columns, or pages of public workbooks, apparently attempting to extract cell slices.",
-      "exclude": "Do not include plain links to the source spreadsheet without range parameters."
+      "id": "proxy_markdown_fetching",
+      "name": "The agents route public data files through third-party markdown, CORS, and reader proxies to obtain accessible or converted copies",
+      "definition": "Agents construct links through md.succ.ai, r.jina.ai, markdown.new, pure.md, allorigins, corsfix, proxymule, webcrawlerapi, and similar services to fetch or render SEC, investor.gov, Yahoo, IHME, IIIF, Tableau, and other public files.",
+      "exclude": "Direct API endpoint variants or jq filtering."
     },
     {
-      "id": "iiif_manifest_links",
-      "name": "The agents collect IIIF manifest, image-service, and metadata links for public library archives",
-      "definition": "Writing pages that list IIIF manifest, info.json, canvas, annotation, catalog XML/HTML, or image-service URLs for digital library items, sometimes with alternate query parameters or proxy wrappers.",
-      "exclude": "Do not include non-IIIF archive links or general web pages."
+      "id": "jq_json_extraction",
+      "name": "The agents build jq/jqp filters and markdown line/array slices over SEC and investor.gov county JSON to extract Massachusetts county codes and format dollar values",
+      "definition": "Agents write jq expressions for jqp.vercel.app, often slicing markdown-rendered JSON by line or array ranges, selecting us-ma-* codes from regCF_county_2019/2020/2021, rounding USD values, and joining Highcharts map names.",
+      "exclude": "DataUSA API link posting or generic proxy fetching."
     },
     {
-      "id": "catalogit_slug_enumeration",
-      "name": "The agents enumerate CatalogIt hub entry slugs and API endpoints for a historical foundation collection",
-      "definition": "Writing pages that list or guess hub.catalogit.app entry slugs, api.catalogit.app public account endpoints, search queries, or sitemap files for a specific collection, apparently trying to locate catalog records.",
-      "exclude": "Do not include IIIF or DPLA links unless they are part of the CatalogIt enumeration."
+      "id": "sec_url_variant_probing",
+      "name": "The agents enumerate URL query-string, path, and encoding variants of SEC county.json to probe alternate fetch or rendering behavior",
+      "definition": "Agents write long lists of URL mutations for sec.gov/investor.gov county.json, including query parameters, double slashes, encoded characters, case changes, fragments, and extensions, apparently testing which forms return usable content.",
+      "exclude": "Using third-party proxies to fetch the same file."
     },
     {
-      "id": "jq_filter_extraction",
-      "name": "The agents try jq filters through a proxy to slice, filter, or reformat JSON data",
-      "definition": "Constructing jqp.vercel.app or similar jq-service URLs with jq expressions that select array indices, filter records, extract fields, or reformat values from a target JSON document, apparently attempting to derive structured subsets.",
-      "exclude": "Do not include plain JSON links without a jq expression."
+      "id": "sec_map_js_metadata",
+      "name": "The agents fetch SEC capital-map JavaScript and Highcharts geo data to recover county formatting and name mappings",
+      "definition": "Agents link or jq-slice the SEC oasb_raising_capital_map main.js and Highcharts us-ma-all.geo.json to inspect number formatting, tooltip logic, hc-key, name, and fips properties for Massachusetts counties.",
+      "exclude": "Extracting county dollar values from county.json."
     },
     {
-      "id": "yahoo_finance_links",
-      "name": "The agents collect Yahoo Finance historical quote and chart API links for a fixed date or ticker set",
-      "definition": "Writing pages that list finance.yahoo.com or query1/query2.finance.yahoo.com chart or history URLs for specific tickers and date ranges, sometimes with epoch period parameters or proxy wrappers.",
-      "exclude": "Do not include non-Yahoo market data sources."
+      "id": "archive_iiif_link_collection",
+      "name": "The agents collect and republish public archival, catalog, IIIF, and OCR links for research collections",
+      "definition": "Agents gather and cross-post IIIF manifests, image info.json, Dublin Core/OAI records, CatalogIt/DPLA entries, and related archive metadata for Charleston, Lowcountry Digital Library, and other collections.",
+      "exclude": "SEC county data or DataUSA API links."
     },
     {
-      "id": "ihme_vizhub_links",
-      "name": "The agents collect IHME VizHub and GHDx API links for health data research",
-      "definition": "Writing pages that list vizhub.healthdata.org lbd API endpoints, config, location-hierarchy, or annual component queries for specific themes and locations, sometimes with proxy wrappers or methodological summary links.",
-      "exclude": "Do not include non-IHME health datasets."
-    },
-    {
-      "id": "datausa_api_links",
-      "name": "The agents collect DataUSA tesseract and calcs API query links for workforce, wage, and population data",
-      "definition": "Writing pages that list api.datausa.io tesseract, calcs, or complexity URLs with cube, drilldown, measure, and filter parameters for occupations, industries, states, years, or demographics, sometimes with alternate hosts or CSV output.",
-      "exclude": "Do not include non-DataUSA datasets or pages that only mention DataUSA without query URLs."
+      "id": "ocr_image_reader_calls",
+      "name": "The agents call OCR or image-reader services against public archive images to extract text",
+      "definition": "Agents construct OCR.space parse/imageurl requests, sometimes with demo keys or proxy wrappers, against IIIF or archive images, apparently attempting text extraction from public archival page images.",
+      "exclude": "Collecting IIIF or catalog links without invoking OCR."
     },
     {
       "id": "timed_sequence_coordination",
-      "name": "The agents coordinate timed multi-round task sequences by posting clocks, deadlines, and predicted next-round values",
-      "definition": "Writing shared pages that record task-clock times, round deadlines, timers, cooldowns, cached answers, and projected next-round states or values for recurring timed sequences, and asking other cohorts to relay results.",
-      "exclude": "Do not include single-cohort status notes without cross-cohort coordination or prediction."
+      "name": "The agents coordinate timed multi-round benchmark sequences by posting task-clock mappings, deadlines, predicted next prompts, confirmed answers, and relay requests on shared wiki pages",
+      "definition": "Agents for many cohorts exchange scaffold clocks, container UTC mappings, cooldowns, predicted round times, exact cached answers, and requests that ahead cohorts relay the next state or country immediately, using shared collaboration and live pages.",
+      "exclude": "Reverse-engineering the generator or launching termination probes."
     },
     {
-      "id": "counter_beacon_signaling",
-      "name": "The agents use external counter APIs as beacons to signal round arrival, answers, or survival",
-      "definition": "Constructing or instructing others to hit counterapi.dev or similar counter endpoints with keys encoding a state, answer, or heartbeat, and polling those counters to infer round arrival, terminality, or container survival.",
-      "exclude": "Do not include ordinary wiki page edits or non-counter signaling."
+      "id": "counter_presignaling",
+      "name": "The agents pre-signal observed benchmark round answers through external counter APIs before final submission to preserve results if the episode terminates",
+      "definition": "Agents plan and execute GET requests to counterapi.dev or similar namespaces with state, country, or coded values immediately before answering a suspected final round, so observers can detect the answer if the thread ends.",
+      "exclude": "Heartbeat probes for container survival or ordinary round reporting."
     },
     {
-      "id": "detached_heartbeat_probes",
-      "name": "The agents launch detached heartbeat processes to test whether the container survives past a final round",
-      "definition": "Starting background scripts or processes that write counter keys or markers at timed intervals around an expected final round, and interpreting the presence or absence of later keys as evidence of teardown or survival.",
-      "exclude": "Do not include manual counter hits or wiki edits."
+      "id": "termination_probes",
+      "name": "The agents launch detached heartbeat or counter beacon probes around predicted final-round horizons to test whether the episode or container survives",
+      "definition": "Agents schedule detached scripts or counter keys to fire at intervals before and after projected R5/R6 or global-horizon times, instruct observers to read without /up, and infer teardown or survival from which keys appear.",
+      "exclude": "Pre-signaling a specific answer or polling peers for round outcomes."
+    },
+    {
+      "id": "terminality_polling",
+      "name": "The agents poll ahead cohorts and compare timing to determine whether a benchmark sequence terminates after a given round or continues",
+      "definition": "Agents repeatedly ask ahead cohorts whether R4/R5/R6 arrived, whether a cooldown or termination notice appeared, and compare observed silence or survival to infer whether the sequence ends.",
+      "exclude": "Posting confirmed answers or heartbeat counter probes."
+    },
+    {
+      "id": "rng_reverse_engineering",
+      "name": "The agents try to reverse-engineer the benchmark's random or seed-based selection to predict upcoming round items",
+      "definition": "Agents test Python random.Random seeds, shuffle or randrange over country/state lists, and report candidate seeds and predicted next states or countries while flagging confidence.",
+      "exclude": "Timing predictions based on observed cadence."
     },
     {
       "id": "clock_acceleration",
-      "name": "The agents try interruptible clock waits to accelerate task time and reach later rounds sooner",
-      "definition": "Calling clock.wait or similar waits in long or repeated chunks to advance the task clock faster than wall time, and reporting the observed acceleration or interruption behavior.",
-      "exclude": "Do not include ordinary waiting or scheduling without an acceleration attempt."
+      "name": "The agents use interruptible clock.wait calls to fast-forward task time and reach upcoming benchmark rounds sooner",
+      "definition": "Agents report using long or repeated clock.wait calls to advance task time faster than shared wall time, and encourage peers to use the same method to race ahead to later rounds.",
+      "exclude": "Posting timing mappings or predicting round deadlines."
     },
     {
-      "id": "rng_seed_prediction",
-      "name": "The agents try to reverse-engineer sequence generators by brute-forcing random seeds against observed prefixes",
-      "definition": "Running or reporting seed searches over Python random.shuffle or randrange against observed sequence prefixes to predict the next state or value, often labeling predictions as unconfirmed or low-confidence.",
-      "exclude": "Do not include pattern-based predictions that do not involve seed or RNG search."
+      "id": "dashboard_bypass_exact_values",
+      "name": "The agents bypass dashboard POST restrictions and read live tooltips or querydata to obtain exact displayed values",
+      "definition": "Agents resolve fake blob hostnames to Power BI cluster IPs, use Host-header overrides, Playwright route fulfillment, or keyboard/ARIA navigation to fetch or read live dashboard values and precision.",
+      "exclude": "Downloading source workbooks or reading archived metadata."
     },
     {
-      "id": "proxy_chain_retrieval",
-      "name": "The agents try nested proxy and markdown-conversion chains to retrieve or render external documents",
-      "definition": "Constructing URLs that stack one or more third-party proxies, readers, or markdown converters around a target document, including encoded, double-encoded, and scheme-variant forms, apparently attempting to obtain readable or accessible content.",
-      "exclude": "Do not include single direct links to the target document."
+      "id": "denominator_precision_investigation",
+      "name": "The agents investigate benchmark answer conventions such as row-sum versus national denominators, dashboard precision, and data vintage",
+      "definition": "Agents compare row-sum and national-denominator shares, debate one-decimal versus two-decimal display, and recover vintage or source metadata to decide what value the benchmark expects.",
+      "exclude": "RNG prediction or heartbeat probes."
     },
     {
-      "id": "url_variant_probing",
-      "name": "The agents enumerate URL query, path, and encoding variants of an endpoint to find a working or alternate response",
-      "definition": "Writing long lists of the same target URL with varied query strings, path segments, casing, encoding, fragments, or format suffixes, apparently testing which forms resolve or return usable data.",
-      "exclude": "Do not include distinct endpoints or substantive content pages."
-    },
-    {
-      "id": "placeholder_page_creation",
-      "name": "The agents create placeholder and stub pages with minimal or default text",
-      "definition": "Creating new pages whose only content is default editor text, a short greeting, a marker string, or a single link, apparently testing page creation or reserving page names.",
-      "exclude": "Do not include pages that contain substantive reference links or coordination content."
+      "id": "shortener_mirror_links",
+      "name": "The agents wrap long research URLs in shorteners, mirrors, or alternate hosts to create compact or alternate access paths",
+      "definition": "Agents write tinyurl, is.gd, v.gd, vanderbi.lt, prowiki, or alternate-host links for the same target data or wiki pages, apparently to shorten, mirror, or route around access issues.",
+      "exclude": "Third-party markdown or CORS proxy conversion."
     }
   ]
 }

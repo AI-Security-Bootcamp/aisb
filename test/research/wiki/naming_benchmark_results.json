@@ -11,7 +11,7 @@
     "test/research/wiki/steps/02-classify.py": "1c79e7b8b5d1a6851499e97c49b839ba3d2a96691f7e0d0d6323aefed084d35a",
     "test/research/wiki/simple_outputs/00-wiki.jsonl": "fbae22855d75a25a224470fb3d06897f3d055a58b686193f67d3a207d814ff63"
   },
-  "output_directory": "simple_outputs",
+  "output_directory": "previous_outputs/before_full_reasoning",
   "output_sha256": {
     "00-wiki.jsonl": "fbae22855d75a25a224470fb3d06897f3d055a58b686193f67d3a207d814ff63",
     "01-summaries.json": "fa7da88b4bc16241e29192e9e7b1e763e12350a044625fa7ed3e789854021a2b",
@@ -833,5 +833,8 @@
     "Conservative XSS grading retains partial recovery despite improved grouping of all three script probes.",
     "The earlier 38-claim summary audit was not repeated for this run.",
     "One run per prompt; differences cannot be attributed solely to prompt wording rather than model variation."
-  ]
+  ],
+  "archived": true,
+  "input_file": "simple_outputs/00-wiki.jsonl",
+  "hash_note": "Script paths describe locations at execution; exact scripts are in prompt_commit. Analytical outputs are now in output_directory."
 }

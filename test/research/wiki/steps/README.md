@@ -37,12 +37,12 @@ The codebook keeps this framing when merging activities and preserves distinct
 methods that serve the same goal. Qualifications such as "try" and "report"
 prevent names from implying unverified success.
 
-This is a focused naming revision to the baseline prompts. The model, batching,
-single-pass design, classifier, and output formats are unchanged. The revision
-has now run on all 14,456 records; the outputs and viewer show this run. See the
-[new comparison](../NAMING_BENCHMARK.md): Other 0.42%, insufficient context 0.46%,
-and three strict headline matches, matching the original baseline. All 22 label
-names use the requested framing. The run cost $3.102129, including retries.
+The latest full run uses these prompts with high reasoning for codebook generation
+and classifies all 14,456 records. The outputs and viewer show this run. See the
+[comparison](../FULL_REASONING_BENCHMARK.md): Other 0.19%, insufficient context
+0.32%, and four strict headline matches, up from three in the previous naming run.
+All 22 names use the requested framing. The run cost $2.480310, including retries
+and a repair of one incomplete classification batch.
 
 The earlier METR-example experiment was reverted after it reduced distinct baseline
 label recovery from three behaviors to one. The
@@ -55,14 +55,13 @@ Other. The original full-run scripts were not snapshotted, so the baseline
 prompts were reconstructed from the retained pilot and codebook template before
 adding this naming revision.
 The earlier rollback restored the analytical outputs exactly; it did not recover
-byte-identical original scripts. The current run used committed prompt revision
-`750152e` without changes during execution. Cumulative costs retain all three
-full runs and the subsequent codebook-only reasoning experiment.
+byte-identical original scripts. The latest run began at `5443608`, with the
+validation fallback added in `3db020c`; prompts remained unchanged. Cumulative
+costs retain all four full runs and the codebook-only reasoning experiment.
 
 ## Classification and execution
 
-The saved full run above predates the reasoning change. To test only codebook
-generation against the same saved summaries, run:
+To test only codebook generation against the current saved summaries, run:
 
 ```bash
 python3 test/research/wiki/try_reasoning_codebook.py
@@ -74,10 +73,16 @@ budget and is excluded from returned text; the final JSON format is unchanged.
 The candidate is saved to `../reasoning_codebook/01-codebook.json`, while usage
 appends to the cumulative `../simple_outputs/costs.json`. The active codebook,
 classifications, and viewer are preserved until the candidate is assessed.
-The [completed experiment](../reasoning_codebook/README.md) used 7,233 reasoning
+The earlier [fixed-summary experiment](../reasoning_codebook/README.md) used 7,233 reasoning
 tokens and cost $0.035984. It retained a new bypass category while preserving
 the existing PRNG, heartbeat, and acceleration categories. Deletion awareness
-is still missing. No classifications have been run with this candidate.
+is still missing. That exact candidate was not classified; the latest full run
+regenerated its summaries and codebook before classification.
+
+In the full run, the first two codebook responses consumed the 12,000-token
+output budget; the third succeeded with 7,324 reasoning tokens. A larger output
+budget may improve reliability when adapting this snapshot into an exercise,
+but it has not been tested here.
 
 Step 02 classifies batches of 20 targets with five context records on each side,
 using 64 concurrent requests. Each target receives one label and at most
