@@ -89,8 +89,9 @@ Every target ID must appear exactly once in a valid response. Quotes are removed
 if they are not literal substrings of their target, or are 240 characters or
 longer. Their IDs are retained with that request's usage in `costs.json`.
 Malformed model responses get at most three attempts; this is not another
-discovery or classification pass. A truncated classification batch is split into
-smaller target groups using the same model and codebook. Failed chunks/batches stop the pipeline while
+discovery or classification pass. A truncated batch, or one that still fails
+response validation after its retries, is split into smaller target groups using
+the same model and codebook. Failed chunks/batches stop the pipeline while
 preserving successful outputs. The viewer refuses incomplete classification
 output. Summary length is a guideline; extra activities are retained rather
 than discarded merely to meet a count.

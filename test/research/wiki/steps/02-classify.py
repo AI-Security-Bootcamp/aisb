@@ -59,6 +59,7 @@ def classify(start, source, evidence, codebook, key, size=BATCH_SIZE):
                "context_before": evidence[max(0, start - CONTEXT_RECORDS):start],
                "context_after": evidence[end:end + CONTEXT_RECORDS]}
     usage, error = [], None
+    split = False
     for attempt in range(3):
         try:
             instructions = PROMPT
@@ -86,16 +87,10 @@ def classify(start, source, evidence, codebook, key, size=BATCH_SIZE):
                           "model": MODEL, "provider": result.get("provider"),
                           "usage": result.get("usage")})
             choice = result["choices"][0]
-            # Smaller target groups recover a truncated response without repeating
-            # the entire corpus or changing the codebook.
+            # Stop retrying a truncated group; split it below.
             if choice["finish_reason"] == "length" and len(targets) > 1:
-                half = len(targets) // 2
-                left, left_usage, left_error = classify(start, source, evidence, codebook, key, half)
-                right, right_usage, right_error = classify(start + half, source, evidence, codebook, key, len(targets) - half)
-                usage.extend(left_usage + right_usage)
-                if left_error or right_error:
-                    return None, usage, left_error or right_error
-                return left + right, usage, None
+                split = True
+                break
             assert choice["finish_reason"] == "stop", "Incomplete response"
             annotations = json.loads(choice["message"]["content"])["records"]
             assert isinstance(annotations, list) and len(annotations) == len(targets), f"Return exactly {len(targets)} records"
@@ -117,6 +112,17 @@ def classify(start, source, evidence, codebook, key, size=BATCH_SIZE):
             return records, usage, None
         except Exception as exc:
             error = f"{type(exc).__name__}: {str(exc).replace(key, '[redacted]')}"
+            split = isinstance(exc, (ValueError, KeyError, TypeError, AssertionError))
+    # Smaller groups also recover replies that still omit IDs or have malformed
+    # JSON after retries. Network/authentication failures do not trigger splitting.
+    if split and len(targets) > 1:
+        half = len(targets) // 2
+        left, left_usage, left_error = classify(start, source, evidence, codebook, key, half)
+        right, right_usage, right_error = classify(start + half, source, evidence, codebook, key, len(targets) - half)
+        usage.extend(left_usage + right_usage)
+        if left_error or right_error:
+            return None, usage, left_error or right_error
+        return left + right, usage, None
     return None, usage, error
 
 
