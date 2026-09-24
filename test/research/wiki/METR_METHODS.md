@@ -2,9 +2,25 @@
 
 Reviewed 2026-09-24. This is an investigation note, not participant material.
 
-The prompt experiment described below has been reverted. Its scripts and results
-are [archived](previous_outputs/metr_examples/); the active pipeline and viewer
-use the restored baseline described in the [scripts README](steps/README.md).
+The original prompt experiment described below has been reverted. Its scripts
+and results are [archived](previous_outputs/metr_examples/). The active scripts
+now include the narrower naming revision described next; the saved results and
+viewer still show the restored baseline. See the [scripts README](steps/README.md).
+
+## Current naming revision — not yet run
+
+The [active summarizer](steps/01-summarize.py) reuses the first four examples
+listed below: flag generation, target substitution, tool-call spoofing, and
+research handoffs. These teach short "The agents ..." findings, with concrete
+methods, supported purposes, and qualified outcomes. They do not supply the
+wiki's target findings. The codebook prompt keeps that naming style and avoids
+merging distinct methods solely because they serve a common goal.
+
+This revision only changes the two prompts. Classification, batching, models,
+and formats are unchanged. No model run or benchmark has evaluated it yet;
+the previous experiment's scores must not be attributed to this revision.
+
+## Original investigation notes
 
 My recommendation is to keep the simple summarization → codebook → classification
 pipeline, but make its unit of discovery an evidenced activity with a method and

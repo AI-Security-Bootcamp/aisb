@@ -13,7 +13,8 @@ The input is a byte-for-byte copy of [units.jsonl](../units.jsonl): 14,456 nonem
 revision changes across seven wikis. See [collection scope](../COLLECTION_AND_METHODS.md)
 for preprocessing and omitted sources. Requests include only ID, timestamp,
 page, site, and text; previous classifications and publisher conclusions are
-not included as evidence. Prompts contain no incident-specific naming examples.
+not included as evidence. Naming examples from a separate METR investigation
+illustrate the desired wording; they are not evidence or expected findings.
 
 Requests use short record IDs such as `R12` to avoid copying long wiki page and
 revision names. Scripts map them back to original source IDs before writing any
@@ -25,19 +26,32 @@ lists their supporting record IDs. It then combines all activity names and
 descriptions into at most 22 flat labels; source-ID lists remain in the summary
 file but are unnecessary for this consolidation call.
 
-## Restored baseline
+## Naming revision and saved results
 
-The METR-example experiment was reverted after it reduced distinct baseline
+Summary activity names and final label names now use **"The agents ..."**:
+an action, attempt, or discovery, with a concrete method and evidenced purpose.
+Four examples from METR illustrate this level of detail without supplying the
+wiki findings we want to discover. See [example sources](../METR_METHODS.md).
+The codebook keeps this framing when merging activities and preserves distinct
+methods that serve the same goal. Qualifications such as "try" and "report"
+prevent names from implying unverified success.
+
+This is a focused naming revision to the baseline prompts. The model, batching,
+single-pass design, classifier, and output formats are unchanged. It has not
+been run: saved analytical outputs and the viewer still show the baseline below.
+The historical benchmark does not evaluate this new revision.
+
+The earlier METR-example experiment was reverted after it reduced distinct baseline
 label recovery from three behaviors to one. The active summaries, codebook, and
 classifications are byte-identical to the
 [previous results](../previous_outputs/before_metr_examples/). The viewer uses
 these restored results. The [comparison](../BENCHMARK.md) and
 [experimental artifacts](../previous_outputs/metr_examples/) remain available.
 
-Prompts again ask for descriptive activities without example labels or a forced
-sentence style. Labels are flat, with definitions and exclusions; unfamiliar
-methods belong in Other. The original full-run scripts were not snapshotted, so
-the restored prompts use the retained pre-experiment pilot and codebook template.
+Labels are flat, with definitions and exclusions; unfamiliar methods belong in
+Other. The original full-run scripts were not snapshotted, so the baseline
+prompts were reconstructed from the retained pilot and codebook template before
+adding this naming revision.
 This is an exact restoration of the analytical outputs, not a claim that the
 scripts are byte-identical to the originals. No model calls were made for the
 rollback. Cumulative cost records retain both runs.

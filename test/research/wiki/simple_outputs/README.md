@@ -4,6 +4,10 @@ The previous DeepSeek V4.1 Flash results are restored after reverting the
 METR-example experiment. All three analytical outputs match the
 [saved baseline](../previous_outputs/before_metr_examples/) byte for byte.
 
+The scripts now include a new, focused [naming revision](../steps/README.md#naming-revision-and-saved-results)
+with "The agents ..." examples. It has not been run; these saved results and
+their benchmark scores predate that revision.
+
 | Artifact | Contents |
 |---|---|
 | [00-wiki.jsonl](00-wiki.jsonl) | All 14,456 source revision changes across seven wikis |
