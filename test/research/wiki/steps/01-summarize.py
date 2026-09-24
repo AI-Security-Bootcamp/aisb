@@ -3,6 +3,7 @@
 Reads: ../simple_outputs/00-wiki.jsonl, without sampling.
 Writes: 01-summaries.json, then 01-codebook.json; usage goes in costs.json.
 Both stages use DeepSeek V4.1 Flash through OpenRouter / DeepInfra FP8.
+Only codebook generation uses high reasoning effort; summaries disable it.
 Every run makes fresh paid calls. Set OPENROUTER_API_KEY or enter it when asked.
 """
 
@@ -94,7 +95,8 @@ def ask(prompt, data, limit, name, usage, key):
             "model": MODEL,
             "messages": [{"role": "system", "content": prompt},
                          {"role": "user", "content": "Return JSON:\n" + json.dumps(data)}],
-            "reasoning": {"enabled": False},
+            "reasoning": ({"effort": "high", "exclude": True}
+                          if name == "01-codebook" else {"enabled": False}),
             "response_format": {"type": "json_object"},
             "max_tokens": limit, "temperature": 0,
             "provider": {"only": ["deepinfra"], "allow_fallbacks": False,
@@ -148,6 +150,7 @@ def summarize(group, key):
 
 
 def make_codebook(summaries, key):
+    """Return a codebook and record usage; the caller chooses where to save it."""
     # The codebook needs activity descriptions, not thousands of repeated record IDs.
     descriptions = [[{"name": a["name"], "summary": a["summary"]}
                      for a in chunk["summary"]["activities"]] for chunk in summaries]
@@ -166,7 +169,7 @@ def make_codebook(summaries, key):
             except (ValueError, KeyError, TypeError, AssertionError):
                 if attempt == 2:
                     raise
-        (OUTPUT / "01-codebook.json").write_text(json.dumps(codebook, indent=2) + "\n")
+        return codebook
     finally:
         save_usage(usage)
 
@@ -191,7 +194,8 @@ def main():
     if errors:
         raise RuntimeError(f"Failed summary chunks: {errors}")
 
-    make_codebook(summaries, key)
+    codebook = make_codebook(summaries, key)
+    (OUTPUT / "01-codebook.json").write_text(json.dumps(codebook, indent=2) + "\n")
 
 
 if __name__ == "__main__":

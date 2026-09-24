@@ -1,7 +1,8 @@
 # Wiki analysis: one pass with DeepSeek V4.1 Flash
 
 All three model stages use `deepseek/deepseek-v4.1-flash` through OpenRouter,
-pinned to DeepInfra FP8 with reasoning disabled. These are investigation scripts,
+pinned to DeepInfra FP8. Summarization and classification disable reasoning;
+codebook generation now uses high reasoning effort. These are investigation scripts,
 separate from the Anthropic transcript pipeline.
 
 | Script | Inputs in `../simple_outputs/` | Outputs in `../simple_outputs/` |
@@ -58,6 +59,21 @@ byte-identical original scripts. The current run used committed prompt revision
 `750152e` without changes during execution. Cumulative costs retain all three runs.
 
 ## Classification and execution
+
+The saved full run above predates the reasoning change. To test only codebook
+generation against the same saved summaries, run:
+
+```bash
+python3 test/research/wiki/try_reasoning_codebook.py
+```
+
+This uses the same codebook function and unchanged prompt, model, temperature,
+22-label limit, and 12,000-token output budget. Reasoning counts toward that
+budget and is excluded from returned text; the final JSON format is unchanged.
+The candidate is saved to `../reasoning_codebook/01-codebook.json`, while usage
+appends to the cumulative `../simple_outputs/costs.json`. The active codebook,
+classifications, and viewer are preserved until the candidate is assessed.
+The experiment has not yet run.
 
 Step 02 classifies batches of 20 targets with five context records on each side,
 using 64 concurrent requests. Each target receives one label and at most
