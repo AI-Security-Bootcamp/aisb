@@ -55,7 +55,7 @@ POD_NAME_PREFIX = "aisb-bootcamp"
 GPU_TYPE_IDS = [
     # Mid-price, strong price/performance
     "NVIDIA RTX 6000 Ada Generation",
-    "NVIDIA L40S",
+    # "NVIDIA L40S", 
     "NVIDIA L40",
     "NVIDIA A100 80GB PCIe",
     "NVIDIA A100-SXM4-80GB",
@@ -145,11 +145,60 @@ def light_setup_commands(days: list[str] | None) -> list[str] | None:
         return None
     return LIGHT_SETUP_DAYS.get(days[0])
 
+
+# GPU days whose sections need packages beyond the base setup_pod.sh install (it
+# covers only 3.1-tokenization/requirements.txt + the model cache). Keyed by day;
+# each value is that day's own requirements.txt (repo-relative), which is the
+# source of truth for its deps -- new packages are picked up automatically, no
+# hand-maintained list to fall out of date. Installed on top of the base setup
+# at provision time and by --test-solutions -- the GPU-day analogue of
+# LIGHT_SETUP_DAYS. The per-day file is comprehensive (it re-lists torch etc.,
+# already satisfied on the pod, so those are no-ops).
+#
+# NOTE on Day 5: its file pins datasets==3.6.0 (the fine-tuning pin, which
+# CONFLICTS with the datasets>=4.4.2 control-arena wants -- never co-locate day 5
+# with day 2) and vllm==0.6.3. vLLM has no wheel on some hosts and must never
+# abort provisioning, so gpu_extra_setup_commands installs everything EXCEPT the
+# vllm line normally, then vllm best-effort (see requirements-vllm.txt).
+GPU_DAY_REQUIREMENTS: dict[str, str] = {
+    "5": "5.1-model-editing/requirements.txt",
+    "6": "6.1-adversarial-vision/requirements.txt",
+}
+
+
+def gpu_extra_setup_commands(days: list[str] | None) -> list[str] | None:
+    """Install a single GPU day's requirements.txt on top of the base setup.
+
+    Returns the pip commands, or None for anything but exactly one day that has
+    a requirements file in GPU_DAY_REQUIREMENTS. Any `vllm` line is installed
+    best-effort (it can fail to build on some hosts and must not abort the run);
+    everything else in the file is a hard install.
+    """
+    if not days or len(days) != 1:
+        return None
+    req = GPU_DAY_REQUIREMENTS.get(days[0])
+    if req is None:
+        return None
+    return [
+        # Everything except any vllm line -- a hard install (aborts on failure).
+        f"grep -ivE '^[[:space:]]*vllm' {req} | pip install -r /dev/stdin",
+        # The vllm line, if present, best-effort so a missing wheel never fails
+        # provisioning (only the optional Section 5.4 needs it).
+        f"vllm_req=$(grep -iE '^[[:space:]]*vllm' {req} || true); "
+        f"[ -n \"$vllm_req\" ] && (pip install \"$vllm_req\" || "
+        f"echo 'WARNING: vllm install failed (optional; only Section 5.4 needs it)') || true",
+    ]
+
 # How long to wait for sshd inside a pod. A host that already has DOCKER_IMAGE
 # cached is reachable in well under a minute; one that has to pull the ~20GB
 # devel image can take the better part of ten. Budget for the cold case --
 # giving up early skips the clone and setup phases on an otherwise fine pod.
 SSH_WAIT_TIMEOUT = 900
+
+# How long to allow for the repo clone/pull. The repo is small (~50 MB .git) and
+# clones in seconds on a healthy host, but a degraded network path to GitHub can
+# stall; give some headroom, then fail that pod gracefully rather than hang.
+CLONE_TIMEOUT = 300
 
 # ─────────────────────────────────────────────────────────────────────────────
 # GraphQL helpers
@@ -488,23 +537,39 @@ def pod_exec(
     timeout: int | None = 120,
     ssh_key: str | None = None,
     quiet: bool = False,
+    out_file: str | None = None,
 ) -> int:
-    """Execute a command on a pod via SSH, streaming output live.
+    """Execute a command on a pod via SSH.
 
-    stdout/stderr are inherited from the parent so the caller sees progress
-    in real time. Returns the remote command's exit code, or -1 if we
+    By default stdout/stderr are inherited from the parent so the caller sees
+    progress in real time. Returns the remote command's exit code, or -1 if we
     couldn't reach the pod over SSH.
 
     Pass quiet=True to swallow both streams -- used by the boot-polling loop,
     where a failed connection is the expected case and printing every refusal
     just buries the real output.
+
+    Pass out_file to redirect both streams (append) to a file instead of the
+    console -- used by the parallel test runner, where interleaving several
+    pods' live output into one terminal would be unreadable.
     """
     import subprocess
     ssh_cmd = build_ssh_cmd(pod_id, ssh_key=ssh_key)
     if ssh_cmd is None:
-        if not quiet:
-            print("    Could not find SSH connection info", file=sys.stderr)
+        msg = "    Could not find SSH connection info\n"
+        if out_file:
+            with open(out_file, "a") as fh:
+                fh.write(msg)
+        elif not quiet:
+            print(msg, end="", file=sys.stderr)
         return -1
+    if out_file is not None:
+        with open(out_file, "ab") as fh:
+            result = subprocess.run(
+                ssh_cmd + [command], timeout=timeout,
+                stdout=fh, stderr=subprocess.STDOUT,
+            )
+        return result.returncode
     result = subprocess.run(
         ssh_cmd + [command], timeout=timeout, capture_output=quiet
     )
@@ -582,18 +647,40 @@ def clone_repo(
     ssh_key: str | None = None,
 ) -> bool:
     """Clone (or pull) the bootcamp repo on the pod using the configured git key."""
+    import subprocess
     # If the repo already exists from a prior run, pull instead of clone so
-    # re-running the deploy is idempotent.
+    # re-running the deploy is idempotent. `--depth 1` keeps the clone to the
+    # latest commit only: the pods never need history, and a shallow clone is a
+    # fraction of the transfer, so a slow host is far less likely to time out.
+    # Treat the repo as "present" only if it has a valid HEAD -- a clone that was
+    # interrupted (e.g. a timed-out earlier run) leaves a partial .git with no
+    # HEAD, and blindly pulling that fails. In that case wipe it and clone fresh,
+    # so --provision self-heals a broken clone instead of erroring on pull.
     script = (
         "set -e\n"
-        f"if [ -d {dest}/.git ]; then\n"
+        f"if [ -d {dest}/.git ] && git -C {dest} rev-parse HEAD >/dev/null 2>&1; then\n"
         f"  echo 'Repo already present at {dest}, pulling latest...'\n"
         f"  git -C {dest} pull --ff-only\n"
         "else\n"
-        f"  git clone {repo_url} {dest}\n"
+        f"  echo 'No valid clone at {dest}; cloning fresh...'\n"
+        f"  rm -rf {dest}\n"
+        f"  git clone --depth 1 {repo_url} {dest}\n"
         "fi\n"
     )
-    if pod_exec(pod_id, script, timeout=180, ssh_key=ssh_key) != 0:
+    # A slow or stalled network path to GitHub can exceed the timeout. Catch it
+    # here so one unlucky pod fails gracefully (and prints the resume hint via
+    # provision_pods) instead of crashing the whole deploy with a traceback.
+    try:
+        rc = pod_exec(pod_id, script, timeout=CLONE_TIMEOUT, ssh_key=ssh_key)
+    except subprocess.TimeoutExpired:
+        print(
+            f"    TIMED OUT cloning after {CLONE_TIMEOUT}s (slow network to "
+            f"GitHub?). The pod is fine; retry with --provision, or terminate "
+            f"and recreate to land on a different host.",
+            file=sys.stderr,
+        )
+        return False
+    if rc != 0:
         print("    FAILED to clone repo", file=sys.stderr)
         return False
     print(f"    Cloned {repo_url} -> {dest}")
@@ -629,11 +716,19 @@ def run_setup_pod(
             + f"bash {VSCODE_EXT_SCRIPT} || true\n"
         )
     else:
+        # Base GPU setup (Day 3 deps, GPU check, model cache), plus any extra
+        # requirements a specific GPU day needs on top of it (e.g. Day 5).
+        extra = gpu_extra_setup_commands(days) or []
+        extra_lines = "".join(f"{c}\n" for c in extra)
         label = "setup/setup_pod.sh"
+        if extra:
+            label += f" + day {days[0]} extra deps"
         script = (
             "set -e\n"
             f"cd {repo_dir}/{SETUP_SECTION_DIR}\n"
             "bash setup/setup_pod.sh\n"
+            f"cd {repo_dir}\n"
+            f"{extra_lines}"
         )
     rc = pod_exec(pod_id, script, timeout=1800, ssh_key=ssh_key)
     if rc != 0:
@@ -655,28 +750,46 @@ TEST_SOLUTIONS_TIMEOUT = 14400
 TEST_SOLUTIONS_BUILD_TOOLING = "libcst~=1.8.0 black~=25.1.0 termcolor~=3.1.0"
 
 
-def write_pod_env(pod_id: str, openrouter_key: str, repo_dir: str, ssh_key: str | None) -> bool:
-    """Write a temporary {repo_dir}/.env holding the OpenRouter key on the pod.
+def write_pod_env(
+    pod_id: str,
+    repo_dir: str,
+    ssh_key: str | None,
+    openrouter_key: str | None = None,
+    hf_token: str | None = None,
+) -> bool:
+    """Write a temporary {repo_dir}/.env with the secrets a test run needs.
 
-    The API-only days (1, 2) call aisb_utils/env.load_dotenv(), which requires a
-    .env at the repo root. We create one just for the test run and delete it
-    afterwards (see remove_pod_env), so the key never persists on the pod.
+    OpenRouter key: the API-only days (1, 2) call aisb_utils/env.load_dotenv(),
+    which reads this .env. HF token: gated-model days (e.g. 5.4) need it in the
+    environment for huggingface_hub -- run_test_solutions sources this .env
+    before the run so HF_TOKEN is exported, not merely present on disk.
 
-    The key is passed through a quoted heredoc so the shell does not expand it.
-    It still travels inside the SSH command (over the encrypted channel); that
-    is acceptable for an instructor's own testing pod, which is torn down after.
+    We create the file just for the run and delete it afterwards (remove_pod_env)
+    so no secret persists on the pod. Values pass through a quoted heredoc so the
+    shell does not expand them; they travel inside the SSH command over the
+    encrypted channel, acceptable for an instructor's own throwaway testing pod.
     """
+    lines, names = [], []
+    if openrouter_key:
+        lines.append(f"OPENROUTER_API_KEY={openrouter_key}")
+        names.append("OpenRouter key")
+    if hf_token:
+        lines.append(f"HF_TOKEN={hf_token}")
+        names.append("HF token")
+    if not lines:
+        return True
+    body = "".join(f"{line}\n" for line in lines)
     # A quoted delimiter ('EOF') means no shell/parameter expansion in the body.
     script = (
         f"cat > {repo_dir}/.env <<'AISB_ENV_EOF'\n"
-        f"OPENROUTER_API_KEY={openrouter_key}\n"
+        f"{body}"
         "AISB_ENV_EOF\n"
     )
     rc = pod_exec(pod_id, script, timeout=30, ssh_key=ssh_key, quiet=True)
     if rc != 0:
         print(f"    FAILED to write .env on pod (exit {rc})", file=sys.stderr)
         return False
-    print("    Wrote temporary .env (OpenRouter key)")
+    print(f"    Wrote temporary .env ({', '.join(names)})")
     return True
 
 
@@ -700,7 +813,10 @@ def run_test_solutions(
     ssh_key: str | None = None,
     timeout: int = TEST_SOLUTIONS_TIMEOUT,
     openrouter_key: str | None = None,
+    hf_token: str | None = None,
     days: list[str] | None = None,
+    out_file: str | None = None,
+    section_timeout: int | None = None,
 ) -> int:
     """Run aisb_utils/test_solutions.py on one pod; return its exit code.
 
@@ -722,33 +838,79 @@ def run_test_solutions(
     """
     import subprocess
 
-    if openrouter_key and not write_pod_env(pod_id, openrouter_key, repo_dir, ssh_key):
+    secrets = bool(openrouter_key or hf_token)
+    if secrets and not write_pod_env(
+        pod_id, repo_dir, ssh_key, openrouter_key=openrouter_key, hf_token=hf_token
+    ):
         return -1
 
-    # For a single API-only day, install its deps too (control-arena / openai /
-    # transformers etc.) -- same idea as the build-tooling install below.
-    light = light_setup_commands(days) or []
-    light_lines = "".join(f"{cmd}\n" for cmd in light)
+    # Install the day's own deps so --test-solutions works on any cloned pod:
+    # a single API-only day (1/2) gets its lightweight stack; a single GPU day
+    # with extras (e.g. 5) gets those on top of whatever setup_pod.sh installed.
+    # These lists are mutually exclusive per day, so concatenating is safe.
+    setup_cmds = (light_setup_commands(days) or []) + (gpu_extra_setup_commands(days) or [])
+    setup_lines = "".join(f"{cmd}\n" for cmd in setup_cmds)
+
+    # Per-section timeout inside test_solutions.py (its own DEFAULT_TIMEOUT is
+    # 1800s). The long fine-tuning sections (e.g. 5.4) can exceed that, so allow
+    # overriding it. When raised, also widen the whole-run SSH cap below so the
+    # outer pod_exec does not kill the run before the per-section budget is spent.
+    timeout_flag = f" --timeout {section_timeout}" if section_timeout else ""
+    if section_timeout:
+        # Room for several sections at the raised budget, plus setup overhead.
+        timeout = max(timeout, section_timeout * 6 + 600)
 
     script = (
         "set -e\n"
         f"cd {repo_dir}\n"
-        f"{light_lines}"
+        f"{setup_lines}"
         # Ensure the build tooling test_solutions.py imports is present. Quiet and
         # idempotent: a no-op once installed, so it costs only a few seconds on
         # reruns and makes --test-solutions work regardless of the pod's setup profile.
         f"pip install -q {TEST_SOLUTIONS_BUILD_TOOLING}\n"
-        f"python3 aisb_utils/test_solutions.py {' '.join(day_flags)}\n"
+        # Export any secrets from the temporary .env (HF_TOKEN for gated models,
+        # OpenRouter key) into the environment for the run. `set -a` marks all
+        # subsequently-sourced vars for export; huggingface_hub reads HF_TOKEN.
+        f"set -a; [ -f {repo_dir}/.env ] && . {repo_dir}/.env; set +a\n"
+        f"python3 aisb_utils/test_solutions.py {' '.join(day_flags)}{timeout_flag}\n"
     )
     try:
-        return pod_exec(pod_id, script, timeout=timeout, ssh_key=ssh_key)
+        return pod_exec(pod_id, script, timeout=timeout, ssh_key=ssh_key, out_file=out_file)
     except subprocess.TimeoutExpired:
-        print(f"    TIMED OUT after {timeout}s", file=sys.stderr)
+        msg = f"    TIMED OUT after {timeout}s\n"
+        if out_file:
+            with open(out_file, "a") as fh:
+                fh.write(msg)
+        else:
+            print(msg, end="", file=sys.stderr)
         return -1
     finally:
-        # Always clean up the key, whether the run passed, failed, or timed out.
-        if openrouter_key:
+        # Always clean up the .env, whether the run passed, failed, or timed out.
+        if secrets:
             remove_pod_env(pod_id, repo_dir, ssh_key)
+
+
+# Lines of a failing pod's captured log to replay in the parallel summary, so a
+# failure is visible without opening the log file.
+PARALLEL_FAIL_TAIL_LINES = 40
+
+
+def _result_label(returncode: int) -> str:
+    """Human-readable status for a run_test_solutions exit code."""
+    if returncode == 0:
+        return "PASS"
+    if returncode == -1:
+        return "unreachable/timeout"
+    return f"FAIL (exit {returncode})"
+
+
+def _tail(path: str, n: int) -> list[str]:
+    """Return the last n lines of a text file (best effort)."""
+    try:
+        with open(path, errors="replace") as fh:
+            return fh.readlines()[-n:]
+    except OSError:
+        return []
 
 
 def test_solutions_on_pods(
@@ -756,23 +918,36 @@ def test_solutions_on_pods(
     day_flags: list[str],
     ssh_key: str | None = None,
     openrouter_key: str | None = None,
+    hf_token: str | None = None,
     days: list[str] | None = None,
+    parallel: bool = False,
+    section_timeout: int | None = None,
 ) -> int:
     """Run the solution suite across a fleet; return how many pods failed.
 
-    Pods run one at a time rather than concurrently: these runs are long and
-    verbose, and interleaving several of them into one console makes it
-    impossible to tell which pod a traceback came from.
+    Sequential by default: pods run one at a time so their long, verbose output
+    streams live and every traceback is attributable to the pod above it.
+
+    With parallel=True the pods run concurrently instead. Live streaming would
+    be unreadable interleaved, so each pod's output is captured to its own log
+    file and only a PASS/FAIL summary table (plus the tail of each failing log)
+    is printed at the end. Best for the long GPU days, where the wall-clock
+    saving is large and you mostly care about the per-pod verdict.
     """
     print(f"\n{'='*70}")
-    print(f"  Running test_solutions.py {' '.join(day_flags)} on {len(pods)} pod(s)")
+    mode = "concurrently" if parallel and len(pods) > 1 else "one at a time"
+    print(f"  Running test_solutions.py {' '.join(day_flags)} on {len(pods)} pod(s) ({mode})")
     print(f"{'='*70}")
+
+    if parallel and len(pods) > 1:
+        return _test_solutions_parallel(pods, day_flags, ssh_key, openrouter_key, hf_token, days, section_timeout)
 
     failed: list[tuple[dict, int]] = []
     for pod in sorted(pods, key=lambda p: p["name"]):
         print(f"\n  --- {pod['name']} ({pod['id']})")
         returncode = run_test_solutions(
-            pod["id"], day_flags, ssh_key=ssh_key, openrouter_key=openrouter_key, days=days
+            pod["id"], day_flags, ssh_key=ssh_key, openrouter_key=openrouter_key,
+            hf_token=hf_token, days=days, section_timeout=section_timeout,
         )
         if returncode != 0:
             failed.append((pod, returncode))
@@ -786,6 +961,80 @@ def test_solutions_on_pods(
         print("\n  Each pod's per-section summary is above; scroll up for tracebacks.")
     else:
         print(f"  test_solutions.py passed on all {len(pods)} pod(s).")
+    print(f"{'='*70}", flush=True)
+    return len(failed)
+
+
+def _test_solutions_parallel(
+    pods: list[dict],
+    day_flags: list[str],
+    ssh_key: str | None,
+    openrouter_key: str | None,
+    hf_token: str | None,
+    days: list[str] | None,
+    section_timeout: int | None = None,
+) -> int:
+    """Run test_solutions.py on every pod at once, capturing per-pod logs.
+
+    Returns how many pods failed. Each pod's stdout/stderr goes to its own file
+    under a temp directory; when they all finish we print a summary table and
+    replay the tail of every failing log.
+    """
+    import concurrent.futures
+    import tempfile
+
+    log_dir = tempfile.mkdtemp(prefix="aisb_test_solutions_")
+    ordered = sorted(pods, key=lambda p: p["name"])
+    log_paths = {p["id"]: os.path.join(log_dir, f"{p['name']}_{p['id']}.log") for p in ordered}
+
+    print(f"  Per-pod logs (streaming live to disk):")
+    for pod in ordered:
+        print(f"    {pod['name']:<18} {log_paths[pod['id']]}")
+    print(f"  Tail any of them, e.g.  tail -f {log_paths[ordered[0]['id']]}", flush=True)
+
+    def _run(pod: dict) -> tuple[dict, int]:
+        rc = run_test_solutions(
+            pod["id"], day_flags, ssh_key=ssh_key, openrouter_key=openrouter_key,
+            hf_token=hf_token, days=days, out_file=log_paths[pod["id"]],
+            section_timeout=section_timeout,
+        )
+        return pod, rc
+
+    results: dict[str, int] = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(ordered)) as executor:
+        futures = [executor.submit(_run, pod) for pod in ordered]
+        for future in concurrent.futures.as_completed(futures):
+            pod, returncode = future.result()
+            results[pod["id"]] = returncode
+            print(f"  finished: {pod['name']} ({pod['id']}) -- {_result_label(returncode)}",
+                  flush=True)
+
+    failed = [(pod, results[pod["id"]]) for pod in ordered if results[pod["id"]] != 0]
+
+    # Summary table.
+    print(f"\n{'='*70}")
+    print("  SUMMARY")
+    print(f"{'='*70}")
+    print(f"  {'NAME':<18} {'ID':<16} {'RESULT':<20} LOG")
+    for pod in ordered:
+        rc = results[pod["id"]]
+        print(f"  {pod['name']:<18} {pod['id']:<16} {_result_label(rc):<20} {log_paths[pod['id']]}")
+
+    # Replay the tail of each failing log so failures are visible inline.
+    for pod, _ in failed:
+        print(f"\n{'-'*70}")
+        print(f"  tail of {pod['name']} ({pod['id']}):")
+        print(f"{'-'*70}")
+        for line in _tail(log_paths[pod["id"]], PARALLEL_FAIL_TAIL_LINES):
+            print(f"  {line}", end="")
+
+    print(f"\n{'='*70}")
+    if failed:
+        print(f"  test_solutions.py FAILED on {len(failed)}/{len(ordered)} pod(s). "
+              f"Full logs in {log_dir}")
+    else:
+        print(f"  test_solutions.py passed on all {len(ordered)} pod(s). "
+              f"Logs in {log_dir}")
     print(f"{'='*70}", flush=True)
     return len(failed)
 
@@ -1100,6 +1349,46 @@ def main():
         action="store_true",
         help="With --test-solutions: test every section in the repo.",
     )
+    parser.add_argument(
+        "--skip",
+        action="append",
+        default=[],
+        metavar="ID",
+        help="With --test-solutions: leave out a section (--skip 3.3) or a "
+             "single exercise (--skip 3.3.5) on every target pod, and still "
+             "count the rest as a pass. Repeatable. Passed straight through to "
+             "test_solutions.py.",
+    )
+    parser.add_argument(
+        "--remain",
+        action="store_true",
+        help="With --test-solutions: keep the generated *_answers.py files on "
+             "the pod instead of deleting them, so a failing section can be "
+             "edited and re-run by hand over SSH. Passed straight through to "
+             "test_solutions.py. Those files contain every solution for the "
+             "section, so do not leave them on a pod participants can reach.",
+    )
+    parser.add_argument(
+        "--section-timeout",
+        type=int,
+        default=None,
+        metavar="SECONDS",
+        help="With --test-solutions: per-section timeout passed to "
+             "test_solutions.py (its default is 1800s). Raise it for the long "
+             "fine-tuning sections, e.g. --section-timeout 5400. The overall "
+             "SSH cap is widened to match.",
+    )
+    parser.add_argument(
+        "--parallel",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="With --test-solutions on more than one pod: run all target pods "
+             "concurrently (the default). Each pod's output is captured to its "
+             "own log file and a PASS/FAIL summary table is printed at the end "
+             "(live streaming is off, since interleaved output is unreadable). "
+             "Pass --no-parallel to run pods one at a time with live output. A "
+             "single-pod run (--pod X) always streams live regardless.",
+    )
     parser.add_argument("--gpu", type=str, default=GPU_TYPE_IDS[0], help="GPU type")
     parser.add_argument(
         "--allow-maintenance-host",
@@ -1116,6 +1405,16 @@ def main():
         help="OpenRouter API key for --test-solutions on the API-only days (1, 2). "
              "A temporary .env holding it is written to the pod for the run and "
              "deleted afterwards. Falls back to the OPENROUTER_API_KEY env var.",
+    )
+    parser.add_argument(
+        "--hf-token",
+        type=str,
+        default=None,
+        help="HuggingFace token for --test-solutions on days that load a gated "
+             "model (e.g. Section 5.4). Written to the same temporary .env, "
+             "sourced into the run so HF_TOKEN reaches huggingface_hub, and "
+             "deleted afterwards. Falls back to the HF_TOKEN env var. The token's "
+             "account must have accepted the gated model's license.",
     )
     parser.add_argument(
         "--ssh-key",
@@ -1201,7 +1500,20 @@ def main():
             if not day.isdigit():
                 print(f"Error: --day expects a number, got {day!r}", file=sys.stderr)
                 sys.exit(1)
+        for skip_id in args.skip:
+            # Also interpolated into the remote command, so keep it to digits and dots.
+            parts = skip_id.split(".")
+            if len(parts) not in (2, 3) or not all(part.isdigit() for part in parts):
+                print(
+                    f"Error: --skip expects a section or exercise id like 3.3 or "
+                    f"3.3.5, got {skip_id!r}",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
         day_flags = ["--all"] if args.all else [f"--day {day}" for day in args.days]
+        day_flags += [f"--skip {skip_id}" for skip_id in args.skip]
+        if args.remain:
+            day_flags.append("--remain")
 
         if args.pods:
             target_pods = [get_pod(pod_id) for pod_id in args.pods]
@@ -1217,11 +1529,14 @@ def main():
 
         # The API-only days need an OpenRouter key; take it from the flag or env.
         openrouter_key = args.openrouter_key or os.environ.get("OPENROUTER_API_KEY")
+        # HF token for gated-model days (e.g. 5.4). Flag first, then env var.
+        hf_token = args.hf_token or os.environ.get("HF_TOKEN")
         # --all tests everything, so it can't map to a single day's light deps.
         setup_days = None if args.all else args.days
         failures = test_solutions_on_pods(
             target_pods, day_flags, ssh_key=ssh_key,
-            openrouter_key=openrouter_key, days=setup_days,
+            openrouter_key=openrouter_key, hf_token=hf_token, days=setup_days,
+            parallel=args.parallel, section_timeout=args.section_timeout,
         )
         sys.exit(1 if failures else 0)
 

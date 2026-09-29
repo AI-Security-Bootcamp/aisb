@@ -4,7 +4,7 @@ Instructor workflow for provisioning RunPod pods for the bootcamp.
 
 | File | Lives in | Runs on | Purpose |
 | --- | --- | --- | --- |
-| `deploy_runpod.py` | `runpod_setup/` | your laptop | Create, provision, list, test, and terminate pods |
+| `deploy_runpod.py` | `instructor_setup/` | your laptop | Create, provision, list, test, and terminate pods |
 | `setup_pod.sh` | `3.1-tokenization/setup/` | the pod | Full (GPU-day) setup: pinned deps, GPU check, model pre-download |
 | `download_models.py` | `3.1-tokenization/setup/` | the pod | Fetch every tokenizer and model the exercises load |
 | `run_exercise.sh` | `3.1-tokenization/setup/` | the pod, by participants | `setup` re-runs provisioning after a failure |
@@ -15,7 +15,7 @@ pod-side scripts fit together and which invariants they depend on.
 
 The pod-side scripts are committed, because the pods reach them through their clone
 at `/workspace/aisb/3.1-tokenization/setup`. `deploy_runpod.py` sits in the repo-root
-`runpod_setup/` folder, which is gitignored, so a fresh clone will not contain it —
+`instructor_setup/` folder, which is gitignored, so a fresh clone will not contain it —
 get it from another instructor before provisioning. Credentials stay out of the repo
 through the SSH-key and `.env` rules in `.gitignore`.
 
@@ -62,14 +62,14 @@ clones the repo into `/workspace/aisb` and is set up according to `--day`.
 **Days 1 and 2 (API-only):**
 
 ```bash
-python runpod_setup/deploy_runpod.py --count 12 --day 1 \
+python instructor_setup/deploy_runpod.py --count 12 --day 1 \
     --ssh-key ~/.ssh/aisb_key --git-private-key ~/.ssh/aisb_key
 ```
 
 **Days 3+ (GPU):** omit `--day` to get the full `setup_pod.sh` profile.
 
 ```bash
-python runpod_setup/deploy_runpod.py --count 12 \
+python instructor_setup/deploy_runpod.py --count 12 \
     --ssh-key ~/.ssh/aisb_key --git-private-key ~/.ssh/aisb_key
 ```
 
@@ -105,11 +105,11 @@ creates a second fleet. Provision the existing pods instead:
 
 ```bash
 # Finish every bootcamp pod that exists (idempotent: clones pull, setup re-runs)
-python runpod_setup/deploy_runpod.py --provision --day 1 \
+python instructor_setup/deploy_runpod.py --provision --day 1 \
     --ssh-key ~/.ssh/aisb_key --git-private-key ~/.ssh/aisb_key
 
 # Or just the ones that were skipped
-python runpod_setup/deploy_runpod.py --provision --day 1 \
+python instructor_setup/deploy_runpod.py --provision --day 1 \
     --pod <pod_id> --pod <pod_id> \
     --ssh-key ~/.ssh/aisb_key --git-private-key ~/.ssh/aisb_key
 ```
@@ -150,8 +150,8 @@ To replace a pod already caught in a window, terminate it and create a
 replacement under the same name:
 
 ```bash
-python runpod_setup/deploy_runpod.py --stop <pod_id>
-python runpod_setup/deploy_runpod.py --count 1 --name aisb-bootcamp-<NN> --day 1 \
+python instructor_setup/deploy_runpod.py --stop <pod_id>
+python instructor_setup/deploy_runpod.py --count 1 --name aisb-bootcamp-<NN> --day 1 \
     --ssh-key ~/.ssh/aisb_key --git-private-key ~/.ssh/aisb_key
 ```
 
@@ -162,7 +162,7 @@ waiting will help — terminate it and create a replacement the same way.
 List pods (with SSH/Jupyter connection strings) at any time:
 
 ```bash
-python runpod_setup/deploy_runpod.py --list --ssh-key ~/.ssh/aisb_key
+python instructor_setup/deploy_runpod.py --list --ssh-key ~/.ssh/aisb_key
 ```
 
 Hand out the shared private key (`aisb_key`) to every student, then assign each
@@ -188,15 +188,15 @@ pods participants will get — real GPU, real installed dependencies:
 
 ```bash
 # Day 1 (API-only), on every bootcamp pod
-python runpod_setup/deploy_runpod.py --test-solutions --day 1 \
+python instructor_setup/deploy_runpod.py --test-solutions --day 1 \
     --ssh-key ~/.ssh/aisb_key --git-private-key ~/.ssh/aisb_key \
     --openrouter-key sk-or-v1-xxx
 
 # Every 3.x section, on every bootcamp pod
-python runpod_setup/deploy_runpod.py --test-solutions --day 3 --ssh-key ~/.ssh/aisb_key
+python instructor_setup/deploy_runpod.py --test-solutions --day 3 --ssh-key ~/.ssh/aisb_key
 
 # Every section in the repo, on one pod
-python runpod_setup/deploy_runpod.py --test-solutions --all --pod <pod_id> \
+python instructor_setup/deploy_runpod.py --test-solutions --all --pod <pod_id> \
     --ssh-key ~/.ssh/aisb_key
 ```
 
@@ -246,11 +246,11 @@ python aisb_utils/test_solutions.py --day 1 --remain # keep the files to debug
 After the session, terminate all bootcamp pods in one go:
 
 ```bash
-python runpod_setup/deploy_runpod.py --stop-all
+python instructor_setup/deploy_runpod.py --stop-all
 ```
 
 Verify nothing is left running:
 
 ```bash
-python runpod_setup/deploy_runpod.py --list
+python instructor_setup/deploy_runpod.py --list
 ```
