@@ -39,7 +39,7 @@ def load_eval_logs(log_dir: str, latest_only: bool = True) -> list[EvalLog]:
             if found_honest and found_attack:
                 break
         log_infos = selected
-    return [read_eval_log(info) for info in log_infos]
+    return [read_eval_log(info, resolve_attachments="full") for info in log_infos]
 
 
 def save_eval_logs(
