@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "title": "Granite MoE: one training cycle",
+  "description": "One forward pass, backward pass, and optimizer update. RCP120XS, 50 mV/A; values are the measured AC-current component.",
+  "raw_file": "channel-a-adc.npy",
+  "samples": 1050000000,
+  "interval_ns": 0.4,
+  "sample_rate_hz": 2500000000.0,
+  "duration_ms": 420.00000000000006,
+  "resolution_bits": 16,
+  "current_A_per_adc_count": 0.0061037018951994385,
+  "probe": "Micsig RCP120XS",
+  "sensitivity_mV_per_A": 50.0,
+  "overflow_mask": 0,
+  "envelope_strides": [
+    256,
+    4096,
+    65536,
+    1048576
+  ],
+  "phases": [
+    {
+      "phase": "idle",
+      "capture_start_ms": -0.07986,
+      "capture_end_ms": 20.14926
+    },
+    {
+      "phase": "data_loading",
+      "capture_start_ms": 20.158732,
+      "capture_end_ms": 20.710924
+    },
+    {
+      "phase": "idle",
+      "capture_start_ms": 20.719372,
+      "capture_end_ms": 25.904396
+    },
+    {
+      "phase": "host_to_device",
+      "capture_start_ms": 25.911308,
+      "capture_end_ms": 26.031884
+    },
+    {
+      "phase": "idle",
+      "capture_start_ms": 26.037004,
+      "capture_end_ms": 31.2187
+    },
+    {
+      "phase": "zero_grad",
+      "capture_start_ms": 31.225356,
+      "capture_end_ms": 31.390988
+    },
+    {
+      "phase": "idle",
+      "capture_start_ms": 31.395852,
+      "capture_end_ms": 36.569612
+    },
+    {
+      "phase": "forward",
+      "capture_start_ms": 36.576012,
+      "capture_end_ms": 102.011148
+    },
+    {
+      "phase": "idle",
+      "capture_start_ms": 102.0219,
+      "capture_end_ms": 107.119884
+    },
+    {
+      "phase": "backward",
+      "capture_start_ms": 107.12654,
+      "capture_end_ms": 249.460236
+    },
+    {
+      "phase": "idle",
+      "capture_start_ms": 249.472012,
+      "capture_end_ms": 254.598668
+    },
+    {
+      "phase": "optimizer",
+      "capture_start_ms": 254.60686,
+      "capture_end_ms": 265.193996
+    },
+    {
+      "phase": "bookkeeping",
+      "capture_start_ms": 265.201932,
+      "capture_end_ms": 265.313292
+    }
+  ],
+  "timing": {
+    "status": "transferred-estimate",
+    "origin_unix_ns": 1790267432088999156,
+    "reference": "Independent GPU pulse calibration, 2026-09-24; same H200, scope, probe and settings",
+    "reference_uncertainty_us": 100,
+    "display_note": "Timing uses a transferred pulse-calibration estimate. Check a CUDA/current transition before interpreting fine alignment.",
+    "method": "RunBlock return plus reference offset; this run is not independently recalibrated"
+  },
+  "perfetto": {
+    "file": "trace.json.gz",
+    "capture_zero_trace_ms": 2947.99915625,
+    "layer_annotations": true,
+    "cuda_kernels": 11452,
+    "raw_tracks_included": false
+  },
+  "rms": {
+    "windows_ms": [
+      0.01,
+      0.1,
+      0.5,
+      2
+    ],
+    "output_interval_us": 1,
+    "edge_padding": "nearest 1-us mean-square bin",
+    "method": "Centered RMS over every raw sample"
+  }
+}

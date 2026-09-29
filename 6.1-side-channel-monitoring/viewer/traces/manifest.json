@@ -1,0 +1,50 @@
+[
+  {
+    "id": "challenge-a",
+    "title": "Challenge A",
+    "default": false,
+    "source": "http://amodo-gigabyte-3.pony-regulus.ts.net:6008/data/trace.json.gz?capture=challenge-a",
+    "bytes": 6061355,
+    "sha256": "f292b0835f17d15bb53c705eec4363f1f8b71880815d73b4b5ca57332e2949b9"
+  },
+  {
+    "id": "granite-moe",
+    "title": "Granite MoE: one training cycle",
+    "default": false,
+    "source": "http://amodo-gigabyte-3.pony-regulus.ts.net:6008/data/trace.json.gz?capture=granite-moe",
+    "bytes": 8279072,
+    "sha256": "14eca7040135dcc52e5bd7415c83d1932ff4581b12ef0b3d0521e7d477d4b632"
+  },
+  {
+    "id": "pilot-layer-labels",
+    "title": "Workshop practice \u00b7 one training cycle",
+    "default": false,
+    "source": "http://amodo-gigabyte-3.pony-regulus.ts.net:6008/data/trace.json.gz?capture=pilot-layer-labels",
+    "bytes": 6513317,
+    "sha256": "6cbace0ce6637d544e937e9b9b4539212b8da787e43edf0fc68498357f07734a"
+  },
+  {
+    "id": "qwen3-30b-a3b-inference",
+    "title": "Qwen3-30B-A3B: one inference pass",
+    "default": false,
+    "source": "http://amodo-gigabyte-3.pony-regulus.ts.net:6008/data/trace.json.gz?capture=qwen3-30b-a3b-inference",
+    "bytes": 30412358,
+    "sha256": "7d80cbcfedcc365287cf736646211ecbe846f47e7c8907dc92dc4de2aa34e03d"
+  },
+  {
+    "id": "qwen3-32b-inference",
+    "title": "Qwen3-32B: one inference pass",
+    "default": false,
+    "source": "http://amodo-gigabyte-3.pony-regulus.ts.net:6008/data/trace.json.gz?capture=qwen3-32b-inference",
+    "bytes": 6110173,
+    "sha256": "9fc48064e607ee78ac752127c6127b19a8528ac1e0ae86be3cca87e4725bd527"
+  },
+  {
+    "id": "reference",
+    "title": "Original recording \u00b7 maximum-rate waveform",
+    "default": true,
+    "source": "http://amodo-gigabyte-3.pony-regulus.ts.net:6008/data/trace.json.gz?capture=reference",
+    "bytes": 6505629,
+    "sha256": "3c0903eef01f870602683f4507ae9a90a97a917e1521f7c7c661f249a0a94155"
+  }
+]
