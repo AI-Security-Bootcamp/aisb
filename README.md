@@ -44,7 +44,7 @@ Complete [Day 0 - Setup](day0-setup/README.md) before the bootcamp. Each content
 
 **Day 6 - Infrastructure Security**
 
-- 4.1 - Side-channel hardware monitoring
+- [6.1 - Side-channel hardware monitoring](6.1-side-channel-monitoring/README.md)
 - 4.2 - Agent swarm incident response
 
 **Day 7 - Infrastructure Security & Threat Modeling**
