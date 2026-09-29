@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+  <title>Maximum-rate current waveform</title>
+  <link rel="stylesheet" href="style.css" />
+  <h1 id="capture-title">One training cycle · maximum-rate waveform</h1>
+  <div id="recording-picker" hidden>
+    <label
+      >Recording
+      <select id="recording"></select
+    ></label>
+  </div>
+  <div class="facts" id="facts"></div>
+  <p id="capture-description">
+    One training cycle: forward, backward, and optimizer. Values are the
+    measured AC-current component.
+  </p>
+  <div>
+    <button id="open-perfetto">Open in Perfetto</button>
+    <small>CPU/CUDA execution + 0.1 ms RMS</small>
+    <span id="perfetto-status" role="status"></span>
+  </div>
+  <div class="waveform-controls">
+    <button id="full">Full recording</button><span id="phases"></span
+    ><button id="fine-forward">Forward · 1 µs</button
+    ><button id="fine-backward">Backward · 200 ns</button>
+  </div>
+  <div class="waveform-controls">
+    <label
+      >Signal
+      <select id="mode">
+        <option value="raw">Raw AC current</option>
+        <option value="0.01">RMS 0.01 ms</option>
+        <option value="0.1">RMS 0.1 ms</option>
+        <option value="0.5">RMS 0.5 ms</option>
+        <option value="2">RMS 2 ms</option>
+      </select></label
+    ><button id="zin">Zoom in ×10</button
+    ><button id="zout">Zoom out ×10</button>
+  </div>
+  <p id="status" role="status">Loading recording…</p>
+  <div id="graph"></div>
+  <small
+    >Drag to zoom; double-click to reset. Wide views show min/max envelopes,
+    preserving peaks. Close views load every raw sample at
+    <span id="raw-spacing">the recorded</span> spacing. Hover to inspect values.
+    <span id="timing-note"></span> The probe’s 30 MHz bandwidth limits physical
+    signal detail despite the finer sample spacing.</small
+  >
+  <footer>
+    <a id="download-raw" href="/data/channel-a-adc.npy" download
+      >Download raw ADC samples</a
+    >
+    ·
+    <a href="/api/summary" id="details-link">Capture and calibration details</a>
+    · <a href="/data/trace.json.gz" download>Download Perfetto trace</a>
+  </footer>
+  <script src="plotly.min.js"></script>
+  <script src="app.js"></script>
+  <script src="perfetto-launch.js"></script>
+</html>

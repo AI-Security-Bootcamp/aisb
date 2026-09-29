@@ -1,0 +1,55 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui;
+  background: #101723;
+  color: #e8eef7;
+}
+body {
+  max-width: 1400px;
+  margin: 24px auto;
+  padding: 0 22px;
+}
+h1 {
+  font-size: 27px;
+}
+p {
+  line-height: 1.6;
+  color: #bccadd;
+}
+a {
+  color: #8bbfff;
+}
+button,
+select {
+  padding: 9px 13px;
+  margin: 4px;
+  background: #20314a;
+  color: #e8eef7;
+  border: 1px solid #536b8b;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+.facts {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.facts span {
+  padding: 8px 13px;
+  border: 1px solid #415570;
+  border-radius: 6px;
+}
+#graph {
+  height: 600px;
+}
+#status {
+  min-height: 25px;
+  color: #b4d5ff;
+}
+small {
+  color: #acbbcc;
+}
+footer {
+  margin: 26px 0;
+}
