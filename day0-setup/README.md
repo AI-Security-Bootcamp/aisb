@@ -11,6 +11,9 @@ Welcome to the [AI Security Bootcamp](https://www.aisb.dev/)! This repo contains
 - Connect to your RunPod machine as described below.
 - Complete the checks in the [participant setup instructions](day0_instructions.md) on the remote machine.
 
+The Day 0 prerequisite check verifies your Python version, required Python
+packages, and local Git configuration.
+
 ### Connecting to your RunPod machine
 
 All exercises run on a remote RunPod machine provided by the instructors. **You

@@ -37,27 +37,6 @@ def test_prerequisites():
     if not python_ok:
         all_good = False
 
-    # Check Docker
-    def check_docker_installed() -> bool:
-        """Check if Docker is installed and accessible or if we're running in a Dev Container."""
-        # Check if we're in a Dev Container (by checking if /workspaces exists)
-        if os.path.isdir("/workspaces"):
-            return True
-
-        # If not in a Dev Container, check if Docker is installed
-        try:
-            result = subprocess.run(["docker", "--version"], capture_output=True, text=True, timeout=10)
-            return result.returncode == 0
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            return False
-
-    docker_ok = check_docker_installed()
-    status = "✅" if docker_ok else "❌"
-    print(f"{status} Docker {'installed' if docker_ok else 'NOT FOUND'}")
-    if not docker_ok:
-        all_good = False
-        print("   💡 Install Docker Desktop from https://www.docker.com/products/docker-desktop/")
-
     # Check Git
     def check_git_configured() -> tuple[bool, str]:
         """Check if git is installed and has basic configuration."""
@@ -90,20 +69,6 @@ def test_prerequisites():
             if result.returncode != 0 or result.stdout.strip().lower() != "true":
                 print("   💡 Configure with: git config --type bool push.autoSetupRemote true")
                 return False, "Git missing recommended configurations"
-
-            # Check if remote origin is set to the correct repository
-            result = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True, timeout=5)
-            if result.returncode != 0:
-                print("   💡 Add remote with: git remote add origin git@github.com:AI-Security-Bootcamp/aisb.git")
-                return False, "Git remote origin not configured"
-
-            expected_remote = "git@github.com:AI-Security-Bootcamp/aisb.git"
-            actual_remote = result.stdout.strip()
-            if actual_remote != expected_remote:
-                print(f"   💡 Current remote: {actual_remote}")
-                print(f"   💡 Expected remote: {expected_remote}")
-                print("   💡 Fix with: git remote set-url origin git@github.com:AI-Security-Bootcamp/aisb.git")
-                return False, "Git remote origin URL incorrect"
 
             return True, "Git properly configured"
 
@@ -140,39 +105,12 @@ def test_prerequisites():
         all_good = False
         print("❌ Not all Python packages are installed")
 
-    # Check SSH access to GitHub
-    def check_github_ssh_access() -> tuple[bool, str]:
-        """Check if SSH access to GitHub is working."""
-        try:
-            result = subprocess.run(["ssh", "-T", "git@github.com"], capture_output=True, text=True, timeout=10)
-            # Print the output for debugging
-            if result.stdout.strip():
-                print(f"   SSH stdout: {result.stdout.strip()}")
-            if result.stderr.strip():
-                print(f"   SSH stderr: {result.stderr.strip()}")
-
-            # SSH to GitHub returns 1 on successful authentication (not 0)
-            if result.returncode == 1 and "successfully authenticated" in result.stderr:
-                return True, "GitHub SSH access working"
-            else:
-                return False, f"GitHub SSH authentication failed (return code: {result.returncode})"
-        except (subprocess.TimeoutExpired, FileNotFoundError) as e:
-            return False, f"SSH not available or GitHub unreachable: {str(e)}"
-
-    ssh_ok, ssh_msg = check_github_ssh_access()
-    status = "✅" if ssh_ok else "❌"
-    print(f"{status} GitHub SSH: {ssh_msg}")
-    if not ssh_ok:
-        all_good = False
-        print("   💡 Configure your SSH according to the instructions in README.md")
-
     # Final verdict
     print("\n" + "=" * 50)
     if all_good:
         print("🎉 All prerequisites satisfied! You're ready for the bootcamp!")
     else:
         print("⚠️  Some prerequisites are missing. Please install them before proceeding.")
-        print("💡 If using Dev Containers, make sure Docker is running and try reopening in container.")
         assert False, "Prerequisites check failed. Please fix the issues above."
 
 
