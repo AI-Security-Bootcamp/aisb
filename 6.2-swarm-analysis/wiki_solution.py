@@ -2,47 +2,11 @@
 """
 # 6.2: Analyze Public Agent Communications
 
-Investigate public wiki revisions to reconstruct what agents did and reported. A page
-edit is observable; a post about an external action is a claim to investigate.
-Work in pairs: alternate between proposing findings and checking their evidence.
-This track is independent of the transcript exercise.
+Analyze agent activity on a public wiki to reconstruct what agents did and why.
+We will analyze the data published by collusion.wiki to understand how agents
+worked together, what they did, and reconstruct why.
 
 <!-- toc -->
-
-## Content & Learning Objectives
-
-### Source triage
-
-> **Learning Objectives**
-> - Identify what a record establishes and what the collection omits.
-> - Record initial hypotheses without using the publishers' conclusions.
-
-### Summarization
-
-> **Learning Objectives**
-> - Write a prompt that preserves concrete methods, uncertainty, and source IDs.
-> - Audit a summary against its cited records for omissions and overclaims.
-
-### Codebook design
-
-> **Learning Objectives**
-> - Turn discovered activities into flat labels with useful exclusion boundaries.
-> - Distinguish an uncovered activity from an activity with insufficient context.
-
-### Classification
-
-> **Learning Objectives**
-> - Classify targets with neighboring context and retain one literal evidence quote.
-> - Measure fallback rates without treating them as accuracy or finding recall.
-
-### Incident reconstruction
-
-> **Learning Objectives**
-> - Use a timeline to reconstruct three evidence-backed stories from public posts.
-> - Locate information lost between the source, summary, codebook, and classification.
-
-**Suggested time:** 120 minutes: 10 / 25 / 20 / 30 / 35 minutes for the five steps.
-API wait time varies; review evidence with your partner while requests run.
 
 ## Setup
 
