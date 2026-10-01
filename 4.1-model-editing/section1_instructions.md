@@ -7,6 +7,9 @@ abliteration. An optional fourth section retains the alternative
 LoRA-based safety-removal exercise for comparison. Each exercise demonstrates
 a distinct class of attack on a deployed model and what it looks like end-to-end.
 
+Today's exercises run on the remote machine. If you are not connected yet, follow
+the [Day 0 setup guide](../day0-setup/README.md#connecting-to-your-runpod-machine) first.
+
 **Hugging Face token.** Optional Section 4.4 uses a gated model
 (`meta-llama/Llama-2-7b-chat-hf`). If you plan to complete it, create a Hugging
 Face access token, request access, and log in so downloads work:

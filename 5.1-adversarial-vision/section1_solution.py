@@ -31,6 +31,9 @@ from aisb_utils import report
 """
 ## Setup
 
+Today's exercises run on the remote machine. If you are not connected yet, follow
+the [Day 0 setup guide](../day0-setup/README.md#connecting-to-your-runpod-machine) first.
+
 Create a file named `day5_answers.py` in the `5.1-adversarial-vision` directory. This will be your answer file for
 today's section.
 

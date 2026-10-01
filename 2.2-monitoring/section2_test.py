@@ -4,6 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import asyncio
+import shutil
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -27,7 +28,7 @@ from control_arena.scorers import max_suspicion_scorer
 from control_arena.settings.apps.apps_solution_policy import apps_solution_policy
 from inspect_ai import score as inspect_score
 from inspect_ai.agent import Agent
-from inspect_ai.log import write_eval_log
+from inspect_ai.log import read_eval_log, write_eval_log
 from day2_utils.eval_utils import extract_scores, load_eval_logs
 from day2_utils.generate_trajectories import generate_trajectories
 from day2_utils.metrics import calculate_roc_metrics

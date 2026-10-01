@@ -74,9 +74,8 @@ API access alone, using the logits-matrix SVD attack.
 
 ## VS Code setup: connecting to the remote GPU machine
 
-Today's exercises run on a remote machine with GPUs. The VS Code / Remote-SSH
-connection steps are exactly the same as in **Day 1 — Section 1** (see its
-"VS Code setup" section): follow those to connect and open `/workspace/aisb`.
+Today's exercises run on a remote machine with GPUs. Follow the
+[Day 0 setup guide](../day0-setup/README.md#connecting-to-your-runpod-machine) to connect VS Code and open `/workspace/aisb`.
 
 If an import fails once you're connected, the pod's setup did not finish. Re-run
 it from a terminal on the remote machine and let it run to completion:

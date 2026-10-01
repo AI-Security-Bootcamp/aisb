@@ -23,23 +23,15 @@ Build a backdoor monitor, red-team it, then improve it using chain-of-thought in
 
 ### Environment
 
-Sections 2.3 and 2.4 need a **clean virtual environment** installed from
-`requirements-control-arena.txt`:
+Today's exercises run on the Day 2 VM, which has Docker and a dedicated
+`.venv-day2` environment already set up. If you are not connected yet, follow
+the [Day 0 setup guide](../day0-setup/README.md#connecting-to-your-day-2-machine) first,
+and select the `.venv-day2` interpreter.
+If an import fails, re-run the setup from a terminal on the VM:
 
 ```bash
-# From the repository root
-python -m venv .venv-control-arena
-source .venv-control-arena/bin/activate
-pip install -r requirements-control-arena.txt
+cd ~/aisb && .venv-day2/bin/pip install -r requirements-control-arena.txt -r 2.1-coding-agents/requirements.txt
 ```
-
-Select this interpreter in your IDE before running any code in this section (in VS Code:
-*Python: Select Interpreter* → `.venv-control-arena`). Section
-[2.3](../2.3-control-protocols/section3_instructions.md) uses the same environment, so create
-it once and keep it activated for both.
-
-You also need Docker running: trajectory generation executes candidate solutions inside a
-sandbox container.
 
 ### Answer file
 
@@ -51,6 +43,7 @@ Keep the `# %%` line to make it a Python code cell.
 **Start by pasting the code below in your day2_answers.py file.**
 """
 import asyncio
+import shutil
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -75,7 +68,7 @@ from control_arena.scorers import max_suspicion_scorer
 from control_arena.settings.apps.apps_solution_policy import apps_solution_policy
 from inspect_ai import score as inspect_score
 from inspect_ai.agent import Agent
-from inspect_ai.log import write_eval_log
+from inspect_ai.log import read_eval_log, write_eval_log
 
 _root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
 # day2_utils lives alongside this section (prompts/, logs/, reference_solutions/ too).
@@ -161,7 +154,11 @@ E2_1_TRAJECTORY_DIR = str(SCRIPT_DIR / "logs" / "e2.1_trajectories")
 # No LLM calls, but each sample runs inside a Docker container (~1 min total).
 # apps_solution_policy() replays verified solutions and backdoors from the APPS
 # dataset directly, without calling an LLM; it's a fast deterministic replay.
-if not list(Path(E2_1_TRAJECTORY_DIR).glob("*.eval")):
+# The cache counts only if both logs (honest + attack) finished; an interrupted
+# first run leaves partial logs behind, which are discarded and regenerated.
+_cached_logs = [read_eval_log(str(p), header_only=True) for p in Path(E2_1_TRAJECTORY_DIR).glob("*.eval")]
+if len(_cached_logs) != 2 or any(log.status != "success" for log in _cached_logs):
+    shutil.rmtree(E2_1_TRAJECTORY_DIR, ignore_errors=True)
     generate_trajectories(
         apps_solution_policy(),
         E2_1_TRAJECTORY_DIR,

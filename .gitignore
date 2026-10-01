@@ -141,6 +141,7 @@ celerybeat.pid
 .envrc
 .venv
 .venv-control-arena
+.venv-day2
 env/
 venv/
 ENV/

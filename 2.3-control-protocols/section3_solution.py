@@ -22,20 +22,10 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 
 ### Environment
 
-This section uses the same **clean virtual environment** as
-[2.2](../2.2-monitoring/section2_instructions.md), installed from
-`requirements-control-arena.txt`. If you already created it in 2.3, just activate it.
-Otherwise:
-
-```bash
-# From the repository root
-python -m venv .venv-control-arena
-source .venv-control-arena/bin/activate
-pip install -r requirements-control-arena.txt
-```
-
-Select this interpreter in your IDE before running any code in this section (in VS Code:
-*Python: Select Interpreter* → `.venv-control-arena`), and make sure Docker is running.
+This section runs on the Day 2 VM with the same `.venv-day2` interpreter as
+[2.2](../2.2-monitoring/section2_instructions.md). See the
+[Day 0 setup guide](../day0-setup/README.md#connecting-to-your-day-2-machine) if you are
+not connected yet.
 
 ### Answer file
 

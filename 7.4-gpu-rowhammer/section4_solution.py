@@ -23,6 +23,9 @@ privilege escalation. It does not require vulnerable production hardware.
 """
 ## Setup
 
+Today's exercises run on the remote machine. If you are not connected yet, follow
+the [Day 0 setup guide](../day0-setup/README.md#connecting-to-your-runpod-machine) first.
+
 Create `day7_answers.py` in `7.4-gpu-rowhammer/`. Copy each code cell into
 that file and run `python 7.4-gpu-rowhammer/smoke_test.py` before beginning.
 """
