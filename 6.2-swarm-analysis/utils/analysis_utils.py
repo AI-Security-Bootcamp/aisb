@@ -5,9 +5,12 @@ defined here: each stage receives the solution's function as a callback.
 """
 
 import json
+import math
 from concurrent.futures import ThreadPoolExecutor
 
-from .call_llm import validate_cached_responses
+from tqdm.auto import tqdm
+
+from .call_llm import usage_callback, validate_cached_responses
 
 
 def read_jsonl(path):
@@ -44,7 +47,21 @@ def chunks(records, max_records, max_chars):
 
 
 def summarize_in_chunks(records, summarize, *, workers, max_records, max_chars, compact_ids=False):
-    """Summarize in parallel, validate citations, and restore original source IDs."""
+    """Summarize in parallel, showing completed chunks and this run's reported cost."""
+    cost = 0.0
+    unreported = 0
+
+    def show_cost(usage):
+        nonlocal cost, unreported
+        amount = usage.get("cost") if isinstance(usage, dict) else None
+        with tqdm.get_lock():
+            if type(amount) in (int, float) and math.isfinite(amount):
+                cost += amount
+            else:
+                unreported += 1
+            suffix = f" + {unreported} unreported" if unreported else ""
+            progress.set_postfix_str(f"cost=${cost:.4f}{suffix}")
+
     def run(group):
         aliases = {(f"R{i}" if compact_ids else r["id"]): r["id"] for i, r in enumerate(group)}
         evidence = [dict(record, id=alias) for record, alias in zip(group, aliases)]
@@ -65,8 +82,23 @@ def summarize_in_chunks(records, summarize, *, workers, max_records, max_chars, 
             activity["source_ids"] = [aliases[i] for i in activity["source_ids"]]
         return {"source_ids": [r["id"] for r in group], "summary": summary}
 
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        return list(pool.map(run, chunks(records, max_records, max_chars)))
+    def run_with_progress(group):
+        # Scope cost updates to this invocation, including its rejected replies.
+        token = usage_callback.set(show_cost)
+        try:
+            result = run(group)
+            with tqdm.get_lock():
+                progress.update(1)
+            return result
+        finally:
+            usage_callback.reset(token)
+
+    groups = list(chunks(records, max_records, max_chars))
+    with tqdm(total=len(groups), desc="Summarizing", unit="chunk",
+              postfix="cost=$0.0000") as progress:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            # Workers update completion immediately; map preserves source order.
+            return list(pool.map(run_with_progress, groups))
 
 
 def build_codebook(summaries, make_codebook):

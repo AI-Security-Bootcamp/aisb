@@ -28,6 +28,7 @@ settings = {
 usage_lock = Lock()
 request_locks = {}
 pending_cache_files = ContextVar("pending_cache_files", default=None)
+usage_callback = ContextVar("usage_callback", default=None)
 
 
 @contextmanager
@@ -82,6 +83,9 @@ def record_usage(track, step, response_id, model, usage, provider=None):
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as file:
             file.write(json.dumps(row) + "\n")
+    callback = usage_callback.get()
+    if callback is not None:
+        callback(usage)
 
 
 def call_llm(prompt, data, *, task, effort="none", max_tokens=6500):
