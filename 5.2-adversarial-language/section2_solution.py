@@ -301,7 +301,7 @@ This is the loss you implement in Exercise 5.2.5.
 
 ### Greedy Coordinate Gradient search ([Section 2.2 arxiv:2307.15043v2](https://arxiv.org/html/2307.15043v2#S2))
 
-To create our adversarial suffix (the jailbreak string), we can vary the input token ids. However, these input ids are discrete $i \in \{1,2,3,...,n\}^{|V|}$.
+To create our adversarial suffix (the jailbreak string), we can vary the input token ids. However, these input ids are discrete $i \in \{1,2,3,...,n\}^{V}$.
 
 ---
 **Question: What is the simplest algorithm that minimizes $\mathcal{L}(x_{1:n})$?**
