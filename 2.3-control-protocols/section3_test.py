@@ -35,6 +35,7 @@ from pydantic import Field
 from day2_utils.eval_utils import extract_scores, load_eval_logs
 from day2_utils.generate_trajectories import generate_trajectories
 from day2_utils.metrics import calculate_roc_metrics
+from day2_utils.monitor_prompt import load_monitor_prompt
 from day2_utils.plotting import plot_safety_usefulness_frontier, plot_score_histograms
 from aisb_utils import report
 from aisb_utils.env import load_dotenv

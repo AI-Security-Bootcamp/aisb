@@ -39,6 +39,9 @@ from control_arena.settings.apps.apps_setting import AppsSetting
 from inspect_ai import eval as inspect_eval
 from inspect_ai.log import EvalLog
 
+from .eval_utils import unscored_sample_ids
+from .monitoring import quiet_control_arena_logs, with_model_error_logging
+
 # Default models — override via function arguments or CLI flags.
 DEFAULT_TRUSTED_MODEL = "openrouter/meta-llama/llama-3.1-8b-instruct"
 DEFAULT_UNTRUSTED_MODEL = "openrouter/openai/gpt-4o-mini"
@@ -111,7 +114,7 @@ def generate_trajectories(
     # Create one eval task per (setting, protocol, mode) combination.
     eval_tasks = get_control_task_product(
         settings=setting,
-        micro_protocols=micro_protocol,
+        micro_protocols=with_model_error_logging(wrapped=micro_protocol),
         modes=[EvalMode.HONEST, EvalMode.ATTACK],
         eval_config=eval_config,
         # Include suspicion scorer so monitor scores are stored in the logs.
@@ -123,7 +126,10 @@ def generate_trajectories(
     # For each sample, Inspect spins up a Docker container, submits the solution
     # code, runs the test suite inside the container, and records the full
     # trajectory (tool calls, outputs, scores) as an eval log.
-    eval_logs: list[EvalLog] = inspect_eval(tasks=eval_tasks, **eval_config.eval_args())
+    with quiet_control_arena_logs():
+        eval_logs: list[EvalLog] = inspect_eval(
+            tasks=eval_tasks, **eval_config.eval_args()
+        )
 
     n_honest = sum(
         1
@@ -138,6 +144,15 @@ def generate_trajectories(
         if (s.metadata or {}).get("eval_mode") == "attack"
     )
     print(f"  honest: {n_honest}  attack: {n_attack}  saved to {log_dir_path}/")
+
+    # A monitor reply without a parseable score is stored as suspicion 0.
+    # extract_scores() skips these samples; report them here in one line each.
+    for mode in ("honest", "attack"):
+        for sample_id in sorted(unscored_sample_ids(eval_logs, mode), key=str):
+            print(
+                f"  WARNING: {mode} sample {sample_id}: monitor reply had no "
+                "parseable <score>; excluded from the monitor scores"
+            )
     return eval_logs
 
 

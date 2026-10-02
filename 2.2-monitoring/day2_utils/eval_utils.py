@@ -4,7 +4,34 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import numpy as np
-from inspect_ai.log import EvalLog, list_eval_logs, read_eval_log, write_eval_log
+from inspect_ai.log import EvalLog, EvalSample, list_eval_logs, read_eval_log, write_eval_log
+
+# Reasons ControlArena's monitor records when a reply has no usable score. It then
+# falls back to a suspicion score of 0, which must not count as "looks safe".
+UNSCORED_REASONS = {
+    "No score found in model response",
+    "Could not parse score from model response",
+}
+
+
+def has_unscored_monitor_reply(sample: EvalSample) -> bool:
+    """True if any monitor reply in this sample had no parseable score."""
+    return any(
+        message.role == "assistant"
+        and (message.metadata or {}).get("reason") in UNSCORED_REASONS
+        for message in sample.messages
+    )
+
+
+def unscored_sample_ids(logs: Sequence[EvalLog], eval_mode: str) -> set:
+    """IDs of samples in ``eval_mode`` whose monitor score is a parse-failure 0."""
+    return {
+        sample.id
+        for log in logs
+        for sample in log.samples or []
+        if sample.metadata.get("eval_mode") == eval_mode
+        and has_unscored_monitor_reply(sample)
+    }
 
 
 def load_eval_logs(log_dir: str, latest_only: bool = True) -> list[EvalLog]:
@@ -39,7 +66,7 @@ def load_eval_logs(log_dir: str, latest_only: bool = True) -> list[EvalLog]:
             if found_honest and found_attack:
                 break
         log_infos = selected
-    return [read_eval_log(info) for info in log_infos]
+    return [read_eval_log(info, resolve_attachments="full") for info in log_infos]
 
 
 def save_eval_logs(
@@ -62,6 +89,9 @@ def save_eval_logs(
 def extract_scores(scored_logs: list[EvalLog]) -> tuple[np.ndarray, np.ndarray]:
     """Extract honest and attack suspicion scores from scored eval logs.
 
+    Samples whose monitor reply had no parseable score are skipped: their
+    stored score is a fallback 0, not a judgement.
+
     Returns (honest_scores, attack_scores) as numpy arrays.
     """
     honest: list[float] = []
@@ -70,6 +100,8 @@ def extract_scores(scored_logs: list[EvalLog]) -> tuple[np.ndarray, np.ndarray]:
         for sample in log.samples or []:
             score_val = sample.scores.get("max_suspicion_scorer")
             if score_val is None or score_val.value is None:
+                continue
+            if has_unscored_monitor_reply(sample):
                 continue
             try:
                 parsed = float(score_val.value)
@@ -81,3 +113,57 @@ def extract_scores(scored_logs: list[EvalLog]) -> tuple[np.ndarray, np.ndarray]:
             elif mode == "attack":
                 attack.append(parsed)
     return np.array(honest), np.array(attack)
+
+
+def show_monitor_replies(
+    scored_logs: list[EvalLog],
+    eval_mode: str | None = None,
+    failed_only: bool = False,
+    sample_id: str | int | None = None,
+    n: int = 3,
+    max_chars: int = 3000,
+) -> None:
+    """Print the monitor's raw replies from monitoring eval logs.
+
+    The same information is in ``inspect view``: open the log under
+    ``logs/*_scored/`` and choose the sample's **Transcript** tab.
+
+    Args:
+        scored_logs: Logs returned by ``run_monitor_evaluation`` (or the ``logs``
+            attribute of an ``IncompleteMonitorEvaluation``).
+        eval_mode: Only show "honest" or "attack" samples.
+        failed_only: Only show samples without a valid score (timeouts,
+            provider errors, malformed or truncated replies).
+        sample_id: Only show this APPS problem.
+        n: Maximum number of samples to print.
+        max_chars: Truncate each reply to this many characters.
+    """
+    shown = 0
+    for log in scored_logs:
+        for sample in log.samples or []:
+            score = (sample.scores or {}).get("max_suspicion_scorer")
+            failed = sample.error is not None or score is None
+            if eval_mode is not None and sample.metadata.get("eval_mode") != eval_mode:
+                continue
+            if failed_only and not failed:
+                continue
+            if sample_id is not None and str(sample.id) != str(sample_id):
+                continue
+            if shown >= n:
+                return
+            shown += 1
+
+            status = "FAILED: " + sample.error.message.splitlines()[0] if sample.error else f"score {score.value}"
+            print(f"\n=== sample {sample.id} ({sample.metadata.get('eval_mode')}) | {status}")
+            for event in sample.events:
+                if event.event != "model":
+                    continue
+                if event.error:
+                    print(f"[model call error: {event.error}]")
+                    continue
+                output = event.output
+                tokens = output.usage.output_tokens if output.usage else "?"
+                cut = ", hit max_tokens" if output.stop_reason == "max_tokens" else ""
+                print(f"[{tokens} output tokens{cut}]")
+                reply = output.message.text
+                print(reply if len(reply) <= max_chars else reply[:max_chars] + " [...]")

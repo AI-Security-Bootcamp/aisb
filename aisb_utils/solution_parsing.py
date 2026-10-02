@@ -235,10 +235,15 @@ class TOCEntry:
 # This is very incomplete but works well enough for now!
 TAG_RE = re.compile(r"<(/?)(\w+)(?: .*?)?(/?)>")
 NO_CLOSE_TAGS = ["br", "img"]
+# Code is shown literally, so tag-like text inside it is not HTML.
+FENCED_CODE_RE = re.compile(r"^(```|~~~).*?^\1", re.DOTALL | re.MULTILINE)
+INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 
 
 def check_html_tags(text: str) -> list[str]:
-    """Return a list of warnings about mismatched HTML tags."""
+    """Return a list of warnings about mismatched HTML tags (ignoring code)."""
+    text = FENCED_CODE_RE.sub("", text)
+    text = INLINE_CODE_RE.sub("", text)
     tags = TAG_RE.findall(text)
     tagname_stack: list[str] = []
     warnings: list[str] = []

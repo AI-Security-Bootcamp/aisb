@@ -1,0 +1,1 @@
+TODO: Replace this line with your instructions to the CoT monitor. Explain what to look for in the agent's reasoning as well as in its code, and how to choose a score from 0 to 10.
