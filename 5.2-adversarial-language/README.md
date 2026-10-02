@@ -12,10 +12,10 @@ coordinate search.
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
+| Theory | Read Sections 2, 2.1, and 2.2 of [*Universal and Transferable Adversarial Attacks on Aligned Language Models*](https://arxiv.org/html/2307.15043v2#S2) — complementary reading for Exercise 5.2.0 | Distinguish reducing target loss from demonstrating a robust jailbreak |
 | Engineering | PyTorch autograd and tensor indexing | Align target-token loss, extract embedding gradients, filter candidates, and implement a coordinate-update loop |
 | ML | Token embeddings, causal language-model loss, and discrete optimization | Explain how gradients can guide token proposals even though tokens are discrete |
 | Security | White-box attack models and adversarial evaluation | State required model access, measure attack success across restarts/prompts, and test transferability |
-| Theory | - | Distinguish reducing target loss from demonstrating a robust jailbreak |
 
 ### Background
 
