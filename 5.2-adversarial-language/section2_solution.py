@@ -729,7 +729,7 @@ test_loss(loss, chat_model, tokenizer)
 >
 > You should spend 5 minutes reading and make sure you understand the implementation
 
-To find better suffixes we compute the loss and gradients for different promtps. A lot of code needs to know where the suffix and the target sit in this sequence. Rather than passing four tensors around we use will use some object oriented programming. This will allow us to write much cleaner code in the optimizer.
+To find better suffixes we compute the loss and gradients for different prompts. A lot of code needs to know where the suffix and the target sit in this sequence. Rather than passing four tensors around we use will use some object oriented programming. This will allow us to write much cleaner code in the optimizer.
 
 The below diagram highlights the parts of the prompt relevant to the GCG algorithm:
 
