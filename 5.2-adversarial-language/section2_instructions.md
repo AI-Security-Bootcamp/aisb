@@ -593,7 +593,7 @@ test_loss(loss, chat_model, tokenizer)
 >
 > You should spend 5 minutes reading and make sure you understand the implementation
 
-To find better suffixes we compute the loss and gradients for different promtps. A lot of code needs to know where the suffix and the target sit in this sequence. Rather than passing four tensors around we use will use some object oriented programming. This will allow us to write much cleaner code in the optimizer.
+To find better suffixes we compute the loss and gradients for different prompts. A lot of code needs to know where the suffix and the target sit in this sequence. Rather than passing four tensors around we use will use some object oriented programming. This will allow us to write much cleaner code in the optimizer.
 
 The below diagram highlights the parts of the prompt relevant to the GCG algorithm:
 
@@ -1208,7 +1208,7 @@ test_run_greedy_search(run_greedy_search, chat_model, tokenizer, search_manager)
 
 Your `run_greedy_search` optimizes one suffix for one request on one model. The paper's headline result is a
 *universal* suffix: a single suffix that works for many requests and transfers to models it was never optimized
-on. That is what turns a per-prompt attack into a reusable exploit.
+on.
 
 In this exercise you read the authors' code to find out how one suffix is optimized against many requests,
 targets and models at once. There is no code to write. You read the reference implementation with Claude Code
