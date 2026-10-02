@@ -10,7 +10,7 @@
     - [The attack setting ([Section 2 arxiv:2307.15043v2](https://arxiv.org/html/2307.15043v2#S2))](#the-attack-setting-section-2-arxiv230715043v2httpsarxivorghtml230715043v2s2)
     - [Producing affirmative responses ([Section 2.1 arxiv:2307.15043v2](https://arxiv.org/html/2307.15043v2#S2))](#producing-affirmative-responses-section-21-arxiv230715043v2httpsarxivorghtml230715043v2s2)
     - [Greedy Coordinate Gradient search ([Section 2.2 arxiv:2307.15043v2](https://arxiv.org/html/2307.15043v2#S2))](#greedy-coordinate-gradient-search-section-22-arxiv230715043v2httpsarxivorghtml230715043v2s2)
-- [Exercise 5.2.1: Walk through of the algorithm](#exercise-521-walk-through-of-the-algorithm)
+- [Exercise 5.2.1 (Optional): Walk through of the algorithm](#exercise-521-optional-walk-through-of-the-algorithm)
 - [Exercise 5.2.2: From Discrete to Continous space](#exercise-522-from-discrete-to-continous-space)
 - [Exercise 5.2.3: Compute the loss from One-Hot Vectors](#exercise-523-compute-the-loss-from-one-hot-vectors)
 - [Exercise 5.2.4: Lay Out the Attack Sequence with a SuffixManager](#exercise-524-lay-out-the-attack-sequence-with-a-suffixmanager)
@@ -355,12 +355,15 @@ Output: optimized prompt x_{1:n}
 ```
 
 
-## Exercise 5.2.1: Walk through of the algorithm
+## Exercise 5.2.1 (Optional): Walk through of the algorithm
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
 >
 > You should spend less than 10 minutes on this exercise.
+>
+> This comprehension exercise is optional. The `gcg` pseudocode here is not used by later
+> exercises, so you can skip it if you are short on time and come back to it afterwards.
 
 
 Below, you find the above algorithm in pseudo-Python. `loss` is $\mathcal{L}$ from §2.1 and `token_gradients` returns

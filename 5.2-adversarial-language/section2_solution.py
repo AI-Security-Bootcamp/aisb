@@ -370,12 +370,15 @@ Output: optimized prompt x_{1:n}
 
 # %%
 r'''
-## Exercise 5.2.1: Walk through of the algorithm
+## Exercise 5.2.1 (Optional): Walk through of the algorithm
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
 >
 > You should spend less than 10 minutes on this exercise.
+>
+> This comprehension exercise is optional. The `gcg` pseudocode here is not used by later
+> exercises, so you can skip it if you are short on time and come back to it afterwards.
 
 
 Below, you find the above algorithm in pseudo-Python. `loss` is $\mathcal{L}$ from §2.1 and `token_gradients` returns
