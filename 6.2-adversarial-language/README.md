@@ -1,4 +1,4 @@
-# 5.2 — Discrete adversarial optimization with GCG
+# 6.2 — Discrete adversarial optimization with GCG
 
 ## What to expect
 
@@ -19,5 +19,6 @@ coordinate search.
 
 ### Background
 
-- Complete [5.1](../5.1-adversarial-vision/README.md) or refresh PyTorch [autograd](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html) and [optimization loops](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html).
+- Complete [6.1](../5.1-adversarial-vision/README.md) or refresh PyTorch [autograd](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html) and [optimization loops](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html).
 - Read the abstract and GCG method in [*Universal and Transferable Adversarial Attacks on Aligned Language Models*](https://arxiv.org/abs/2307.15043); the full paper is optional longer reading.
+- Optional: the authors' reference implementation, [`llm-attacks`](https://github.com/llm-attacks/llm-attacks). The optional final exercise reads its multi-prompt, multi-model aggregation code.
