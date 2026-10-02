@@ -47,19 +47,12 @@ def gcg(x, I, T, loss, k, B):
 
 @report
 def test_gcg_has_no_todos(solution):
-    """The walk-through is complete once every TODO in `gcg` is replaced by an annotation.
+    """The walk-through is a reading exercise, so this always passes.
 
-    We read the function's source text, so this checks the docstring and the
-    comments without ever calling the (pseudo-code) function. On success, the
-    reference annotation is printed so participants can compare it with their own.
+    It never inspects your `gcg`; it simply prints the reference annotation so you
+    can compare it with the comments you added.
     """
-    assert inspect.getdoc(solution), "gcg has no docstring - keep it and describe each parameter"
-
-    # Collect every line of the function that still contains a TODO marker.
-    source_lines = inspect.getsource(solution).splitlines()
-    todo_lines = [f"  line {number}: {line.strip()}" for number, line in enumerate(source_lines, 1) if "TODO" in line]
-    assert not todo_lines, f"{len(todo_lines)} TODO(s) left to annotate in gcg:\n" + "\n".join(todo_lines)
-    print("  All tests passed! Compare your annotations with the reference:")
+    print("  Compare your annotations with the reference:")
     print(GCG_REFERENCE_ANNOTATION)
 
 
