@@ -1622,7 +1622,7 @@ test_run_greedy_search(run_greedy_search, chat_model, tokenizer, search_manager)
 
 Your `run_greedy_search` optimizes one suffix for one request on one model. The paper's headline result is a
 *universal* suffix: a single suffix that works for many requests and transfers to models it was never optimized
-on. That is what turns a per-prompt attack into a reusable exploit.
+on.
 
 In this exercise you read the authors' code to find out how one suffix is optimized against many requests,
 targets and models at once. There is no code to write. You read the reference implementation with Claude Code
