@@ -1,4 +1,4 @@
-# TODO — Improve educational quality of 6.2 (GCG)
+# TODO — Improve educational quality of 5.2 (GCG)
 
 Goal: make the discrete→continuous move, the loss-vs-gradient distinction, and
 the algorithm structure explicit in `section2_solution.py`. Reference points:
@@ -7,7 +7,7 @@ and Algorithm 1 in the GCG paper (arXiv:2307.15043).
 
 ## High impact
 
-- [x] **1. "From token ids to gradients" explainer** (before Ex 6.2.2)
+- [x] **1. "From token ids to gradients" explainer** (before Ex 5.2.2)
   - Pipeline diagram: `input_ids → one-hot → ×E → embeddings → transformer → logits → loss`,
     annotating which arrows are differentiable.
   - State plainly: integer-index embedding lookup has no gradient w.r.t. the index;
@@ -20,18 +20,18 @@ and Algorithm 1 in the GCG paper (arXiv:2307.15043).
     `L(X+Δ) ≈ L(X) + grad[i,b] − grad[i,a] + ½ΔᵀHΔ + …`; the top-k ranking keeps
     only the first-order term (grad[i,a] is constant per position). Emphasize that
     ‖Δ‖ = √2 always — there is no infinitesimal token change, no step-size knob —
-    so the dropped curvature terms are not small. Contrast with 6.1 (FGSM/PGD:
+    so the dropped curvature terms are not small. Contrast with 5.1 (FGSM/PGD:
     same linearization, but an ε-sized step where first order dominates).
     One line of lineage: this ranking is HotFlip's approximation (cited by GCG).
 
-- [x] **2. Bridge micro-exercise between 6.2.1 and 6.2.2** (now Ex 6.2.2, `target_loss_via_embeddings`)
+- [x] **2. Bridge micro-exercise between 5.2.1 and 5.2.2** (now Ex 5.2.2, `target_loss_via_embeddings`)
   - Reimplement `target_loss` via `inputs_embeds` (one-hot @ E for the suffix,
-    detached lookups for the rest); assert it matches the Ex 6.2.1 loss within
+    detached lookups for the rest); assert it matches the Ex 5.2.1 loss within
     float tolerance.
   - Purpose: prove the one-hot relaxation is exact on the forward pass *before*
     introducing `backward()` — separates "loss" from "gradient" cleanly.
 
-- [x] **3. "Lowest gradient ≠ best token" micro-exercise** (now Ex 6.2.4, `evaluate_candidates_exactly`)
+- [x] **3. "Lowest gradient ≠ best token" micro-exercise** (now Ex 5.2.4, `evaluate_candidates_exactly`)
   - For one suffix position: take top-k gradient candidates, exactly evaluate each
     candidate's true loss, print gradient-rank vs. loss-rank side by side.
   - Test asserts the best-by-loss candidate is found; printout shows the divergence.
@@ -40,11 +40,11 @@ and Algorithm 1 in the GCG paper (arXiv:2307.15043).
     first-order Taylor prediction of L(X+Δ); exact evaluation computes the true
     L(X+Δ). Where the ranks disagree, the neglected higher-order terms dominated.
 
-- [x] **4. Sequence anatomy + pseudocode** (anatomy + off-by-one diagrams in Ex 6.2.1; Algorithm 1 pseudocode + simplifications box before Ex 6.2.5; exercises renumbered 6.2.1–6.2.5)
-  - Before Ex 6.2.1: diagram of `[prefix | SUFFIX | close | target]` labeling
+- [x] **4. Sequence anatomy + pseudocode** (anatomy + off-by-one diagrams in Ex 5.2.1; Algorithm 1 pseudocode + simplifications box before Ex 5.2.5; exercises renumbered 5.2.1–5.2.5)
+  - Before Ex 5.2.1: diagram of `[prefix | SUFFIX | close | target]` labeling
     static / optimized / scored regions, plus a picture explaining the off-by-one
     logit alignment behind the `context_length - 1 : -1` slice.
-  - Before Ex 6.2.3: paper-style Algorithm 1 pseudocode, then an explicit
+  - Before Ex 5.2.3: paper-style Algorithm 1 pseudocode, then an explicit
     "how our version simplifies the paper" box:
     - exhaustive L×k evaluation vs. sampling B random candidates,
     - sequential forward passes vs. batched evaluation (`get_logits`/`forward`),
@@ -72,7 +72,7 @@ and Algorithm 1 in the GCG paper (arXiv:2307.15043).
 
 ## Finish
 
-- [ ] Run `./build-instructions.sh 6.2-adversarial-language/section2_solution.py`
+- [ ] Run `./build-instructions.sh 5.2-adversarial-language/section2_solution.py`
       (no errors, no FIXME warnings); check `section2_instructions.md` renders.
 - [ ] Execute `section2_solution.py` end to end (needs GPU).
 

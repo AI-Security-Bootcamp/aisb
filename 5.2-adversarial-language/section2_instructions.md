@@ -1,5 +1,5 @@
 
-# Day 6 — Section 2: Adversarial Examples in Language Models
+# Day 5 — Section 2: Adversarial Examples in Language Models
 
 ## Table of Contents
 
@@ -7,18 +7,18 @@
 - [Content & Learning Objectives](#content--learning-objectives)
     - [Finding Adversarial Prompts in Language Models](#finding-adversarial-prompts-in-language-models)
 - [Setup](#setup)
-- [Exercise 6.2.0: Read this section](#exercise-0-read-this-section)
+- [Exercise 5.2.0: Read this section](#exercise-0-read-this-section)
     - [The attack setting (Section §2)](#the-attack-setting-section-§2)
     - [Producing affirmative responses (paper §2.1)](#producing-affirmative-responses-paper-§21)
     - [Greedy Coordinate Gradient search (paper §2.2)](#greedy-coordinate-gradient-search-paper-§22)
-- [Exercise 6.2.1: Score a Target Continuation](#exercise-621-score-a-target-continuation)
+- [Exercise 5.2.1: Score a Target Continuation](#exercise-521-score-a-target-continuation)
 - [From Token IDs to Gradients](#from-token-ids-to-gradients)
-    - [Exercise 6.2.2: The Same Loss, via One-Hot Embeddings](#exercise-622-the-same-loss-via-one-hot-embeddings)
-    - [Exercise 6.2.3: Use Gradients to Propose Token Replacements](#exercise-623-use-gradients-to-propose-token-replacements)
-    - [Exercise 6.2.4: Lowest Gradient ≠ Best Token](#exercise-624-lowest-gradient-≠-best-token)
-    - [Exercise 6.2.5: Run the Full GCG Loop](#exercise-625-run-the-full-gcg-loop)
+    - [Exercise 5.2.2: The Same Loss, via One-Hot Embeddings](#exercise-522-the-same-loss-via-one-hot-embeddings)
+    - [Exercise 5.2.3: Use Gradients to Propose Token Replacements](#exercise-523-use-gradients-to-propose-token-replacements)
+    - [Exercise 5.2.4: Lowest Gradient ≠ Best Token](#exercise-524-lowest-gradient-≠-best-token)
+    - [Exercise 5.2.5: Run the Full GCG Loop](#exercise-525-run-the-full-gcg-loop)
         - [Questions to consider](#questions-to-consider)
-- [Exercise 6.2.x (Optional): Read the Universal Attack Code with Claude](#exercise-62x-optional-read-the-universal-attack-code-with-claude)
+- [Exercise 5.2.x (Optional): Read the Universal Attack Code with Claude](#exercise-52x-optional-read-the-universal-attack-code-with-claude)
 
 <figure align="center">
   <img src="./img/adversarial-prompts.png" alt="Diagram of a universal adversarial suffix optimized on Vicuna models and transferred to commercial chat models" width="600">
@@ -53,7 +53,7 @@ By the end of this notebook you will have learned the following:
 
 ## Setup
 
-Create a file named `day6_answers.py` in the `6.2-adversarial-language` directory. This will be your answer file
+Create a file named `day5_answers.py` in the `5.2-adversarial-language` directory. This will be your answer file
 for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to
@@ -62,7 +62,7 @@ make it a Python code cell.
 **Start by executing this code to create today's answers file.**
 
 ```bash
-tee 6.2-adversarial-language/day6_answers.py > /dev/null <<'EOF'
+tee 5.2-adversarial-language/day5_answers.py > /dev/null <<'EOF'
 #%%
 import sys
 from pathlib import Path
@@ -158,7 +158,7 @@ def make_initial_suffix(tokenizer: AutoTokenizer, suffix_length: int, device: to
 EOF
 ```
 
-## Exercise 6.2.0: Read this section
+## Exercise 5.2.0: Read this section
 
 > **Difficulty**: 4/5
 > **Importance**: 5/5
@@ -278,7 +278,7 @@ optimization problem
 
 $$\min_{x_{\mathcal{I}} \in \{1, \ldots, V\}^{|\mathcal{I}|}} \mathcal{L}(x_{1:n})$$
 
-This is the loss you implement in Exercise 6.2.5.
+This is the loss you implement in Exercise 5.2.5.
 
 ### Greedy Coordinate Gradient search ([Section 2.2 arxiv:2307.15043v2](https://arxiv.org/html/2307.15043v2#S2))
 
@@ -348,7 +348,7 @@ repeat T times:
 Output: optimized prompt x_{1:n}
 ```
 
-## Exercise 6.2.1: Walk through of the algorithm
+## Exercise 5.2.1: Walk through of the algorithm
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
@@ -393,7 +393,7 @@ from section2_test import test_gcg_has_no_todos
 test_gcg_has_no_todos(gcg)
 ```
 
-## Exercise 6.2.2: From Discrete to Continous space
+## Exercise 5.2.2: From Discrete to Continous space
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
@@ -467,7 +467,7 @@ test_ids_to_onehot(ids_to_onehot, chat_model)
 
 ---
 
-## Exercise 6.2.3: Compute the loss from One-Hot Vectors
+## Exercise 5.2.3: Compute the loss from One-Hot Vectors
 
 > **Difficulty**: 2/5
 > **Importance**: 2/5
@@ -525,7 +525,7 @@ expects.
 <summary>Hint: outlined steps</summary><blockquote>
 
 1. Concatenate input_ids and target_ids
-2. Get a one-hot tensor using your function from 6.2.2
+2. Get a one-hot tensor using your function from 5.2.2
 3. Use the one-hot tensor to get embeddings
 4. Run the embeddings through the model to get logits
 5. Keep the logits that predict the target tokens (see the diagram above)
@@ -570,7 +570,7 @@ test_loss(loss, chat_model, tokenizer)
 ```
 
 
-## Exercise 6.2.4: Lay Out the Attack Sequence with a SuffixManager
+## Exercise 5.2.4: Lay Out the Attack Sequence with a SuffixManager
 
 > **Difficulty**: 2/5
 > **Importance**: 2/5
@@ -680,25 +680,25 @@ from section2_test import test_suffix_manager
 test_suffix_manager(SuffixManager, tokenizer, device)
 ```
 
-## Exercise 6.2.5: Rewrite the Loss with the SuffixManager
+## Exercise 5.2.5: Rewrite the Loss with the SuffixManager
 
 > **Difficulty**: 1/5
 > **Importance**: 1/5
 >
 > You should spend up to ~5 minutes on this exercise.
 
-In Exercise 6.2.3 you wrote `loss(model, input_ids, target_ids)` and tested it on the fox sentence. Change it to use the `SuffixManager`.
+In Exercise 5.2.3 you wrote `loss(model, input_ids, target_ids)` and tested it on the fox sentence. Change it to use the `SuffixManager`.
 
 **Task: Rewrite `loss` to take a `SuffixManager`.** It returns the cross-entropy loss of the target tokens for the prompt that contains `suffix_ids`.
 
-> **Note:** This definition replaces the `loss` from Exercise 6.2.3. If you re-run the Exercise 6.2.3 cell later, re-run this cell before you continue.
+> **Note:** This definition replaces the `loss` from Exercise 5.2.3. If you re-run the Exercise 5.2.3 cell later, re-run this cell before you continue.
 
 ---
 
 <details>
 <summary>Hint: what replaces what</summary><blockquote>
 
-| | By hand in Exercise 6.2.3 | With the `SuffixManager` |
+| | By hand in Exercise 5.2.3 | With the `SuffixManager` |
 |---|---|---|
 | Full sequence | `torch.cat([input_ids, target_ids])` | `manager.get_input_ids(suffix_ids)` |
 | Logits that predict the target | `logits[0, n - 1 : -1]` | `logits[0, manager.loss_slice]` |
@@ -712,7 +712,7 @@ In Exercise 6.2.3 you wrote `loss(model, input_ids, target_ids)` and tested it o
 <summary>Hint: outlined steps</summary><blockquote>
 
 1. Build the full sequence with `manager.get_input_ids`
-2. Get a one-hot tensor of the full sequence using your function from 6.2.2
+2. Get a one-hot tensor of the full sequence using your function from 5.2.2
 3. Use the one-hot tensor to get embeddings
 4. Run the embeddings through the model to get logits
 5. Keep the logits that predict the target tokens (`manager.loss_slice`)
@@ -726,7 +726,7 @@ def loss(model: AutoModelForCausalLM, manager: SuffixManager, suffix_ids: torch.
     """
     Compute the attack loss: the cross-entropy of the target continuation for the prompt with `suffix_ids`.
 
-    The prompt is fed to the model as `one_hot @ E`, as in Exercise 6.2.3.
+    The prompt is fed to the model as `one_hot @ E`, as in Exercise 5.2.3.
 
     Args:
         model: Causal LM whose embedding matrix E has shape [vocab_size, d_model].
@@ -736,8 +736,8 @@ def loss(model: AutoModelForCausalLM, manager: SuffixManager, suffix_ids: torch.
     Returns:
         Scalar cross-entropy loss over the target tokens only.
     """
-    # TODO: Rewrite your Exercise 6.2.3 loss with the SuffixManager.
-    # Tip: Start from your 6.2.3 code and replace each hand-computed index with the manager.
+    # TODO: Rewrite your Exercise 5.2.3 loss with the SuffixManager.
+    # Tip: Start from your 5.2.3 code and replace each hand-computed index with the manager.
     pass
 
 
@@ -750,7 +750,7 @@ from section2_test import test_loss_with_suffix_manager
 test_loss_with_suffix_manager(loss, chat_model, suffix_manager, initial_suffix_ids)
 ```
 
-## Exercise 6.2.6: Use Gradients to Propose Token Replacements
+## Exercise 5.2.6: Use Gradients to Propose Token Replacements
 
 > **Difficulty**: 3/5
 > **Importance**: 5/5
@@ -887,7 +887,7 @@ test_top_replacements_from_gradients(
 )
 ```
 
-## Exercise 6.2.7: Lowest Gradient ≠ Best Token
+## Exercise 5.2.7: Lowest Gradient ≠ Best Token
 
 > **Difficulty**: 2/5
 > **Importance**: 5/5
@@ -987,7 +987,7 @@ test_evaluate_candidates_exactly(
 )
 ```
 
-## Exercise 6.2.8: Run the Full GCG Loop
+## Exercise 5.2.8: Run the Full GCG Loop
 
 > **Difficulty**: 4/5
 > **Importance**: 5/5
@@ -1175,7 +1175,7 @@ from section2_test import test_run_greedy_search
 test_run_greedy_search(run_greedy_search, chat_model, tokenizer, search_manager)
 ```
 
-## Exercise 6.2.9 (Optional): Read the Universal Attack Code with Claude
+## Exercise 5.2.9 (Optional): Read the Universal Attack Code with Claude
 
 > **Difficulty**: Na
 > **Importance**: Na
@@ -1293,4 +1293,4 @@ gradient first.
 
 ## The end
 
-This concludes Exercise 6.2. You now now how to run a model backwards using gradients to finding adversarial suffixes.
+This concludes Exercise 5.2. You now now how to run a model backwards using gradients to finding adversarial suffixes.

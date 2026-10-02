@@ -200,7 +200,7 @@ def test_loss_with_suffix_manager(solution, chat_model, manager, initial_suffix_
     assert loss is not None, "loss returned None"
     assert not embedding_lookups, (
         "The model looked the embeddings up from token ids. Build them yourself from "
-        "ids_to_onehot and pass them as inputs_embeds, as in Exercise 6.2.3"
+        "ids_to_onehot and pass them as inputs_embeds, as in Exercise 5.2.3"
     )
 
     value = loss.item()

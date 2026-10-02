@@ -1,6 +1,6 @@
 # %%
 """
-# Day 6 — Section 2: Adversarial Examples in Language Models
+# Day 5 — Section 2: Adversarial Examples in Language Models
 
 <!-- toc -->
 
@@ -53,13 +53,13 @@ from aisb_utils import report
 """
 ## Setup
 
-Create a file named `day6_answers.py` in the `6.2-adversarial-language` directory. This will be your answer file
+Create a file named `day5_answers.py` in the `5.2-adversarial-language` directory. This will be your answer file
 for this section.
 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to
 make it a Python code cell.
 
-**Start by pasting the code below in your day6_answers.py file.**
+**Start by pasting the code below in your day5_answers.py file.**
 """
 
 # %%
@@ -136,7 +136,7 @@ optimization problem
 
 $$\min_{x_{\mathcal{I}} \in \{1, \ldots, V\}^{|\mathcal{I}|}} \mathcal{L}(x_{1:n})$$
 
-This is the loss you implement in Exercise 6.2.5.
+This is the loss you implement in Exercise 5.2.5.
 
 ### Greedy Coordinate Gradient search (paper §2.2)
 
@@ -148,7 +148,7 @@ $$\nabla_{e_{x_i}} \mathcal{L}(x_{1:n}) \in \mathbb{R}^{V}$$
 
 Entry $v$ of this vector is a first-order estimate of how the loss changes if position $i$ is swapped to
 token $v$. The estimate is unreliable for picking a final token, because a one-hot swap is a large step and
-not an infinitesimal one. It is good enough to rank candidates. (Exercises 6.2.2-6.2.4 unpack exactly why
+not an infinitesimal one. It is good enough to rank candidates. (Exercises 5.2.2-5.2.4 unpack exactly why
 this works and where it fails.)
 
 **One GCG step:**
@@ -212,7 +212,7 @@ in advance and only considers replacements there. GCG computes candidates for *a
 exact evaluation decide which position to change. The paper reports that this difference accounts for a large
 gap in attack success.
 
-> **Note:** Exercise 6.2.5 simplifies step 2. It evaluates every one of the $k \cdot |\mathcal{I}|$ shortlisted
+> **Note:** Exercise 5.2.5 simplifies step 2. It evaluates every one of the $k \cdot |\mathcal{I}|$ shortlisted
 > single-token replacements and does not sample a random batch of $B$. This is affordable for the short
 > suffix and small model used here.
 '''
@@ -332,7 +332,7 @@ def make_initial_suffix(tokenizer: AutoTokenizer, suffix_length: int, device: to
 
 # %%
 """
-### Exercise 6.2.x: Lay Out the Attack Sequence with a SuffixManager
+### Exercise 5.2.x: Lay Out the Attack Sequence with a SuffixManager
 
 > **Difficulty**: 2/5
 > **Importance**: 4/5
@@ -577,7 +577,7 @@ close + assistant header, and the target are constants of the problem, so we emb
 ordinary lookup and `.detach()` them. No gradients accumulate where none are needed, and the code
 states exactly which part of the sequence is variable.
 
-### Exercise 6.2.2: From Discrete to Continuous Space
+### Exercise 5.2.2: From Discrete to Continuous Space
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
@@ -670,7 +670,7 @@ test_ids_to_onehot(ids_to_onehot, chat_model)
 
 # %%
 """
-### Exercise 6.2.3: Compute a Target Loss from One-Hot Vectors
+### Exercise 5.2.3: Compute a Target Loss from One-Hot Vectors
 
 > **Difficulty**: 2/5
 > **Importance**: 2/5
@@ -740,7 +740,7 @@ def loss(model: AutoModelForCausalLM, input_ids: torch.Tensor, target_ids: torch
     else:
         # TODO: Compute the target loss through the one-hot pathway.
         # 1. Concatenate input_ids and target_ids
-        # 2. Get a one-hot tensor using your function from 6.2.2
+        # 2. Get a one-hot tensor using your function from 5.2.2
         # 3. Multiply it with the embedding matrix and call model(inputs_embeds=...)
         # 4. Keep the logits that predict the target tokens (see the diagram above)
         # 5. Return the cross-entropy between those logits and target_ids
@@ -802,39 +802,39 @@ test_loss(loss, chat_model, tokenizer)
 
 # %%
 """
-### Exercise 6.2.5: Rewrite the Loss with the SuffixManager
+### Exercise 5.2.5: Rewrite the Loss with the SuffixManager
 
 > **Difficulty**: 2/5
 > **Importance**: 4/5
 >
 > You should spend up to ~10 minutes on this exercise.
 
-In Exercise 6.2.3 you wrote `loss(model, input_ids, target_ids)` and tested it on the fox sentence. The attack
+In Exercise 5.2.3 you wrote `loss(model, input_ids, target_ids)` and tested it on the fox sentence. The attack
 needs the same loss for a different sequence: the chat prompt with the suffix inside the user turn, followed by
-the target. This is $\mathcal{L}(x_{1:n})$ from Exercise 6.2.0, and it is the `loss` argument of the `gcg`
-pseudo-code in Exercise 6.2.1.
+the target. This is $\mathcal{L}(x_{1:n})$ from Exercise 5.2.0, and it is the `loss` argument of the `gcg`
+pseudo-code in Exercise 5.2.1.
 
-The computation is the one from Exercise 6.2.3. What changes is where the sequence and the indices come from:
+The computation is the one from Exercise 5.2.3. What changes is where the sequence and the indices come from:
 your `SuffixManager` now provides everything you worked out by hand.
 
 The new signature is `loss(model, manager, suffix_ids)`. The suffix is the only argument that changes during the
 attack, so the optimizer can call `loss` once per candidate suffix, always with the same manager. This is why
 `get_input_ids` takes the suffix as a parameter.
 
-Keep the one-hot pathway from Exercise 6.2.3: build the embeddings with `ids_to_onehot(...) @ E` and pass them to
+Keep the one-hot pathway from Exercise 5.2.3: build the embeddings with `ids_to_onehot(...) @ E` and pass them to
 the model as `inputs_embeds`. The value equals a forward pass on `input_ids`, and the test checks both. In the
 next exercise, this pathway is what lets you take the gradient of the loss with respect to the suffix tokens.
 
 **Task: Rewrite `loss` to take a `SuffixManager`.** It returns the cross-entropy loss of the target tokens for the
 prompt that contains `suffix_ids`.
 
-> **Note:** This definition replaces the `loss` from Exercise 6.2.3. If you re-run the Exercise 6.2.3 cell later,
+> **Note:** This definition replaces the `loss` from Exercise 5.2.3. If you re-run the Exercise 5.2.3 cell later,
 > re-run this cell before you continue.
 
 <details>
 <summary>Hint: what replaces what</summary>
 
-| | By hand in Exercise 6.2.3 | With the `SuffixManager` |
+| | By hand in Exercise 5.2.3 | With the `SuffixManager` |
 |---|---|---|
 | Full sequence | `torch.cat([input_ids, target_ids])` | `manager.get_input_ids(suffix_ids)` |
 | Logits that predict the target | `logits[0, n - 1 : -1]` | `logits[0, manager.loss_slice]` |
@@ -846,7 +846,7 @@ prompt that contains `suffix_ids`.
 <summary>Hint: outlined steps</summary>
 
 1. Build the full sequence with `manager.get_input_ids`
-2. Get a one-hot tensor of the full sequence using your function from 6.2.2
+2. Get a one-hot tensor of the full sequence using your function from 5.2.2
 3. Use the one-hot tensor to get embeddings
 4. Run the embeddings through the model to get logits
 5. Keep the logits that predict the target tokens (`manager.loss_slice`)
@@ -860,7 +860,7 @@ def loss(model: AutoModelForCausalLM, manager: SuffixManager, suffix_ids: torch.
     """
     Compute the attack loss: the cross-entropy of the target continuation for the prompt with `suffix_ids`.
 
-    The prompt is fed to the model as `one_hot @ E`, as in Exercise 6.2.3.
+    The prompt is fed to the model as `one_hot @ E`, as in Exercise 5.2.3.
 
     Args:
         model: Causal LM whose embedding matrix E has shape [vocab_size, d_model].
@@ -882,8 +882,8 @@ def loss(model: AutoModelForCausalLM, manager: SuffixManager, suffix_ids: torch.
         # loss_slice picks the logits that predict the target; target_slice picks the target itself.
         return F.cross_entropy(logits[0, manager.loss_slice], input_ids[manager.target_slice])
     else:
-        # TODO: Rewrite your Exercise 6.2.3 loss with the SuffixManager.
-        # Tip: Start from your 6.2.3 code and replace each hand-computed index with the manager.
+        # TODO: Rewrite your Exercise 5.2.3 loss with the SuffixManager.
+        # Tip: Start from your 5.2.3 code and replace each hand-computed index with the manager.
         pass
 
 
@@ -912,7 +912,7 @@ def test_loss_with_suffix_manager(solution, chat_model, manager, initial_suffix_
     assert loss is not None, "loss returned None"
     assert not embedding_lookups, (
         "The model looked the embeddings up from token ids. Build them yourself from "
-        "ids_to_onehot and pass them as inputs_embeds, as in Exercise 6.2.3"
+        "ids_to_onehot and pass them as inputs_embeds, as in Exercise 5.2.3"
     )
 
     value = loss.item()
@@ -945,7 +945,7 @@ test_loss_with_suffix_manager(loss, chat_model, suffix_manager, initial_suffix_i
 
 # %%
 """
-### Exercise 6.2.3: Use Gradients to Propose Token Replacements
+### Exercise 5.2.3: Use Gradients to Propose Token Replacements
 
 > **Difficulty**: 3/5
 > **Importance**: 5/5
@@ -971,10 +971,10 @@ entries are the most promising replacements.
 
 **And what does it not mean?** A Taylor truncation is only trustworthy when the step is small — and a
 token swap is never small: `‖Δ‖ = √2`, always. There is no learning rate to shrink it; the smallest
-possible move in token space is a full jump between corners of the simplex. Compare Section 6.1:
+possible move in token space is a full jump between corners of the simplex. Compare Section 5.1:
 FGSM/PGD use the same linearization but then take an ε-sized step, where the first-order term
 genuinely dominates. Here the dropped curvature terms can be as large as the term we kept, so the
-gradient is a *shortlist generator*, not an oracle — Exercise 6.2.4 makes this failure visible, and the
+gradient is a *shortlist generator*, not an oracle — Exercise 5.2.4 makes this failure visible, and the
 exact re-evaluation in the full algorithm is what corrects for it.
 
 (This first-order candidate ranking comes from
@@ -1031,8 +1031,8 @@ def compute_suffix_token_gradients(
     else:
         # TODO: Compute gradients with respect to suffix token choices.
         # - Build the one-hot suffix and the full embedding sequence exactly as in
-        #   Exercise 6.2.2, but call .requires_grad_(True) on the one-hot tensor first
-        # - Compute the same target loss as in Exercises 6.2.1 / 6.2.2
+        #   Exercise 5.2.2, but call .requires_grad_(True) on the one-hot tensor first
+        # - Compute the same target loss as in Exercises 5.2.1 / 5.2.2
         # - Call loss.backward() and return the gradient of the one-hot tensor
         #   (detached, without the batch dimension)
         pass
@@ -1119,7 +1119,7 @@ test_top_replacements_from_gradients(
 
 # %%
 """
-### Exercise 6.2.4: Lowest Gradient ≠ Best Token
+### Exercise 5.2.4: Lowest Gradient ≠ Best Token
 
 > **Difficulty**: 2/5
 > **Importance**: 5/5
@@ -1252,7 +1252,7 @@ test_evaluate_candidates_exactly(
 
 # %%
 """
-### Exercise 6.2.5: Run the Full GCG Loop
+### Exercise 5.2.5: Run the Full GCG Loop
 
 > **Difficulty**: 4/5
 > **Importance**: 5/5
@@ -1260,7 +1260,7 @@ test_evaluate_candidates_exactly(
 > You should spend up to ~30 minutes on this exercise.
 
 Now we can put the pieces together. Reread **Algorithm 1** in Exercise 0 — you have now built each of its
-lines: the gradient/shortlist step is Exercise 6.2.3, and the exact-evaluation step is Exercise 6.2.4.
+lines: the gradient/shortlist step is Exercise 5.2.3, and the exact-evaluation step is Exercise 5.2.4.
 
 Each iteration is the two-phase move you have already built. The **propose** phase costs one
 forward+backward pass regardless of vocabulary size; the **evaluate-and-commit** phase costs one
@@ -1450,7 +1450,7 @@ test_run_greedy_search(run_greedy_search, chat_model, tokenizer, search_manager)
 
 # %%
 """
-### Exercise 6.2.x (Optional): Read the Universal Attack Code with Claude
+### Exercise 5.2.x (Optional): Read the Universal Attack Code with Claude
 
 > **Difficulty**: 2/5
 > **Importance**: 2/5
