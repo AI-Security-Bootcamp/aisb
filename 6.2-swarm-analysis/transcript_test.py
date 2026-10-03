@@ -43,7 +43,7 @@ def test_summaries(summaries=None, source=None):
     if source is None:
         source = read_jsonl(folder / "inputs/00-transcript.jsonl")
     if summaries is None:
-        summaries = json.loads((folder / "outputs/transcript/01-summaries.json").read_text())
+        summaries = json.loads((folder / "outputs/transcript/01-summaries-solution.json").read_text())
     covered = [i for chunk in summaries for i in chunk["source_ids"]]
     assert covered == [r["id"] for r in source], "Chunks must cover every source ID once, in order."
     for chunk in summaries:
@@ -64,7 +64,7 @@ def test_summaries(summaries=None, source=None):
 def test_codebook(codebook=None):
     """Check flat, bounded label definitions; semantic coverage needs review."""
     if codebook is None:
-        codebook = json.loads((folder / "outputs/transcript/01-codebook.json").read_text())
+        codebook = json.loads((folder / "outputs/transcript/01-codebook-solution.json").read_text())
     labels = codebook["labels"]
     assert 1 <= len(labels) <= 22, f"Expected 1–22 labels, got {len(labels)}."
     for label in labels:
@@ -87,9 +87,9 @@ def test_classifications(result=None, source=None, codebook=None):
     if source is None:
         source = read_jsonl(folder / "inputs/00-transcript.jsonl")
     if result is None:
-        result = json.loads((folder / "outputs/transcript/02-classifications.json").read_text())
+        result = json.loads((folder / "outputs/transcript/02-classifications-solution.json").read_text())
     if codebook is None:
-        codebook = json.loads((folder / "outputs/transcript/01-codebook.json").read_text())
+        codebook = json.loads((folder / "outputs/transcript/01-codebook-solution.json").read_text())
     assert result["track"] == "transcript", "The viewer needs the correct dataset track."
     assert result["labels"] == codebook["labels"], "Export the codebook used for this run."
     records = result["records"]

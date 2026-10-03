@@ -125,7 +125,7 @@ def test_failed_final_attempt_leaves_no_cached_answer():
 def test_call_llm_reads_matching_cache_without_key_or_usage(monkeypatch):
     """Use a real saved codebook as the answer; do not simulate an API server."""
     section = Path(__file__).resolve().parents[1]
-    answer = json.loads((section / "outputs/transcript/01-codebook.json").read_text())
+    answer = json.loads((section / "outputs/transcript/01-codebook-solution.json").read_text())
     settings = {
         "OPENROUTER_MODEL": "model-a", "OPENROUTER_API_KEY": "",
         "OPENROUTER_BASE_URL": "https://openrouter.ai/api/v1",
