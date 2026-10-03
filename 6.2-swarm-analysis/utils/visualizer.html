@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Swarm analysis</title>
+  <style>
+    :root { font: 15px/1.5 system-ui, sans-serif; color: #24292f; background: #fff; }
+    * { box-sizing: border-box; }
+    body { max-width: 1500px; margin: auto; padding: 24px; }
+    h1 { margin: 0; font-size: 24px; }
+    h2 { font-size: 18px; }
+    p { margin: 8px 0; }
+    button, input, select { font: inherit; }
+    button, input, select { border: 1px solid #b9c0c8; border-radius: 4px; padding: 6px 8px; background: white; }
+    button { cursor: pointer; color: inherit; }
+    button:hover { background: #f2f5f8; }
+    :focus-visible { outline: 3px solid #1769aa; outline-offset: 2px; }
+    .muted { color: #59636e; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 20px 0; }
+    .toolbar label { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; min-width: 0; max-width: 100%; }
+    #activity { max-width: 440px; }
+    #search { width: 240px; }
+    #error { color: #a32222; }
+    #timeline { max-height: 520px; overflow: auto; border: 1px solid #d6dbe0; margin-top: 16px; }
+    .row { display: grid; grid-template-columns: 320px minmax(500px, 1fr); min-width: 850px; border-top: 1px solid #edf0f2; }
+    .row > button { border: 0; border-radius: 0; text-align: left; padding: 10px 16px; font-size: 13px; }
+    .rail { position: relative; min-height: 58px; margin-right: 16px; }
+    .bar { position: absolute; top: calc(50% - 10px); height: 20px; min-width: 5px; padding: 0; border: 0; border-radius: 2px; background: #4385ae; scroll-margin: 70px 8px; }
+    .bar:hover, .bar[aria-pressed="true"] { background: #aa631a; z-index: 1; }
+    .axis { position: sticky; top: 0; background: #f8f9fa; z-index: 2; border-top: 0; }
+    .axis > span { padding: 12px 16px; }
+    .axis .rail { min-height: 58px; }
+    .tick { position: absolute; top: 12px; width: 125px; font-size: 11px; color: #59636e; white-space: pre-line; }
+    .panel { margin-top: 22px; }
+    .panel-heading { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+    #records { max-height: 760px; overflow: auto; }
+    article { border-top: 1px solid #d6dbe0; padding: 16px 0; }
+    article h3 { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+    pre { font: 13px/1.6 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; margin: 8px 0; }
+    mark { background: #fff0a3; color: inherit; }
+    summary { cursor: pointer; }
+    [hidden] { display: none !important; }
+    @media (max-width: 600px) { body { padding: 12px; } #activity, #file, #search { max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Swarm analysis</h1>
+    <p id="description" class="muted">Open a source or classifications JSON from either analysis. Files stay in your browser.</p>
+  </header>
+
+  <div class="toolbar">
+    <label>Analysis JSON <input id="file" type="file" accept=".json,application/json"></label>
+    <label>Activity <select id="activity"><option value="">All activities</option></select></label>
+    <label>Search records <input id="search" type="search" placeholder="Text, record ID, page, or actor"></label>
+    <label>From (UTC) <input id="from" type="date"></label>
+    <label>To (UTC) <input id="to" type="date"></label>
+    <label>Time <select id="time-mode"><option value="dated">Dated records</option><option value="undated">Undated records</option></select></label>
+    <button id="reset" type="button">Reset filters</button>
+  </div>
+  <p id="error" role="alert"></p>
+  <p id="status" role="status" class="muted">Choose 00-source.json or 02-classifications.json from work/transcript/ or work/wiki/ in the section folder.</p>
+  <p class="muted">Bars join consecutive records with the same label, up to five minutes apart. They show observations, not continuous work or verified success. Narrow the dates to separate dense intervals. Timestamps without a timezone are plotted as UTC.</p>
+  <div id="timeline" aria-label="Activity timeline"></div>
+
+  <section class="panel" aria-label="Source records">
+    <div class="panel-heading">
+      <h2 id="selection">Source records</h2>
+      <label><input id="highlights" type="checkbox"> Highlighted passages only</label>
+      <button id="clear-selection" type="button" hidden>Show all matching records</button>
+    </div>
+    <p id="definition" class="muted"></p>
+    <p id="record-count" class="muted"></p>
+    <div id="records"></div>
+  </section>
+
+  <script>
+    "use strict";
+
+    // Both scripts write {track, labels, records}. Labels are flat; each record
+    // retains its source fields and adds one label and one optional quote.
+    let data = null;
+    let labels = new Map();
+    let observations = [];
+    let visible = [];
+    let episodes = [];
+    let selected = null;
+    let limit = 100;
+
+    const byId = id => document.getElementById(id);
+
+    function element(tag, text, className) {
+      const node = document.createElement(tag);
+      if (text !== undefined) node.textContent = text;
+      if (className) node.className = className;
+      return node;
+    }
+
+    function timestamp(value) {
+      if (!value) return NaN;
+      // Keep the original timestamp in the source panel; normalize only for plotting.
+      let stamp = value.replace(" ", "T");
+      if (!/(Z|[+-]\d{2}:?\d{2})$/i.test(stamp)) stamp += "Z";
+      return Date.parse(stamp);
+    }
+
+    function dateText(time) {
+      return new Date(time).toISOString().replace("T", " ").slice(0, 19) + " UTC";
+    }
+
+    function load(value) {
+      if (!value || !["transcript", "wiki"].includes(value.track)
+          || !Array.isArray(value.labels) || !Array.isArray(value.records)) {
+        throw Error("Expected track, labels, and records from 00-source.json or 02-classifications.json.");
+      }
+      const definitions = new Map();
+      for (const label of value.labels) {
+        if (!label || typeof label.id !== "string" || typeof label.name !== "string"
+            || definitions.has(label.id) || label.parent_id
+            || ["other", "insufficient_context"].includes(label.id)) {
+          throw Error("Expected unique, flat codebook labels without fallback labels.");
+        }
+        definitions.set(label.id, label);
+      }
+      definitions.set("other", {name: "Other", definition: "An identifiable activity outside the codebook."});
+      definitions.set("insufficient_context", {name: "Insufficient context", definition: "The supplied evidence does not establish this record's activity."});
+      const ids = new Set();
+      for (const record of value.records) {
+        if (!record || typeof record.id !== "string" || ids.has(record.id)
+            || typeof record.text !== "string" || !definitions.has(record.label)
+            || typeof record.quote !== "string" || !record.text.includes(record.quote)
+            || (record.time != null && typeof record.time !== "string")) {
+          throw Error("Records need unique IDs, known labels, and quotes copied exactly from their own text.");
+        }
+        ids.add(record.id);
+      }
+
+      // Form intervals before filtering so a search cannot join unrelated records.
+      let previous = null;
+      let episode = 0;
+      const items = value.records.map(record => {
+        const time = timestamp(record.time);
+        const close = previous && record.label === previous.record.label
+          && Number.isFinite(time) && Number.isFinite(previous.time)
+          && time >= previous.time && time - previous.time <= 300000;
+        if (!close) episode += 1;
+        const item = {record, time, episode};
+        item.search = [record.id, record.text, record.actor, record.site, record.page,
+          definitions.get(record.label).name].filter(Boolean).join(" ").toLowerCase();
+        previous = item;
+        return item;
+      });
+
+      data = value;
+      labels = definitions;
+      observations = items;
+      byId("activity").replaceChildren(new Option("All activities", ""));
+      for (const [id, label] of labels) byId("activity").append(new Option(label.name, id));
+      byId("description").textContent = value.track === "wiki"
+        ? "Wiki revisions and public communications. Claims about external outcomes are not independently verified."
+        : "An agent's expressed reasoning, tool calls, and results. Plans and reported outcomes need separate assessment.";
+      byId("error").textContent = "";
+      reset();
+    }
+
+    function reset() {
+      for (const id of ["activity", "search", "from", "to"]) byId(id).value = "";
+      byId("time-mode").value = "dated";
+      byId("highlights").checked = false;
+      selected = null;
+      render();
+    }
+
+    function render() {
+      if (!data) return;
+      const query = byId("search").value.trim().toLowerCase();
+      const activity = byId("activity").value;
+      const undated = byId("time-mode").value === "undated";
+      const from = byId("from").value ? Date.parse(byId("from").value) : -Infinity;
+      const to = byId("to").value ? Date.parse(byId("to").value) + 86400000 : Infinity;
+      for (const id of ["from", "to"]) byId(id).disabled = undated;
+      visible = observations.filter(item => {
+        const inTime = undated ? !Number.isFinite(item.time) : item.time >= from && item.time < to;
+        return inTime && (!activity || item.record.label === activity)
+          && (!query || item.search.includes(query));
+      });
+      const grouped = new Map();
+      for (const item of visible) {
+        if (!grouped.has(item.episode)) grouped.set(item.episode, []);
+        grouped.get(item.episode).push(item);
+      }
+      episodes = [...grouped.entries()];
+      if (!grouped.has(selected)) selected = null;
+      const missing = observations.filter(item => !Number.isFinite(item.time)).length;
+      byId("status").textContent = `${visible.length.toLocaleString()} of ${observations.length.toLocaleString()} records in view · ${missing} undated`;
+      renderTimeline();
+      limit = 100;
+      renderRecords();
+    }
+
+    function renderTimeline() {
+      const chart = byId("timeline");
+      chart.replaceChildren();
+      if (byId("time-mode").value === "undated") {
+        chart.append(element("p", "Undated records are listed below; no times have been invented."));
+        return;
+      }
+      if (!visible.length) {
+        chart.append(element("p", "No records match these filters."));
+        return;
+      }
+      const low = Math.min(...visible.map(item => item.time));
+      const high = Math.max(low + 1000, ...visible.map(item => item.time));
+      const position = time => 100 * (time - low) / (high - low);
+      const axis = element("div", undefined, "row axis");
+      axis.append(element("span", "Activity · records"));
+      const ticks = element("div", undefined, "rail");
+      for (let i = 0; i <= 4; i++) {
+        const time = low + (high - low) * i / 4;
+        const tick = element("span", dateText(time).replace(" ", "\n"), "tick");
+        tick.style.left = `${i * 25}%`;
+        tick.style.transform = `translateX(-${i === 0 ? 0 : i === 4 ? 100 : 50}%)`;
+        tick.style.textAlign = i === 0 ? "left" : i === 4 ? "right" : "center";
+        ticks.append(tick);
+      }
+      axis.append(ticks);
+      chart.append(axis);
+
+      for (const [id, label] of labels) {
+        const matches = episodes.filter(([, items]) => items[0].record.label === id);
+        if (!matches.length) continue;
+        const row = element("div", undefined, "row");
+        const count = matches.reduce((sum, [, items]) => sum + items.length, 0);
+        const name = element("button", `${label.name} · ${count}`);
+        name.title = label.definition || label.name;
+        name.onclick = () => { byId("activity").value = id; selected = null; render(); };
+        row.append(name);
+        const rail = element("div", undefined, "rail");
+        for (const [episode, items] of matches) {
+          const start = items[0].time;
+          const end = items[items.length - 1].time;
+          const bar = element("button", undefined, "bar");
+          // Keep even a single observation at the right edge inside its rail.
+          bar.style.left = `min(calc(100% - 5px), ${position(start)}%)`;
+          bar.style.width = `${position(end) - position(start)}%`;
+          bar.title = `${label.name}\n${dateText(start)} — ${dateText(end)}\n${items.length} records`;
+          bar.setAttribute("aria-label", bar.title);
+          bar.setAttribute("aria-pressed", String(selected === episode));
+          bar.onclick = () => { selected = episode; limit = 100; renderTimeline(); renderRecords(); };
+          rail.append(bar);
+        }
+        row.append(rail);
+        chart.append(row);
+      }
+    }
+
+    function sourceText(record, highlighted) {
+      const box = element("div");
+      const pre = element("pre");
+      if (highlighted) {
+        pre.append(element("mark", record.quote));
+        const context = element("details");
+        context.append(element("summary", "Full record"), element("pre", record.text));
+        box.append(pre, context);
+      } else {
+        const start = record.quote ? record.text.indexOf(record.quote) : -1;
+        if (start < 0) pre.textContent = record.text;
+        else pre.append(
+          document.createTextNode(record.text.slice(0, start)),
+          element("mark", record.quote),
+          document.createTextNode(record.text.slice(start + record.quote.length)),
+        );
+        box.append(pre);
+      }
+      return box;
+    }
+
+    function renderRecords() {
+      if (!data) return;
+      let items = visible.filter(item => selected === null || item.episode === selected);
+      const total = items.length;
+      const activity = selected !== null ? items[0]?.record.label : byId("activity").value;
+      const label = labels.get(activity);
+      byId("selection").textContent = label?.name || "Source records";
+      byId("definition").textContent = label
+        ? [label.definition, label.exclude ? "Excludes: " + label.exclude : ""].filter(Boolean).join(" ") : "";
+      byId("clear-selection").hidden = selected === null;
+      const highlighted = byId("highlights").checked;
+      if (highlighted) items = items.filter(item => item.record.quote);
+      byId("record-count").textContent = highlighted
+        ? `${items.length} of ${total} selected records have highlights.` : `${total} selected records.`;
+      const panel = byId("records");
+      panel.replaceChildren();
+      if (!items.length) panel.append(element("p", highlighted ? "No highlights. Switch to full text to inspect this selection." : "No records match this selection."));
+      for (const {record} of items.slice(0, limit)) {
+        const article = element("article");
+        article.append(element("h3", record.id));
+        article.append(element("p", [record.time || "Timestamp unavailable", record.kind,
+          record.site, record.page, record.actor].filter(Boolean).join(" · "), "muted"));
+        article.append(element("p", labels.get(record.label).name, "muted"));
+        const provenance = [record.time_grade, record.uncertainty_seconds != null
+          ? `uncertainty ${record.uncertainty_seconds}s` : "", record.source_file, record.source_id].filter(Boolean);
+        if (provenance.length) article.append(element("p", provenance.join(" · "), "muted"));
+        // Evidence always becomes text nodes, never HTML, links, or scripts.
+        article.append(sourceText(record, highlighted));
+        panel.append(article);
+      }
+      if (items.length > limit) {
+        const more = element("button", `Show next ${Math.min(100, items.length - limit)} records`);
+        more.onclick = () => { limit += 100; renderRecords(); };
+        panel.append(more);
+      }
+    }
+
+    byId("file").addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try { load(JSON.parse(await file.text())); }
+      catch (error) {
+        byId("error").textContent = `Could not load ${file.name}: ${error.message}`
+          + (data ? " The previous dataset is still displayed." : "");
+      }
+    });
+    for (const id of ["activity", "search", "from", "to", "time-mode"]) {
+      byId(id).addEventListener("input", () => { selected = null; render(); });
+    }
+    byId("highlights").addEventListener("change", () => { limit = 100; renderRecords(); });
+    byId("clear-selection").onclick = () => { selected = null; render(); };
+    byId("reset").onclick = reset;
+  </script>
+</body>
+</html>

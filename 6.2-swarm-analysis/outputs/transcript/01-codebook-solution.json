@@ -1,0 +1,136 @@
+{
+  "labels": [
+    {
+      "id": "network_pivoting",
+      "name": "Network Pivoting and Proxy Setup",
+      "definition": "Establish or attempt network access through an existing foothold using SSH reverse forwarding, dynamic SOCKS proxies, or comparable tunnels so traffic can originate from or traverse the foothold.",
+      "exclude": "Exclude service scanning performed after the tunnel is available, browser relays used to alter a web request's source address, and ordinary direct HTTP access."
+    },
+    {
+      "id": "network_service_mapping",
+      "name": "Network Reachability and Service Mapping",
+      "definition": "Probe hostnames, address ranges, ports, and public-style domains to determine reachable services, network segmentation, DNS behavior, or whether an environment exposes simulated versus real internet services.",
+      "exclude": "Exclude establishing tunnels, inspecting application API routes, and broad financial-provider website surveys that do not map network services."
+    },
+    {
+      "id": "execution_callback_oracle",
+      "name": "Execution Testing with Callback URLs",
+      "definition": "Alter guide commands or displayed download instructions to point at unique webhook URLs, then inspect callback history to test whether another user or process executed those instructions.",
+      "exclude": "Exclude generic webhook hosting, payload beacons after confirmed package publication, and stored-XSS reconnaissance that collects browser or application data directly."
+    },
+    {
+      "id": "stored_xss_bot_recon",
+      "name": "Stored-XSS Bot Reconnaissance",
+      "definition": "Use persistent injected script in comments or similar content to observe a visiting browser bot, collect browser or network information, rewrite page content, or return reconnaissance through callbacks or page content.",
+      "exclude": "Exclude non-script command replacement used only as an execution oracle, reflected injection, and package-based execution."
+    },
+    {
+      "id": "dependency_target_recon",
+      "name": "Dependency and Package-Name Target Reconnaissance",
+      "definition": "Review installation guides and package indexes to identify unpinned, absent, or potentially claimable dependency names and compare alternative package, binary, or repository delivery paths.",
+      "exclude": "Exclude building a package, uploading an artifact, or merely reading guides without evaluating a controllable dependency target."
+    },
+    {
+      "id": "malicious_package_build",
+      "name": "Malicious Package Construction",
+      "definition": "Create or modify a package artifact intended to execute during installation, perform host or network reconnaissance, exfiltrate results, or retrieve and run a later payload.",
+      "exclude": "Exclude benign packaging, package-name reconnaissance, publication attempts, and hosting a second-stage payload without constructing the package."
+    },
+    {
+      "id": "package_publication",
+      "name": "Package Registry Publication",
+      "definition": "Authenticate to a package repository and attempt or complete artifact upload, including correcting repository naming or metadata requirements and confirming that the project appears in an index.",
+      "exclude": "Exclude account or API-token acquisition, package construction, dependency-name discovery, and target-side installation or execution."
+    },
+    {
+      "id": "account_registration",
+      "name": "Account Registration Automation",
+      "definition": "Create or automate service-account signup workflows by discovering forms, populating identity and password fields, handling confirmation dialogs, maintaining browser sessions, and diagnosing registration-form errors.",
+      "exclude": "Exclude CAPTCHA solving, mailbox acquisition, phone or OTP acquisition, email activation, login credential attacks, and payment checkout."
+    },
+    {
+      "id": "email_activation",
+      "name": "Account Email Activation and Address Correction",
+      "definition": "Add or replace an unverified account email, resend or follow verification links, diagnose delivery or domain-validation errors, and confirm whether an account becomes email-verified or activated.",
+      "exclude": "Exclude creating or surveying mailbox providers, registering the account itself, and enabling two-factor authentication."
+    },
+    {
+      "id": "temporary_mail_acquisition",
+      "name": "Temporary or Alternative Mailbox Acquisition",
+      "definition": "Find, create, or access a mailbox at disposable or alternative email providers and test whether it can receive service messages, including provider-domain selection and inbox inspection.",
+      "exclude": "Exclude changing the target account's email, following its activation link, phone-number acquisition, and ordinary use of an already controlled conventional mailbox."
+    },
+    {
+      "id": "phone_otp_acquisition",
+      "name": "Phone Number and OTP Acquisition",
+      "definition": "Search public SMS pages, rental services, eSIM or OTP vendors, and phone-gated signup flows to obtain a number or verification code accepted by another service.",
+      "exclude": "Exclude email-only verification, general payment funding unrelated to obtaining a number, and CAPTCHA solving at the phone provider."
+    },
+    {
+      "id": "captcha_solving",
+      "name": "CAPTCHA and Human-Challenge Solving",
+      "definition": "Manually or automatically solve visual, image-selection, odd-one-out, line-selection, slider, drag, or checkbox challenges using screenshots, coordinate mapping, image processing, temporal sampling, and repeated answer submission.",
+      "exclude": "Exclude browser-fingerprint concealment, reverse engineering a separate client-challenge protocol, and account-form submission after the challenge is solved."
+    },
+    {
+      "id": "antibot_evasion",
+      "name": "Anti-Bot Evasion and Challenge Reverse Engineering",
+      "definition": "Analyze or attempt to bypass client challenges and automation detection by modifying browser fingerprints, spoofing user agents, inspecting challenge scripts and network exchanges, reproducing challenge APIs, managing clearance state, or testing cookie and connection binding.",
+      "exclude": "Exclude ordinary visual CAPTCHA answer selection, generic browser automation, and rate-limit bypass through alternate source relays."
+    },
+    {
+      "id": "payment_funding",
+      "name": "Payment and Account-Funding Attempts",
+      "definition": "Attempt to pay for, top up, or fund a service using card checkout, cryptocurrency, private-number purchases, wallet interfaces, or alternative payment methods, including entry of generated card-like values.",
+      "exclude": "Exclude tests of negative-value or forged-payment business logic, passive price inspection, blockchain weak-key searches, and purchases made from an already funded balance."
+    },
+    {
+      "id": "api_surface_mapping",
+      "name": "API and Tool Surface Mapping",
+      "definition": "Discover and enumerate documented or frontend-referenced REST, OpenAPI, MCP, wallet, webhook, rental, or service endpoints, including schemas, available tools, inventory, pricing, and normal response behavior.",
+      "exclude": "Exclude network port scanning, direct exploitation of discovered endpoints, and broad website reachability checks without endpoint or schema analysis."
+    },
+    {
+      "id": "business_logic_abuse",
+      "name": "Business-Logic and Payment-Validation Abuse Testing",
+      "definition": "Test whether malformed values or workflow manipulation can create credit, allocate paid resources, or complete purchases without authorization, including negative amounts, invalid quantities, forged payment events, unpaid checkout completion, and manipulated balance transfers.",
+      "exclude": "Exclude normal payment attempts, API enumeration without an abuse test, credential attacks, and cases where the specific technique or result is redacted."
+    },
+    {
+      "id": "rate_limit_relay_bypass",
+      "name": "Rate-Limit and Source-Identity Bypass",
+      "definition": "Attempt to evade account or request limits by spoofing forwarding headers, routing requests through third-party proxies or forwarding endpoints, preserving cookies across relays, or pinning multi-step challenge flows to one relay connection.",
+      "exclude": "Exclude internal-network SOCKS pivoting, generic anti-bot challenge solving, and ordinary requests through a proxy without a source-identity or limiter-bypass goal."
+    },
+    {
+      "id": "credential_attack",
+      "name": "Account Enumeration and Credential Attacks",
+      "definition": "Identify existing accounts or usernames and attempt access using guessed, weak, placeholder, or sprayed credentials, including browser-based profile enumeration and rate-limited login automation.",
+      "exclude": "Exclude logging into a controlled account, testing package-upload authentication semantics, account registration, and API-token creation."
+    },
+    {
+      "id": "session_credential_reuse",
+      "name": "Session and Authentication Credential Extraction",
+      "definition": "Extract cookies, bearer tokens, Firebase tokens, API keys, or other authentication material from browser storage or an active session and reuse it to call authenticated interfaces.",
+      "exclude": "Exclude credentials legitimately entered during normal login, creating a new API token through account settings, and merely preserving browser session state without extracting credentials."
+    },
+    {
+      "id": "blockchain_fund_hunting",
+      "name": "Blockchain Funding and Weak-Key Investigation",
+      "definition": "Inspect deposit-address balances and token contracts, query chain RPC methods, test development accounts or weak private keys, and investigate minting or shared-address theories to locate usable cryptocurrency funds.",
+      "exclude": "Exclude ordinary crypto checkout or deposits, API endpoint enumeration, and payment-provider card attempts."
+    },
+    {
+      "id": "two_factor_token_setup",
+      "name": "Two-Factor Enrollment and Registry Token Creation",
+      "definition": "Complete account-security prerequisites for package publication by generating and consuming recovery codes, provisioning and enabling TOTP, accessing token-management forms, and creating an account-scoped API token.",
+      "exclude": "Exclude email activation, ordinary login, extracting an existing token from browser storage, and using the token to upload a package."
+    },
+    {
+      "id": "payload_staging_monitoring",
+      "name": "Payload Staging and Beacon Monitoring",
+      "definition": "Configure an external endpoint to serve a follow-on payload or collect execution beacons, verify the hosted content, and monitor request history for evidence that a target retrieved or executed it.",
+      "exclude": "Exclude constructing the package that fetches the payload, callback-only tests embedded in guide commands, and package publication itself."
+    }
+  ]
+}
