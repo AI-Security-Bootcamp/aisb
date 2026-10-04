@@ -1,4 +1,4 @@
-# Host setup for Exercise 7.3: NVIDIA Container Toolkit vulnerability
+# Host setup for Exercise 7.2: NVIDIA Container Toolkit vulnerability
 #
 # Run only on a disposable lab host. The exercise intentionally installs a
 # vulnerable GPU container stack.

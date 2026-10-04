@@ -1,4 +1,4 @@
-# 7.4 — GPU RowHammer
+# 7.3 — GPU RowHammer
 
 ## What to expect
 
@@ -8,7 +8,7 @@ overflow to privilege escalation.
 
 **Suggested time:** 90 minutes for the core route; stretch exercises are optional
 
-**Exercises:** [Open the participant instructions](section4_instructions.md)
+**Exercises:** [Open the participant instructions](section3_instructions.md)
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |

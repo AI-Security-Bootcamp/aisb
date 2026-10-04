@@ -1,4 +1,4 @@
-# 7.1 — RAND report: securing AI model weights
+# 1.5 — RAND report: securing AI model weights
 
 ## What to expect
 
@@ -7,7 +7,7 @@ classify adversaries and justify controls for concrete model-weight environments
 
 **Suggested time:** 60 minutes
 
-**Exercises:** [Open the participant instructions](section1_instructions.md)
+**Exercises:** [Open the participant instructions](section5_instructions.md)
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |
@@ -19,4 +19,4 @@ classify adversaries and justify controls for concrete model-weight environments
 ### Background
 
 - Read the assigned sections of RAND's [*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf).
-- Optional supporting material: [IAPS and SL5 discussion](optional-iaps-sl5-discussion.md) and the local [SL5 recommendations](SL5_NOVEL-RECOMMENDATIONS.pdf).
+- Optional supporting material: [RAND and IAPS discussion](optional-iaps-discussion.md).

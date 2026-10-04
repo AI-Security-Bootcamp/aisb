@@ -1,4 +1,4 @@
-# 7.3 — NVIDIA Container Toolkit vulnerability
+# 7.2 — NVIDIA Container Toolkit vulnerability
 
 ## What to expect
 
@@ -7,7 +7,7 @@ trace how attacker-controlled container state reaches a privileged host hook.
 
 **Suggested time:** 45 minutes
 
-**Exercises:** [Open the participant instructions](section3_instructions.md)
+**Exercises:** [Open the participant instructions](section2_instructions.md)
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |

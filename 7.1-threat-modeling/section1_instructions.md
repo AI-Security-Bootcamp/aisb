@@ -1,5 +1,5 @@
 
-# Day 7 — Section 2: Threat Modeling with Adversary Matrices
+# Day 7 — Section 1: Threat Modeling with Adversary Matrices
 
 This section combines a MITRE ATLAS kill-chain warm-up with a frontier-lab
 adversary-matrix exercise. Participants connect isolated bootcamp techniques
@@ -11,13 +11,13 @@ into end-to-end attack paths and identify where layered controls can break them.
     - [Threat modeling with ATLAS and adversary matrices](#threat-modeling-with-atlas-and-adversary-matrices)
 - [Setup](#setup)
 - [Warm-up: Walking an ATLAS kill chain](#warm-up-walking-an-atlas-kill-chain)
-    - [Exercise 7.2.1: Trace a kill chain against an ATLAS system](#exercise-721-trace-a-kill-chain-against-an-atlas-system)
+    - [Exercise 7.1.1: Trace a kill chain against an ATLAS system](#exercise-711-trace-a-kill-chain-against-an-atlas-system)
 - [Building a frontier-lab adversary matrix](#building-a-frontier-lab-adversary-matrix)
     - [The target: OpenBrain](#the-target-openbrain)
-    - [Exercise 7.2.2: Fix the columns](#exercise-722-fix-the-columns)
-    - [Exercise 7.2.3: Populate techniques from the bootcamp](#exercise-723-populate-techniques-from-the-bootcamp)
-    - [Exercise 7.2.4: Trace an end-to-end kill chain](#exercise-724-trace-an-end-to-end-kill-chain)
-    - [Exercise 7.2.5: Defensive coverage analysis](#exercise-725-defensive-coverage-analysis)
+    - [Exercise 7.1.2: Fix the columns](#exercise-712-fix-the-columns)
+    - [Exercise 7.1.3: Populate techniques from the bootcamp](#exercise-713-populate-techniques-from-the-bootcamp)
+    - [Exercise 7.1.4: Trace an end-to-end kill chain](#exercise-714-trace-an-end-to-end-kill-chain)
+    - [Exercise 7.1.5: Defensive coverage analysis](#exercise-715-defensive-coverage-analysis)
 - [Summary](#summary)
 
 ## Content & Learning Objectives
@@ -33,8 +33,8 @@ into end-to-end attack paths and identify where layered controls can break them.
 
 ## Setup
 
-This is a prose/discussion section; there is no code to run. Continue in
-`day7_answers.md`, created in `7.1-rand-report/`. Use a Markdown table,
+This is a prose/discussion section; there is no code to run. Create
+`day7_answers.md` in `7.1-threat-modeling/`. Use a Markdown table,
 spreadsheet, or photographed whiteboard for the matrix.
 
 Work in pairs and ask an instructor to review the final kill chain.
@@ -42,7 +42,7 @@ Work in pairs and ask an instructor to review the final kill chain.
 
 ## Warm-up: Walking an ATLAS kill chain
 
-### Exercise 7.2.1: Trace a kill chain against an ATLAS system
+### Exercise 7.1.1: Trace a kill chain against an ATLAS system
 
 > **Difficulty**: 2/5
 > **Importance**: 4/5
@@ -114,7 +114,7 @@ Assume a **well-resourced adversary** (a national intelligence service, not a lo
 - Obtain pre-release capability evaluations or safety-research internal documents.
 - Persist inside the lab's infrastructure through the next training run.
 
-### Exercise 7.2.2: Fix the columns
+### Exercise 7.1.2: Fix the columns
 
 > **Difficulty**: 2/5
 > **Importance**: 5/5
@@ -145,7 +145,7 @@ A workable column list for OpenBrain:
 Notice the AI-specific additions: Training-Time Subversion does not cleanly fit any ATT&CK column, and prompt-injection-as-execution sits awkwardly between *Initial Access* and *Execution* in the enterprise matrix.
 </blockquote></details>
 
-### Exercise 7.2.3: Populate techniques from the bootcamp
+### Exercise 7.1.3: Populate techniques from the bootcamp
 
 > **Difficulty**: 3/5
 > **Importance**: 5/5
@@ -166,7 +166,7 @@ catch anything you missed.
 - **Day 7 (infrastructure and synthesis)** → Threat modeling plus Privilege Escalation (CVE-2025-23266 and the simulated RowHammer, aperture-corruption, and sub-page OOB DMA chain).
 </blockquote></details>
 
-### Exercise 7.2.4: Trace an end-to-end kill chain
+### Exercise 7.1.4: Trace an end-to-end kill chain
 
 > **Difficulty**: 3/5
 > **Importance**: 5/5
@@ -195,7 +195,7 @@ One plausible weight-theft chain through the bootcamp techniques:
 Note that this chain uses techniques from **several** different days, chained together. No single technique is catastrophic; the chain is.
 </blockquote></details>
 
-### Exercise 7.2.5: Defensive coverage analysis
+### Exercise 7.1.5: Defensive coverage analysis
 
 > **Difficulty**: 3/5
 > **Importance**: 5/5

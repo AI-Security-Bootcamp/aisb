@@ -1,4 +1,4 @@
-# 7.2 — Threat modeling with adversary matrices
+# 7.1 — Threat modeling with adversary matrices
 
 ## What to expect
 
@@ -8,7 +8,7 @@ training, and infrastructure techniques.
 
 **Suggested time:** 90 minutes
 
-**Exercises:** [Open the participant instructions](section2_instructions.md)
+**Exercises:** [Open the participant instructions](section1_instructions.md)
 
 | Area | Prerequisites coming in | Main learnings going out |
 | --- | --- | --- |

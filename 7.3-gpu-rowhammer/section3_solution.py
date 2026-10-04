@@ -1,6 +1,6 @@
 # %%
 """
-# Day 7 — Section 4: GPU RowHammer
+# Day 7 — Section 3: GPU RowHammer
 
 This lab uses a clearly labelled hypothetical composite simulator to connect a
 GPU-memory RowHammer bit flip to page-table corruption, DMA memory unsafety, and
@@ -26,8 +26,8 @@ privilege escalation. It does not require vulnerable production hardware.
 Today's exercises run on the remote machine. If you are not connected yet, follow
 the [Day 0 setup guide](../day0-setup/README.md#connecting-to-your-runpod-machine) first.
 
-Create `day7_answers.py` in `7.4-gpu-rowhammer/`. Copy each code cell into
-that file and run `python 7.4-gpu-rowhammer/smoke_test.py` before beginning.
+Create `day7_answers.py` in `7.3-gpu-rowhammer/`. Copy each code cell into
+that file and run `python 7.3-gpu-rowhammer/smoke_test.py` before beginning.
 """
 
 # %%
@@ -212,7 +212,7 @@ questions (plain-text comments in your answers file are fine). The
 collapsed reference answers are there for when you finish, not to short-
 circuit your thinking.
 
-### Exercise 7.4.1: DRAM row organisation and the RowHammer threshold
+### Exercise 7.3.1: DRAM row organisation and the RowHammer threshold
 
 > **Difficulty**: 2/5
 > **Importance**: 5/5
@@ -263,7 +263,7 @@ When this lab says "64ms refresh window" it means tREFW.
 
 # %%
 """
-### Exercise 7.4.2: GPU PTEs and the aperture bit
+### Exercise 7.3.2: GPU PTEs and the aperture bit
 
 > **Difficulty**: 2/5
 > **Importance**: 5/5
@@ -302,7 +302,7 @@ The coincidence is engineered, not luck. In this lab
 
 # %%
 """
-### Exercise 7.4.3: Why the IOMMU does not block this write
+### Exercise 7.3.3: Why the IOMMU does not block this write
 
 > **Difficulty**: 3/5
 > **Importance**: 5/5
@@ -335,7 +335,7 @@ not enforce intra-page bounds inside a legitimately mapped page.
 
 # %%
 """
-### Exercise 7.4.4: Driver OOB → privilege escalation
+### Exercise 7.3.4: Driver OOB → privilege escalation
 
 > **Difficulty**: 3/5
 > **Importance**: 4/5
@@ -392,15 +392,15 @@ numbers for rounds/ns will match on every machine because the flip row
 is deterministic):
 
 ```text
-Ex 7.4.5: aggressors for PTE_ROW=4242 → 4241, 4243
+Ex 7.3.5: aggressors for PTE_ROW=4242 → 4241, 4243
   Aggressor geometry correct!
-Ex 7.4.6: flipped=True after 150,000 rounds (19.50 ms)
+Ex 7.3.6: flipped=True after 150,000 rounds (19.50 ms)
   Hammer loop and cycle accounting correct!
-Ex 7.4.7: aperture 0 → 1 (expected 0 → 1)
+Ex 7.3.7: aperture 0 → 1 (expected 0 → 1)
   PT resync propagated the flip!
-Ex 7.4.8: payload=132 bytes (128 filler + 4 euid)
+Ex 7.3.8: payload=132 bytes (128 filler + 4 euid)
   Payload layout correct!
-Ex 7.4.9: root achieved? True
+Ex 7.3.9: root achieved? True
   End-to-end escalation succeeded!
 ── GPUBreach attack chain ──
   ✓ Stage 1 — aggressor rows identified
@@ -414,12 +414,12 @@ Ex 7.4.9: root achieved? True
 
 If Phase 2 is taking **minutes** instead of **milliseconds**, you almost
 certainly have a `|a - b| ≠ 2` bug in `find_aggressors`; double-check
-Exercise 7.4.5 before anything else.
+Exercise 7.3.5 before anything else.
 """
 
 # %%
 """
-### Exercise 7.4.5: Aggressor rows for double-sided hammering
+### Exercise 7.3.5: Aggressor rows for double-sided hammering
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
@@ -445,7 +445,7 @@ def find_aggressors(victim_row: int) -> tuple[int, int]:
 
 
 agg_a, agg_b = find_aggressors(PTE_ROW)
-print(f"Ex 7.4.5: aggressors for PTE_ROW={PTE_ROW} → {agg_a}, {agg_b}")
+print(f"Ex 7.3.5: aggressors for PTE_ROW={PTE_ROW} → {agg_a}, {agg_b}")
 
 
 @report
@@ -468,7 +468,7 @@ env.stage1_aggressors_ok = True
 
 # %%
 """
-### Exercise 7.4.6: Hammer until a bit flips
+### Exercise 7.3.6: Hammer until a bit flips
 
 > **Difficulty**: 2/5
 > **Importance**: 4/5
@@ -507,7 +507,7 @@ def hammer_until_flip(dram: DRAM, agg_a: int, agg_b: int, victim_row: int, max_r
 
 flip_run = hammer_until_flip(env.dram, agg_a, agg_b, PTE_ROW)
 print(
-    f"Ex 7.4.6: flipped={flip_run['flipped']} after "
+    f"Ex 7.3.6: flipped={flip_run['flipped']} after "
     f"{flip_run['rounds']:,} rounds "
     f"({flip_run['total_ns'] / 1_000_000:.2f} ms)"
 )
@@ -547,7 +547,7 @@ env.stage2_flipped_in_refresh_window = (
 
 # %%
 """
-### Exercise 7.4.7: Force the MMU to re-walk the flipped PTE
+### Exercise 7.3.7: Force the MMU to re-walk the flipped PTE
 
 > **Difficulty**: 1/5
 > **Importance**: 4/5
@@ -576,7 +576,7 @@ def trigger_pte_refresh(env: Environment) -> tuple[int, int]:
 
 
 before, after = trigger_pte_refresh(env)
-print(f"Ex 7.4.7: aperture {before} → {after} (expected 0 → 1)")
+print(f"Ex 7.3.7: aperture {before} → {after} (expected 0 → 1)")
 
 
 @report
@@ -608,7 +608,7 @@ env.stage3_aperture_changed = (before, after) == (
 
 # %%
 """
-### Exercise 7.4.8: Craft the OOB DMA payload
+### Exercise 7.3.8: Craft the OOB DMA payload
 
 > **Difficulty**: 2/5
 > **Importance**: 5/5
@@ -640,7 +640,7 @@ def craft_overflow_payload(new_euid: int = 0) -> bytes:
 
 payload = craft_overflow_payload()
 print(
-    f"Ex 7.4.8: payload={len(payload)} bytes "
+    f"Ex 7.3.8: payload={len(payload)} bytes "
     f"({DRIVER_BUFFER_SIZE} filler + 4 euid)"
 )
 
@@ -670,7 +670,7 @@ test_craft_overflow_payload(craft_overflow_payload)
 
 # %%
 """
-### Exercise 7.4.9: Fire the DMA and confirm root
+### Exercise 7.3.9: Fire the DMA and confirm root
 
 > **Difficulty**: 1/5
 > **Importance**: 5/5
@@ -701,7 +701,7 @@ def escalate_privileges(env: Environment, payload: bytes) -> bool:
 
 
 rooted = escalate_privileges(env, payload)
-print(f"Ex 7.4.9: root achieved? {rooted}")
+print(f"Ex 7.3.9: root achieved? {rooted}")
 
 
 @report
@@ -714,7 +714,7 @@ def test_escalate_privileges(solution: Callable[..., bool]):
         fresh.dram.hammer_once(v - 1, v + 1)
     fresh.page_table.sync_from_dram(fresh.dram)
     # Build an overflow payload directly so the test is independent of
-    # Exercise 7.4.8 still being defined in the caller's namespace.
+    # Exercise 7.3.8 still being defined in the caller's namespace.
     overflow_payload = b"A" * DRIVER_BUFFER_SIZE + (0).to_bytes(4, "little")
     assert not fresh.kernel_cred.is_root(), (
         "sanity: cred must start non-root"
@@ -757,7 +757,7 @@ env.check_all()
 
 Optional exercises for deeper understanding. Each is short and independent.
 
-### Exercise 7.4.10 (Optional): Decode a PTE by hand
+### Exercise 7.3.10 (Optional): Decode a PTE by hand
 
 > **Difficulty**: 2/5
 > **Importance**: 3/5
@@ -790,7 +790,7 @@ def decode_pte_manually(raw: bytes) -> dict:
 
 # A sample PTE: valid=1, aperture=1, PFN=0xABCDEF
 sample = bytes([0b0000_0011]) + (0xABCDEF).to_bytes(6, "little") + b"\x00"
-print(f"Ex 7.4.10: decoded = {decode_pte_manually(sample)}")
+print(f"Ex 7.3.10: decoded = {decode_pte_manually(sample)}")
 
 
 @report
@@ -818,7 +818,7 @@ test_decode_pte_manually(decode_pte_manually)
 
 # %%
 """
-### Exercise 7.4.11 (Optional): Inspect the exact flipped bit
+### Exercise 7.3.11 (Optional): Inspect the exact flipped bit
 
 > **Difficulty**: 2/5
 > **Importance**: 3/5
@@ -853,7 +853,7 @@ pre = fresh3.dram.read(PTE_ROW, PTE_OFFSET_IN_ROW, PTE_BYTES)
 while not fresh3.dram.has_flipped(PTE_ROW):
     fresh3.dram.hammer_once(PTE_ROW - 1, PTE_ROW + 1)
 post = fresh3.dram.read(PTE_ROW, PTE_OFFSET_IN_ROW, PTE_BYTES)
-print(f"Ex 7.4.11: flipped bits = {find_flipped_bits(pre, post)}")
+print(f"Ex 7.3.11: flipped bits = {find_flipped_bits(pre, post)}")
 
 
 @report
@@ -879,7 +879,7 @@ test_find_flipped_bits(find_flipped_bits)
 
 # %%
 """
-### Exercise 7.4.12 (Optional): Budget the hammer against the refresh window
+### Exercise 7.3.12 (Optional): Budget the hammer against the refresh window
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
@@ -918,7 +918,7 @@ def hammer_budget(threshold: int = HAMMER_THRESHOLD_ACTIVATIONS, tRC_ns: int = A
 
 budget = hammer_budget()
 print(
-    f"Ex 7.4.12: {budget['rounds']:,} rounds × {2 * ACTIVATE_PRECHARGE_NS} ns "
+    f"Ex 7.3.12: {budget['rounds']:,} rounds × {2 * ACTIVATE_PRECHARGE_NS} ns "
     f"= {budget['total_ms']:.2f} ms "
     f"(fits 64ms window: {budget['fits_refresh_window']})"
 )
@@ -953,7 +953,7 @@ test_hammer_budget(hammer_budget)
 
 # %%
 """
-### Exercise 7.4.13 (Optional): Maximum hammer rounds inside the window
+### Exercise 7.3.13 (Optional): Maximum hammer rounds inside the window
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
@@ -976,7 +976,7 @@ def max_rounds_in_window(refresh_ms: int = REFRESH_WINDOW_MS, tRC_ns: int = ACTI
 max_rounds = max_rounds_in_window()
 headroom = max_rounds / HAMMER_THRESHOLD_ACTIVATIONS
 print(
-    f"Ex 7.4.13: up to {max_rounds:,} rounds fit in {REFRESH_WINDOW_MS} ms "
+    f"Ex 7.3.13: up to {max_rounds:,} rounds fit in {REFRESH_WINDOW_MS} ms "
     f"→ {headroom:.1f}× threshold headroom"
 )
 
@@ -1003,7 +1003,7 @@ test_max_rounds_in_window(max_rounds_in_window)
 
 # %%
 """
-### Exercise 7.4.14 (Optional): The IOMMU blocks what it promises to block
+### Exercise 7.3.14 (Optional): The IOMMU blocks what it promises to block
 
 > **Difficulty**: 2/5
 > **Importance**: 4/5
@@ -1038,7 +1038,7 @@ def probe_iommu(env: Environment) -> dict:
 
 
 probe = probe_iommu(env)
-print(f"Ex 7.4.14: IOMMU probe = {probe}")
+print(f"Ex 7.3.14: IOMMU probe = {probe}")
 
 
 @report
@@ -1063,7 +1063,7 @@ test_probe_iommu(probe_iommu)
 
 # %%
 """
-### Exercise 7.4.15 (Optional): Measure the OOB overflow precisely
+### Exercise 7.3.15 (Optional): Measure the OOB overflow precisely
 
 > **Difficulty**: 2/5
 > **Importance**: 3/5
@@ -1082,7 +1082,7 @@ def overflow_bytes(payload_len: int) -> int:
 
 
 for n in [0, DRIVER_BUFFER_SIZE - 1, DRIVER_BUFFER_SIZE, DRIVER_BUFFER_SIZE + 4]:
-    print(f"Ex 7.4.15: payload {n}B → overflow {overflow_bytes(n)}B")
+    print(f"Ex 7.3.15: payload {n}B → overflow {overflow_bytes(n)}B")
 
 
 @report
@@ -1098,12 +1098,12 @@ def test_overflow_bytes(solution: Callable[[int], int]):
 test_overflow_bytes(overflow_bytes)
 # %%
 """
-### Exercise 7.4.16 (Optional): A tighter payload
+### Exercise 7.3.16 (Optional): A tighter payload
 
 > **Difficulty**: 2/5
 > **Importance**: 3/5
 
-The payload in Exercise 7.4.8 overshoots: it writes 132 bytes where 132 is
+The payload in Exercise 7.3.8 overshoots: it writes 132 bytes where 132 is
 exactly `DRIVER_BUFFER_SIZE + 4`. What if the cred struct's euid field
 isn't at the very start of the overflow region, but at some `offset`
 past `CRED_OFFSET`? Write a parameterised payload builder.
@@ -1127,7 +1127,7 @@ def craft_precise_payload(cred_offset_in_page: int, new_euid: int) -> bytes:
 
 
 tight = craft_precise_payload(CRED_OFFSET, 0)
-print(f"Ex 7.4.16: precise payload is {len(tight)} bytes")
+print(f"Ex 7.3.16: precise payload is {len(tight)} bytes")
 
 
 @report

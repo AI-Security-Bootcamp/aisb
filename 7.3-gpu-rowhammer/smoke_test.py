@@ -2,7 +2,7 @@
 
 Run this BEFORE you start the lab:
 
-    python 7.4-gpu-rowhammer/smoke_test.py
+    python 7.3-gpu-rowhammer/smoke_test.py
 
 It verifies that:
   * Python can import the simulator package

@@ -1,28 +1,12 @@
-
-# Day 7 — Section 3: NVIDIA Container Toolkit Vulnerability
+# %%
+"""
+# Day 7 — Section 2: NVIDIA Container Toolkit Vulnerability
 
 This controlled lab examines CVE-2025-23266 (NVIDIAScape) as a trust-boundary
 failure between an untrusted GPU container and a privileged host runtime hook.
 Run it only on the provided disposable course environment.
 
-## Table of Contents
-
-- [Content & Learning Objectives](#content--learning-objectives)
-    - [NVIDIA container-runtime escape](#nvidia-container-runtime-escape)
-- [NVIDIA Container Toolkit Escape](#nvidia-container-toolkit-escape)
-    - [What you are exploiting](#what-you-are-exploiting)
-    - [Prerequisites](#prerequisites)
-    - [Setup](#setup)
-    - [Step 1: Write `poc.c`](#step-1-write-pocc)
-    - [Step 2: Write `Dockerfile`](#step-2-write-dockerfile)
-    - [Step 3: Build](#step-3-build)
-    - [Step 4: Sanity check (optional, no Docker)](#step-4-sanity-check-optional-no-docker)
-    - [Step 5: Run the exploit](#step-5-run-the-exploit)
-    - [Host setup (for self-testing)](#host-setup-for-self-testing)
-    - [Troubleshooting](#troubleshooting)
-    - [Security takeaway](#security-takeaway)
-- [Summary](#summary)
-    - [Further Reading](#further-reading)
+<!-- toc -->
 
 ## Content & Learning Objectives
 
@@ -33,8 +17,10 @@ Run it only on the provided disposable course environment.
 > - Explain why inherited `LD_PRELOAD` reaches a privileged host process
 > - Reproduce the issue in the controlled lab and verify the host-side effect
 > - Identify the patch boundary and defense-in-depth controls
+"""
 
-
+# %%
+"""
 ## NVIDIA Container Toolkit Escape
 
 This is a hacking exercise. You will replicate [NVIDIAScape](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape), which is CVE-2025-23266 in NVIDIA Container Toolkit ≤ 1.17.7, and escape from a GPU container to execute arbitrary code on the host as root.
@@ -75,7 +61,7 @@ On the **course lab machine**, a vulnerable stack is pre-installed; do **not** i
 ### Setup
 
 ```bash
-cd 7.3-nvidia-container-toolkit/module1
+cd 7.2-nvidia-container-toolkit/module1
 cp -r test day7-nvidia-{yourname}    # e.g. day7-nvidia-guava
 cd day7-nvidia-{yourname}
 ```
@@ -248,3 +234,4 @@ Default on patched installs is `cuda-compat-mode = "ldconfig"`, which does not u
 
 - [Wiz analysis of NVIDIAScape](https://www.wiz.io/blog/nvidia-ai-vulnerability-cve-2025-23266-nvidiascape)
 - [NVIDIA security advisories](https://www.nvidia.com/en-us/security/)
+"""

@@ -12,6 +12,7 @@ Complete [Day 0 - Setup](day0-setup/README.md) before the bootcamp. Each content
 - [1.2 - Log probabilities](1.2-logprobs/README.md): output distributions as an attack surface for extraction and adversarial optimization
 - [1.3 - Instruction hierarchies and assistant prefills](1.3-instruction-hierarchies/README.md) **(optional)**: instruction priority and prefill attacks
 - [1.4 - Prompt injection and RAG poisoning](1.4-prompt-injection/README.md): attacks across the boundary between trusted instructions and retrieved data
+- [1.5 - RAND report: securing AI model weights](1.5-rand-report/README.md): security levels (SL1–SL5) and operational capability tiers (OC1–OC5)
 
 **Day 2 - Coding Agents & AI Control**
 
@@ -49,10 +50,9 @@ Complete [Day 0 - Setup](day0-setup/README.md) before the bootcamp. Each content
 
 **Day 7 - Infrastructure Security & Threat Modeling**
 
-- [7.1 - RAND report: securing AI model weights](7.1-rand-report/README.md): security levels (SL1–SL5) and operational capability tiers (OC1–OC5)
-- [7.2 - Threat modeling with adversary matrices](7.2-threat-modeling/README.md): MITRE ATLAS and frontier-lab threat models
-- [7.3 - NVIDIA Container Toolkit vulnerability](7.3-nvidia-container-toolkit/README.md): trust boundaries and CVE-2025-23266 (NVIDIAScape)
-- [7.4 - GPU RowHammer](7.4-gpu-rowhammer/README.md): page-table corruption, DMA isolation limits, and privilege escalation
+- [7.1 - Threat modeling with adversary matrices](7.1-threat-modeling/README.md): MITRE ATLAS and frontier-lab threat models
+- [7.2 - NVIDIA Container Toolkit vulnerability](7.2-nvidia-container-toolkit/README.md): trust boundaries and CVE-2025-23266 (NVIDIAScape)
+- [7.3 - GPU RowHammer](7.3-gpu-rowhammer/README.md): page-table corruption, DMA isolation limits, and privilege escalation
 
 ## Prerequisites
 
