@@ -198,7 +198,7 @@ SAMPLE_CONVERSATION: list[dict] = [
         "tool_call_id": "call_abc123",
         "content": '{"temp_c": 15, "condition": "cloudy"}',
     },
-    {"role": "assistant", "content": "It's 15°C and cloudy in London."},
+    {"role": "assistant", "content": "It's 15°C and cloudy in Londn."},
 ]
 
 
