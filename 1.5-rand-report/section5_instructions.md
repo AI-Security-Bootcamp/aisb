@@ -32,9 +32,11 @@ This is a prose/discussion section; there is no code to run. Create
 `day1_answers.md` in `1.5-rand-report/` and record your classifications,
 assumptions, and evidence there.
 
-Read the assigned sections of RAND's
-[*Securing AI Model Weights*](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf)
-before beginning.
+Before beginning, use the [required reading guide](README.md#background) for
+RAND's *Securing AI Model Weights*: read printed pp. v–vi, 9–10, 14–18, and 21–23,
+then skim pp. 24–32. The guide includes direct PDF links and what to focus on.
+Page references below use the report's printed numbering; PDF viewer page
+numbers are 10 higher for the main text (for example, printed p. 10 is PDF page 20).
 
 
 ## RAND framework: understanding the threat landscape
@@ -44,7 +46,9 @@ before beginning.
 > **Difficulty**: 2/5
 > **Importance**: 5/5
 
-**Task**: Open the RAND report and locate the Operational Capability (OC) classifications section.
+**Task**: Use [pp. 9–10, especially Figure 4.1](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf#page=19)
+for the OC classifications and budgets, and [pp. 14–18, especially Table 5.2](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf#page=24)
+for attack feasibility across OC levels.
 
 **Questions for Group Discussion:**
 1. According to RAND, what distinguishes OC4 from OC5 threat actors?
@@ -75,7 +79,10 @@ before beginning.
 > **Difficulty**: 3/5
 > **Importance**: 4/5
 
-**Task**: Find the Security Level (SL1-SL5) framework in the RAND report.
+**Task**: Use [pp. 21–23](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf#page=31)
+for the SL1–SL5 framework (Figure 6.1 on p. 22) and the five environments (p. 23).
+Compare the benchmark controls on [pp. 24–32](https://www.rand.org/content/dam/rand/pubs/research_reports/RRA2800/RRA2849-1/RAND_RRA2849-1.pdf#page=34),
+especially SL3–SL5 on pp. 27–32.
 
 **Analysis Questions:**
 1. What are the five "protected environments" that RAND identifies?
