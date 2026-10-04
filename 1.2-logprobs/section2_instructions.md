@@ -60,7 +60,7 @@ An LLM produces a **probability distribution over tokens** at each step. The API
 > **Difficulty**: 2/5
 > **Importance**: 3/5
 
-Use the [completions](https://developers.openai.com/api/reference/resources/completions/methods/create) API to make a request with `logprobs=True` and examine what comes back.
+Use the [Chat Completions](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create) API (`openrouter_client.chat.completions.create`) to make a request with `logprobs=True` and examine what comes back.
 
 
 ```python
@@ -83,7 +83,7 @@ def get_completion_with_logprobs(
     messages: list[ChatCompletionMessageParam] = [
         {"role": "user", "content": prompt}
     ]
-    # TODO: Call the completions API on `openrouter_client` with logprobs=True and top_logprobs.
+    # TODO: Call the Chat Completions API on `openrouter_client` with logprobs=True and top_logprobs.
     # Parse the response into the format described in the docstring.
     # Hint: you will need choice.logprobs.content
     pass
