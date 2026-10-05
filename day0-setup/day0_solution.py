@@ -53,7 +53,11 @@ After you paste the code snippet above to your answer file, **run the cell to en
 > **Difficulty**: 1/5
 > **Importance**: 5/5
 
+<<<<<<< HEAD
 Let's verify that your development environment is properly set up with all the required tools and dependencies.
+=======
+Verify your Python version, required Python packages, and local Git configuration on the remote machine.
+>>>>>>> origin/main
 
 Copy-paste the code snippet below and run it to check your setup.
 """
@@ -84,6 +88,7 @@ def test_prerequisites():
     if not python_ok:
         all_good = False
 
+<<<<<<< HEAD
     # Check Docker
     def check_docker_installed() -> bool:
         """Check if Docker is installed and accessible or if we're running in a Dev Container."""
@@ -105,6 +110,8 @@ def test_prerequisites():
         all_good = False
         print("   💡 Install Docker Desktop from https://www.docker.com/products/docker-desktop/")
 
+=======
+>>>>>>> origin/main
     # Check Git
     def check_git_configured() -> tuple[bool, str]:
         """Check if git is installed and has basic configuration."""
@@ -138,6 +145,7 @@ def test_prerequisites():
                 print("   💡 Configure with: git config --type bool push.autoSetupRemote true")
                 return False, "Git missing recommended configurations"
 
+<<<<<<< HEAD
             # Check if remote origin is set to the correct repository
             result = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True, timeout=5)
             if result.returncode != 0:
@@ -152,6 +160,8 @@ def test_prerequisites():
                 print("   💡 Fix with: git remote set-url origin git@github.com:AI-Security-Bootcamp/aisb.git")
                 return False, "Git remote origin URL incorrect"
 
+=======
+>>>>>>> origin/main
             return True, "Git properly configured"
 
         except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -187,6 +197,7 @@ def test_prerequisites():
         all_good = False
         print("❌ Not all Python packages are installed")
 
+<<<<<<< HEAD
     # Check SSH access to GitHub
     def check_github_ssh_access() -> tuple[bool, str]:
         """Check if SSH access to GitHub is working."""
@@ -213,13 +224,18 @@ def test_prerequisites():
         all_good = False
         print("   💡 Configure your SSH according to the instructions in README.md")
 
+=======
+>>>>>>> origin/main
     # Final verdict
     print("\n" + "=" * 50)
     if all_good:
         print("🎉 All prerequisites satisfied! You're ready for the bootcamp!")
     else:
         print("⚠️  Some prerequisites are missing. Please install them before proceeding.")
+<<<<<<< HEAD
         print("💡 If using Dev Containers, make sure Docker is running and try reopening in container.")
+=======
+>>>>>>> origin/main
         assert False, "Prerequisites check failed. Please fix the issues above."
 
 

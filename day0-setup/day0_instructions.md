@@ -65,7 +65,11 @@ After you paste the code snippet above to your answer file, **run the cell to en
 > **Difficulty**: 1/5
 > **Importance**: 5/5
 
+<<<<<<< HEAD
 Let's verify that your development environment is properly set up with all the required tools and dependencies.
+=======
+Verify your Python version, required Python packages, and local Git configuration on the remote machine.
+>>>>>>> origin/main
 
 Copy-paste the code snippet below and run it to check your setup.
 

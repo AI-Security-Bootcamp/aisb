@@ -79,6 +79,7 @@ If you're unsure whether you're ready, use the self-assessment tests below. If y
 </details>
 
 
+<<<<<<< HEAD
 ### 🧪 Complete Setup Test
 
 <details open>
@@ -119,6 +120,8 @@ docker run -it python:3.12 python -c "print('Docker works!')"
 If all steps complete without errors, you're ready! 🎉
 </details>
 
+=======
+>>>>>>> origin/main
 ### 📊 Self-Assessment Summary
 
 <details open>
@@ -128,11 +131,15 @@ Use this checklist to gauge your readiness:
 
 - [ ] I can write and debug Python code with confidence
 - [ ] I can use Git for version control (commit, push, branches)
+<<<<<<< HEAD
 - [ ] I can run Docker containers and understand basic containerization
+=======
+>>>>>>> origin/main
 - [ ] I have VS Code (or similar IDE) set up with Python support
 </details>
 
 ### Setup
+<<<<<<< HEAD
 1. **Download and install [Docker desktop](https://www.docker.com/products/docker-desktop/)**
 2. **Clone this repo**
     - It is recommended that you save your progress (solution files you will create throughout the bootcamp) to a branch in this repo. For that you will need to:
@@ -204,3 +211,9 @@ You can set up the Python environment with these steps:
     ```
 
 </details>
+=======
+All exercises run on a remote RunPod machine provided by the instructors, with
+the repository and its dependencies already installed. Follow the
+[Day 0 setup guide](day0-setup/README.md#connecting-to-your-runpod-machine) to
+connect to it with VS Code.
+>>>>>>> origin/main

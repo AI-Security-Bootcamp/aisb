@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+claude/
+>>>>>>> origin/main
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -140,6 +144,10 @@ celerybeat.pid
 .envrc
 .venv
 .venv-control-arena
+<<<<<<< HEAD
+=======
+.venv-day2
+>>>>>>> origin/main
 env/
 venv/
 ENV/
@@ -214,10 +222,19 @@ logs/
 .package-cache/
 .kexec-kernel.json
 day*/WALKTHROUGH_REVIEW.md
+<<<<<<< HEAD
 5.3-undoing-safety-finetuning/refusal_direction/
 5.3-undoing-safety-finetuning/abliterated_qwen3/
 5.3-undoing-safety-finetuning/inspect_logs/
 
 
+=======
+4.3-undoing-safety-finetuning/refusal_direction/
+4.3-undoing-safety-finetuning/abliterated_qwen3/
+4.3-undoing-safety-finetuning/inspect_logs/
+
+
+instructor_setup/
+>>>>>>> origin/main
 *_answers.py
 *.ipynb

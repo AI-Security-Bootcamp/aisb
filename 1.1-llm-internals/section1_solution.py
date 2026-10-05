@@ -26,6 +26,7 @@ Understand exactly what the model sees and produces.
 """
 ## VS Code setup: connecting to the remote machine
 
+<<<<<<< HEAD
 Today's exercises run on a remote machine. Set up VS Code to connect to it
 over SSH before starting the setup below.
 
@@ -85,6 +86,17 @@ over SSH before starting the setup below.
    Do **not** `pip install` other packages by hand; the versions in
    `1.1-llm-internals/requirements.txt` are the ones the exercises are tested
    against.
+=======
+Today's exercises run on a remote machine. If you are not connected yet, follow
+the [Day 0 setup guide](../day0-setup/README.md#connecting-to-your-runpod-machine) to connect VS Code and open `/workspace/aisb`.
+
+If an import fails, re-run the setup from a terminal on the remote machine and
+let it run to completion:
+
+```bash
+cd /workspace/aisb && pip install -r 1.1-llm-internals/requirements.txt
+```
+>>>>>>> origin/main
 
 Once the remote workspace is open, continue with the **Setup** section below.
 """

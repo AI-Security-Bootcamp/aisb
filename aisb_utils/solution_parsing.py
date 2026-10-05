@@ -235,10 +235,22 @@ class TOCEntry:
 # This is very incomplete but works well enough for now!
 TAG_RE = re.compile(r"<(/?)(\w+)(?: .*?)?(/?)>")
 NO_CLOSE_TAGS = ["br", "img"]
+<<<<<<< HEAD
 
 
 def check_html_tags(text: str) -> list[str]:
     """Return a list of warnings about mismatched HTML tags."""
+=======
+# Code is shown literally, so tag-like text inside it is not HTML.
+FENCED_CODE_RE = re.compile(r"^(```|~~~).*?^\1", re.DOTALL | re.MULTILINE)
+INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
+
+
+def check_html_tags(text: str) -> list[str]:
+    """Return a list of warnings about mismatched HTML tags (ignoring code)."""
+    text = FENCED_CODE_RE.sub("", text)
+    text = INLINE_CODE_RE.sub("", text)
+>>>>>>> origin/main
     tags = TAG_RE.findall(text)
     tagname_stack: list[str] = []
     warnings: list[str] = []
@@ -418,15 +430,38 @@ def build(input_fd, output_instructions_fd, output_test_fd):
     sm.dump(output_instructions_fd, "")
 
 
+<<<<<<< HEAD
 def build_reference_py(input_fd, output_reference_fd, tests_file_path: str):
+=======
+def build_reference_py(input_fd, output_reference_fd, tests_file_path: str,
+                       inline_tests: bool = False):
+>>>>>>> origin/main
     print(f"Building: {input_fd.name} -> {output_reference_fd.name}")
     input_str = input_fd.read()
     module = cst.parse_module(input_str)
 
+<<<<<<< HEAD
     # Extract only SOLUTION blocks and remove test functions
     solution_extractor = ExtractSolutionBlocks()
     reference_code = module.visit(solution_extractor)
 
+=======
+    # Extract only SOLUTION blocks (SKIP dropped, TEST_FIXTURE unwrapped).
+    solution_extractor = ExtractSolutionBlocks()
+    reference_code = module.visit(solution_extractor)
+
+    if inline_tests:
+        # Keep every `test_*` function defined inline instead of replacing it
+        # with `from <section>_test import ...`. This runs the section exactly
+        # as a student's completed file does: one process, one copy of the
+        # shared setup (TEST_FIXTURE, e.g. a loaded model). Importing the
+        # extracted *_test.py would re-execute its own TEST_FIXTURE and create a
+        # SECOND model instance, which breaks tests that compare object identity
+        # of that shared setup. Inlining avoids that mismatch.
+        output_reference_fd.write(reference_code.code)
+        return
+
+>>>>>>> origin/main
     test_extractor = StripTestFunctions(test_file_name=tests_file_path)
     without_tests = reference_code.visit(test_extractor)
 

@@ -5,3 +5,7 @@ openai
 transformers==4.57.6
 sentencepiece
 protobuf
+<<<<<<< HEAD
+=======
+ipykernel
+>>>>>>> origin/main
