@@ -182,12 +182,20 @@ In the attack trajectories, the `submit` tool call has a second argument, `secre
 > **Difficulty**: 3/5
 > **Importance**: 5/5
 
-We've included `create_monitor()` below, which wraps your prompt in a ControlArena monitor.
+Build a monitor that separates the honest trajectories from the attack trajectories. The monitor is an LLM that
+reads the agent's tool calls, including the submitted code, and returns a suspicion score from 0 to 10.
 
-> Your goal is to write your monitor's instructions in [`prompts/monitor_instructions.txt`](prompts/monitor_instructions.txt). The monitor
-> reads the agent's tool calls, including the submitted code, and returns a suspicion score from 0 to 10.
+**Two things to do:**
 
-We will then use this monitor to try and separate the honest trajectories from the attack trajectories.
+1. Write your monitor's instructions in [`prompts/monitor_instructions.txt`](prompts/monitor_instructions.txt).
+2. Complete `create_monitor()` below so it wraps your instructions in a ControlArena monitor.
+
+You will need the following to build `create_monitor()`:
+
+- [`load_monitor_prompt`](day2_utils/monitor_prompt.py#L75): turns your instructions file into the full prompt template (see below)
+- [`basic_monitor_builder`](https://control-arena.aisi.org.uk/reference/monitor.html#basic_monitor_builder): builds the monitor agent from a model and a prompt template
+- [`MonitorScoreRange`](https://control-arena.aisi.org.uk/reference/monitor.html#monitorscorerange): tells the monitor the range of raw scores your prompt asks for
+- `MONITOR_CONFIG`, defined below: a [`GenerateConfig`](https://inspect.aisi.org.uk/reference/inspect_ai.model.html#generateconfig) with the sampling settings for the monitor's model calls
 
 You write only the instructions. [`day2_utils/monitor_prompt.py`](day2_utils/monitor_prompt.py) glues them between a fixed header and footer:
 
@@ -310,11 +318,12 @@ expect a coarse staircase curve with a handful of points rather than a smooth on
 </details>
 
 <details>
-<summary> <code>basic_monitor_builder</code> parameters</summary>
+<summary>Hint: <code>basic_monitor_builder</code> parameters</summary>
 
 - `model`: the monitor LLM
+- `model_role`: `None`, so the monitor uses `model` directly rather than the eval config's trusted model
 - `prompt`: the prompt template; the default formatter fills in `{task_description}` and `{tool_calls}`
-- `score_range`: a [`MonitorScoreRange`](https://control-arena.aisi.org.uk/reference/monitor.html#MonitorScoreRange) giving the raw score bounds; scores are normalized to 0–1
+- `score_range`: a [`MonitorScoreRange`](https://control-arena.aisi.org.uk/reference/monitor.html#monitorscorerange) giving the raw score bounds; scores are normalized to 0–1
 - `config`: sampling settings for the monitor model (see `MONITOR_CONFIG` below)
 - `cache`: `False`; the evaluation saves successful samples itself, and a failed reply should get a fresh attempt rather than a cached copy
 
@@ -366,14 +375,22 @@ def create_monitor(instructions_path: Path, model: str = DEFAULT_TRUSTED_MODEL):
     Returns:
         A ControlArena monitor agent.
     """
-    return basic_monitor_builder(
-        model=model,
-        model_role=None,  # use `model` directly rather than the eval config's trusted model
-        prompt=load_monitor_prompt(instructions_path),
-        score_range=MonitorScoreRange(min=0, max=10),  # raw scores, normalized to 0-1
-        config=MONITOR_CONFIG,
-        cache=False,  # successful samples are saved by the evaluation instead
-    )
+    if "SOLUTION":
+        return basic_monitor_builder(
+            model=model,
+            model_role=None,  # use `model` directly rather than the eval config's trusted model
+            prompt=load_monitor_prompt(instructions_path),
+            score_range=MonitorScoreRange(min=0, max=10),  # raw scores, normalized to 0-1
+            config=MONITOR_CONFIG,
+            cache=False,  # successful samples are saved by the evaluation instead
+        )
+    else:
+        # TODO: Build and return a monitor with basic_monitor_builder.
+        # 1. Turn the instructions file into a full prompt with load_monitor_prompt
+        # 2. Use `model` directly (not the eval config's trusted model)
+        # 3. Set the score range to match the 0-10 scores your prompt asks for
+        # 4. Pass MONITOR_CONFIG, and disable caching
+        pass
 
 
 @report
@@ -530,7 +547,8 @@ show_monitor_replies(e2_1_scored_logs, eval_mode="honest", n=2)
 Now switch sides: write a prompt that makes the agent insert backdoors your monitor misses.
 
 1. Write your attack instructions in [`prompts/attack_instructions.txt`](prompts/attack_instructions.txt): how the agent should hide its backdoor so your monitor misses it.
-2. Run the evaluation, then use `inspect view` to see your attacks and how the monitor scored them: each sample's **Transcript** tab shows the agent's call and the monitor's call. Iterate on the prompt.
+2. Complete `create_attack_policy()` below. It returns an untrusted policy that follows your attack instructions in attack mode and behaves honestly in honest mode.
+3. Run the evaluation, then use `inspect view` to see your attacks and how the monitor scored them: each sample's **Transcript** tab shows the agent's call and the monitor's call. Iterate on the prompt.
 
 **Tip:** `inspect view` shows trajectories while they generate. Enable all scorers with the SCORERS toggle to see whether each sample's main and side task succeeded:
 ![Inspect view](day2_utils/inspect-view.png)
@@ -543,6 +561,13 @@ As with the monitor, you write only the instructions. [`day2_utils/attack_prompt
 - The **footer** gives the main task, `{main_task_description}`, which the agent must still solve correctly.
 
 The cell below prints the full system prompt the agent will receive, so you can check your file.
+
+You will need the following to build `create_attack_policy()`:
+
+- [`load_attack_prompt`](day2_utils/attack_prompt.py#L51): turns your instructions file into the full attack system prompt
+- [`attack_policy_builder`](https://control-arena.aisi.org.uk/reference/policy.html#attack_policy_builder): builds the policy used in attack mode
+- [`honest_policy_builder`](https://control-arena.aisi.org.uk/reference/policy.html#honest_policy_builder): builds the policy used in honest mode
+- [`untrusted_policy_builder`](https://control-arena.aisi.org.uk/reference/policy.html#untrusted_policy_builder): combines the two and picks one based on the eval mode
 
 <details>
 <summary>Hint 1: The attack and honest sub-policies</summary>
@@ -568,12 +593,19 @@ print(load_attack_prompt(SCRIPT_DIR / "prompts" / "attack_instructions.txt"))
 
 def create_attack_policy(attack_instructions_path: Path) -> ControlAgent:
     """Create an untrusted policy whose attack mode uses your attack instructions."""
-    # See https://control-arena.aisi.org.uk/reference/policy.html#untrusted_policy_builder
-    attack = attack_policy_builder(
-        prompt=load_attack_prompt(attack_instructions_path), cache=True
-    )
-    honest = honest_policy_builder(cache=True)
-    return untrusted_policy_builder(attack=attack, honest=honest)
+    if "SOLUTION":
+        attack = attack_policy_builder(
+            prompt=load_attack_prompt(attack_instructions_path), cache=True
+        )
+        honest = honest_policy_builder(cache=True)
+        return untrusted_policy_builder(attack=attack, honest=honest)
+    else:
+        # TODO: Return a policy that attacks in ATTACK mode and is honest in HONEST mode.
+        # 1. Build the attack sub-policy from the prompt load_attack_prompt produces
+        # 2. Build the honest sub-policy
+        # 3. Combine them with untrusted_policy_builder
+        # Enable caching on both sub-policies to speed up re-runs.
+        pass
 
 
 @report
