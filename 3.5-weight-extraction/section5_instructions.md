@@ -21,7 +21,7 @@ Recover a model's hidden dimension and last projection layer from API
 access alone using the logits-matrix SVD attack.
 
 > **Learning Objectives**
-> - Use singular values to find the rank of a matrix built as a low-rank product
+> - Find the rank of a low-rank matrix product from its singular values
 > - Build a logit query matrix and estimate its numerical rank
 > - Explain why low-rank logits reveal the model's hidden dimension
 > - Extract the output projection up to an unknown linear transform
@@ -54,47 +54,42 @@ import matplotlib.pyplot as plt
 >
 > You should spend up to ~10 minutes on this exercise.
 
-In this exercise, we're going to learn how to use SVD to find out how much
-information is really inside a matrix, even when it's been spread out over far
-more rows and columns than it needs.
+In this exercise, we're going to use SVD to find how much information is
+really in a matrix, even when it's spread over far more rows and columns than
+it needs.
 
-Starting with a matrix `A` of shape `(1000, d)` and multiplying it by `B` of
-shape `(d, 1000)` produces `C` of shape `(1000, 1000)`, which hides the
-intermediate dimension `d`. If `d < 1000` then there are only `d` dimensions of
+Starting with a matrix `A` of shape `(1000, d)` and multiplying it by `B`
+`(d, 1000)` produces `C` `(1000, 1000)`, which hides the intermediate
+dimension `d`. If `d < 1000` then there are only `d` dimensions of
 information embedded in `C`. These can be extracted using SVD, since there can
 only be `d` singular directions in `C`.
 
-`np.linalg.svd` returns the singular values sorted largest first. The first `d`
-are real numbers. Everything after is zero, or float noise around 1e-13. Count
-the real ones and you have `d`.
+`np.linalg.svd` returns the singular values, largest first. The first `d` are
+real. The rest are zero, or float noise around 1e-13. Count the real ones and
+you have `d`.
 
-`blackbox` below does the multiply and picks a `d` you can't see. Query it, run
-SVD, read off `d`.
+`blackbox` does the multiply with a `d` you can't see. Query it, run SVD, read
+off `d`.
 
 
 ```python
 
 
 def blackbox(d: int, size: int = 1000) -> np.ndarray:
-    """Multiply a random (size, d) matrix by a random (d, size) matrix.
-
-    Returns the (size, size) product. The intermediate dimension d is not
-    visible from the shape of the result.
-    """
+    """Return the (size, size) product of random (size, d) and (d, size) matrices."""
     A = np.random.randn(size, d)
     B = np.random.randn(d, size)
     return A @ B
 
 
 def estimate_rank(C: np.ndarray) -> tuple[int, np.ndarray]:
-    """Estimate the rank of C from its singular values.
+    """Return (rank, singular_values) of C.
 
-    Returns (rank, singular_values). Singular values smaller than 1e-10 times
-    the largest one are float noise, not information, so they don't count.
+    Singular values below 1e-10 times the largest are float noise and don't count.
     """
-    # TODO: your code here.
-    # Hint: np.linalg.svd(C, compute_uv=False) returns a 1-D array of the
-    # singular values, sorted largest first.
+    # TODO
+    # Hint: np.linalg.svd(C, compute_uv=False) returns the singular values,
+    # largest first.
     return 0, np.zeros(1)
 
 
@@ -104,7 +99,7 @@ rank, s = estimate_rank(C)
 print(f"estimated rank: {rank}")
 print(f"hidden d:       {hidden_d}")
 
-# The cliff in the singular values should sit on the dotted line.
+# The cliff should sit on the dotted line.
 plt.semilogy(s[:40], "o-")
 plt.axvline(hidden_d - 0.5, color="red", linestyle=":", label="true d")
 plt.xlabel("Singular value index")
@@ -117,9 +112,8 @@ from section5_test import test_estimate_rank
 test_estimate_rank(estimate_rank)
 ```
 
-A language model's last layer is the multiply from 3.5.1: a hidden state of
-size `d` times a `(d, vocab_size)` weight matrix gives the logits, so the same
-trick finds `d`.
+A language model's last layer is this multiply: hidden state `(1, d)` times
+weights `(d, vocab_size)` gives the logits. The same trick finds `d`.
 
 Let's implement the model extraction attack from
 [Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
