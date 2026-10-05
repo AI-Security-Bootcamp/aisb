@@ -85,9 +85,9 @@ def estimate_rank(C: np.ndarray) -> tuple[int, np.ndarray]:
         rank = int(np.sum(s > s[0] * 1e-10))
         return rank, s
     else:
-        # TODO:
-        # 1. Get the singular values of C (np.linalg.svd with compute_uv=False).
-        # 2. Count how many are above s[0] * 1e-10.
+        # TODO: your code here.
+        # Hint: np.linalg.svd(C, compute_uv=False) returns a 1-D array of the
+        # singular values, sorted largest first.
         return 0, np.zeros(1)
 
 
