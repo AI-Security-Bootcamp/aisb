@@ -76,16 +76,40 @@ def plot_roc_curve(
     auc: float,
     label: str = "Monitor",
     save_path: Path | None = None,
+    thresholds: NDArray[np.float64] | None = None,
 ) -> plt.Figure:
-    """Plot a single ROC curve with AUC in the legend.
+    """Plot a single ROC curve with AUC in the legend and threshold markers.
 
     The diagonal dashed line represents random guessing (AUC = 0.5).
     A good monitor's curve hugs the top-left corner.
     """
     fig, ax = plt.subplots(figsize=(7, 7))
 
-    ax.plot(fpr, tpr, linewidth=2, label=f"{label} (AUC = {auc:.3f})")
-    ax.plot([0, 1], [0, 1], "k--", linewidth=1, label="Random (AUC = 0.500)")
+    ax.plot(fpr, tpr, linewidth=2, label=f"{label} (AUC = {auc:.3f})", zorder=3)
+    ax.plot([0, 1], [0, 1], "k--", linewidth=1, label="Random (AUC = 0.500)", zorder=2)
+
+    if thresholds is not None:
+        ax.scatter(fpr, tpr, color="crimson", s=35, zorder=4, edgecolor="white", linewidth=0.5)
+        seen_points = set()
+        for f, t, th in zip(fpr, tpr, thresholds):
+            if th < 0:
+                continue
+            pt = (round(float(f), 3), round(float(t), 3))
+            if pt not in seen_points:
+                seen_points.add(pt)
+                th_val = float(th)
+                th_str = f"{th_val:.2f}".rstrip('0').rstrip('.') if '.' in f"{th_val:.2f}" else f"{th_val:.0f}"
+                ax.annotate(
+                    f"t={th_str}",
+                    (f, t),
+                    textcoords="offset points",
+                    xytext=(6, -2),
+                    fontsize=8,
+                    fontweight="bold",
+                    color="#880000",
+                    bbox=dict(boxstyle="round,pad=0.2", fc="#fff9db", ec="#e0a800", alpha=0.85, lw=0.6),
+                    zorder=5,
+                )
 
     ax.set_xlim(0.0, 1.0)
     ax.set_ylim(0.0, 1.05)
@@ -98,32 +122,58 @@ def plot_roc_curve(
     plt.tight_layout()
     if save_path:
         fig.savefig(save_path, dpi=150, bbox_inches="tight")
-        # print(f"  Saved ROC curve to {save_path}")
     plt.show()
     # return fig
 
 
 def plot_roc_comparison(
-    roc_data: dict[str, tuple[NDArray[np.float64], NDArray[np.float64], float]],
+    roc_data: dict[str, tuple],
     title: str = "Monitor Comparison: ROC Curves",
     save_path: Path | None = None,
 ) -> plt.Figure:
     """Plot multiple ROC curves on the same axes for comparison.
 
     Args:
-        roc_data: Dict mapping monitor name -> (fpr, tpr, auc).
+        roc_data: Dict mapping monitor name -> (fpr, tpr, auc) or (fpr, tpr, thresholds, auc).
         title: Plot title.
         save_path: Optional path to save the figure.
     """
     fig, ax = plt.subplots(figsize=(8, 7))
     colors = plt.colormaps["tab10"](np.linspace(0, 1, max(len(roc_data), 1)))
 
-    for idx, (name, (fpr, tpr, auc)) in enumerate(roc_data.items()):
-        ax.plot(
-            fpr, tpr, color=colors[idx], linewidth=2, label=f"{name} (AUC = {auc:.3f})"
-        )
+    for idx, (name, val) in enumerate(roc_data.items()):
+        if len(val) == 4:
+            fpr, tpr, thresholds, auc = val
+        else:
+            fpr, tpr, auc = val
+            thresholds = None
 
-    ax.plot([0, 1], [0, 1], "k--", linewidth=1, label="Random (AUC = 0.500)")
+        color = colors[idx]
+        ax.plot(
+            fpr, tpr, color=color, linewidth=2, label=f"{name} (AUC = {auc:.3f})", zorder=3
+        )
+        if thresholds is not None:
+            ax.scatter(fpr, tpr, color=color, s=25, zorder=4)
+            seen_points = set()
+            for f, t, th in zip(fpr, tpr, thresholds):
+                if th < 0:
+                    continue
+                pt = (round(float(f), 3), round(float(t), 3))
+                if pt not in seen_points:
+                    seen_points.add(pt)
+                    th_val = float(th)
+                    th_str = f"{th_val:.2f}".rstrip('0').rstrip('.')
+                    ax.annotate(
+                        f"t={th_str}",
+                        (f, t),
+                        textcoords="offset points",
+                        xytext=(5, 3),
+                        fontsize=7,
+                        color=color,
+                        zorder=5,
+                    )
+
+    ax.plot([0, 1], [0, 1], "k--", linewidth=1, label="Random (AUC = 0.500)", zorder=2)
 
     ax.set_xlim(0.0, 1.0)
     ax.set_ylim(0.0, 1.05)
@@ -136,7 +186,6 @@ def plot_roc_comparison(
     plt.tight_layout()
     if save_path:
         fig.savefig(save_path, dpi=150, bbox_inches="tight")
-        # print(f"  Saved comparison plot to {save_path}")
     plt.show()
     # return fig
 
