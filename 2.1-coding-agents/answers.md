@@ -3,7 +3,7 @@
 * Write code
 * Open and close processes
 * Git operations
-* Shell access (byt privilage level of the harness)
+* Shell access (by the privilage level of the harness)
 * Edit registery
 * Edit claude.md/AGENT.md file and various other agent related files
 * and basically everything an human actor would be able to do we running access on the PC
