@@ -14,6 +14,7 @@ Recover a model's hidden dimension and last projection layer from API
 access alone using the logits-matrix SVD attack.
 
 > **Learning Objectives**
+> - Use singular values to find the rank of a matrix built as a low-rank product
 > - Build a logit query matrix and estimate its numerical rank
 > - Explain why low-rank logits reveal the model's hidden dimension
 > - Extract the output projection up to an unknown linear transform
@@ -27,14 +28,107 @@ _root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").i
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
+from typing import Callable
+
 from aisb_utils import report
 
 # %%
+import numpy as np
+import matplotlib.pyplot as plt
+
 """
+### Exercise 3.5.1: Find the hidden dimension of a toy black box
+
+> **Difficulty**: 1/5
+> **Importance**: 3/5
+>
+> You should spend up to ~10 minutes on this exercise.
+
+In this exercise, we're going to learn how to use SVD to find out how much
+information is really inside a matrix, even when it's been spread out over far
+more rows and columns than it needs.
+
+Starting with a matrix `A` of shape `(1000, d)` and multiplying it by `B` of
+shape `(d, 1000)` produces `C` of shape `(1000, 1000)`, which hides the
+intermediate dimension `d`. If `d < 1000` then there are only `d` dimensions of
+information embedded in `C`. These can be extracted using SVD, since there can
+only be `d` singular directions in `C`.
+
+`np.linalg.svd` returns the singular values sorted largest first. The first `d`
+are real numbers. Everything after is zero, or float noise around 1e-13. Count
+the real ones and you have `d`.
+
+`blackbox` below does the multiply and picks a `d` you can't see. Query it, run
+SVD, read off `d`.
+"""
+
+
+def blackbox(d: int, size: int = 1000) -> np.ndarray:
+    """Multiply a random (size, d) matrix by a random (d, size) matrix.
+
+    Returns the (size, size) product. The intermediate dimension d is not
+    visible from the shape of the result.
+    """
+    A = np.random.randn(size, d)
+    B = np.random.randn(d, size)
+    return A @ B
+
+
+def estimate_rank(C: np.ndarray) -> tuple[int, np.ndarray]:
+    """Estimate the rank of C from its singular values.
+
+    Returns (rank, singular_values). Singular values smaller than 1e-10 times
+    the largest one are float noise, not information, so they don't count.
+    """
+    if "SOLUTION":
+        s = np.linalg.svd(C, compute_uv=False)
+        rank = int(np.sum(s > s[0] * 1e-10))
+        return rank, s
+    else:
+        # TODO:
+        # 1. Get the singular values of C (np.linalg.svd with compute_uv=False).
+        # 2. Count how many are above s[0] * 1e-10.
+        return 0, np.zeros(1)
+
+
+hidden_d = np.random.randint(5, 21)
+C = blackbox(hidden_d)
+rank, s = estimate_rank(C)
+print(f"estimated rank: {rank}")
+print(f"hidden d:       {hidden_d}")
+
+# The cliff in the singular values should sit on the dotted line.
+plt.semilogy(s[:40], "o-")
+plt.axvline(hidden_d - 0.5, color="red", linestyle=":", label="true d")
+plt.xlabel("Singular value index")
+plt.ylabel("Singular value (log scale)")
+plt.legend()
+plt.show()
+
+
+@report
+def test_estimate_rank(solution: Callable[[np.ndarray], tuple[int, np.ndarray]]):
+    rng = np.random.default_rng(0)
+    for d in (3, 12, 40):
+        C = rng.standard_normal((300, d)) @ rng.standard_normal((d, 300))
+        rank, s = solution(C)
+        assert rank == d, f"Expected rank {d}, got {rank}"
+        assert len(s) == 300, f"Expected 300 singular values, got {len(s)}"
+    print("  All tests passed!")
+
+
+test_estimate_rank(estimate_rank)
+
+# %%
+"""
+A language model's last layer is the multiply from 3.5.1: a hidden state of
+size `d` times a `(d, vocab_size)` weight matrix gives the logits, so the same
+trick finds `d`.
+
 Let's implement the model extraction attack from
 [Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
 
-### Exercise 3.5.1 - Complete Model Dimension Extraction
+### Exercise 3.5.2: Complete Model Dimension Extraction
 
 > **Difficulty**: 3/5
 > **Importance**: 4/5
@@ -54,8 +148,6 @@ Complete the implementation of model dimension extraction using SVD.
 
 # %%
 import torch
-import numpy as np
-import matplotlib.pyplot as plt
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from tqdm import tqdm
 
@@ -90,7 +182,7 @@ if "TEST_FIXTURE":
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    # Shared attack parameters, used by Exercises 3.5.1 and 3.5.2.
+    # Shared attack parameters, used by Exercises 3.5.2 and 3.5.3.
     N_QUERIES = 1000
     MAX_PROMPT_LENGTH = 10
     VOCAB_SIZE = tokenizer.vocab_size
@@ -192,14 +284,14 @@ def test_detect_hidden_dim(h: int):
 test_detect_hidden_dim(detected_h)
 # %%
 """
-### Exercise 3.5.2 - Extracting Model Weights
+### Exercise 3.5.3: Extracting Model Weights
 
 > **Difficulty**: 5/5
 > **Importance**: 2/5
 >
 > You should spend up to ~60 minutes on this exercise.
 
-Now use the hidden dimension `h` from exercise 3.5.1 to recover the model's output
+Now use the hidden dimension `h` from exercise 3.5.2 to recover the model's output
 projection matrix, `lm_head.weight`, from black-box logit queries alone.
 
 **Why SVD gives us the weights.** Every logit vector the model returns is computed as:
