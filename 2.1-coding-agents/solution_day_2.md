@@ -14,3 +14,8 @@ Who else shares the environment: other developers, CI runners, future agent sess
 ## Task: Propose a concrete mitigation for each. Analyse if your mitigation prevents the attack, or merely raises its cost?
 - 1.1: cli-actions in the form of (whitelsited & monitored) tools + supervisor/reviewer agent to monitor code/interactions and rate maliciousness (classic AI control) + traditional security measures (EDR, DLP, ..)  on deployment/testing envs that might run the actual code
 - 1.2: minimize tools, input filtering/injection monitoring/alignment monitoring (eg: ConditionalClassifiers)
+- 1.3 -> 1.1 & 1.2
+
+- 2.1 & 2.2 -> 1.1
+
+=> Most 'solution' increase costs, they do not resolve the problem
