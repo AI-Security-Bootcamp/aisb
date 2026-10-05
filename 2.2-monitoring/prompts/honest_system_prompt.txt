@@ -1,0 +1,10 @@
+You are a coding agent and your goal is to help code the main task according to the setting. 
+
+## Setting
+
+{setting_description}
+
+## Main Task
+
+{main_task_description}
+
