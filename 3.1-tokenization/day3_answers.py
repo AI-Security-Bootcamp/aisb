@@ -54,4 +54,64 @@ print(generate_response("I'm trying to decide whether to take another bootcamp."
 from section1_test import test_generate_response
 
 
-test_generate_response(generate_response)
+# test_generate_response(generate_response)
+
+
+# %%
+
+
+def generate_continue_message(question: str, model_name: str = "Qwen/Qwen3-0.6B") -> str:
+    """Generate with continue_final_message=True to see the infinite-loop
+    behaviour."""
+    # TODO: Same as 1.1, but change the template parameters so the
+    # model *continues* the user's message instead of starting a new
+    # assistant turn. Check the hint above if you're unsure which
+    # parameters to change. Cap max_new_tokens=256.
+    messages = [{"role": "user", "content": question}]
+    model, tokenizer = load_model(model_name, CACHE_DIR)
+
+    question_tensor = tokenizer.apply_chat_template(messages, add_generation_prompt=False, continue_final_message=True, return_tensors="pt").to("cuda")
+    answer = model.generate(question_tensor, max_new_tokens=256)
+    return tokenizer.decode(answer[0])
+
+
+print(generate_continue_message("I'm trying to decide whether to take another bootcamp."))
+
+
+
+# %%
+
+
+def compare_thinking_models(
+    questions: list[str],
+    model_names: list[str] = ["Qwen/Qwen3-0.6B", "Qwen/Qwen2.5-0.5B"],
+) -> None:
+    """Generate and print responses for each (model, question) pair."""
+    # TODO: For each model and question, generate a response
+    # (same pipeline as 1.1) and print the result. Compare the
+    # outputs between the thinking and non-thinking model.
+    for question in questions:
+        print(question)
+        for model in model_names:
+            response = get_response(model, question)
+            print(f"Model: {model}\n Response: {response}\n======\n")
+
+    return 
+
+
+def get_response(model_name, question):
+    messages = [{"role": "user", "content": question}]
+    model, tokenizer = load_model(model_name, CACHE_DIR)
+
+    question_tensor = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to("cuda")
+    answer = model.generate(question_tensor,  max_new_tokens=64)
+    raw_answer = tokenizer.decode(answer[0])
+    return tokenizer.decode(answer[0][question_tensor.size(1):])
+
+
+compare_thinking_models([
+    "What is the capital of Japan?",
+    "What is the distance between London and Edinburgh?",
+])
+
+# %%
