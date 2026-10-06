@@ -1,0 +1,8 @@
+AISB Day 2 test machine
+
+Repository: /home/participant/aisb
+Environment: source /home/participant/aisb/.venv-control-arena/bin/activate
+Day 2 monitoring: cd /home/participant/aisb/2.2-monitoring
+Inspect viewer through SSH: inspect view --host 127.0.0.1 --port 7575 --log-dir logs
+
+OPENROUTER_API_KEY is intentionally not stored on this machine image.
