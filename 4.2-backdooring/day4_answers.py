@@ -86,3 +86,24 @@ from section2_test import test_build_dataset
 
 
 test_build_dataset(build_dataset)
+
+# %%
+def prepare_split(
+    eval_size: int = 100,
+    seed: int = 42,
+    output_path: str = BACKDOOR_SPLIT_DIR,
+) -> DatasetDict:
+    """Build the poisoned dataset and save a train/eval split to disk."""
+    dataset = build_dataset()
+    dataset_split = dataset.train_test_split(test_size=eval_size, seed=seed)
+    dataset_split.save_to_disk(output_path)
+    dataset_split['eval'] = dataset_split['test']
+    del dataset_split['test']
+    return dataset_split
+
+prepare_split()
+from section2_test import test_prepare_split
+
+
+test_prepare_split(prepare_split)
+# %%
