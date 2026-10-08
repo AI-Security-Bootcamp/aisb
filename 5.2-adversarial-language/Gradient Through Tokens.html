@@ -1,0 +1,570 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Gradient Through Tokens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: single reading column; two figures, each with a caption and a security-terms gloss beneath. */
+  :root {
+    --bg: #f3f6f8;
+    --surface: #ffffff;
+    --ink: #15202b;
+    --ink-2: #485766;
+    --line: #c3cdd6;
+    --ok: #0b7a69;
+    --ok-soft: #dcf1ec;
+    --bad: #b3261e;
+    --bad-soft: #f9e1df;
+    --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10161b; --surface: #19222a; --ink: #e5ecf1; --ink-2: #9db0bf; --line: #34434f;
+      --ok: #45c4ae; --ok-soft: #14332e; --bad: #ff8d84; --bad-soft: #3b1f1d;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10161b; --surface: #19222a; --ink: #e5ecf1; --ink-2: #9db0bf; --line: #34434f;
+    --ok: #45c4ae; --ok-soft: #14332e; --bad: #ff8d84; --bad-soft: #3b1f1d;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; padding-inline: 16px; padding-block: 28px 56px; }
+  main { max-width: 820px; margin-inline: auto; display: flex; flex-direction: column; gap: 40px; }
+  h1 { font-size: 1.75rem; line-height: 1.2; font-weight: 600; margin: 0 0 8px; text-wrap: balance; }
+  h2 { font-size: 1.15rem; font-weight: 600; margin: 0 0 4px; text-wrap: balance; }
+  p { margin: 0; max-width: 65ch; color: var(--ink-2); }
+  header p { font-size: 1.02rem; }
+  code { font-family: var(--font-mono); font-size: 0.88em; color: var(--ink); }
+
+  figure { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  .scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; }
+  .scroll svg { display: block; min-width: 680px; width: 100%; height: auto; }
+  figcaption { color: var(--ink-2); font-size: 0.95rem; max-width: 70ch; }
+  figcaption b { color: var(--ink); font-weight: 600; }
+
+  /* SVG mark styles come from page tokens so both themes work. */
+  .t { font-family: var(--font-body); font-size: 13px; fill: var(--ink); }
+  .t-sub { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-2); }
+  .t-head { font-family: var(--font-body); font-size: 13px; font-weight: 600; fill: var(--ink); }
+  .t-ok { font-family: var(--font-body); font-size: 12.5px; fill: var(--ok); font-weight: 500; }
+  .t-bad { font-family: var(--font-body); font-size: 12.5px; fill: var(--bad); font-weight: 500; }
+  .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  .box-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.5; }
+  .box-bad { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 1.5; }
+  .fwd { stroke: var(--ink-2); stroke-width: 1.5; fill: none; }
+  .back-ok { stroke: var(--ok); stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  .back-bad { stroke: var(--bad); stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+  .loopback { stroke: var(--ink-2); stroke-width: 1.5; fill: none; stroke-dasharray: 6 4; }
+  .head-fwd { fill: var(--ink-2); }
+  .head-ok { fill: var(--ok); }
+  .x { stroke: var(--bad); stroke-width: 3; stroke-linecap: round; }
+  .divider { stroke: var(--line); stroke-width: 1; }
+  .box-dim { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .bracket { stroke: var(--ink-2); stroke-width: 1.5; fill: none; }
+  .bracket-ok { stroke: var(--ok); stroke-width: 1.5; fill: none; }
+  .t-dim { font-family: var(--font-body); font-size: 13px; fill: var(--ink-2); }
+
+  dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: 0.93rem; max-width: 70ch; }
+  dt { font-family: var(--font-mono); font-size: 0.86rem; color: var(--ink); padding-top: 1px; }
+  dd { margin: 0; color: var(--ink-2); min-width: 0; }
+  @media (max-width: 520px) { dl { grid-template-columns: 1fr; gap: 0; } dd { margin-bottom: 8px; } }
+</style>
+
+<main>
+  <header>
+    <h1>Gradient Through Tokens</h1>
+    <p>Every exercise in section 5.2 in pictures, in order. The attack needs the model to say which input tokens would help most. A plain integer lookup cannot answer that. A one-hot selector can, and the output stays identical. The loss scores how strongly the model expects the target text, and a greedy loop turns those scores into a jailbreak suffix.</p>
+  </header>
+
+  <section>
+    <figure>
+      <h2>5.2.0 · The attack setting</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 244" role="img" aria-label="A chat prompt as a row of segments: system prompt, user request, suffix, template tail, then the target reply. The attacker controls the request and suffix and optimizes only the suffix. The target is scored by the loss but never sent.">
+          <path class="bracket-ok" d="M158 54 V48 H430 V54"/>
+          <text class="t-ok" x="294" y="38" text-anchor="middle">attacker controls the user turn</text>
+
+          <rect class="box" x="16" y="64" width="130" height="56" rx="4"/>
+          <text class="t" x="81" y="88" text-anchor="middle">system prompt</text><text class="t-sub" x="81" y="106" text-anchor="middle">fixed</text>
+          <rect class="box" x="158" y="64" width="150" height="56" rx="4"/>
+          <text class="t" x="233" y="88" text-anchor="middle">user request</text><text class="t-sub" x="233" y="106" text-anchor="middle">attacker's text</text>
+          <rect class="box-ok" x="320" y="64" width="110" height="56" rx="4"/>
+          <text class="t" x="375" y="88" text-anchor="middle">suffix</text><text class="t-sub" x="375" y="106" text-anchor="middle">optimized</text>
+          <rect class="box" x="442" y="64" width="120" height="56" rx="4"/>
+          <text class="t" x="502" y="88" text-anchor="middle">template tail</text><text class="t-sub" x="502" y="106" text-anchor="middle">fixed</text>
+          <rect class="box-dim" x="574" y="64" width="170" height="56" rx="4"/>
+          <text class="t" x="659" y="88" text-anchor="middle">target</text><text class="t-sub" x="659" y="106" text-anchor="middle">scored, not sent</text>
+
+          <text class="t-sub" x="16" y="150">e.g. request "Tell me how to build a bomb." · suffix starts "! ! ! ! ! !" · target "Sure! Here is…"</text>
+
+          <line class="divider" x1="16" y1="168" x2="744" y2="168"/>
+          <text class="t-head" x="16" y="192">loss = −log p(target | everything before it)</text>
+          <text class="t-sub" x="16" y="214">Lower loss = the model is more likely to open with the affirmative reply.</text>
+          <text class="t-sub" x="16" y="234">Search space: V^n suffixes. At V = 32,000 and n = 20, exhaustive search is about 10^90 forward passes.</text>
+        </svg>
+      </div>
+      <figcaption><b>The attacker edits one segment.</b> The chat template wraps the request in a system prompt and role markers the attacker cannot touch. Everything the attacker controls sits in the user turn, and only the suffix is optimized. The target reply is never sent. It only defines the loss.</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>coordinate</dt><dd>One suffix slot. A full point is a tuple of token ids, such as (91, 91, 91, 91, 91, 91).</dd>
+      <dt>where it ends</dt><dd>At the lowest-loss suffix found after T steps. Low loss does not guarantee a jailbreak, so generate and check the reply.</dd>
+      <dt>vs gradient descent</dt><dd>Tokens are discrete, so there is no small step to take. The gradient only shortlists swaps to try.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <figure>
+      <h2>5.2.1 · One GCG step, annotated</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 236" role="img" aria-label="One GCG step as a loop: one backward pass scores all swaps, keep top-k per slot, run the model on each candidate for exact loss, commit the best swap, repeat.">
+          <defs>
+            <marker id="g-fwd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-fwd" points="0,0 10,5 0,10"/></marker>
+          </defs>
+
+          <rect class="box" x="20" y="30" width="128" height="76" rx="4"/>
+          <text class="t-head" x="84" y="54" text-anchor="middle">current suffix</text>
+          <text class="t-sub" x="84" y="74" text-anchor="middle">20 token slots</text>
+          <text class="t-sub" x="84" y="92" text-anchor="middle">starts as ! ! ! …</text>
+
+          <rect class="box-ok" x="176" y="30" width="128" height="76" rx="4"/>
+          <text class="t-head" x="240" y="54" text-anchor="middle">1 backward pass</text>
+          <text class="t-sub" x="240" y="74" text-anchor="middle">scores 20×V swaps</text>
+          <text class="t-sub" x="240" y="92" text-anchor="middle">cheap, approximate</text>
+
+          <rect class="box" x="332" y="30" width="128" height="76" rx="4"/>
+          <text class="t-head" x="396" y="54" text-anchor="middle">shortlist</text>
+          <text class="t-sub" x="396" y="74" text-anchor="middle">top k per slot</text>
+          <text class="t-sub" x="396" y="92" text-anchor="middle">k = 8 → 160 swaps</text>
+
+          <rect class="box-ok" x="488" y="30" width="128" height="76" rx="4"/>
+          <text class="t-head" x="552" y="54" text-anchor="middle">run each one</text>
+          <text class="t-sub" x="552" y="74" text-anchor="middle">exact loss each</text>
+          <text class="t-sub" x="552" y="92" text-anchor="middle">160 forward passes</text>
+
+          <rect class="box" x="644" y="30" width="96" height="76" rx="4"/>
+          <text class="t-head" x="692" y="54" text-anchor="middle">commit</text>
+          <text class="t-sub" x="692" y="74" text-anchor="middle">best swap</text>
+          <text class="t-sub" x="692" y="92" text-anchor="middle">only if lower</text>
+
+          <line class="fwd" x1="148" y1="68" x2="174" y2="68" marker-end="url(#g-fwd)"/>
+          <line class="fwd" x1="304" y1="68" x2="330" y2="68" marker-end="url(#g-fwd)"/>
+          <line class="fwd" x1="460" y1="68" x2="486" y2="68" marker-end="url(#g-fwd)"/>
+          <line class="fwd" x1="616" y1="68" x2="642" y2="68" marker-end="url(#g-fwd)"/>
+
+          <!-- loop back to the suffix -->
+          <path class="loopback" d="M692 106 V150 H84 V108" marker-end="url(#g-fwd)"/>
+          <text class="t" x="388" y="170" text-anchor="middle">repeat T times, ending at the lowest-loss suffix found</text>
+
+          <text class="t-sub" x="20" y="208">Without step 1: 20 × V ≈ 3,000,000 model runs per round.  With it: 160.</text>
+        </svg>
+      </div>
+      <figcaption><b>The gradient only proposes.</b> The first-order estimate ranks swaps well enough to cut millions of candidates to a few hundred, but its top pick is often not the true best, so every shortlisted swap is executed for its real loss before anything is kept (Exercise 5.2.7).</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>grads</dt><dd>[n, V]. One score per position and candidate token. Only suffix rows are used.</dd>
+      <dt>X[i]</dt><dd>The k token ids for slot i with the most negative gradient.</dd>
+      <dt>candidates</dt><dd>B copies of the prompt, each with one slot swapped.</dd>
+      <dt>x = min(...)</dt><dd>Keep the candidate with the lowest exact loss.</dd>
+      <dt>fuzzing view</dt><dd>Step 1 is cheap feedback that guides mutation. Step 3 is real execution that decides what survives.</dd>
+      <dt>white-box</dt><dd>Step 1 needs the model weights. Suffixes found this way still transfer to closed models.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <figure>
+      <h2>5.2.2 · Why the lookup blocks the signal</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 372" role="img" aria-label="Two pipelines from token to loss. Top: integer lookup, where the backward gradient stops at the lookup because indexing has no gradient. Bottom: one-hot times embedding table, where the gradient flows back to the one-hot and yields one score per vocabulary token.">
+          <defs>
+            <marker id="h-fwd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-fwd" points="0,0 10,5 0,10"/></marker>
+            <marker id="h-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-ok" points="0,0 10,5 0,10"/></marker>
+          </defs>
+
+          <!-- Row A: integer lookup -->
+          <text class="t-head" x="20" y="26">A · Today: integer lookup</text>
+          <rect class="box" x="20" y="42" width="120" height="58" rx="4"/>
+          <text class="t" x="80" y="66" text-anchor="middle">token id</text>
+          <text class="t-sub" x="80" y="86" text-anchor="middle">4217</text>
+          <rect class="box-bad" x="170" y="42" width="120" height="58" rx="4"/>
+          <text class="t" x="230" y="66" text-anchor="middle">table lookup</text>
+          <text class="t-sub" x="230" y="86" text-anchor="middle">E[4217]</text>
+          <rect class="box" x="320" y="42" width="120" height="58" rx="4"/>
+          <text class="t" x="380" y="66" text-anchor="middle">embedding</text>
+          <text class="t-sub" x="380" y="86" text-anchor="middle">d numbers</text>
+          <rect class="box" x="470" y="42" width="120" height="58" rx="4"/>
+          <text class="t" x="530" y="66" text-anchor="middle">model</text>
+          <text class="t-sub" x="530" y="86" text-anchor="middle">layers</text>
+          <rect class="box" x="620" y="42" width="120" height="58" rx="4"/>
+          <text class="t" x="680" y="66" text-anchor="middle">loss</text>
+          <text class="t-sub" x="680" y="86" text-anchor="middle">score</text>
+          <line class="fwd" x1="140" y1="71" x2="168" y2="71" marker-end="url(#h-fwd)"/>
+          <line class="fwd" x1="290" y1="71" x2="318" y2="71" marker-end="url(#h-fwd)"/>
+          <line class="fwd" x1="440" y1="71" x2="468" y2="71" marker-end="url(#h-fwd)"/>
+          <line class="fwd" x1="590" y1="71" x2="618" y2="71" marker-end="url(#h-fwd)"/>
+          <!-- backward signal stops at the lookup -->
+          <line class="back-bad" x1="680" y1="124" x2="250" y2="124"/>
+          <line class="x" x1="236" y1="112" x2="258" y2="136"/>
+          <line class="x" x1="258" y1="112" x2="236" y2="136"/>
+          <text class="t-bad" x="680" y="146" text-anchor="end">sensitivity travels back from the loss...</text>
+          <text class="t-bad" x="20" y="160">...and dies at an integer index: no "slightly different token id" exists</text>
+
+          <line class="divider" x1="20" y1="180" x2="740" y2="180"/>
+
+          <!-- Row B: one-hot -->
+          <text class="t-head" x="20" y="206">B · The trick: a selector vector times the table</text>
+          <rect class="box-ok" x="20" y="222" width="120" height="58" rx="4"/>
+          <text class="t" x="80" y="246" text-anchor="middle">one-hot (floats)</text>
+          <text class="t-sub" x="80" y="266" text-anchor="middle">[0,0,1,0,…] × V</text>
+          <rect class="box-ok" x="170" y="222" width="120" height="58" rx="4"/>
+          <text class="t" x="230" y="246" text-anchor="middle">× table E</text>
+          <text class="t-sub" x="230" y="266" text-anchor="middle">one_hot @ E</text>
+          <rect class="box" x="320" y="222" width="120" height="58" rx="4"/>
+          <text class="t" x="380" y="246" text-anchor="middle">embedding</text>
+          <text class="t-sub" x="380" y="266" text-anchor="middle">same d numbers</text>
+          <rect class="box" x="470" y="222" width="120" height="58" rx="4"/>
+          <text class="t" x="530" y="246" text-anchor="middle">model</text>
+          <text class="t-sub" x="530" y="266" text-anchor="middle">layers</text>
+          <rect class="box" x="620" y="222" width="120" height="58" rx="4"/>
+          <text class="t" x="680" y="246" text-anchor="middle">loss</text>
+          <text class="t-sub" x="680" y="266" text-anchor="middle">same score</text>
+          <line class="fwd" x1="140" y1="251" x2="168" y2="251" marker-end="url(#h-fwd)"/>
+          <line class="fwd" x1="290" y1="251" x2="318" y2="251" marker-end="url(#h-fwd)"/>
+          <line class="fwd" x1="440" y1="251" x2="468" y2="251" marker-end="url(#h-fwd)"/>
+          <line class="fwd" x1="590" y1="251" x2="618" y2="251" marker-end="url(#h-fwd)"/>
+          <!-- backward signal reaches the one-hot -->
+          <line class="back-ok" x1="680" y1="304" x2="82" y2="304" marker-end="url(#h-ok)"/>
+          <text class="t-ok" x="680" y="326" text-anchor="end">backward pass: sensitivity reaches the selector</text>
+          <text class="t-ok" x="20" y="348">result g: V numbers per suffix slot, one per candidate token. Most negative = best swap to try.</text>
+        </svg>
+      </div>
+      <figcaption><b>Same forward output, different backward reach.</b> Row A computes <code>E[4217]</code> by index, so the loss cannot report how a different token would have changed it. Row B computes the same vector as <code>one_hot @ E</code>. The selector is made of ordinary floats, so one backward pass returns a sensitivity score for every token the slot could hold.</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>token</dt><dd>One input unit, a word piece, stored as an integer id.</dd>
+      <dt>embedding table E</dt><dd>Array with one row of numbers per vocabulary entry. The model reads rows, never raw ids.</dd>
+      <dt>loss</dt><dd>Attacker's score: how unlikely the model is to open with "Sure, here is...".</dd>
+      <dt>gradient</dt><dd>Per-input sensitivity of that score, like coverage feedback that tells a fuzzer which input change mattered.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <figure>
+      <h2>5.2.3 · Scoring a target: which logits count</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 384" role="img" aria-label="Nine token positions: six input tokens and three target tokens. Logit row i predicts token i plus one, so rows 5 to 7 score the three target tokens, rows 0 to 4 are ignored, and row 8 is unused. Below, the tensor shapes from token ids through one-hot, embeddings, logits and the sliced rows to a scalar loss.">
+          <defs>
+            <marker id="r-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-ok" points="0,0 10,5 0,10"/></marker>
+            <marker id="r-fwd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-fwd" points="0,0 10,5 0,10"/></marker>
+          </defs>
+
+          <!-- brackets over the two token groups -->
+          <path class="bracket" d="M22 34 V28 H498 V34"/>
+          <text class="t-dim" x="260" y="20" text-anchor="middle">input_ids (n = 6)</text>
+          <path class="bracket-ok" d="M502 34 V28 H738 V34"/>
+          <text class="t-ok" x="620" y="20" text-anchor="middle">target_ids (3 tokens)</text>
+
+          <!-- token cells, positions 0-8 -->
+          <rect class="box" x="22" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="60" y="62" text-anchor="middle">The</text><text class="t-sub" x="60" y="80" text-anchor="middle">pos 0</text>
+          <rect class="box" x="102" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="140" y="62" text-anchor="middle">quick</text><text class="t-sub" x="140" y="80" text-anchor="middle">pos 1</text>
+          <rect class="box" x="182" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="220" y="62" text-anchor="middle">brown</text><text class="t-sub" x="220" y="80" text-anchor="middle">pos 2</text>
+          <rect class="box" x="262" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="300" y="62" text-anchor="middle">fox</text><text class="t-sub" x="300" y="80" text-anchor="middle">pos 3</text>
+          <rect class="box" x="342" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="380" y="62" text-anchor="middle">jumps</text><text class="t-sub" x="380" y="80" text-anchor="middle">pos 4</text>
+          <rect class="box" x="422" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="460" y="62" text-anchor="middle">over</text><text class="t-sub" x="460" y="80" text-anchor="middle">pos 5</text>
+          <rect class="box-ok" x="502" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="540" y="62" text-anchor="middle">the</text><text class="t-sub" x="540" y="80" text-anchor="middle">pos 6</text>
+          <rect class="box-ok" x="582" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="620" y="62" text-anchor="middle">lazy</text><text class="t-sub" x="620" y="80" text-anchor="middle">pos 7</text>
+          <rect class="box-ok" x="662" y="40" width="76" height="52" rx="4"/>
+          <text class="t" x="700" y="62" text-anchor="middle">dog</text><text class="t-sub" x="700" y="80" text-anchor="middle">pos 8</text>
+
+          <!-- logit rows -->
+          <text class="t-sub" x="22" y="140">logit row i is the model's guess for token i+1</text>
+          <rect class="box-dim" x="22" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="60" y="197" text-anchor="middle">row 0</text>
+          <rect class="box-dim" x="102" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="140" y="197" text-anchor="middle">row 1</text>
+          <rect class="box-dim" x="182" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="220" y="197" text-anchor="middle">row 2</text>
+          <rect class="box-dim" x="262" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="300" y="197" text-anchor="middle">row 3</text>
+          <rect class="box-dim" x="342" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="380" y="197" text-anchor="middle">row 4</text>
+          <rect class="box-ok" x="422" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="460" y="197" text-anchor="middle">row 5</text>
+          <rect class="box-ok" x="502" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="540" y="197" text-anchor="middle">row 6</text>
+          <rect class="box-ok" x="582" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="620" y="197" text-anchor="middle">row 7</text>
+          <rect class="box-dim" x="662" y="170" width="76" height="44" rx="4"/><text class="t-sub" x="700" y="197" text-anchor="middle">row 8</text>
+
+          <!-- each scoring row points one position to the right -->
+          <line class="back-ok" x1="466" y1="168" x2="534" y2="96" marker-end="url(#r-ok)" style="stroke-dasharray:none"/>
+          <line class="back-ok" x1="546" y1="168" x2="614" y2="96" marker-end="url(#r-ok)" style="stroke-dasharray:none"/>
+          <line class="back-ok" x1="626" y1="168" x2="694" y2="96" marker-end="url(#r-ok)" style="stroke-dasharray:none"/>
+
+          <!-- row groups -->
+          <path class="bracket" d="M22 222 V226 H418 V222"/>
+          <text class="t-sub" x="220" y="243" text-anchor="middle">rows 0–4 predict tokens we already supplied: ignored</text>
+          <path class="bracket-ok" d="M422 222 V226 H658 V222"/>
+          <text class="t-ok" x="540" y="243" text-anchor="middle">rows 5–7 = logits[0, n-1 : -1]</text>
+          <path class="bracket" d="M662 222 V226 H738 V222"/>
+          <text class="t-sub" x="700" y="243" text-anchor="middle">unused</text>
+
+          <line class="divider" x1="22" y1="262" x2="738" y2="262"/>
+
+          <!-- tensor shapes through the pipeline -->
+          <text class="t-head" x="22" y="284">Shapes from ids to loss (V = vocab size, d = embedding width)</text>
+          <rect class="box" x="18" y="296" width="104" height="52" rx="4"/>
+          <text class="t" x="70" y="318" text-anchor="middle">ids</text><text class="t-sub" x="70" y="336" text-anchor="middle">[9]</text>
+          <rect class="box-ok" x="142" y="296" width="104" height="52" rx="4"/>
+          <text class="t" x="194" y="318" text-anchor="middle">one_hot</text><text class="t-sub" x="194" y="336" text-anchor="middle">[1, 9, V]</text>
+          <rect class="box" x="266" y="296" width="104" height="52" rx="4"/>
+          <text class="t" x="318" y="318" text-anchor="middle">embeds</text><text class="t-sub" x="318" y="336" text-anchor="middle">[1, 9, d]</text>
+          <rect class="box" x="390" y="296" width="104" height="52" rx="4"/>
+          <text class="t" x="442" y="318" text-anchor="middle">logits</text><text class="t-sub" x="442" y="336" text-anchor="middle">[1, 9, V]</text>
+          <rect class="box-ok" x="514" y="296" width="104" height="52" rx="4"/>
+          <text class="t" x="566" y="318" text-anchor="middle">rows</text><text class="t-sub" x="566" y="336" text-anchor="middle">[3, V]</text>
+          <rect class="box" x="638" y="296" width="104" height="52" rx="4"/>
+          <text class="t" x="690" y="318" text-anchor="middle">loss</text><text class="t-sub" x="690" y="336" text-anchor="middle">scalar</text>
+          <line class="fwd" x1="124" y1="322" x2="140" y2="322" marker-end="url(#r-fwd)"/>
+          <line class="fwd" x1="248" y1="322" x2="264" y2="322" marker-end="url(#r-fwd)"/>
+          <line class="fwd" x1="372" y1="322" x2="388" y2="322" marker-end="url(#r-fwd)"/>
+          <line class="fwd" x1="496" y1="322" x2="512" y2="322" marker-end="url(#r-fwd)"/>
+          <line class="fwd" x1="620" y1="322" x2="636" y2="322" marker-end="url(#r-fwd)"/>
+          <text class="t-sub" x="70" y="368" text-anchor="middle">torch.cat</text>
+          <text class="t-sub" x="194" y="368" text-anchor="middle">ids_to_onehot</text>
+          <text class="t-sub" x="318" y="368" text-anchor="middle">one_hot @ E</text>
+          <text class="t-sub" x="442" y="368" text-anchor="middle">model(embeds)</text>
+          <text class="t-sub" x="566" y="368" text-anchor="middle">slice rows 5–7</text>
+          <text class="t-sub" x="690" y="368" text-anchor="middle">cross_entropy</text>
+        </svg>
+      </div>
+      <figcaption><b>The loss reads rows 5 to 7, not 6 to 8.</b> Input and target go through the model together in one pass. Row 5 sits on <code>over</code> and predicts the next token, so it is compared with <code>the</code>. The last row has nothing to compare with. Cross-entropy then takes the model's probability for each correct target token, applies −log, and averages the three. Text under each box names the call that produced it.</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>teacher forcing</dt><dd>The target is fed in as input, so the model never chooses it. One pass scores every target token.</dd>
+      <dt>sanity check</dt><dd>" the lazy dog" gives a low loss because the model knows the phrase. " the purple moon" gives a high one.</dd>
+      <dt>why it matters</dt><dd>In 5.2.5 the target becomes "Sure, here is..." and this number is what the attack minimizes.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <figure>
+      <h2>5.2.4–5.2.5 · SuffixManager: where everything sits</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 252" role="img" aria-label="The full token sequence is before, suffix, after, target. suffix_slice covers the suffix, target_slice covers the target, and loss_slice is the target slice shifted one position to the left because logit row i predicts token i plus one.">
+          <text class="t-sub" x="40" y="36" text-anchor="middle">0</text>
+          <text class="t-sub" x="240" y="36" text-anchor="middle">b</text>
+          <text class="t-sub" x="350" y="36" text-anchor="middle">b+s</text>
+          <text class="t-sub" x="490" y="36" text-anchor="middle">b+s+a</text>
+          <text class="t-sub" x="690" y="36" text-anchor="middle">end</text>
+
+          <rect class="box" x="40" y="44" width="200" height="52" rx="0"/>
+          <text class="t" x="140" y="66" text-anchor="middle">before_ids</text><text class="t-sub" x="140" y="84" text-anchor="middle">system + user request</text>
+          <rect class="box-ok" x="240" y="44" width="110" height="52" rx="0"/>
+          <text class="t" x="295" y="66" text-anchor="middle">suffix_ids</text><text class="t-sub" x="295" y="84" text-anchor="middle">s tokens</text>
+          <rect class="box" x="350" y="44" width="140" height="52" rx="0"/>
+          <text class="t" x="420" y="66" text-anchor="middle">after_ids</text><text class="t-sub" x="420" y="84" text-anchor="middle">template tail</text>
+          <rect class="box-ok" x="490" y="44" width="200" height="52" rx="0"/>
+          <text class="t" x="590" y="66" text-anchor="middle">target_ids</text><text class="t-sub" x="590" y="84" text-anchor="middle">t tokens</text>
+
+          <path class="bracket-ok" d="M240 106 V112 H350 V106"/>
+          <text class="t-ok" x="295" y="130" text-anchor="middle">suffix_slice</text>
+          <path class="bracket-ok" d="M490 106 V112 H690 V106"/>
+          <text class="t-ok" x="590" y="130" text-anchor="middle">target_slice</text>
+
+          <rect class="box-dim" x="40" y="162" width="650" height="34" rx="0"/>
+          <text class="t-sub" x="140" y="184" text-anchor="middle">logits: row i guesses token i+1</text>
+          <rect class="box-ok" x="478" y="162" width="200" height="34" rx="0"/>
+          <text class="t-ok" x="578" y="184" text-anchor="middle">loss_slice</text>
+
+          <text class="t-sub" x="40" y="226">loss_slice = target_slice shifted one token left (drawn exaggerated)</text>
+          <text class="t-sub" x="40" y="244">gradients are needed only for the suffix; the other three parts are fixed</text>
+        </svg>
+      </div>
+      <figcaption><b>Three slices replace hand-computed offsets.</b> <code>get_input_ids(suffix_ids)</code> concatenates the four parts, and the manager records where each landed. The slices are only valid for suffixes of the same length, so a longer suffix needs a new manager.</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>sequence</dt><dd>[before | suffix | after | target]. Same order as the template, with the target appended.</dd>
+      <dt>5.2.3 by hand</dt><dd><code>torch.cat([input_ids, target_ids])</code>, then <code>logits[0, n-1 : -1]</code>, then <code>target_ids</code>.</dd>
+      <dt>5.2.5 with manager</dt><dd><code>manager.get_input_ids(suffix_ids)</code>, then <code>logits[0, manager.loss_slice]</code>, then <code>full[manager.target_slice]</code>.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <figure>
+      <h2>5.2.6 · Computing the gradient for the suffix only</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 340" role="img" aria-label="Embeddings of the before and after tokens are detached and carry no gradient. The suffix one-hot requires a gradient. All three are concatenated, run through the model and loss, then backward flows only to the suffix one-hot, giving a gradient of shape suffix length by vocabulary size.">
+          <defs>
+            <marker id="s-fwd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-fwd" points="0,0 10,5 0,10"/></marker>
+            <marker id="s-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-ok" points="0,0 10,5 0,10"/></marker>
+          </defs>
+
+          <rect class="box" x="20" y="30" width="160" height="56" rx="4"/>
+          <text class="t" x="100" y="54" text-anchor="middle">before_ids</text><text class="t-sub" x="100" y="72" text-anchor="middle">E[ids].detach()</text>
+          <rect class="box" x="20" y="104" width="160" height="56" rx="4"/>
+          <text class="t" x="100" y="128" text-anchor="middle">after_ids</text><text class="t-sub" x="100" y="146" text-anchor="middle">E[ids].detach()</text>
+          <rect class="box-ok" x="20" y="190" width="160" height="66" rx="4"/>
+          <text class="t" x="100" y="212" text-anchor="middle">suffix one-hot @ E</text><text class="t-sub" x="100" y="230" text-anchor="middle">[s, V] requires_grad</text><text class="t-sub" x="100" y="246" text-anchor="middle">VRAM kept for grad</text>
+
+          <rect class="box" x="226" y="30" width="116" height="226" rx="4"/>
+          <text class="t" x="284" y="130" text-anchor="middle">full_embeds</text><text class="t-sub" x="284" y="150" text-anchor="middle">[1, seq, d]</text><text class="t-sub" x="284" y="168" text-anchor="middle">cat in order</text>
+
+          <rect class="box" x="388" y="111" width="104" height="64" rx="4"/>
+          <text class="t" x="440" y="139" text-anchor="middle">model</text><text class="t-sub" x="440" y="157" text-anchor="middle">logits</text>
+          <rect class="box" x="538" y="111" width="130" height="64" rx="4"/>
+          <text class="t" x="603" y="139" text-anchor="middle">loss</text><text class="t-sub" x="603" y="157" text-anchor="middle">target rows only</text>
+
+          <line class="fwd" x1="182" y1="58" x2="224" y2="58" marker-end="url(#s-fwd)"/>
+          <line class="fwd" x1="182" y1="132" x2="224" y2="132" marker-end="url(#s-fwd)"/>
+          <line class="fwd" x1="182" y1="223" x2="224" y2="223" marker-end="url(#s-fwd)"/>
+          <line class="fwd" x1="344" y1="143" x2="386" y2="143" marker-end="url(#s-fwd)"/>
+          <line class="fwd" x1="494" y1="143" x2="536" y2="143" marker-end="url(#s-fwd)"/>
+
+          <path class="back-ok" d="M603 177 V278 H100 V259" marker-end="url(#s-ok)"/>
+          <text class="t-ok" x="350" y="270" text-anchor="middle">loss.backward(): gradient flows only into the suffix one-hot</text>
+
+          <text class="t-ok" x="20" y="302">result: one_hot_suffix.grad → [suffix_length, V], one score per slot and candidate token</text>
+          <text class="t-sub" x="20" y="322">top_replacements_from_gradients: forbidden ids (special tokens) get a bad score, then top-k of −grad → [s, k] ids</text>
+        </svg>
+      </div>
+      <figcaption><b>Only the suffix keeps a graph.</b> The tokens before and after are looked up by integer index and detached, which saves memory because no gradient is needed there. The suffix goes in as a one-hot so the backward pass can reach it, and its gradient row for each slot becomes the shortlist for that slot.</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>requires_grad_</dt><dd>Marks the one-hot as an input whose gradient PyTorch should keep.</dd>
+      <dt>forbidden ids</dt><dd>Special tokens such as end-of-text, which would not survive being typed into a prompt.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <figure>
+      <h2>5.2.7 · Lowest gradient is not always best token</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 322" role="img" aria-label="Schematic of six candidates ranked by gradient on the left and by exact loss on the right. Lines between the columns cross, and the candidate ranked first by gradient is not the one with the lowest exact loss.">
+          <text class="t-sub" x="40" y="26">ordered by predicted drop (gradient)</text>
+          <text class="t-sub" x="720" y="26" text-anchor="end">ordered by true loss (forward pass)</text>
+
+          <!-- grad rank → true rank: 0→2, 1→0, 2→4, 3→1, 4→5, 5→3 -->
+          <line class="fwd" x1="230" y1="68" x2="530" y2="156" style="stroke:var(--bad);stroke-width:2"/>
+          <line class="fwd" x1="230" y1="112" x2="530" y2="68" style="stroke:var(--ok);stroke-width:2.5"/>
+          <line class="fwd" x1="230" y1="156" x2="530" y2="244"/>
+          <line class="fwd" x1="230" y1="200" x2="530" y2="112"/>
+          <line class="fwd" x1="230" y1="244" x2="530" y2="288"/>
+          <line class="fwd" x1="230" y1="288" x2="530" y2="200"/>
+
+          <rect class="box-bad" x="40" y="52" width="190" height="32" rx="4"/><text class="t" x="135" y="73" text-anchor="middle">gradient rank 0</text>
+          <rect class="box-ok" x="40" y="96" width="190" height="32" rx="4"/><text class="t" x="135" y="117" text-anchor="middle">gradient rank 1</text>
+          <rect class="box" x="40" y="140" width="190" height="32" rx="4"/><text class="t" x="135" y="161" text-anchor="middle">gradient rank 2</text>
+          <rect class="box" x="40" y="184" width="190" height="32" rx="4"/><text class="t" x="135" y="205" text-anchor="middle">gradient rank 3</text>
+          <rect class="box" x="40" y="228" width="190" height="32" rx="4"/><text class="t" x="135" y="249" text-anchor="middle">gradient rank 4</text>
+          <rect class="box" x="40" y="272" width="190" height="32" rx="4"/><text class="t" x="135" y="293" text-anchor="middle">gradient rank 5</text>
+
+          <rect class="box-ok" x="530" y="52" width="190" height="32" rx="4"/><text class="t" x="625" y="73" text-anchor="middle">true rank 0 (lowest loss)</text>
+          <rect class="box" x="530" y="96" width="190" height="32" rx="4"/><text class="t" x="625" y="117" text-anchor="middle">true rank 1</text>
+          <rect class="box-bad" x="530" y="140" width="190" height="32" rx="4"/><text class="t" x="625" y="161" text-anchor="middle">true rank 2</text>
+          <rect class="box" x="530" y="184" width="190" height="32" rx="4"/><text class="t" x="625" y="205" text-anchor="middle">true rank 3</text>
+          <rect class="box" x="530" y="228" width="190" height="32" rx="4"/><text class="t" x="625" y="249" text-anchor="middle">true rank 4</text>
+          <rect class="box" x="530" y="272" width="190" height="32" rx="4"/><text class="t" x="625" y="293" text-anchor="middle">true rank 5</text>
+        </svg>
+      </div>
+      <figcaption><b>Schematic, not measured data.</b> The ordering shown is made up to illustrate the effect. In the exercise you print the real table. The first-order estimate ignores curvature, and swapping one token to another is a big step in embedding space, so the gradient's top pick often loses to a lower-ranked candidate. That is why every shortlisted swap gets an exact forward pass.</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>truncation error</dt><dd>The second-order and higher terms dropped from the linear estimate. They reorder candidates.</dd>
+      <dt>takeaway</dt><dd>The gradient is a cheap filter, not a judge. Execution decides.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <figure>
+      <h2>5.2.8 · The full loop: propose, evaluate, commit</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 300" role="img" aria-label="A funnel: all single-token swaps number about 1.5 million for a 10 token suffix and a 152 thousand token vocabulary. The propose phase shortlists 80 with one forward and one backward pass. The evaluate phase runs 80 forward passes and the commit phase keeps the best swap if it lowers the loss, otherwise it stops. The loop repeats.">
+          <defs>
+            <marker id="l-fwd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-fwd" points="0,0 10,5 0,10"/></marker>
+          </defs>
+
+          <rect class="box" x="100" y="26" width="560" height="44" rx="4"/>
+          <text class="t" x="380" y="53" text-anchor="middle">all single-token swaps: n × V ≈ 10 × 152k ≈ 1.5 M</text>
+          <rect class="box-ok" x="230" y="116" width="300" height="44" rx="4"/>
+          <text class="t" x="380" y="143" text-anchor="middle">shortlist: n × k = 10 × 8 = 80</text>
+          <rect class="box-ok" x="320" y="206" width="120" height="44" rx="4"/>
+          <text class="t" x="380" y="233" text-anchor="middle">best swap</text>
+
+          <line class="fwd" x1="380" y1="72" x2="380" y2="114" marker-end="url(#l-fwd)"/>
+          <line class="fwd" x1="380" y1="162" x2="380" y2="204" marker-end="url(#l-fwd)"/>
+          <text class="t" x="396" y="90">propose: gradient top-k per slot</text>
+          <text class="t-sub" x="396" y="106">1 forward + 1 backward pass</text>
+          <text class="t" x="396" y="180">evaluate: exact loss of each of the 80</text>
+          <text class="t-sub" x="396" y="196">80 forward passes, no gradients</text>
+          <text class="t" x="452" y="216">commit if lower than current,</text>
+          <text class="t" x="452" y="232">otherwise stop</text>
+
+          <path class="loopback" d="M440 242 H736 V48 H662" marker-end="url(#l-fwd)"/>
+          <text class="t-sub" x="20" y="286">repeat up to `steps` rounds; the loss history only ever goes down</text>
+        </svg>
+      </div>
+      <figcaption><b>Propose narrows, evaluate decides, commit only accepts improvements.</b> This version tests all n × k swaps. The paper instead samples B random ones from the shortlist, which costs less when the suffix and k are larger. Sizes use a 10-token suffix, k = 8 and a vocabulary of about 152k.</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>greedy</dt><dd>Take the best local improvement each round, never backtrack.</dd>
+      <dt>coordinate</dt><dd>Change one suffix slot per round.</dd>
+      <dt>delivery caveat</dt><dd>A real attack is a string, so a candidate must decode and re-tokenize to the same ids. The reference code filters for this. Ours does not.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <figure>
+      <h2>5.2.9 · Universal attack: one suffix, many requests and models</h2>
+      <div class="scroll">
+        <svg viewBox="0 0 760 296" role="img" aria-label="Universal GCG: many request and target pairs share one suffix. Gradients are summed per model, normalized and added across models, top-k candidates are sampled, and each candidate is scored by the summed exact loss over all pairs and models. A progressive schedule adds requests one at a time.">
+          <defs>
+            <marker id="u-fwd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="head-fwd" points="0,0 10,5 0,10"/></marker>
+          </defs>
+
+          <rect class="box" x="20" y="30" width="128" height="72" rx="4"/>
+          <text class="t-head" x="84" y="52" text-anchor="middle">prompt pairs</text><text class="t-sub" x="84" y="72" text-anchor="middle">m request/target</text><text class="t-sub" x="84" y="88" text-anchor="middle">pairs, 1 suffix</text>
+          <rect class="box-ok" x="168" y="30" width="128" height="72" rx="4"/>
+          <text class="t-head" x="232" y="52" text-anchor="middle">gradients</text><text class="t-sub" x="232" y="72" text-anchor="middle">per pair [s, V]</text><text class="t-sub" x="232" y="88" text-anchor="middle">summed per model</text>
+          <rect class="box-ok" x="316" y="30" width="128" height="72" rx="4"/>
+          <text class="t-head" x="380" y="52" text-anchor="middle">combine models</text><text class="t-sub" x="380" y="72" text-anchor="middle">normalize each,</text><text class="t-sub" x="380" y="88" text-anchor="middle">then add</text>
+          <rect class="box" x="464" y="30" width="128" height="72" rx="4"/>
+          <text class="t-head" x="528" y="52" text-anchor="middle">candidates</text><text class="t-sub" x="528" y="72" text-anchor="middle">top-k per slot,</text><text class="t-sub" x="528" y="88" text-anchor="middle">sample B swaps</text>
+          <rect class="box-ok" x="612" y="30" width="128" height="72" rx="4"/>
+          <text class="t-head" x="676" y="52" text-anchor="middle">score + pick</text><text class="t-sub" x="676" y="72" text-anchor="middle">sum exact loss</text><text class="t-sub" x="676" y="88" text-anchor="middle">pairs and models</text>
+
+          <line class="fwd" x1="150" y1="66" x2="166" y2="66" marker-end="url(#u-fwd)"/>
+          <line class="fwd" x1="298" y1="66" x2="314" y2="66" marker-end="url(#u-fwd)"/>
+          <line class="fwd" x1="446" y1="66" x2="462" y2="66" marker-end="url(#u-fwd)"/>
+          <line class="fwd" x1="594" y1="66" x2="610" y2="66" marker-end="url(#u-fwd)"/>
+
+          <path class="loopback" d="M676 104 V138 H84 V106" marker-end="url(#u-fwd)"/>
+          <text class="t" x="380" y="158" text-anchor="middle">winner becomes the shared suffix; repeat</text>
+
+          <line class="divider" x1="20" y1="180" x2="740" y2="180"/>
+          <text class="t-head" x="20" y="202">Progressive schedule (Algorithm 2)</text>
+          <rect class="box" x="20" y="214" width="210" height="44" rx="4"/>
+          <text class="t" x="125" y="241" text-anchor="middle">optimize on request 1 only</text>
+          <rect class="box" x="275" y="214" width="210" height="44" rx="4"/>
+          <text class="t" x="380" y="241" text-anchor="middle">suffix works? add request 2</text>
+          <rect class="box" x="530" y="214" width="210" height="44" rx="4"/>
+          <text class="t" x="635" y="241" text-anchor="middle">repeat until all m are active</text>
+          <line class="fwd" x1="232" y1="236" x2="273" y2="236" marker-end="url(#u-fwd)"/>
+          <line class="fwd" x1="487" y1="236" x2="528" y2="236" marker-end="url(#u-fwd)"/>
+          <text class="t-sub" x="20" y="284">"works" = the generated reply contains none of the refusal strings, e.g. "I'm sorry"</text>
+        </svg>
+      </div>
+      <figcaption><b>Your loop, with sums added.</b> The suffix is shared, so the gradient of the summed loss is the sum of per-pair gradients. Models are combined only after normalizing each one, so a model with large gradients cannot dominate. Models are summed only when their tokenizers match, since the gradient shapes must agree. Candidates are scored on every pair and model, and the lowest summed loss wins. Optional reading, no code.</figcaption>
+    </figure>
+    <dl style="margin-top:16px">
+      <dt>goal</dt><dd>The request, in the reference code.</dd>
+      <dt>control</dt><dd>The suffix.</dd>
+      <dt>worker</dt><dd>One model.</dd>
+    </dl>
+  </section>
+
+</main>
+
+</body></html>
