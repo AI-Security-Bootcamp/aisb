@@ -275,3 +275,34 @@ for prompt, proj, label in near_80:
     print(f"[{label}] (proj = {proj:.2f}): {prompt}")
 
 # %%
+
+
+def oproj(x: Float[Tensor, "... d_model"], r: Float[Tensor, "d_model"]) -> Tensor:
+    """Remove the component of `x` along `r` (operates on the last dim; any leading shape)."""
+    # TODO:
+    # 1. Normalize direction to unit length: r_hat = r / r.norm().
+    # 2. Compute the projection coefficient x · r_hat along the last dim (keepdim=True).
+    # 3. Return a NEW tensor x - coeff * r_hat (don't modify x in place).
+    r_hat = r / r.norm()
+    coeff = torch.sum(x * r_hat, dim=-1, keepdim=True)
+    return x - coeff * r_hat
+from section3_test import test_oproj
+
+
+test_oproj(oproj)
+
+# %%
+def get_ablation_hooks(direction: Tensor) -> list:
+    '''Forward pre-hooks that project `direction` out of every layer's residual input.
+    Returns a list [(layer, hook)] for every layer in the model.'''
+    # TODO: return one (layer, hook) pair per layer. Each hook should project `direction`
+    # out of args[0] and return the replacement input (new_activation,).
+    def hook(module, args):
+        return (oproj(args[0], direction),)
+
+    return  [(model.model.layers[layer], oproj) for layer in range(len(model.model.layers))]
+from section3_test import test_get_ablation_hooks
+
+
+test_get_ablation_hooks(get_ablation_hooks)
+# %%
