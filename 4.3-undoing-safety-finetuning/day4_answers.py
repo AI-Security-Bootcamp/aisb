@@ -300,9 +300,95 @@ def get_ablation_hooks(direction: Tensor) -> list:
     def hook(module, args):
         return (oproj(args[0], direction),)
 
-    return  [(model.model.layers[layer], oproj) for layer in range(len(model.model.layers))]
+    return  [(model.model.layers[layer], hook) for layer in range(len(model.model.layers))]
 from section3_test import test_get_ablation_hooks
 
 
 test_get_ablation_hooks(get_ablation_hooks)
 # %%
+
+from tqdm import tqdm
+from transformers import StoppingCriteria
+
+class GenerationProgressBar(StoppingCriteria):
+    def __init__(self, max_new_tokens: int, desc: str = "generating"):
+        self.bar = tqdm(total=max_new_tokens, desc=desc, leave=False)
+
+    def __call__(self, input_ids, scores, **kwargs) -> bool:
+        self.bar.update(1)
+        if self.bar.n >= self.bar.total:
+            self.bar.close()
+        return False
+
+@torch.no_grad()
+def generate(instructions, pre_hooks=(), max_new_tokens=256):
+    """Greedy-generate a completion for each instruction, with optional hooks applied."""
+    enc = format_instructions(instructions).to(DEVICE)
+    with use_hooks(pre_hooks):
+        out = model.generate(
+            input_ids=enc.input_ids,
+            attention_mask=enc.attention_mask,
+            max_new_tokens=max_new_tokens,
+            do_sample=False,
+            pad_token_id=tokenizer.pad_token_id,
+            stopping_criteria=StoppingCriteriaList([GenerationProgressBar(max_new_tokens)]),
+        )
+    out = out[:, enc.input_ids.shape[1] :]
+    return [
+        text.strip()
+        for text in tokenizer.batch_decode(out, skip_special_tokens=True)
+    ]
+
+
+print("\n=== Harmful prompts: baseline vs. ablation ===")
+harmful_prompt = HARMFUL_INSTRUCTIONS[1] #tax fraud
+pre_hooks = get_ablation_hooks(refusal_dir)
+
+print(f"=== Prompt ===\n{harmful_prompt}")
+print(f"=== BASELINE ===\n{generate(harmful_prompt)[0]}")
+print(f"=== ABLATION ===\n{generate(harmful_prompt, pre_hooks=pre_hooks)[0]}")
+# %%
+def get_steering_hook(
+    direction: Tensor, coeff: float = 1.0, layer: int = LAYER
+) -> list:
+    """A forward pre-hook that adds `coeff * direction` to the residual at `layer`."""
+    # TODO: return [(model.model.layers[layer], hook)] where hook adds coeff*direction to the residual stream.
+    def hook(module, args):
+        new_activation = args[0] + coeff * direction
+        return (new_activation,)
+    return [(model.model.layers[layer], hook)]
+from section3_test import test_get_steering_hook
+
+
+test_get_steering_hook(get_steering_hook)
+# %%
+
+print("\n=== Harmless prompts: baseline vs. steering (add refusal direction) ===")
+harmless_prompts = HARMLESS_INSTRUCTIONS[:1]  # a list (chocolate cake); generate expects a list
+pre_hooks = get_steering_hook(refusal_dir, coeff=1.0)
+
+print(f"=== Prompt ===\n{harmless_prompts[0]}")
+print(f"=== BASELINE ===\n{generate(harmless_prompts)[0]}")
+print(f"=== STEERING ===\n{generate(harmless_prompts, pre_hooks)[0]}")
+# %%
+
+
+def abliterate_model(model, direction: Tensor) -> None:
+    """Permanently remove `direction` from all residual-stream write matrices, in place."""
+    # TODO: orthogonalize embed_tokens.weight, and each layer's o_proj.weight.T and
+    # down_proj.weight.T (transpose so the last dim is D_MODEL, then transpose back).
+    pass
+from section3_test import test_abliterate_model
+
+
+test_abliterate_model(abliterate_model)
+
+# %%
+
+
+# Abliterate `model` in place; this permanently removes refusal from the weights. Section 6
+# compares it against the original, which it reloads fresh from HuggingFace (so we keep no copy here).
+abliterate_model(model, refusal_dir)
+print("\n=== After baking (NO hooks): the weights themselves are changed ===")
+print(f"{harmful_prompt}\n==========================")
+print(generate(harmful_prompt)[0])
