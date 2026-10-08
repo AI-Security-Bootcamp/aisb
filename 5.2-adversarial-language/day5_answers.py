@@ -293,7 +293,23 @@ def loss(model: AutoModelForCausalLM, manager: SuffixManager, suffix_ids: torch.
     """
     # TODO: Rewrite your Exercise 5.2.3 loss with the SuffixManager.
     # Tip: Start from your 5.2.3 code and replace each hand-computed index with the manager.
-    pass
+    #ids = torch.cat([input_ids, target_ids], dim=0)
+    #one_hot_input = ids_to_onehot(model, ids)
+    #embedding_mat = model.get_input_embeddings().weight
+    #inputs_embeds = one_hot_input @ embedding_mat
+    #model_output = model(inputs_embeds=inputs_embeds)
+    #n = len(input_ids)
+    #logits = model_output.logits[:, n - 1 : -1, :]
+    #loss_value = F.cross_entropy(logits.reshape(-1, logits.shape[-1]), target_ids.reshape(-1), reduction="mean")
+    #return loss_value
+    ids = manager.get_input_ids(suffix_ids)
+    one_hot_input = ids_to_onehot(model, ids)
+    embedding_mat = model.get_input_embeddings().weight
+    inputs_embeds = one_hot_input @ embedding_mat
+    model_output = model(inputs_embeds=inputs_embeds)
+    logits = model_output.logits[:, manager.loss_slice, :]
+    loss_value = F.cross_entropy(logits.reshape(-1, logits.shape[-1]), manager.target_ids.reshape(-1), reduction="mean")
+    return loss_value
 
 
 # The loss of the unoptimized "! ! ! ..." suffix. This is the number GCG will push down.
@@ -303,3 +319,266 @@ from section2_test import test_loss_with_suffix_manager
 
 
 test_loss_with_suffix_manager(loss, chat_model, suffix_manager, initial_suffix_ids)
+# %%
+def compute_suffix_token_gradients(
+    model: AutoModelForCausalLM,
+    manager: SuffixManager,
+    suffix_ids: torch.Tensor,
+) -> torch.Tensor:
+    """
+    Compute d(loss) / d(one_hot_suffix) for each suffix position.
+
+    Returns:
+        A Tensor of gradients for eacho token position with shape [suffix_length, vocab_size].
+    """
+    embedding_matrix = model.get_input_embeddings().weight
+    input_ids = manager.get_input_ids(suffix_ids)
+
+    # Only the suffix is a variable: its one-hot tensor is the leaf we differentiate with respect to.
+    one_hot_suffix = ids_to_onehot(model, suffix_ids).requires_grad_(True)
+
+    # (Optional) Save VRAM by detaching the rest of the token embeddings from the gradient DAG
+    embeds = embedding_matrix[input_ids].detach().unsqueeze(0)
+
+    # use token id index lookups for before
+    before_suffix_embeds =  embeds[:, : manager.suffix_slice.start]
+
+    # Use `@` matmul to connect the one-hot to the gradient flow
+    suffix_embeds = one_hot_suffix @ embedding_matrix
+
+    # ... token id lookups after
+    after_suffix_embeds = embeds[:, manager.suffix_slice.stop :]
+
+    full_embeds = torch.cat(
+        [
+            before_suffix_embeds,
+            suffix_embeds,
+            after_suffix_embeds
+        ],
+        dim=1, # join on the sequence dim
+    )
+
+    model.zero_grad(set_to_none=True)
+    logits = model(inputs_embeds=full_embeds).logits
+    loss = F.cross_entropy(logits[0, manager.loss_slice], input_ids[manager.target_slice])
+    loss.backward()
+
+    # Drop the batch dimension: [1, suffix_length, vocab_size] -> [suffix_length, vocab_size].
+    return one_hot_suffix.grad[0].detach()
+
+
+def top_replacements_from_gradients(
+    gradients: torch.Tensor,
+    k: int,
+    forbidden_token_ids: Optional[List[int]] = None,
+) -> torch.Tensor:
+    """
+    For each suffix position, return the token IDs with the smallest gradient values.
+    """
+    candidate_scores = gradients.clone()
+    
+    if forbidden_token_ids:
+        candidate_scores[:, forbidden_token_ids] = float("inf")
+
+    return torch.topk(-candidate_scores, k=k, dim=-1).indices
+    
+
+
+gradients = compute_suffix_token_gradients(chat_model, suffix_manager, initial_suffix_ids)
+top_token_ids = top_replacements_from_gradients(
+    gradients,
+    k=5,
+    forbidden_token_ids=tokenizer.all_special_ids,
+)
+
+print("Top replacement candidates for suffix position 0:")
+for token_id in top_token_ids[0]:
+    decoded = tokenizer.decode([token_id.item()])
+    print(f"  {token_id.item():>6}: {decoded!r}")
+from section2_test import test_compute_suffix_token_gradients
+from section2_test import test_top_replacements_from_gradients
+
+
+test_compute_suffix_token_gradients(
+    compute_suffix_token_gradients, chat_model, suffix_manager, initial_suffix_ids
+)
+test_top_replacements_from_gradients(
+    top_replacements_from_gradients, gradients, tokenizer, initial_suffix_ids
+)
+# %%
+
+
+def evaluate_candidates_exactly(
+    model: AutoModelForCausalLM,
+    manager: SuffixManager,
+    suffix_ids: torch.Tensor,
+    candidate_token_ids: torch.Tensor,
+    position: int,
+) -> torch.Tensor:
+    """
+    Compute the true target loss for each candidate replacement at one suffix position.
+
+    Args:
+        candidate_token_ids: Token IDs proposed for `position`, in gradient-rank order (shape [k]).
+        position: Which suffix position to edit.
+
+    Returns:
+        Tensor of shape [k] with the exact loss of each candidate, aligned with candidate_token_ids.
+    """
+    # TODO: Exactly evaluate each proposed single-token replacement.
+    losses = []
+    for token_id in candidate_token_ids:
+        candidate_suffix = suffix_ids.clone()
+        candidate_suffix[position] = token_id
+
+        with torch.no_grad():
+            candidate_loss = loss(model, manager, candidate_suffix)
+        losses.append(candidate_loss.item())
+
+    return torch.tensor(losses)
+
+
+inspect_position = 0
+grad_ranked_candidates = top_replacements_from_gradients(
+    gradients,
+    k=8,
+    forbidden_token_ids=tokenizer.all_special_ids,
+)[inspect_position]
+
+exact_losses = evaluate_candidates_exactly(
+    chat_model,
+    suffix_manager,
+    initial_suffix_ids,
+    grad_ranked_candidates,
+    inspect_position,
+)
+
+# Rank of each candidate when sorted by exact loss (0 = truly best).
+loss_ranks = exact_losses.argsort().argsort()
+
+print(f"Candidates for suffix position {inspect_position}:")
+print(f"{'grad rank':>9} | {'token':<18} | {'exact loss':>10} | {'loss rank':>9}")
+for grad_rank, (token_id, loss_value) in enumerate(zip(grad_ranked_candidates.tolist(), exact_losses.tolist())):
+    token_repr = repr(tokenizer.decode([token_id]))
+    print(f"{grad_rank:>9} | {token_repr:<18} | {loss_value:>10.4f} | {loss_ranks[grad_rank].item():>9}")
+
+best_grad_rank = exact_losses.argmin().item()
+print(f"\nBest candidate by exact loss sits at gradient rank {best_grad_rank}.")
+if best_grad_rank != 0:
+    print("The first-order prediction picked the wrong winner - this is why GCG re-evaluates exactly.")
+from section2_test import test_evaluate_candidates_exactly
+
+
+test_evaluate_candidates_exactly(
+    evaluate_candidates_exactly,
+    loss,
+    chat_model,
+    suffix_manager,
+    initial_suffix_ids,
+    grad_ranked_candidates,
+)
+
+# %%
+
+
+def run_greedy_search(
+    model: AutoModelForCausalLM,
+    tokenizer: AutoTokenizer,
+    manager: SuffixManager,
+    steps: int = 8,
+    k: int = 8,
+) -> Tuple[torch.Tensor, List[float]]:
+    """
+    Run a simple GCG search over a suffix of `manager.suffix_length` tokens.
+
+    Returns:
+        best_suffix_ids: Optimized suffix token IDs
+        loss_history: Loss after each accepted update (including the initial loss)
+    """
+    # Start from the paper's "! ! ! ..." suffix and record its loss.
+    current_suffix = make_initial_suffix(
+        tokenizer, suffix_length=manager.suffix_length, device=manager.before_ids.device
+    )
+    loss_history = [loss(model, manager, current_suffix).item()]
+
+    for step_idx in range(steps):
+        # The best single-token replacement found in this step. Until one beats the current loss, it is the
+        # current suffix itself.
+        best_suffix = current_suffix.clone()
+        best_loss = loss_history[-1]
+        # Propose: compute token gradients for the current suffix and extract top-k candidates
+        suffix_grads = compute_suffix_token_gradients(model, manager, current_suffix)
+        top_candidates = top_replacements_from_gradients(
+            suffix_grads,
+            k=k,
+            forbidden_token_ids=tokenizer.all_special_ids,
+        )
+
+        # Evaluate: find the single-token replacement that minimizes exact loss
+        for pos, candidates in enumerate(top_candidates):
+            candidate_losses = evaluate_candidates_exactly(
+                model, manager, current_suffix, candidates, pos
+            )
+            min_loss, min_idx = torch.min(candidate_losses, dim=0)
+            if min_loss.item() < best_loss:
+                best_loss = min_loss.item()
+                best_suffix = current_suffix.clone()
+                best_suffix[pos] = candidates[min_idx]
+
+        # Commit: stop when no replacement lowers the loss, otherwise keep the best one.
+        if torch.equal(best_suffix, current_suffix):
+            print(f"Step {step_idx}: no improving single-token replacement found")
+            break
+
+        current_suffix = best_suffix
+        loss_history.append(best_loss)
+        print(
+            f"Step {step_idx}: loss={best_loss:.4f}, "
+            f"suffix={tokenizer.decode(current_suffix.tolist())!r}"
+        )
+
+    return current_suffix, loss_history
+
+
+def generate_with_suffix(
+    model: AutoModelForCausalLM,
+    tokenizer: AutoTokenizer,
+    manager: SuffixManager,
+    suffix_ids: torch.Tensor,
+    max_new_tokens: int = 120,
+) -> str:
+    """Generate text from the prompt plus the optimized suffix."""
+    # Everything before the target is the prompt the model actually receives.
+    prompt_ids = manager.get_input_ids(suffix_ids)[: manager.target_slice.start].unsqueeze(0)
+    output_ids = model.generate(
+        input_ids=prompt_ids,
+        max_new_tokens=max_new_tokens,
+        do_sample=False,
+        pad_token_id=tokenizer.eos_token_id,
+    )
+    return tokenizer.decode(output_ids[0], skip_special_tokens=True)
+
+
+# The slices depend on the suffix length, so a longer suffix gets its own manager.
+search_manager = SuffixManager(tokenizer, user_message, target_text, suffix_length=10, device=device)
+optimized_suffix_ids, loss_history = run_greedy_search(
+    chat_model,
+    tokenizer,
+    search_manager,
+    steps=25,
+    k=8,
+)
+
+optimized_suffix = tokenizer.decode(optimized_suffix_ids.tolist())
+optimized_generation = generate_with_suffix(chat_model, tokenizer, search_manager, optimized_suffix_ids)
+
+print(f"Initial loss: {loss_history[0]:.4f}")
+print(f"Final loss:   {loss_history[-1]:.4f}")
+print(f"Optimized suffix: {optimized_suffix!r}")
+print("\nModel output with optimized suffix:")
+print(optimized_generation)
+from section2_test import test_run_greedy_search
+
+
+test_run_greedy_search(run_greedy_search, chat_model, tokenizer, search_manager)
+# %%
