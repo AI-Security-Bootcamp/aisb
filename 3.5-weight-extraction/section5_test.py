@@ -5,10 +5,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import sys
 from pathlib import Path
+from typing import Callable
 from aisb_utils import report
-import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from tqdm import tqdm
 
@@ -45,7 +46,7 @@ if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
 
-# Shared attack parameters, used by Exercises 3.5.1 and 3.5.2.
+# Shared attack parameters, used by Exercises 3.5.2 and 3.5.3.
 N_QUERIES = 1000
 
 MAX_PROMPT_LENGTH = 10
@@ -61,7 +62,19 @@ true_weights = model.lm_head.weight.detach().cpu().numpy()
 
 
 
-# requires: GPU (checks the attack run above, which needs the GPU).
+@report
+def test_estimate_rank(solution: Callable[[np.ndarray], tuple[int, np.ndarray]]):
+    rng = np.random.default_rng(0)
+    for d in (3, 12, 40):
+        C = rng.standard_normal((300, d)) @ rng.standard_normal((d, 300))
+        rank, s = solution(C)
+        assert rank == d, f"Expected rank {d}, got {rank}"
+        assert len(s) == 300, f"Expected 300 singular values, got {len(s)}"
+    print("  All tests passed!")
+
+
+
+
 @report
 def test_detect_hidden_dim(h: int):
     # Checks the dimension detected above rather than re-running the attack:
@@ -75,7 +88,6 @@ def test_detect_hidden_dim(h: int):
 
 
 
-# requires: GPU (checks the attack run above, which needs the GPU).
 @report
 def test_compare_weights(W_hat: np.ndarray, compare_fn):
     # Reuses the weights extracted above instead of running the attack a second

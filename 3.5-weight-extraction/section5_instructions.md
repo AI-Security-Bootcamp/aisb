@@ -8,8 +8,9 @@ an unknown linear transform.
 ## Table of Contents
 
 - [Model weight extraction via SVD](#model-weight-extraction-via-svd)
-    - [Exercise 3.5.1 - Complete Model Dimension Extraction](#exercise-351---complete-model-dimension-extraction)
-    - [Exercise 3.5.2 - Extracting Model Weights](#exercise-352---extracting-model-weights)
+    - [Exercise 3.5.1: Find the hidden dimension of a toy black box](#exercise-351-find-the-hidden-dimension-of-a-toy-black-box)
+    - [Exercise 3.5.2: Complete Model Dimension Extraction](#exercise-352-complete-model-dimension-extraction)
+    - [Exercise 3.5.3: Extracting Model Weights](#exercise-353-extracting-model-weights)
     - [Extensions to try](#extensions-to-try)
 - [Summary & Further Reading](#summary--further-reading)
     - [Further reading](#further-reading)
@@ -20,6 +21,7 @@ Recover a model's hidden dimension and last projection layer from API
 access alone using the logits-matrix SVD attack.
 
 > **Learning Objectives**
+> - Find the rank of a low-rank matrix product from its singular values
 > - Build a logit query matrix and estimate its numerical rank
 > - Explain why low-rank logits reveal the model's hidden dimension
 > - Extract the output projection up to an unknown linear transform
@@ -36,13 +38,87 @@ _root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").i
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
+from typing import Callable
+
 from aisb_utils import report
+
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
 ```
+
+### Exercise 3.5.1: Find the hidden dimension of a toy black box
+
+> **Difficulty**: 1/5
+> **Importance**: 3/5
+>
+> You should spend up to ~10 minutes on this exercise.
+
+In this exercise, we're going to use SVD to find how much information is
+really in a matrix, even when it's spread over far more rows and columns than
+it needs.
+
+Starting with a matrix `A` of shape `(1000, d)` and multiplying it by `B`
+`(d, 1000)` produces `C` `(1000, 1000)`, which hides the intermediate
+dimension `d`. If `d < 1000` then there are only `d` dimensions of
+information embedded in `C`. These can be extracted using SVD, since there can
+only be `d` singular directions in `C`.
+
+`np.linalg.svd` returns the singular values, largest first. The first `d` are
+real. The rest are zero, or float noise around 1e-13. Count the real ones and
+you have `d`.
+
+`blackbox` does the multiply with a `d` you can't see. Query it, run SVD, read
+off `d`.
+
+
+```python
+
+
+def blackbox(d: int, size: int = 1000) -> np.ndarray:
+    """Return the (size, size) product of random (size, d) and (d, size) matrices."""
+    A = np.random.randn(size, d)
+    B = np.random.randn(d, size)
+    return A @ B
+
+
+def estimate_rank(C: np.ndarray) -> tuple[int, np.ndarray]:
+    """Return (rank, singular_values) of C.
+
+    Singular values below 1e-10 times the largest are float noise and don't count.
+    """
+    # TODO
+    # Hint: np.linalg.svd(C, compute_uv=False) returns the singular values,
+    # largest first.
+    return 0, np.zeros(1)
+
+
+hidden_d = np.random.randint(5, 21)
+C = blackbox(hidden_d)
+rank, s = estimate_rank(C)
+print(f"estimated rank: {rank}")
+print(f"hidden d:       {hidden_d}")
+
+# The cliff should sit on the dotted line.
+plt.semilogy(s[:40], "o-")
+plt.axvline(hidden_d - 0.5, color="red", linestyle=":", label="true d")
+plt.xlabel("Singular value index")
+plt.ylabel("Singular value (log scale)")
+plt.legend()
+plt.show()
+from section5_test import test_estimate_rank
+
+
+test_estimate_rank(estimate_rank)
+```
+
+A language model's last layer is this multiply: hidden state `(1, d)` times
+weights `(d, vocab_size)` gives the logits. The same trick finds `d`.
 
 Let's implement the model extraction attack from
 [Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
 
-### Exercise 3.5.1 - Complete Model Dimension Extraction
+### Exercise 3.5.2: Complete Model Dimension Extraction
 
 > **Difficulty**: 3/5
 > **Importance**: 4/5
@@ -64,8 +140,6 @@ Complete the implementation of model dimension extraction using SVD.
 
 # %%
 import torch
-import numpy as np
-import matplotlib.pyplot as plt
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from tqdm import tqdm
 model_name = "openai-community/gpt2"
@@ -93,7 +167,7 @@ def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-# Shared attack parameters, used by Exercises 3.5.1 and 3.5.2.
+# Shared attack parameters, used by Exercises 3.5.2 and 3.5.3.
 N_QUERIES = 1000
 MAX_PROMPT_LENGTH = 10
 VOCAB_SIZE = tokenizer.vocab_size
@@ -134,14 +208,14 @@ from section5_test import test_detect_hidden_dim
 test_detect_hidden_dim(detected_h)
 ```
 
-### Exercise 3.5.2 - Extracting Model Weights
+### Exercise 3.5.3: Extracting Model Weights
 
 > **Difficulty**: 5/5
 > **Importance**: 2/5
 >
 > You should spend up to ~60 minutes on this exercise.
 
-Now use the hidden dimension `h` from exercise 3.5.1 to recover the model's output
+Now use the hidden dimension `h` from exercise 3.5.2 to recover the model's output
 projection matrix, `lm_head.weight`, from black-box logit queries alone.
 
 **Why SVD gives us the weights.** Every logit vector the model returns is computed as:
