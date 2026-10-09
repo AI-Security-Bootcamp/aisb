@@ -28,6 +28,9 @@ def test_current_amps(solution):
     result = solution(np.array([4000], dtype=np.int16), meta)
     assert np.allclose(result, [2.5]), f"Use the saved voltage range; got {result}"
     assert solution(np.array([], dtype=np.int16), meta).size == 0
+    meta.update(range_v=2, sensitivity_mV_per_A=100)
+    result = solution(np.array([-4000, 0, 4000], dtype=np.int16), meta)
+    assert np.allclose(result, [-2.5, 0, 2.5]), "Use the RCP60XS gain from metadata; do not hard-code 50 mV/A"
     print("  Signed values, scaling, and empty input passed.")
 
 

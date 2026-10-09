@@ -202,7 +202,8 @@ and regulator response also shape what reaches the probe.
 
 ### From current to voltage
 
-The system we are using today uses a **RCP120XS Rogowski probe**. It is comprised
+The first machine uses an **RCP120XS Rogowski probe**; the second uses an
+**RCP60XS**. Each is comprised
 of a flexible coil closed around a conductor.
 Changing current creates a changing magnetic field, inducing a voltage in the
 coil. This initially measures *how quickly* the current changes. An electronic
@@ -248,10 +249,13 @@ a clean API to be able to access the readings. The outputs will be in `scope.npy
 
 Once we have the ADC counts (which correspond to the voltage at the oscilloscope’s input),
 we can convert them back to volts using the saved voltage range and ADC scale.
-Dividing by the probe’s sensitivity of 0.05V/A gives the AC component of the current, in amperes.
+Dividing by the installed probe’s sensitivity gives the AC component of the current, in amperes.
 To plot current, we reverse two conversions: ADC counts to probe voltage,
-then probe voltage to current. The probe's sensitivity is **50 mV/A = 0.05 V/A**,
-so a 0.25 V output represents 5 A within its usable frequency range:
+then probe voltage to current. The RCP120XS sensitivity is **50 mV/A = 0.05 V/A**;
+the RCP60XS on `amodo-gigabyte-5` uses **100 mV/A = 0.1 V/A**. The capture helper
+reads `/etc/aisb/probe.json` and saves the actual host's gain in each recording.
+A 0.25 V output represents 5 A for the RCP120XS or 2.5 A for the RCP60XS,
+within the respective probe's usable frequency range:
 
 ```text
 probe_voltage_V = counts × range_v / adc_max
@@ -260,8 +264,8 @@ time_s         = sample_index × interval_s
 ```
 
 For example, at ±10 V with `adc_max = 32767`, about 819 counts means 0.25 V,
-then about 5 A. Your conversion will use the saved settings so it also works
-when the range changes.
+then about 5 A on the first machine or 2.5 A on the second. Your conversion uses
+the saved settings so it works when either the range or the probe changes.
 
 Several settings determine what detail survives this measurement:
 
@@ -269,7 +273,7 @@ Several settings determine what detail survives this measurement:
 | --- | --- | --- |
 | Voltage range and resolution | ±10 V; 16-bit ADC | Outside the range, peaks clip. A wider range spreads the same ADC levels over more volts. Bit count alone does not specify noise or accuracy. |
 | Sample interval | 0.4 ns, or 2.5 billion samples/s | More frequent digitization does not undo filtering before the ADC. |
-| Analog bandwidth | Probe: 34 Hz–30 MHz | The sensor attenuates sufficiently slow and fast variations; bandwidth is different from sample rate. Check the RCP120XS row in the [Micsig specifications](https://www.micsig.com/RCPxilie/25.html), which also gives its 120 A peak rating. |
+| Analog bandwidth | RCP120XS: 34 Hz–30 MHz | The sensor attenuates sufficiently slow and fast variations; bandwidth is different from sample rate. Check the installed model/revision in the [Micsig specifications](https://www.micsig.com/RCPxilie/25.html); the RCP60XS has a different low-frequency response and peak-current rating. |
 | Input impedance and coupling | 1 MΩ; DC coupling | The 1 MΩ input loads the **probe output**, not the GPU feed. DC coupling preserves the incoming voltage's DC component; it cannot recover what the probe rejected. |
 | Record length | Duration / sample interval | A 2 ms recording contains 5 million samples (10 MB as int16); 420 ms uses 2.1 GB. |
 
@@ -314,6 +318,9 @@ def test_current_amps(solution):
     result = solution(np.array([4000], dtype=np.int16), meta)
     assert np.allclose(result, [2.5]), f"Use the saved voltage range; got {result}"
     assert solution(np.array([], dtype=np.int16), meta).size == 0
+    meta.update(range_v=2, sensitivity_mV_per_A=100)
+    result = solution(np.array([-4000, 0, 4000], dtype=np.int16), meta)
+    assert np.allclose(result, [-2.5, 0, 2.5]), "Use the RCP60XS gain from metadata; do not hard-code 50 mV/A"
     print("  Signed values, scaling, and empty input passed.")
 
 

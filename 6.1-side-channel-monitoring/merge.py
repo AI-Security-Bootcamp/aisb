@@ -13,6 +13,7 @@ The RCP120XS records nominal AC current, not total GPU DC power.
 import gzip
 import json
 import math
+import os
 from pathlib import Path
 
 import numpy as np
@@ -23,6 +24,11 @@ CALIBRATION = {
     "offset_us": 109.812, "uncertainty_us": 100,
     "interval_ns": 0.4, "duration_s": 0.42, "serial": "12669/0029",
 }
+# Provisioned hosts explicitly declare their own timing provenance. In particular,
+# a new scope must not inherit the old scope's serial-specific timing estimate.
+_settings = Path(os.environ.get("AISB_PROBE_CONFIG", "/etc/aisb/probe.json"))
+if _settings.exists():
+    CALIBRATION = json.loads(_settings.read_text()).get("timing_calibration")
 
 
 def gpu_layers(events):

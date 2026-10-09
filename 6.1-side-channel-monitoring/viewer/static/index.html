@@ -14,6 +14,11 @@
     ></label>
   </div>
   <div class="facts" id="facts"></div>
+  <div id="import-controls" hidden>
+    <label>Import recording <input id="import-file" type="file" accept=".zip" /></label>
+    <button id="import-recording">Load bundle</button>
+    <span id="import-status" role="status"></span>
+  </div>
   <p id="capture-description">
     One training cycle: forward, backward, and optimizer. Values are the
     measured AC-current component.
@@ -51,6 +56,7 @@
     signal detail despite the finer sample spacing.</small
   >
   <footer>
+    <a id="download-bundle" hidden>Download complete raw bundle from R2</a>
     <a id="download-raw" href="/data/channel-a-adc.npy" download
       >Download raw ADC samples</a
     >
@@ -58,7 +64,9 @@
     <a href="/api/summary" id="details-link">Capture and calibration details</a>
     · <a href="/data/trace.json.gz" download>Download Perfetto trace</a>
   </footer>
-  <script src="plotly.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+  <script>if (!window.Plotly) document.write('<script src="plotly.min.js"><\/script>');</script>
   <script src="app.js"></script>
+  <script src="import.js"></script>
   <script src="perfetto-launch.js"></script>
 </html>

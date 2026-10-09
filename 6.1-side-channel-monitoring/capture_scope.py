@@ -1,7 +1,8 @@
 """Record PicoScope 5464E channel A to raw int16 .npy plus timing/scale metadata.
 
 Requires numpy and /opt/picoscope/lib/libpsospa.so (the installed PicoSDK driver).
-RCP120XS probe: nominal 50 mV/A, AC only; the measured conductor is unconfirmed.
+Probe scale comes from /etc/aisb/probe.json: RCP120XS 50 mV/A or RCP60XS 100 mV/A.
+Both probes are AC only; the measured conductor is unconfirmed.
 This is current, not total GPU DC power. No raw samples are averaged or discarded.
 Edit the settings below and run `python capture_scope.py` for an idle recording.
 Use `with scope:` around the workload, synchronizing CUDA before leaving the block.
@@ -13,6 +14,7 @@ import ctypes as ct
 import fcntl
 import json
 import math
+import os
 import shutil
 import time
 from pathlib import Path
@@ -24,6 +26,22 @@ DURATION_S = 0.42
 INTERVAL_NS = 0.4
 RANGE_V = 10
 SENSITIVITY_MV_PER_A = 50
+
+
+def probe_settings():
+    """Read the instrument host's gain; never reuse another host's probe scale."""
+    path = Path(os.environ.get("AISB_PROBE_CONFIG", "/etc/aisb/probe.json"))
+    if path.exists():
+        settings = json.loads(path.read_text())
+        source = str(path)
+    else:
+        # Retain the original machine's defaults for standalone use.
+        settings = {"probe": "RCP120XS", "sensitivity_mV_per_A": SENSITIVITY_MV_PER_A}
+        source = "original RCP120XS defaults; verify the installed probe"
+    sensitivity = float(settings["sensitivity_mV_per_A"])
+    if not math.isfinite(sensitivity) or sensitivity <= 0:
+        raise ValueError("Probe sensitivity must be a positive finite mV/A value")
+    return settings["probe"], sensitivity, source
 
 # Native argument types must match PicoSDK, especially 64-bit sample counts/pointers.
 i16, i32, u32, u64, f64, ptr = ct.c_int16, ct.c_int32, ct.c_uint32, ct.c_uint64, ct.c_double, ct.POINTER
@@ -53,9 +71,11 @@ class Scope:
         self.interval_ns = interval_ns
         self.samples = round(duration_s / (interval_ns * 1e-9))
         self.handle = i16()
+        probe, sensitivity, source = probe_settings()
         self.meta = {"status": "failed", "range_v": RANGE_V,
-                     "sensitivity_mV_per_A": SENSITIVITY_MV_PER_A,
-                     "probe": "RCP120XS; AC only; conductor/rail coverage unconfirmed",
+                     "sensitivity_mV_per_A": sensitivity,
+                     "probe": f"{probe}; AC only; conductor/rail coverage unconfirmed",
+                     "probe_settings_source": source,
                      "resolution_bits": 16, "raw_file": "scope.npy"}
 
     def __enter__(self):

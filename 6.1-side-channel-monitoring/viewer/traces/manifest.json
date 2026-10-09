@@ -13,7 +13,18 @@
     "default": false,
     "source": "http://amodo-gigabyte-3.pony-regulus.ts.net:6008/data/trace.json.gz?capture=granite-moe",
     "bytes": 8279072,
-    "sha256": "14eca7040135dcc52e5bd7415c83d1932ff4581b12ef0b3d0521e7d477d4b632"
+    "sha256": "14eca7040135dcc52e5bd7415c83d1932ff4581b12ef0b3d0521e7d477d4b632",
+    "download_url": "https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/trace.json.gz",
+    "metadata_url": "https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/summary.json",
+    "storage_jurisdiction": "us",
+    "raw_bundle": {
+      "url": "https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/granite-moe-raw.aisb.zip",
+      "bytes": 1271767445,
+      "sha256": "2a210755be2ef304a82f9114c523225002c97260cc3f164d3dd3faedd80bad76",
+      "samples": 1050000000,
+      "interval_ns": 0.4,
+      "duration_ms": 420
+    }
   },
   {
     "id": "pilot-layer-labels",
@@ -45,6 +56,17 @@
     "default": true,
     "source": "http://amodo-gigabyte-3.pony-regulus.ts.net:6008/data/trace.json.gz?capture=reference",
     "bytes": 6505629,
-    "sha256": "3c0903eef01f870602683f4507ae9a90a97a917e1521f7c7c661f249a0a94155"
+    "sha256": "3c0903eef01f870602683f4507ae9a90a97a917e1521f7c7c661f249a0a94155",
+    "download_url": "https://traces.aisb.dev/side-channels/2026-10-09/reference/trace.json.gz",
+    "metadata_url": "https://traces.aisb.dev/side-channels/2026-10-09/reference/summary.json",
+    "storage_jurisdiction": "us",
+    "raw_bundle": {
+      "url": "https://traces.aisb.dev/side-channels/2026-10-09/reference/reference-raw.aisb.zip",
+      "bytes": 1260424726,
+      "sha256": "090050cce02e95394f89a92f2d4a541960eea2f0e5cf53537f4b9afc5f24d601",
+      "samples": 1050000000,
+      "interval_ns": 0.4,
+      "duration_ms": 420
+    }
   }
 ]

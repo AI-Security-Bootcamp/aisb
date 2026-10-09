@@ -12,10 +12,21 @@ from urllib.request import Request, urlopen
 
 import numpy as np
 
-from serve import Handler, Waveform
+from serve import Handler, Waveform, load_captures
 
 
 class ViewerTests(unittest.TestCase):
+    def test_external_catalog_keeps_new_recordings_outside_source_checkout(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            trace = root / "traces" / "new-capture"
+            trace.mkdir(parents=True)
+            (trace / "summary.json").write_text(json.dumps({"title": "New instrument", "perfetto": {}}))
+            captures = load_captures(root / "recordings", root / "traces")
+            self.assertEqual(list(captures), ["new-capture"])
+            self.assertEqual(captures["new-capture"]["trace"], trace / "trace.json.gz")
+            self.assertFalse(captures["new-capture"]["summary"]["has_raw"])
+
     def setUp(self):
         self.temporary = TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

@@ -6,6 +6,12 @@ const captureQuery = captureId
   ? "capture=" + encodeURIComponent(captureId)
   : "";
 const captureSuffix = captureQuery ? "?" + captureQuery : "";
+const archivedCapture = captureId || "reference";
+if (["reference", "granite-moe"].includes(archivedCapture)) {
+  const link = document.getElementById("download-bundle");
+  link.href = `https://traces.aisb.dev/side-channels/2026-10-09/${archivedCapture}/${archivedCapture}-raw.aisb.zip`;
+  link.hidden = false;
+}
 document.getElementById("details-link").href += captureSuffix;
 for (const a of document.querySelectorAll('a[href^="/data/"]'))
   a.href += captureSuffix;

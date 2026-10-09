@@ -230,7 +230,8 @@ and regulator response also shape what reaches the probe.
 
 ### From current to voltage
 
-The system we are using today uses a **RCP120XS Rogowski probe**. It is comprised
+The first machine uses an **RCP120XS Rogowski probe**; the second uses an
+**RCP60XS**. Each is comprised
 of a flexible coil closed around a conductor.
 Changing current creates a changing magnetic field, inducing a voltage in the
 coil. This initially measures *how quickly* the current changes. An electronic
@@ -276,10 +277,13 @@ a clean API to be able to access the readings. The outputs will be in `scope.npy
 
 Once we have the ADC counts (which correspond to the voltage at the oscilloscope’s input),
 we can convert them back to volts using the saved voltage range and ADC scale.
-Dividing by the probe’s sensitivity of 0.05V/A gives the AC component of the current, in amperes.
+Dividing by the installed probe’s sensitivity gives the AC component of the current, in amperes.
 To plot current, we reverse two conversions: ADC counts to probe voltage,
-then probe voltage to current. The probe's sensitivity is **50 mV/A = 0.05 V/A**,
-so a 0.25 V output represents 5 A within its usable frequency range:
+then probe voltage to current. The RCP120XS sensitivity is **50 mV/A = 0.05 V/A**;
+the RCP60XS on `amodo-gigabyte-5` uses **100 mV/A = 0.1 V/A**. The capture helper
+reads `/etc/aisb/probe.json` and saves the actual host's gain in each recording.
+A 0.25 V output represents 5 A for the RCP120XS or 2.5 A for the RCP60XS,
+within the respective probe's usable frequency range:
 
 ```text
 probe_voltage_V = counts × range_v / adc_max
@@ -288,8 +292,8 @@ time_s         = sample_index × interval_s
 ```
 
 For example, at ±10 V with `adc_max = 32767`, about 819 counts means 0.25 V,
-then about 5 A. Your conversion will use the saved settings so it also works
-when the range changes.
+then about 5 A on the first machine or 2.5 A on the second. Your conversion uses
+the saved settings so it works when either the range or the probe changes.
 
 Several settings determine what detail survives this measurement:
 
@@ -297,7 +301,7 @@ Several settings determine what detail survives this measurement:
 | --- | --- | --- |
 | Voltage range and resolution | ±10 V; 16-bit ADC | Outside the range, peaks clip. A wider range spreads the same ADC levels over more volts. Bit count alone does not specify noise or accuracy. |
 | Sample interval | 0.4 ns, or 2.5 billion samples/s | More frequent digitization does not undo filtering before the ADC. |
-| Analog bandwidth | Probe: 34 Hz–30 MHz | The sensor attenuates sufficiently slow and fast variations; bandwidth is different from sample rate. Check the RCP120XS row in the [Micsig specifications](https://www.micsig.com/RCPxilie/25.html), which also gives its 120 A peak rating. |
+| Analog bandwidth | RCP120XS: 34 Hz–30 MHz | The sensor attenuates sufficiently slow and fast variations; bandwidth is different from sample rate. Check the installed model/revision in the [Micsig specifications](https://www.micsig.com/RCPxilie/25.html); the RCP60XS has a different low-frequency response and peak-current rating. |
 | Input impedance and coupling | 1 MΩ; DC coupling | The 1 MΩ input loads the **probe output**, not the GPU feed. DC coupling preserves the incoming voltage's DC component; it cannot recover what the probe rejected. |
 | Record length | Duration / sample interval | A 2 ms recording contains 5 million samples (10 MB as int16); 420 ms uses 2.1 GB. |
 
@@ -672,6 +676,17 @@ We now have two accounts of the same step: current samples from the scope and
 execution events from the profiler. The supplied `merge.py` puts them on a
 common timeline so we can compare them directly in Perfetto.
 
+For saved examples, download the [baseline training trace](https://traces.aisb.dev/side-channels/2026-10-09/reference/trace.json.gz)
+or the [small Granite MoE trace](https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/trace.json.gz), then open
+the `.json.gz` file in [Perfetto](https://ui.perfetto.dev/). Both include CPU/CUDA
+execution and 0.1 ms RMS current. The US-hosted downloads need no server login.
+These older exports omit raw samples and the
+min/max envelope; use your own capture for the envelope comparison below.
+See the [download table and metadata](README.md#download-example-traces).
+For the sample-by-sample waveform and min/max envelope, the same table also links
+full raw bundles. [Import one into the local viewer](viewer/README.md#import-a-raw-recording)
+to explore it without reserving the GPU or scope.
+
 The RMS curve makes sustained activity visible, but averages over short
 excursions. To retain those, we also show a **min/max envelope**: the lowest
 and highest current in each short interval.
@@ -682,9 +697,11 @@ and highest current in each short interval.
 | Minimum/maximum envelope | Smallest/largest raw sample in each nonoverlapping 0.1 ms bin, timestamped at its center. |
 | Raw `scope.npy` | Every ADC sample at 0.4 ns. Inspect a short slice in Matplotlib. This track is too big for Perfetto to render. |
 
-The recordings also have different clocks. The merger uses a host timestamp
-and a previously measured offset, with 100 µs timing uncertainty for these
-instrument settings. This limits how precisely we can associate a current
+The recordings also have different clocks. On the original instrument, the merger
+uses a host timestamp and a previously measured offset, with 100 µs timing
+uncertainty for matching settings. The second instrument initially has no transferred
+calibration: its recordings are explicitly marked **uncalibrated**, rather than
+reusing the first scope's offset. This limits how precisely we can associate a current
 feature with a kernel. Shifting the waveform until its peaks match the labels
 would assume the very correspondence we are trying to test.
 

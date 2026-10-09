@@ -53,3 +53,7 @@ small {
 footer {
   margin: 26px 0;
 }
+#download-bundle:not([hidden]) {
+  display: block;
+  margin-bottom: 10px;
+}

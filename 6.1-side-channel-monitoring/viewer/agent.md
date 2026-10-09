@@ -17,7 +17,10 @@ python3 -m venv .venv
 Open **http://127.0.0.1:6008/**. The six archived Perfetto recordings work
 immediately. Raw waveform controls become available for each recording that has
 both `recordings/<id>/channel-a-adc.npy` and `recordings/<id>/summary.json`.
-The downloaded 30–175 ms crop uses ID `reference`.
+The older downloaded 30–175 ms crop uses ID `reference`. Complete raw bundles
+and the **Import recording** control are documented in [README.md](README.md#import-a-raw-recording).
+Imports preserve all samples and persist under `recordings/imports/`. They are
+enabled only for loopback listeners; shared listeners remain read-only.
 
 Use `--recordings /absolute/path/to/recordings` to keep ADC data on another disk.
 The server builds min/max and RMS reductions once at startup, memory-maps the
@@ -41,7 +44,8 @@ There is no need to reboot the acquisition machine or open the oscilloscope.
 The Perfetto button opens `https://ui.perfetto.dev`, downloads the selected gzip
 trace, and hands it to the new tab with a source/origin-checked `postMessage`
 handshake. Allow the popup and accept Perfetto's open-trace prompt if shown.
-Internet access is needed to load Perfetto; Plotly itself is served locally.
+Internet access is needed to load Perfetto. Plotly 3.1.1 loads from its CDN,
+falling back to the vendored file if the CDN is unavailable.
 If the popup is blocked, use the trace download link and open the file manually.
 
 ## Files and conventions
@@ -56,6 +60,10 @@ If the popup is blocked, use the trace download link and open the file manually.
 - `recordings/<id>/`: local raw ADC data and its matching metadata; never stage
   this directory. Cropped data must use cropped metadata, not the full-capture
   summary from `traces/`.
+- `recording_bundle.py`: size-bounded bundle validation and extraction with
+  fixed filenames, SHA-256 checks, and no archive-controlled destination paths.
+- `static/import.js`: uploads a browser File without copying it into a huge
+  JavaScript ArrayBuffer, then selects the newly imported capture.
 
 The server accepts only catalogued capture IDs and explicit static/data paths.
 It supports HEAD and single byte-range downloads, including for large ADC files.
@@ -71,7 +79,7 @@ waveform to make its peaks match execution labels.
 ## Verify a change
 
 ```bash
-.venv/bin/python -m unittest -v test_serve.py
+.venv/bin/python -m unittest discover -p 'test_*.py' -v
 ```
 
 Then open the viewer, inspect the full envelope, zoom until individual raw

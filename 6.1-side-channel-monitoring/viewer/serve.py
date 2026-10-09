@@ -13,9 +13,16 @@ import math
 import mimetypes
 from pathlib import Path
 import re
+import shutil
+import tempfile
+import threading
 from urllib.parse import parse_qs, urlsplit
+import uuid
+import zipfile
 
 import numpy as np
+
+from recording_bundle import MAX_BUNDLE_BYTES, unpack_bundle
 
 ROOT = Path(__file__).resolve().parent
 MAX_POINTS = 20_000
@@ -27,6 +34,7 @@ STATIC_FILES = {
     "app.js",
     "perfetto-launch.js",
     "plotly.min.js",
+    "import.js",
 }
 
 
@@ -142,10 +150,10 @@ class Waveform:
         }
 
 
-def load_captures(recordings):
+def load_captures(recordings, traces=None):
     """Pair committed traces with optional, untracked raw recordings by ID."""
     captures = {}
-    for path in sorted((ROOT / "traces").glob("*/summary.json")):
+    for path in sorted((traces or ROOT / "traces").glob("*/summary.json")):
         name = path.parent.name
         raw_folder = recordings / name
         has_raw = (raw_folder / "channel-a-adc.npy").is_file()
@@ -171,9 +179,65 @@ def load_captures(recordings):
 
 
 class Handler(BaseHTTPRequestHandler):
-    def __init__(self, *args, captures, **kwargs):
+    import_lock = threading.Lock()
+
+    def __init__(self, *args, captures, imports=None, **kwargs):
         self.captures = captures
+        self.imports = imports
         super().__init__(*args, **kwargs)
+
+    def do_POST(self):
+        if self.path != "/api/import" or self.imports is None:
+            self.send_error(HTTPStatus.NOT_FOUND)
+            return
+        # A custom header blocks cross-origin HTML form submissions; this server
+        # grants no CORS preflight permission to arbitrary websites.
+        if self.headers.get("X-AISB-Import") != "1":
+            self.send_error(HTTPStatus.FORBIDDEN, "Use the viewer's Import recording control")
+            return
+        try:
+            size = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            size = 0
+        if not 0 < size <= MAX_BUNDLE_BYTES or self.headers.get("Transfer-Encoding"):
+            self.send_error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Select one bundle smaller than 3 GiB")
+            return
+        if not self.import_lock.acquire(blocking=False):
+            self.send_error(HTTPStatus.CONFLICT, "Another recording is being imported")
+            return
+        try:
+            self.imports.mkdir(parents=True, exist_ok=True)
+            if shutil.disk_usage(self.imports).free < size + 256 * 1024**2:
+                raise ValueError("Not enough free disk space for this upload")
+            self.connection.settimeout(120)
+            with tempfile.TemporaryDirectory(prefix=".upload-", dir=self.imports) as tmp:
+                folder = Path(tmp)
+                archive = folder / "upload.zip"
+                with archive.open("wb") as target:
+                    remaining = size
+                    while remaining:
+                        block = self.rfile.read(min(4 * 1024**2, remaining))
+                        if not block:
+                            raise ValueError("Upload ended before the complete file arrived")
+                        target.write(block)
+                        remaining -= len(block)
+                identity, summary = unpack_bundle(archive, folder / "capture")
+                # NumPy forbids pickle and verifies dtype, dimensions and count.
+                waveform = Waveform(folder / "capture", summary)
+                identity += "-" + uuid.uuid4().hex[:12]
+                installed = self.imports / identity
+                (folder / "capture").rename(installed)
+                summary["has_raw"] = True
+                self.captures[identity] = {
+                    "summary": summary, "waveform": waveform,
+                    "raw": installed / "channel-a-adc.npy",
+                    "trace": installed / "trace.json.gz",
+                }
+                self._json({"id": identity, "title": summary["title"]})
+        except (ValueError, KeyError, TypeError, OSError, zipfile.BadZipFile) as error:
+            self._json({"error": str(error)}, status=HTTPStatus.BAD_REQUEST)
+        finally:
+            self.import_lock.release()
 
     def do_GET(self):
         self._route()
@@ -185,10 +249,13 @@ class Handler(BaseHTTPRequestHandler):
         url = urlsplit(self.path)
         query = parse_qs(url.query)
         default = (
-            "reference" if "reference" in self.captures else next(iter(self.captures))
+            "reference" if "reference" in self.captures else next(iter(self.captures), "")
         )
         name = query.get("capture", [default])[0]
         try:
+            if url.path == "/api/capabilities":
+                self._json({"import_recording": self.imports is not None})
+                return
             if url.path == "/api/catalog":
                 self._json(
                     [
@@ -197,7 +264,7 @@ class Handler(BaseHTTPRequestHandler):
                             "title": item["summary"]["title"],
                             "default": key == default,
                         }
-                        for key, item in self.captures.items()
+                        for key, item in list(self.captures.items())
                     ]
                 )
                 return
@@ -233,9 +300,9 @@ class Handler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass  # Zooming cancels the previous fetch; this is normal.
 
-    def _json(self, data):
+    def _json(self, data, status=HTTPStatus.OK):
         payload = json.dumps(data, allow_nan=False).encode()
-        self.send_response(HTTPStatus.OK)
+        self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
@@ -300,10 +367,17 @@ def main():
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=6008)
     parser.add_argument("--recordings", type=Path, default=ROOT / "recordings")
+    parser.add_argument("--traces", type=Path, default=ROOT / "traces", help="Prepared trace catalog, separate from the source checkout")
+    parser.add_argument("--imports", type=Path, default=ROOT / "recordings" / "imports", help="Imported bundles, outside the committed catalog")
     args = parser.parse_args()
-    captures = load_captures(args.recordings)
+    captures = load_captures(args.recordings, args.traces)
+    # The public/shared viewer remains read-only. Run on loopback to import
+    # personal recordings, including through an authenticated SSH port forward.
+    imports = args.imports if args.host in ("127.0.0.1", "localhost") else None
+    if imports and any(imports.glob("*/summary.json")):
+        captures.update(load_captures(imports, imports))
     server = ThreadingHTTPServer(
-        (args.host, args.port), partial(Handler, captures=captures)
+        (args.host, args.port), partial(Handler, captures=captures, imports=imports)
     )
     print(f"Viewer: http://{args.host}:{args.port}/", flush=True)
     try:
