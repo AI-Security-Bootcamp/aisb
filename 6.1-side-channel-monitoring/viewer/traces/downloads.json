@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "published_date": "2026-10-09",
+  "storage_jurisdiction": "us",
+  "recordings": [
+    {
+      "id": "reference",
+      "title": "Baseline training cycle",
+      "url": "https://traces.aisb.dev/side-channels/2026-10-09/reference/trace.json.gz",
+      "bytes": 6505629,
+      "sha256": "3c0903eef01f870602683f4507ae9a90a97a917e1521f7c7c661f249a0a94155",
+      "metadata_url": "https://traces.aisb.dev/side-channels/2026-10-09/reference/summary.json",
+      "metadata_sha256": "805e52c7f57e607591e9d512fb1fbc24c65fe04458fe8b922dd7b59fcc9e075b",
+      "contains": [
+        "CPU and CUDA execution",
+        "0.1 ms AC-current RMS"
+      ],
+      "raw_adc_included": false,
+      "min_max_envelope_included": false
+    },
+    {
+      "id": "granite-moe",
+      "title": "Granite MoE training cycle",
+      "url": "https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/trace.json.gz",
+      "bytes": 8279072,
+      "sha256": "14eca7040135dcc52e5bd7415c83d1932ff4581b12ef0b3d0521e7d477d4b632",
+      "metadata_url": "https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/summary.json",
+      "metadata_sha256": "ee999a1dba1e088d3ddf2b9acd824a5dad080744bc2d819992bef33a1ab58bad",
+      "contains": [
+        "CPU and CUDA execution",
+        "0.1 ms AC-current RMS"
+      ],
+      "raw_adc_included": false,
+      "min_max_envelope_included": false,
+      "model": "ibm-granite/granite-3.1-1b-a400m"
+    }
+  ]
+}
