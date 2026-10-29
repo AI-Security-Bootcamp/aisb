@@ -75,7 +75,7 @@ replace the earlier capture/plotting block with the new one, keeping the helper
 functions and model setup it uses. This keeps each short job focused on one
 experiment. You can inspect its saved plots and traces between submissions.
 
-Use the prepared environment from the [README](README.md#files-and-environment).
+Use the prepared environment from the [README](README.md#connecting-to-the-gpu-servers).
 No model download is needed. Each run creates a fresh output directory and
 prints its path to the job log.
 

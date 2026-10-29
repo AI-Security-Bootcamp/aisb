@@ -33,7 +33,7 @@ Implement the core protocol primitives: trusted monitoring, defer-to-trusted, an
 
 This section runs on the Day 2 VM with the same `.venv-day2` interpreter as
 [2.2](../2.2-monitoring/section2_instructions.md). See the
-[Day 0 setup guide](../day0-setup/README.md#connecting-to-your-day-2-machine) if you are
+[Day 0 setup guide](../day0-setup/README.md) if you are
 not connected yet.
 
 ### Answer file
