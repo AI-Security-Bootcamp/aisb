@@ -31,22 +31,22 @@ Complete [Day 0 - Setup](day0-setup/README.md) before the bootcamp. Each content
 
 **Day 4 - Training & Data Security**
 
-- [5.1 - Model editing](5.1-model-editing/README.md): surgical weight manipulation to rewrite model behavior
-- [5.2 - Backdooring](5.2-backdooring/README.md): backdoors injected via fine-tuning and data poisoning
-- [5.3 - Undoing safety fine-tuning](5.3-undoing-safety-finetuning/README.md): refusal-direction ablation and abliteration
-- [5.4 - Removing safety behavior with LoRA fine-tuning](5.4-safety-finetuning/README.md) **(optional, instructor-recommended alternative)**
+- [4.1 - Model editing](4.1-model-editing/README.md): surgical weight manipulation to rewrite model behavior
+- [4.2 - Backdooring](4.2-backdooring/README.md): backdoors injected via fine-tuning and data poisoning
+- [4.3 - Undoing safety fine-tuning](4.3-undoing-safety-finetuning/README.md): refusal-direction ablation and abliteration
+- [4.4 - Removing safety behavior with LoRA fine-tuning](4.4-safety-finetuning/README.md) **(optional, instructor-recommended alternative)**
 
 **Day 5 - Adversarial ML**
 
-- [6.1 - Adversarial attacks on vision models](6.1-adversarial-vision/README.md): adversarial examples and gradient-based attacks against image classifiers
-- [6.2 - Discrete adversarial optimization with GCG](6.2-adversarial-language/README.md): optimizing adversarial token sequences against language models
-- [6.3 - Continuous adversarial prefixes](6.3-prefix-tuning/README.md): optimizing prefixes in embedding space
-- [6.4 - Image provenance and watermark robustness](6.4-watermarking/README.md) **(optional)**
+- [5.1 - Adversarial attacks on vision models](5.1-adversarial-vision/README.md): adversarial examples and gradient-based attacks against image classifiers
+- [5.2 - Discrete adversarial optimization with GCG](5.2-adversarial-language/README.md): optimizing adversarial token sequences against language models
+- [5.3 - Continuous adversarial prefixes](5.3-prefix-tuning/README.md): optimizing prefixes in embedding space
+- [5.4 - Image provenance and watermark robustness](5.4-watermarking/README.md) **(optional)**
 
 **Day 6 - Infrastructure Security**
 
 - [6.1 - Side-channel hardware monitoring](6.1-side-channel-monitoring/README.md)
-- 4.2 - Agent swarm incident response
+- [6.2 - Agent swarm incident response](6.2-swarm-analysis/README.md)
 
 **Day 7 - Infrastructure Security & Threat Modeling**
 
