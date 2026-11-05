@@ -45,7 +45,7 @@ Complete [Day 0 - Setup](day0-setup/README.md) before the bootcamp. Each content
 
 **Day 6 - Infrastructure Security**
 
-- [6.1 - Side-channel hardware monitoring](6.1-side-channel-monitoring/README.md)
+- [6.1 - Side-channel hardware monitoring](6.1-side-channel-monitoring/README.md) — [waveform viewer](https://waveforms.aisb.dev/)
 - 4.2 - Agent swarm incident response
 
 **Day 7 - Infrastructure Security & Threat Modeling**
