@@ -601,7 +601,7 @@ see repeated groups within it? Do those groups have distinct boundaries, or
 could several different divisions explain the same waveform? Save your
 annotated plot before using execution labels to resolve the ambiguity.
 
-The [existing web viewer](http://amodo-gigabyte-3.pony-regulus.ts.net:6008/) is a
+The [web viewer](https://waveforms.aisb.dev/) is a
 useful comparison with prepared recordings. Use Matplotlib for your new raw
 files; that viewer expects a separate prepared bundle, not a `scope.npy` upload.
 
@@ -742,7 +742,7 @@ and highest current in each short interval.
 
 | View | What each point means |
 | --- | --- |
-| RMS | Centered 0.1 ms RMS window, emitted every 1 µs. |
+| RMS | Centered 0.01 and 0.1 ms RMS windows, each emitted every 1 µs. |
 | Minimum/maximum envelope | Smallest/largest raw sample in each nonoverlapping 0.1 ms bin, timestamped at its center. |
 | Raw `scope.npy` | Every ADC sample at 0.4 ns. Inspect a short slice in Matplotlib. This track is too big for Perfetto to render. |
 

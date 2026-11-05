@@ -105,7 +105,7 @@ For more details, see the
 ## Pre-captured data
 
 You can also access pre-captured data here
-[https://amodo-gigabyte-3.pony-regulus.ts.net:8443/](https://amodo-gigabyte-3.pony-regulus.ts.net:8443/).
+[https://waveforms.aisb.dev](https://waveforms.aisb.dev).
 
 If you cannot connect to the machines, or are self-studying this module, you can use these links to download the
 capture data.
@@ -115,8 +115,8 @@ Download a Perfetto archive(trace.json.gz) and select **Open trace file** at
 
 | Recording | Perfetto download | Acquisition metadata |
 | --- | --- | --- |
-| Baseline training cycle | [trace.json.gz, 6.51 MB](https://traces.aisb.dev/side-channels/2026-10-09/reference/trace.json.gz) | [summary.json](https://traces.aisb.dev/side-channels/2026-10-09/reference/summary.json) |
-| Small MoE: Granite-3.1-1B-A400M | [trace.json.gz, 8.28 MB](https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/trace.json.gz) | [summary.json](https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/summary.json) |
+| Baseline training cycle | [trace.json.gz, 12.17 MB](https://traces.aisb.dev/waveform-viewer/2026-10-10-rms-001/reference/trace.json.gz) | [summary.json](https://waveforms.aisb.dev/api/summary?capture=reference&v=rms-001-20261010) |
+| Small MoE: Granite-3.1-1B-A400M | [trace.json.gz, 14.03 MB](https://traces.aisb.dev/waveform-viewer/2026-10-10-rms-001/granite-moe/trace.json.gz) | [summary.json](https://waveforms.aisb.dev/api/summary?capture=granite-moe&v=rms-001-20261010) |
 
 For the full raw waveform, download the entire capture file:
 

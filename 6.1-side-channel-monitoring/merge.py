@@ -5,7 +5,7 @@ Open RUN/perfetto.json.gz at ui.perfetto.dev.
 The calibration is a separate September 24 estimate for this instrument/settings,
 not a universal device constant. Set CALIBRATION = None for uncalibrated viewing.
 
-Every ADC sample contributes to centered 0.1 ms RMS, output every 1 us.
+Every ADC sample contributes to centered 0.01 and 0.1 ms RMS, output every 1 us.
 INCLUDE_ENVELOPE adds extrema in 0.1 ms buckets. Raw samples stay in scope.npy.
 The RCP120XS records nominal AC current, not total GPU DC power.
 """
@@ -74,7 +74,7 @@ def reduce_samples(raw, stride, amperes_per_count):
 
 
 def centered_rms(energy, width=100):
-    """100 x 1-us bins: window [-50, +50) us; repeat edge-bin energy at ends."""
+    """Center a window of `width` 1-us bins, repeating edge-bin energy at ends."""
     padded = np.pad(energy, (width // 2, width - 1 - width // 2), mode="edge")
     total = np.concatenate(([0.0], np.cumsum(padded, dtype=np.float64)))
     return np.sqrt(np.maximum((total[width:] - total[:-width]) / width, 0))
@@ -118,14 +118,13 @@ def main():
     spans = gpu_layers(events)
     gain = meta["range_v"] / meta["adc_max"] / (meta["sensitivity_mV_per_A"] / 1000)
     energy, low, high = reduce_samples(raw, stride, gain)
-    rms = centered_rms(energy)
     rebase = math.floor(min(scope_us, min(e["ts"] for e in events if "ts" in e)) / 1000) * 1000
     timing = {"status": "transferred-estimate" if CALIBRATION is not None else "uncalibrated",
               "calibration": CALIBRATION,
               "offset_from_runblock_return_us": offset if CALIBRATION is not None else None,
               "uncertainty_us": uncertainty if CALIBRATION is not None else None,
               "scope_origin_unix_ns": origin_ns, "raw_sample_interval_ns": meta["interval_s"] * 1e9,
-              "rms_window_ms": 0.1, "rms_output_interval_us": 1,
+              "rms_windows_ms": [0.01, 0.1], "rms_output_interval_us": 1,
               "rms_edge_padding": "nearest 1-us energy bin", "raw_tracks_included": False}
     partial = out.with_name(out.name + ".partial")
     with gzip.open(partial, "xt", compresslevel=4) as stream:
@@ -154,8 +153,10 @@ def main():
         def counter(name, index, value):
             emit(dict(ph="C", pid=900000, tid=1, name=name, ts=scope_us + index, args={"value": float(value)}))
 
-        for i, value in enumerate(rms):
-            counter("AC current RMS 0.1 ms (A)", i, value)
+        for window_ms in timing["rms_windows_ms"]:
+            rms = centered_rms(energy, width=round(window_ms * 1000))
+            for i, value in enumerate(rms):
+                counter(f"AC current RMS {window_ms:g} ms (A)", i, value)
         if INCLUDE_ENVELOPE:
             for i in range(0, len(energy), 100):
                 center = i + min(100, len(energy) - i) / 2
@@ -163,7 +164,8 @@ def main():
                 counter("AC current maximum per 0.1 ms (A)", center, high[i:i+100].max())
         stream.write('],"displayTimeUnit":"ms","metadata":' + json.dumps(timing) + "}")
     partial.rename(out)
-    print(f"Saved {out}: {len(kernels)} CUDA kernels, {len(spans)} GPU layer spans, {len(rms)} RMS points; {timing['status']}")
+    print(f"Saved {out}: {len(kernels)} CUDA kernels, {len(spans)} GPU layer spans, "
+          f"{len(energy)} points per RMS track; {timing['status']}")
 
 
 if __name__ == "__main__":
