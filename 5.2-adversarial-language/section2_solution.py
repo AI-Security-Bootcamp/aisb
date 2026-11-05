@@ -453,7 +453,7 @@ def test_gcg_has_no_todos(solution):
 test_gcg_has_no_todos(gcg)
 
 # %%
-"""
+r"""
 ## Exercise 5.2.2: From Discrete to Continous space
 
 > **Difficulty**: 1/5
