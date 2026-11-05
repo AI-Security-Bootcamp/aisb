@@ -3,9 +3,11 @@
   const status = document.getElementById("perfetto-status");
   const origin = "https://ui.perfetto.dev";
   const capture = new URLSearchParams(location.search).get("capture");
-  const filename =
-    "/data/trace.json.gz" +
-    (capture ? "?capture=" + encodeURIComponent(capture) : "");
+  const query = new URLSearchParams();
+  if (capture) query.set("capture", capture);
+  // A new trace revision must not reuse an older immutable browser download.
+  if (button.dataset.traceRevision) query.set("v", button.dataset.traceRevision);
+  const filename = "/data/trace.json.gz?" + query;
   button.onclick = async () => {
     // Use a fresh UI instance: an already loaded tab can retain its old trace
     // or fail the readiness handshake while navigating between recordings.
@@ -23,13 +25,13 @@
         {
           id: "dev.perfetto.ExpandTracksByRegex",
           args: [
-            "Calibrated|Training phases|Workload phases|GPU layer attribution|python 0",
+            "Calibrated|Training phases|Workload phases|GPU layer attribution|GPU (Attention|MLP) branches|python 0",
           ],
         },
         {
           id: "dev.perfetto.PinTracksByRegex",
           args: [
-            "AC current RMS 0.1 ms|Phase overview|GPU decoder layers|NVIDIA buffered|stream 7",
+            "AC current RMS 0.(01|1) ms|AC current (minimum|maximum) per 0.1 ms|Phase overview|GPU decoder layers|Attention forward|MLP forward|NVIDIA buffered|stream 7",
           ],
         },
       ];
@@ -70,7 +72,7 @@
             buffer,
             title:
               document.getElementById("capture-title").textContent +
-              " — CUDA + 0.1 ms RMS current",
+              " — CUDA + RMS current",
             fileName: "trace.json.gz",
             shareable: false,
             downloadable: true,

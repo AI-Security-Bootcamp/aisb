@@ -1,0 +1,8 @@
+{
+  "name": "aisb-waveforms",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-06-30",
+  "r2_buckets": [
+    { "binding": "TRACES", "bucket_name": "aisb-side-channel-traces-us-20261009", "jurisdiction": "us" }
+  ]
+}

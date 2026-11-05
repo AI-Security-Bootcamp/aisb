@@ -14,6 +14,7 @@
     ></label>
   </div>
   <div class="facts" id="facts"></div>
+  <p><a href="https://waveforms.aisb.dev/attention-comparison.html">Compare attention implementations and MLP ablations</a></p>
   <div id="import-controls" hidden>
     <label>Import recording <input id="import-file" type="file" accept=".zip" /></label>
     <button id="import-recording">Load bundle</button>
@@ -24,8 +25,8 @@
     measured AC-current component.
   </p>
   <div>
-    <button id="open-perfetto">Open in Perfetto</button>
-    <small>CPU/CUDA execution + 0.1 ms RMS</small>
+    <button id="open-perfetto" data-trace-revision="rms-001-20261010">Open in Perfetto</button>
+    <small id="perfetto-description">CPU/CUDA execution + RMS current</small>
     <span id="perfetto-status" role="status"></span>
   </div>
   <div class="waveform-controls">

@@ -1,0 +1,20 @@
+[Unit]
+Description=AISB waveform and Perfetto viewer
+Wants=network-online.target
+After=network-online.target tailscaled.service
+
+[Service]
+User=tenant
+Group=tenant
+EnvironmentFile=/etc/aisb/viewer.env
+WorkingDirectory=/home/tenant/aisb/6.1-side-channel-monitoring
+ExecStart=/home/tenant/envs/pico/bin/python -u viewer/serve.py --host ${AISB_VIEWER_HOST} --port 6008 --recordings /home/tenant/side-channel-data/recordings --traces /home/tenant/side-channel-data/traces
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target

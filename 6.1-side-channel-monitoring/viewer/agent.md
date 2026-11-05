@@ -30,6 +30,12 @@ of disk; raw data and Python environments are ignored by Git.
 
 ## Host on Tailscale
 
+The public archive is now hosted at **https://waveforms.aisb.dev/** using
+[Cloudflare Pages and US R2](cloudflare/README.md). It retains the original six captures
+and six [attention/MLP comparison captures](https://waveforms.aisb.dev/attention-comparison.html),
+raw-sample zoom, original RMS arrays, calibration metadata, and Perfetto traces.
+The following Tailscale setup remains useful for local capture servers.
+
 On the machine that has the files, bind to its Tailscale address:
 
 ```bash
@@ -57,6 +63,8 @@ If the popup is blocked, use the trace download link and open the file manually.
   reformat the minified Plotly distribution.
 - `traces/<id>/`: original `trace.json.gz` and full-capture `summary.json`.
 - `traces/manifest.json`: source URLs, compressed sizes, and download hashes.
+  The `rms-001-20261010` revision adds 0.01 ms RMS to all six local archives;
+  original source hashes are retained alongside the revised hashes.
 - `recordings/<id>/`: local raw ADC data and its matching metadata; never stage
   this directory. Cropped data must use cropped metadata, not the full-capture
   summary from `traces/`.
@@ -75,6 +83,14 @@ update sample count and duration, clip/rebase phase intervals, and advance both
 the acquisition origin and `perfetto.capture_zero_trace_ms` by the crop offset.
 Preserve the original metadata and calibration uncertainty. Never shift the
 waveform to make its peaks match execution labels.
+
+The attention comparison additionally offers user-controlled display alignment
+with spring sliders and optional FFT-peak/correlation matching. This transforms
+waveform, phase shading, FFT frequency, and audio on a common display timeline,
+labels the display as aligned, and preserves the recorded times
+in hover and the duration table. It must never change raw data, exported
+timestamps, or the stated clock-calibration uncertainty. See the fine RMS and
+alignment details in [cloudflare/README.md](cloudflare/README.md).
 
 ## Verify a change
 
