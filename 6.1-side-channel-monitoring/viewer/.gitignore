@@ -1,6 +1,0 @@
-# Raw ADC recordings and derived display arrays are local data, not Git assets.
-recordings/
-.cache/
-.venv/
-__pycache__/
-*.part

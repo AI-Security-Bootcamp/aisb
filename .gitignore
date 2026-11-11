@@ -216,9 +216,9 @@ logs/
 .package-cache/
 .kexec-kernel.json
 day*/WALKTHROUGH_REVIEW.md
-4.3-undoing-safety-finetuning/refusal_direction/
-4.3-undoing-safety-finetuning/abliterated_qwen3/
-4.3-undoing-safety-finetuning/inspect_logs/
+backlog/4.3-undoing-safety-finetuning/refusal_direction/
+backlog/4.3-undoing-safety-finetuning/abliterated_qwen3/
+backlog/4.3-undoing-safety-finetuning/inspect_logs/
 
 
 instructor_setup/

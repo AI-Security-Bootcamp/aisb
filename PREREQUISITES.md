@@ -94,5 +94,5 @@ Use this checklist to gauge your readiness:
 ### Setup
 All exercises run on a remote RunPod machine provided by the instructors, with
 the repository and its dependencies already installed. Follow the
-[Day 0 setup guide](day0-setup/README.md#connecting-to-your-runpod-machine) to
+[Day 0 setup guide](00-setup/README.md#connecting-to-your-runpod-machine) to
 connect to it with VS Code.

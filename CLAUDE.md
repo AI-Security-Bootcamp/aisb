@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This project is for creating content for AI Security Bootcamp, a 1-week program designed to teach participants about AI-relevant cybersecurity. Each day is preceded by required background reading (with longer overlapping resources clearly marked optional), starts with 1 hour of lecture, followed by 6 hours of hands-on labs. (The bootcamp is loosely inspired by other bootcamps, MLAB2 and ARENA, which were focused on teaching ML skills and concepts relevant for AI alignment.) The participants work in pairs to complete the labs, and have instructors available to answer questions and debug issues.
+This project is a one-day AI security workshop adapted from the 7-day AI Security Bootcamp (the original content is tagged `aisb-7day`). The day has two parts, each a lecture followed by hands-on labs: `01-transformer` (write a transformer from scratch, in an external ARENA Colab notebook) and `02-swarm-analysis` (agent-swarm incident response). `backlog/` holds selected original bootcamp sections, kept under their original folder names and exercise IDs, for pairs who finish early. The participants work in pairs to complete the labs, and have instructors available to answer questions and debug issues.
 
 The participants will be experienced cybersecurity experts who need upskilling in the AI-relevant topics.
 

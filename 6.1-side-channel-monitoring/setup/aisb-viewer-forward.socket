@@ -1,9 +1,0 @@
-[Unit]
-Description=Loopback access to the existing AISB waveform viewer
-
-[Socket]
-ListenStream=127.0.0.1:6008
-NoDelay=true
-
-[Install]
-WantedBy=sockets.target
