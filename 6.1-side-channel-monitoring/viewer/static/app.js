@@ -13,9 +13,18 @@ if (["reference", "granite-moe"].includes(archivedCapture)) {
   link.hidden = false;
 }
 document.getElementById("details-link").href += captureSuffix;
-for (const a of document.querySelectorAll('a[href^="/data/"]'))
+for (const a of document.querySelectorAll('a[href^="/data/"]')) {
   a.href += captureSuffix;
-fetch("/api/catalog")
+  if (new URL(a.href).pathname === "/data/trace.json.gz") {
+    const revision = document.getElementById("open-perfetto").dataset.traceRevision;
+    if (revision) {
+      const url = new URL(a.href);
+      url.searchParams.set("v", revision);
+      a.href = url;
+    }
+  }
+}
+fetch("/api/catalog?v=" + encodeURIComponent(document.getElementById("open-perfetto").dataset.traceRevision || "original"))
   .then((r) => r.json())
   .then((entries) => {
     const picker = document.getElementById("recording");
@@ -192,9 +201,22 @@ fetch("/api/summary" + captureSuffix)
   .then((r) => r.json())
   .then((s) => {
     summary = s;
+    const perfettoWindows = s.perfetto?.rms_windows_ms || [0.1];
+    document.getElementById("perfetto-description").textContent =
+      "CPU/CUDA execution + " + perfettoWindows.join(" and ") + " ms RMS";
+    if (s.raw_upload_pending) {
+      mode.value = "0.1";
+      mode.querySelector('option[value="raw"]').disabled = true;
+      document.getElementById("fine-forward").disabled = true;
+      document.getElementById("fine-backward").disabled = true;
+      document.getElementById("download-raw").hidden = true;
+      const notice = document.createElement("p");
+      notice.textContent = "Raw samples are still uploading. RMS waveforms and Perfetto are ready; reload later for raw zoom.";
+      document.getElementById("capture-description").after(notice);
+    }
     if (!s.has_raw) {
       status.textContent =
-        "This archive includes the Perfetto trace. Open it above to see CPU/CUDA execution and the 0.1 ms RMS waveform. Raw ADC samples are not installed for this recording.";
+        "This archive includes the Perfetto trace. Open it above to see CPU/CUDA execution and RMS current. Raw ADC samples are not installed for this recording.";
       document.getElementById("download-raw").hidden = true;
       graph.hidden = true;
       for (const control of document.querySelectorAll(".waveform-controls"))

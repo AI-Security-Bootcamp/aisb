@@ -569,7 +569,7 @@ see repeated groups within it? Do those groups have distinct boundaries, or
 could several different divisions explain the same waveform? Save your
 annotated plot before using execution labels to resolve the ambiguity.
 
-The [existing web viewer](http://amodo-gigabyte-3.pony-regulus.ts.net:6008/) is a
+The [web viewer](https://waveforms.aisb.dev/) is a
 useful comparison with prepared recordings. Use Matplotlib for your new raw
 files; that viewer expects a separate prepared bundle, not a `scope.npy` upload.
 
@@ -676,16 +676,16 @@ We now have two accounts of the same step: current samples from the scope and
 execution events from the profiler. The supplied `merge.py` puts them on a
 common timeline so we can compare them directly in Perfetto.
 
-For saved examples, download the [baseline training trace](https://traces.aisb.dev/side-channels/2026-10-09/reference/trace.json.gz)
-or the [small Granite MoE trace](https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/trace.json.gz), then open
+For saved examples, download the [baseline training trace](https://traces.aisb.dev/waveform-viewer/2026-10-10-rms-001/reference/trace.json.gz)
+or the [small Granite MoE trace](https://traces.aisb.dev/waveform-viewer/2026-10-10-rms-001/granite-moe/trace.json.gz), then open
 the `.json.gz` file in [Perfetto](https://ui.perfetto.dev/). Both include CPU/CUDA
-execution and 0.1 ms RMS current. The US-hosted downloads need no server login.
+execution and both 0.01 and 0.1 ms RMS current. The US-hosted downloads need no server login.
 These older exports omit raw samples and the
 min/max envelope; use your own capture for the envelope comparison below.
-See the [download table and metadata](README.md#download-example-traces).
-For the sample-by-sample waveform and min/max envelope, the same table also links
-full raw bundles. [Import one into the local viewer](viewer/README.md#import-a-raw-recording)
-to explore it without reserving the GPU or scope.
+See the [download table and metadata](README.md#pre-captured-data).
+For the sample-by-sample waveform and min/max envelope, use the
+[hosted viewer](https://waveforms.aisb.dev/), or download a full raw bundle from
+that table and [import it into the local viewer](viewer/README.md#import-a-raw-recording).
 
 The RMS curve makes sustained activity visible, but averages over short
 excursions. To retain those, we also show a **min/max envelope**: the lowest
@@ -693,7 +693,7 @@ and highest current in each short interval.
 
 | View | What each point means |
 | --- | --- |
-| RMS | Centered 0.1 ms RMS window, emitted every 1 µs. |
+| RMS | Centered 0.01 and 0.1 ms RMS windows, each emitted every 1 µs. |
 | Minimum/maximum envelope | Smallest/largest raw sample in each nonoverlapping 0.1 ms bin, timestamped at its center. |
 | Raw `scope.npy` | Every ADC sample at 0.4 ns. Inspect a short slice in Matplotlib. This track is too big for Perfetto to render. |
 

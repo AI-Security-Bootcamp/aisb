@@ -1,0 +1,11 @@
+[Unit]
+Description=Forward local SSH-tunnel requests to the AISB waveform viewer
+
+[Service]
+DynamicUser=yes
+EnvironmentFile=/etc/aisb/viewer-forward.env
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd ${AISB_VIEWER_UPSTREAM}
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
