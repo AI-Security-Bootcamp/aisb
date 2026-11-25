@@ -490,6 +490,8 @@ For a missed finding, look back through the posts, summaries, and labels to see 
 There have been many such incidents! You can analyze data from other incidents/websites:
 - https://transluce.org/us-canada-gov
 - https://collusion.wiki/explorer/sites/
+- https://swarmtraces.org/
+- 
 - https://rubyhack.ai/
 - new incidents will probably be updated here https://agent-incidents.jowimo.com/
 """

@@ -4,11 +4,51 @@ This folder contains the frontend recovered from the port-6008 waveform viewer,
 a portable NumPy backend, and six Perfetto traces. Run it without a GPU,
 oscilloscope, PyTorch, or PicoSDK. See [agent.md](agent.md) for setup.
 
-The original Python backend could not be retrieved because SSH authentication
-was unavailable during export. `serve.py` implements the recovered frontend's
-HTTP interface; it is a new implementation, not a copy of that backend. The live
-server retains its original backend. Its Plotly script now loads from the CDN,
-and it is public through [Tailscale Funnel on HTTPS port 8443](https://amodo-gigabyte-3.pony-regulus.ts.net:8443/).
+Use the [hosted viewer at waveforms.aisb.dev](https://waveforms.aisb.dev/), including
+[Baseline](https://waveforms.aisb.dev/?capture=reference) and
+[Granite MoE](https://waveforms.aisb.dev/?capture=granite-moe). Cloudflare Pages
+serves the site and API; the original six recordings and six
+[attention/MLP comparison captures](https://waveforms.aisb.dev/attention-comparison.html)
+live in the existing US R2 bucket.
+The hosted viewer does not require the GPU servers or a Tailscale connection.
+See [Cloudflare deployment](cloudflare/README.md) for maintenance.
+
+In the [attention comparison](https://waveforms.aisb.dev/attention-comparison):
+
+- Choose **0.001 ms (1 µs)** or **0.0001 ms (100 ns)** RMS. Zooming fetches
+  finer detail; the wide view preserves RMS extrema instead of dropping peaks.
+- Use the two spring sliders to the right of each graph to shift and stretch it.
+  Hold left/right to adjust; release to recenter the knob and retain the change.
+  **Auto-align FFT peaks** estimates stretch from spectral peaks and shift from
+  waveform correlation, leaving weak matches unchanged. **Match forward bounds**
+  remains available for matching profiler boundaries. **Overlay traces** compares
+  signals on one plot. Recorded timings stay intact.
+- **Align by peaks** lets you choose a fixed source and a target to move. Click
+  two source peaks (S1, S2), then the corresponding target peaks (T1, T2).
+  Each click snaps to the highest original RMS sample within ±10 horizontal
+  pixels. The fourth pick shifts and stretches the target to match both pairs.
+  **Undo point** corrects a pick; Escape cancels. Zoom first to distinguish nearby
+  peaks. It also works in overlay mode and with previously adjusted traces.
+- Name a preset and **Save scalings** / **Load scalings**. Presets include the
+  viewport, RMS window, and reference. **Export JSON** / **Import JSON** move
+  them between browsers.
+- **FFT in place** replaces the displayed traces with their spectra, preserving
+  the time selection. Frequencies follow each trace's time stretch. Clear
+  **Log FFT amplitude (dB)** for a linear amplitude axis in amperes.
+- **Play shown signals** mixes the aligned traces on their shared timeline;
+  each graph also has a **Listen** button for that trace alone. Playback includes
+  silence introduced by shifts and is slowed to 0.1× by default. The optional
+  spectrogram follows the same displayed time/frequency coordinates. Analysis
+  uses uniform samples before display reduction and reports any bandwidth limit.
+
+All twelve hosted Perfetto traces include 0.01 and 0.1 ms RMS, sampled at the
+original 1 µs output spacing. **Open in Perfetto** pins both tracks. The shorter
+RMS window changes smoothing, not the instrument's timing uncertainty.
+
+`serve.py` is the portable NumPy implementation for local viewing and imports.
+It implements the original frontend's HTTP interface. The original server is
+still available through [Tailscale Funnel on port 8443](https://amodo-gigabyte-3.pony-regulus.ts.net:8443/)
+as a fallback. Plotly loads from its CDN, with a bundled offline fallback.
 
 ## Import a raw recording
 
@@ -54,31 +94,33 @@ included execution trace and its original timing metadata.
 
 Choose a recording and click **Open in Perfetto**, or download a trace below and
 open it directly at [ui.perfetto.dev](https://ui.perfetto.dev/). Every trace contains
-CPU/CUDA execution and the **AC current RMS 0.1 ms (A)** counter. Where present,
+CPU/CUDA execution and **AC current RMS 0.01 ms (A)** and
+**AC current RMS 0.1 ms (A)** counters. Where present,
 layer annotations and NVIDIA driver readings are retained.
 
 The baseline and small Granite MoE recordings also have public downloads from
 US-jurisdiction Cloudflare R2, so participants can get them without SSH or a VPN:
 
-- [Baseline training cycle, 6.51 MB](https://traces.aisb.dev/side-channels/2026-10-09/reference/trace.json.gz)
-- [Granite-3.1-1B-A400M training cycle, 8.28 MB](https://traces.aisb.dev/side-channels/2026-10-09/granite-moe/trace.json.gz)
-- [Download manifest and metadata links](https://traces.aisb.dev/side-channels/2026-10-09/downloads.json)
-  and [SHA-256 checksums](https://traces.aisb.dev/side-channels/2026-10-09/SHA256SUMS)
+- [Baseline training cycle, 12.17 MB](https://traces.aisb.dev/waveform-viewer/2026-10-10-rms-001/reference/trace.json.gz)
+- [Granite-3.1-1B-A400M training cycle, 14.03 MB](https://traces.aisb.dev/waveform-viewer/2026-10-10-rms-001/granite-moe/trace.json.gz)
+- [Download manifest and SHA-256 checksums](traces/manifest.json)
 
-These downloads preserve the original trace bytes. They include the 0.1 ms RMS
-counter without raw ADC arrays or min/max envelopes. The local copies below
-remain available when working offline.
+These revised downloads preserve the original events and timing, adding the
+precomputed 0.01 ms RMS array without resampling. They omit raw ADC arrays.
+The local copies below remain available when working offline. Historical raw
+ZIP bundles still contain their original embedded trace; download the current
+trace separately to get both RMS windows.
 
 | Recording | Workload | Compressed size | Trace |
 | --- | --- | ---: | --- |
-| Original recording | One training cycle | 6.50 MB | [reference](traces/reference/trace.json.gz) |
-| Workshop practice | One training cycle, with layer annotations | 6.51 MB | [pilot-layer-labels](traces/pilot-layer-labels/trace.json.gz) |
-| Challenge A | One training cycle | 6.06 MB | [challenge-a](traces/challenge-a/trace.json.gz) |
-| Granite MoE | One training cycle | 8.28 MB | [granite-moe](traces/granite-moe/trace.json.gz) |
-| Qwen3-30B-A3B | One inference pass | 30.41 MB | [qwen3-30b-a3b-inference](traces/qwen3-30b-a3b-inference/trace.json.gz) |
-| Qwen3-32B | One inference pass | 6.11 MB | [qwen3-32b-inference](traces/qwen3-32b-inference/trace.json.gz) |
+| Original recording | One training cycle | 12.17 MB | [reference](traces/reference/trace.json.gz) |
+| Workshop practice | One training cycle, with layer annotations | 12.19 MB | [pilot-layer-labels](traces/pilot-layer-labels/trace.json.gz) |
+| Challenge A | One training cycle | 11.68 MB | [challenge-a](traces/challenge-a/trace.json.gz) |
+| Granite MoE | One training cycle | 14.03 MB | [granite-moe](traces/granite-moe/trace.json.gz) |
+| Qwen3-30B-A3B | One inference pass | 51.92 MB | [qwen3-30b-a3b-inference](traces/qwen3-30b-a3b-inference/trace.json.gz) |
+| Qwen3-32B | One inference pass | 11.70 MB | [qwen3-32b-inference](traces/qwen3-32b-inference/trace.json.gz) |
 
-These are the original compressed downloads, without trimming or re-encoding.
+The revision adds a counter track without trimming the original execution trace.
 All are below GitHub's 100 MiB per-file limit, so they can share one commit.
 Separate commits would not bypass that limit. See GitHub's
 [large-file documentation](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github).

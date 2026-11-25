@@ -1,0 +1,314 @@
+[
+  {
+    "capture": "attn-efficient-20261010",
+    "variant": "efficient",
+    "model": "Qwen/Qwen3-0.6B",
+    "layers": 28,
+    "batch": 8,
+    "sequence_length": 512,
+    "precision": "BF16",
+    "seed": 20260922,
+    "loss": 13.299084663391113,
+    "skip_attention": false,
+    "skip_mlp": false,
+    "ablation_semantics": "Skip the entire selected residual branch, including its pre-norm; identity residual stream",
+    "input_tokens_sha256": "43a1352a29869d65c86c04b0c12713f485699b2f8e0c955d13f6bc902a13d309",
+    "common_optimizer_warmup_steps": 1,
+    "additional_kernel_warmup_without_update": 1,
+    "gradients": {
+      "attention": {
+        "parameters": 176167936,
+        "parameters_with_grad": 176167936
+      },
+      "mlp": {
+        "parameters": 264241152,
+        "parameters_with_grad": 264241152
+      }
+    },
+    "branch_spans": {
+      "Attention": 28,
+      "MLP": 28
+    },
+    "attention_ops": {
+      "autograd::engine::evaluate_function: ScaledDotProductEfficientAttentionBackward0": 28,
+      "ScaledDotProductEfficientAttentionBackward0": 28,
+      "aten::_scaled_dot_product_efficient_attention_backward": 28,
+      "aten::_efficient_attention_backward": 28,
+      "aten::scaled_dot_product_attention": 28,
+      "aten::_scaled_dot_product_efficient_attention": 28,
+      "aten::_efficient_attention_forward": 28
+    },
+    "phases": {
+      "forward": {
+        "duration_ms": 42.417152,
+        "current_rms_A": 5.489075615470706
+      },
+      "backward": {
+        "duration_ms": 74.654976,
+        "current_rms_A": 7.160216451324873
+      },
+      "optimizer": {
+        "duration_ms": 5.063680000000005,
+        "current_rms_A": 6.723042407135444
+      }
+    },
+    "torch_version": "2.9.1+cu128",
+    "transformers_version": "4.55.4"
+  },
+  {
+    "capture": "attn-flash-20261010",
+    "variant": "flash",
+    "model": "Qwen/Qwen3-0.6B",
+    "layers": 28,
+    "batch": 8,
+    "sequence_length": 512,
+    "precision": "BF16",
+    "seed": 20260922,
+    "loss": 13.29837703704834,
+    "skip_attention": false,
+    "skip_mlp": false,
+    "ablation_semantics": "Skip the entire selected residual branch, including its pre-norm; identity residual stream",
+    "input_tokens_sha256": "43a1352a29869d65c86c04b0c12713f485699b2f8e0c955d13f6bc902a13d309",
+    "common_optimizer_warmup_steps": 1,
+    "additional_kernel_warmup_without_update": 1,
+    "gradients": {
+      "attention": {
+        "parameters": 176167936,
+        "parameters_with_grad": 176167936
+      },
+      "mlp": {
+        "parameters": 264241152,
+        "parameters_with_grad": 264241152
+      }
+    },
+    "branch_spans": {
+      "Attention": 28,
+      "MLP": 28
+    },
+    "attention_ops": {
+      "autograd::engine::evaluate_function: ScaledDotProductFlashAttentionBackward0": 28,
+      "ScaledDotProductFlashAttentionBackward0": 28,
+      "aten::_scaled_dot_product_flash_attention_backward": 28,
+      "aten::_flash_attention_backward": 28,
+      "aten::scaled_dot_product_attention": 28,
+      "aten::_scaled_dot_product_flash_attention": 28,
+      "aten::_flash_attention_forward": 28
+    },
+    "phases": {
+      "forward": {
+        "duration_ms": 36.223231999999996,
+        "current_rms_A": 6.034568053299116
+      },
+      "backward": {
+        "duration_ms": 66.94323200000001,
+        "current_rms_A": 7.715969759236622
+      },
+      "optimizer": {
+        "duration_ms": 5.096703999999988,
+        "current_rms_A": 6.679190080363868
+      }
+    },
+    "torch_version": "2.9.1+cu128",
+    "transformers_version": "4.55.4"
+  },
+  {
+    "capture": "attn-eager-20261010",
+    "variant": "eager",
+    "model": "Qwen/Qwen3-0.6B",
+    "layers": 28,
+    "batch": 8,
+    "sequence_length": 512,
+    "precision": "BF16",
+    "seed": 20260922,
+    "loss": 13.298089027404785,
+    "skip_attention": false,
+    "skip_mlp": false,
+    "ablation_semantics": "Skip the entire selected residual branch, including its pre-norm; identity residual stream",
+    "input_tokens_sha256": "43a1352a29869d65c86c04b0c12713f485699b2f8e0c955d13f6bc902a13d309",
+    "common_optimizer_warmup_steps": 1,
+    "additional_kernel_warmup_without_update": 1,
+    "gradients": {
+      "attention": {
+        "parameters": 176167936,
+        "parameters_with_grad": 176167936
+      },
+      "mlp": {
+        "parameters": 264241152,
+        "parameters_with_grad": 264241152
+      }
+    },
+    "branch_spans": {
+      "Attention": 28,
+      "MLP": 28
+    },
+    "attention_ops": {},
+    "phases": {
+      "forward": {
+        "duration_ms": 50.697472,
+        "current_rms_A": 5.152358419085445
+      },
+      "backward": {
+        "duration_ms": 77.10822399999999,
+        "current_rms_A": 7.106162687609632
+      },
+      "optimizer": {
+        "duration_ms": 5.072127999999992,
+        "current_rms_A": 6.754361579756502
+      }
+    },
+    "torch_version": "2.9.1+cu128",
+    "transformers_version": "4.55.4"
+  },
+  {
+    "capture": "attn-no-attention-20261010",
+    "variant": "no-attention",
+    "model": "Qwen/Qwen3-0.6B",
+    "layers": 28,
+    "batch": 8,
+    "sequence_length": 512,
+    "precision": "BF16",
+    "seed": 20260922,
+    "loss": 17.88578224182129,
+    "skip_attention": true,
+    "skip_mlp": false,
+    "ablation_semantics": "Skip the entire selected residual branch, including its pre-norm; identity residual stream",
+    "input_tokens_sha256": "43a1352a29869d65c86c04b0c12713f485699b2f8e0c955d13f6bc902a13d309",
+    "common_optimizer_warmup_steps": 1,
+    "additional_kernel_warmup_without_update": 1,
+    "gradients": {
+      "attention": {
+        "parameters": 176167936,
+        "parameters_with_grad": 0
+      },
+      "mlp": {
+        "parameters": 264241152,
+        "parameters_with_grad": 264241152
+      }
+    },
+    "branch_spans": {
+      "Attention": 0,
+      "MLP": 28
+    },
+    "attention_ops": {},
+    "phases": {
+      "forward": {
+        "duration_ms": 17.51296,
+        "current_rms_A": 7.1189693989335785
+      },
+      "backward": {
+        "duration_ms": 22.616319999999995,
+        "current_rms_A": 9.20505286563484
+      },
+      "optimizer": {
+        "duration_ms": 3.3761279999999942,
+        "current_rms_A": 7.486920951892747
+      }
+    },
+    "torch_version": "2.9.1+cu128",
+    "transformers_version": "4.55.4"
+  },
+  {
+    "capture": "attn-no-mlp-20261010",
+    "variant": "no-mlp",
+    "model": "Qwen/Qwen3-0.6B",
+    "layers": 28,
+    "batch": 8,
+    "sequence_length": 512,
+    "precision": "BF16",
+    "seed": 20260922,
+    "loss": 18.24797821044922,
+    "skip_attention": false,
+    "skip_mlp": true,
+    "ablation_semantics": "Skip the entire selected residual branch, including its pre-norm; identity residual stream",
+    "input_tokens_sha256": "43a1352a29869d65c86c04b0c12713f485699b2f8e0c955d13f6bc902a13d309",
+    "common_optimizer_warmup_steps": 1,
+    "additional_kernel_warmup_without_update": 1,
+    "gradients": {
+      "attention": {
+        "parameters": 176167936,
+        "parameters_with_grad": 176167936
+      },
+      "mlp": {
+        "parameters": 264241152,
+        "parameters_with_grad": 0
+      }
+    },
+    "branch_spans": {
+      "Attention": 28,
+      "MLP": 0
+    },
+    "attention_ops": {
+      "autograd::engine::evaluate_function: ScaledDotProductEfficientAttentionBackward0": 28,
+      "ScaledDotProductEfficientAttentionBackward0": 28,
+      "aten::_scaled_dot_product_efficient_attention_backward": 28,
+      "aten::_efficient_attention_backward": 28,
+      "aten::scaled_dot_product_attention": 28,
+      "aten::_scaled_dot_product_efficient_attention": 28,
+      "aten::_efficient_attention_forward": 28
+    },
+    "phases": {
+      "forward": {
+        "duration_ms": 35.138048,
+        "current_rms_A": 3.54788371030205
+      },
+      "backward": {
+        "duration_ms": 60.325632,
+        "current_rms_A": 5.745802814812195
+      },
+      "optimizer": {
+        "duration_ms": 3.0387199999999837,
+        "current_rms_A": 7.064231540955791
+      }
+    },
+    "torch_version": "2.9.1+cu128",
+    "transformers_version": "4.55.4"
+  },
+  {
+    "capture": "attn-no-blocks-20261010",
+    "variant": "no-blocks",
+    "model": "Qwen/Qwen3-0.6B",
+    "layers": 28,
+    "batch": 8,
+    "sequence_length": 512,
+    "precision": "BF16",
+    "seed": 20260922,
+    "loss": 101.12749481201172,
+    "skip_attention": true,
+    "skip_mlp": true,
+    "ablation_semantics": "Skip the entire selected residual branch, including its pre-norm; identity residual stream",
+    "input_tokens_sha256": "43a1352a29869d65c86c04b0c12713f485699b2f8e0c955d13f6bc902a13d309",
+    "common_optimizer_warmup_steps": 1,
+    "additional_kernel_warmup_without_update": 1,
+    "gradients": {
+      "attention": {
+        "parameters": 176167936,
+        "parameters_with_grad": 0
+      },
+      "mlp": {
+        "parameters": 264241152,
+        "parameters_with_grad": 0
+      }
+    },
+    "branch_spans": {
+      "Attention": 0,
+      "MLP": 0
+    },
+    "attention_ops": {},
+    "phases": {
+      "forward": {
+        "duration_ms": 10.503680000000003,
+        "current_rms_A": 4.581443047085952
+      },
+      "backward": {
+        "duration_ms": 8.150528000000001,
+        "current_rms_A": 4.409790290247023
+      },
+      "optimizer": {
+        "duration_ms": 1.2380160000000018,
+        "current_rms_A": 7.879098068930348
+      }
+    },
+    "torch_version": "2.9.1+cu128",
+    "transformers_version": "4.55.4"
+  }
+]

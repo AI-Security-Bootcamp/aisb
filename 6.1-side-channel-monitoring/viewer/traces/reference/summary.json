@@ -97,7 +97,12 @@
     "capture_zero_trace_ms": 200.2919716796875,
     "layer_annotations": false,
     "cuda_kernels": 4802,
-    "raw_tracks_included": false
+    "raw_tracks_included": false,
+    "rms_windows_ms": [
+      0.01,
+      0.1
+    ],
+    "trace_revision": "rms-001-20261010"
   },
   "rms": {
     "windows_ms": [
