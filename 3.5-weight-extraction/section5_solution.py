@@ -8,93 +8,114 @@ an unknown linear transform.
 
 <!-- toc -->
 
-## Model weight extraction via SVD
+## Content & Learning Objectives
+
+### Model weight extraction via SVD
 
 Recover a model's hidden dimension and last projection layer from API
 access alone using the logits-matrix SVD attack.
 
 > **Learning Objectives**
-> - Find the rank of a low-rank matrix product from its singular values
+> - Optional: recover the hidden dimension of a toy matrix product from its singular values
 > - Build a logit query matrix and estimate its numerical rank
 > - Explain why low-rank logits reveal the model's hidden dimension
 > - Extract the output projection up to an unknown linear transform
 > - Relate query volume and logit precision to extraction feasibility
 """
 
+# %%
+"""
+## Setup
+
+Create a file named `day3_answers.py` in the `3.5-weight-extraction` directory. This will be your answer file for this section.
+
+If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to make it a Python code cell.
+
+**Start by pasting the code below in your day3_answers.py file.**
+
+Exercise 3.5.1 is an optional 10-minute warmup using NumPy. If you can already
+read a singular-value spectrum, skip it and continue with Exercise 3.5.2.
+The GPT-2 exercises load their model only when you reach that part of the lab.
+"""
+
 import sys
 from pathlib import Path
 
+# Make the workspace root importable (so `from aisb_utils import report` works),
+# regardless of how deeply this file is nested.
 _root = next(p for p in Path(__file__).resolve().parents if (p / "aisb_utils").is_dir())
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from typing import Callable
-
 from aisb_utils import report
 
-# %%
-import numpy as np
+from typing import TYPE_CHECKING, Callable
+
 import matplotlib.pyplot as plt
+import numpy as np
+
+# %%
+"""
+## Model weight extraction via SVD
+"""
 
 """
-### Exercise 3.5.1: Find the hidden dimension of a toy black box
+### Exercise 3.5.1 (Optional): Find the hidden dimension of a toy black box
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
 >
-> You should spend up to ~10 minutes on this exercise.
+> You should spend up to 10 minutes on this exercise.
 
-In this exercise, we're going to use SVD to find how much information is
-really in a matrix, even when it's spread over far more rows and columns than
-it needs.
+Use the output of a matrix product to recover its intermediate dimension.
+Multiplying `A` of shape `(1000, d)` by `B` of shape `(d, 1000)` gives a
+matrix `C` of shape `(1000, 1000)` with rank **at most** `d`. When both factors
+have rank `d`, the product also has rank `d`. The random Gaussian factors in
+this exercise have full rank with probability one in exact arithmetic.
 
-Starting with a matrix `A` of shape `(1000, d)` and multiplying it by `B`
-`(d, 1000)` produces `C` `(1000, 1000)`, which hides the intermediate
-dimension `d`. If `d < 1000` then there are only `d` dimensions of
-information embedded in `C`. These can be extracted using SVD, since there can
-only be `d` singular directions in `C`.
+Implement `estimate_rank` using only `C`. Return its numerical rank and its
+singular values in descending order. Treat values at or below `1e-10` times
+the largest singular value as numerical noise. Plot the spectrum and compare
+your estimate with the hidden dimension revealed by the harness.
 
-`np.linalg.svd` returns the singular values, largest first. The first `d` are
-real. The rest are zero, or float noise around 1e-13. Count the real ones and
-you have `d`.
-
-`blackbox` does the multiply with a `d` you can't see. Query it, run SVD, read
-off `d`.
+Reference: NumPy's [`linalg.svd`](https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html),
+especially the `compute_uv=False` option when only singular values are needed.
 """
 
 
 def blackbox(d: int, size: int = 1000) -> np.ndarray:
     """Return the (size, size) product of random (size, d) and (d, size) matrices."""
-    A = np.random.randn(size, d)
-    B = np.random.randn(d, size)
-    return A @ B
+    rng = np.random.default_rng(0)
+    left = rng.standard_normal((size, d))
+    right = rng.standard_normal((d, size))
+    return left @ right
 
 
-def estimate_rank(C: np.ndarray) -> tuple[int, np.ndarray]:
-    """Return (rank, singular_values) of C.
+def estimate_rank(matrix: np.ndarray) -> tuple[int, np.ndarray]:
+    """Return the numerical rank and descending singular values of a nonempty matrix.
 
-    Singular values below 1e-10 times the largest are float noise and don't count.
+    Count singular values strictly above 1e-10 times the largest value.
+    A zero matrix has rank zero.
     """
     if "SOLUTION":
-        s = np.linalg.svd(C, compute_uv=False)
-        rank = int(np.sum(s > s[0] * 1e-10))
-        return rank, s
+        singular_values = np.linalg.svd(matrix, compute_uv=False)
+        rank = int(np.count_nonzero(singular_values > singular_values[0] * 1e-10))
+        return rank, singular_values
     else:
-        # TODO
-        # Hint: np.linalg.svd(C, compute_uv=False) returns the singular values,
-        # largest first.
-        return 0, np.zeros(1)
+        # TODO: Estimate numerical rank from the singular-value spectrum.
+        # Hint: np.linalg.svd(matrix, compute_uv=False) returns descending values.
+        return 0, np.zeros(min(matrix.shape))
 
 
-hidden_d = np.random.randint(5, 21)
-C = blackbox(hidden_d)
-rank, s = estimate_rank(C)
-print(f"estimated rank: {rank}")
-print(f"hidden d:       {hidden_d}")
+hidden_dim = int(np.random.default_rng(1).integers(5, 21))
+matrix = blackbox(hidden_dim)
+rank, singular_values = estimate_rank(matrix)
+print(f"Estimated rank: {rank}")
+print(f"Hidden dimension: {hidden_dim}")
 
 # The cliff should sit on the dotted line.
-plt.semilogy(s[:40], "o-")
-plt.axvline(hidden_d - 0.5, color="red", linestyle=":", label="true d")
+plt.semilogy(singular_values[:40], "o-")
+plt.axvline(hidden_dim - 0.5, color="red", linestyle=":", label="Hidden dimension")
 plt.xlabel("Singular value index")
 plt.ylabel("Singular value (log scale)")
 plt.legend()
@@ -102,13 +123,37 @@ plt.show()
 
 
 @report
-def test_estimate_rank(solution: Callable[[np.ndarray], tuple[int, np.ndarray]]):
+def test_estimate_rank(
+    solution: Callable[[np.ndarray], tuple[int, np.ndarray]],
+) -> None:
+    """Check rank recovery, scale invariance, and the zero-matrix edge case."""
     rng = np.random.default_rng(0)
     for d in (3, 12, 40):
-        C = rng.standard_normal((300, d)) @ rng.standard_normal((d, 300))
-        rank, s = solution(C)
+        matrix = rng.standard_normal((80, d)) @ rng.standard_normal((d, 60))
+        rank, singular_values = solution(matrix)
         assert rank == d, f"Expected rank {d}, got {rank}"
-        assert len(s) == 300, f"Expected 300 singular values, got {len(s)}"
+        assert singular_values.shape == (
+            60,
+        ), f"Expected 60 singular values for an 80 x 60 matrix, got {singular_values.shape}"
+        assert np.all(
+            singular_values[:-1] >= singular_values[1:]
+        ), "Return singular values in descending order"
+
+    for scale in (1e-6, 1.0, 1e6):
+        matrix = scale * np.diag([1.0, 1e-8, 1e-12, 0.0])
+        rank, singular_values = solution(matrix)
+        assert rank == 2, f"Expected rank 2 at scale {scale}, got {rank}"
+        np.testing.assert_allclose(
+            singular_values,
+            scale * np.array([1.0, 1e-8, 1e-12, 0.0]),
+            err_msg=f"Incorrect singular values at scale {scale}",
+        )
+
+    rank, singular_values = solution(np.zeros((4, 7)))
+    assert rank == 0, f"Expected rank 0 for a zero matrix, got {rank}"
+    assert np.array_equal(
+        singular_values, np.zeros(4)
+    ), f"Expected four zero singular values, got {singular_values}"
     print("  All tests passed!")
 
 
@@ -116,12 +161,6 @@ test_estimate_rank(estimate_rank)
 
 # %%
 """
-A language model's last layer is this multiply: hidden state `(1, d)` times
-weights `(d, vocab_size)` gives the logits. The same trick finds `d`.
-
-Let's implement the model extraction attack from
-[Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
-
 ### Exercise 3.5.2: Complete Model Dimension Extraction
 
 > **Difficulty**: 3/5
@@ -129,29 +168,55 @@ Let's implement the model extraction attack from
 >
 > You should spend up to ~45 minutes on this exercise.
 
-Complete the implementation of model dimension extraction using SVD.
+Implement the model extraction attack from
+[Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
+Complete `detect_hidden_dim` using only the supplied logit-query function.
+Collect a query matrix, inspect its singular-value spectrum, and identify
+the transition to the numerical noise floor. Do not read the model's hidden
+dimension or weights to choose your answer.
+
+<details>
+<summary>Reference: matrix rank and model logits</summary>
+
+A hidden state of shape `(1, d)` multiplied by output weights of shape
+`(d, vocab_size)` produces logits of shape `(1, vocab_size)`. Stacking many
+queries produces a matrix with rank at most `d` for a model such as GPT-2
+whose output projection has no bias. To recover `d`, the queries must span
+the hidden space and the returned precision must separate signal from noise.
+NumPy's [`linalg.svd`](https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html)
+returns singular values in descending order; values near zero contribute
+little to the numerical rank. Exercise 3.5.1 gives an optional toy example.
+
+The supplied query helper accepts a PyTorch tensor of token IDs with shape
+`(batch, sequence_length)` and integer dtype, moves it to the model's device,
+and returns logits of shape `(batch, vocab_size)`. Use `.cpu().numpy()` before
+applying NumPy operations. No gradients are needed for this attack.
+
+</details>
 
 
 <details>
 <summary>(spoiler) If everything goes well, this is what your graph should look like</summary>
 
-![GPT-2 small](gpt2-small.png)
+![GPT-2 small](resources/gpt2-small.png)
 </details>
 
 """
 
-# %%
-import torch
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
-from tqdm import tqdm
 
 # %%
-# 1. Load the model and tokenizer.
-# Wrapped in TEST_FIXTURE so this shared setup is unwrapped to top level in the
-# solution, the instructions, and the extracted test file (the tests need
-# get_next_logits, the constants, and true_weights).
-if "TEST_FIXTURE":
-    model_name = "openai-community/gpt2"
+if TYPE_CHECKING:
+    import torch
+    from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
+
+def load_model_and_tokenizer(
+    model_name: str,
+) -> tuple["GPT2LMHeadModel", "GPT2Tokenizer"]:
+    """Load GPT-2 once for the query interface used by the remaining exercises."""
+    import torch
+    from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
     # The attack below is thousands of forward passes plus a large SVD, so run
     # it on the GPU when there is one (minutes on GPU, far longer on CPU).
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -160,28 +225,33 @@ if "TEST_FIXTURE":
     model = GPT2LMHeadModel.from_pretrained(model_name).to(device)
     model.eval()
 
-    def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
-        """
-        Get the logits for the next token given input_ids.
-        """
-        assert input_ids.ndim == 2, "Input IDs should be a 2D tensor (batch_size, sequence_length)"
-        with torch.no_grad():
-            # Callers build their query tensors on the CPU, so move them to the
-            # model's device here; the logits come back on `device`, ready for
-            # an SVD that then also runs there.
-            outputs = model(input_ids.to(device))
-            return outputs.logits[:, -1, :]
-
-    # Set pad token if it's not set
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    return model, tokenizer
 
-    # Shared attack parameters, used by Exercises 3.5.2 and 3.5.3.
-    N_QUERIES = 1000
-    MAX_PROMPT_LENGTH = 10
-    VOCAB_SIZE = tokenizer.vocab_size
-    print(f"Vocabulary size (l): {VOCAB_SIZE}")
-    print(f"Number of queries (n): {N_QUERIES}")
+
+model_name = "openai-community/gpt2"
+model, tokenizer = load_model_and_tokenizer(model_name)
+
+
+def get_next_logits(input_ids: "torch.Tensor") -> "torch.Tensor":
+    """Return next-token logits for a batch of token ID sequences."""
+    import torch
+
+    assert (
+        input_ids.ndim == 2
+    ), "Input IDs should have shape (batch_size, sequence_length)"
+    with torch.no_grad():
+        outputs = model(input_ids.to(model.device))
+        return outputs.logits[:, -1, :]
+
+
+# Shared attack parameters, used by Exercises 3.5.2 and 3.5.3.
+N_QUERIES = 1000
+MAX_PROMPT_LENGTH = 10
+VOCAB_SIZE = tokenizer.vocab_size
+print(f"Vocabulary size: {VOCAB_SIZE}")
+print(f"Number of queries: {N_QUERIES}")
 
 
 def detect_hidden_dim(
@@ -196,6 +266,9 @@ def detect_hidden_dim(
     spectrum, and returns the detected hidden dimension (the index of the
     sharp drop in the spectrum).
     """
+    import torch
+    from tqdm import tqdm
+
     if "SOLUTION":
         # 1. Generate n random prompts and collect logits.
         logit_matrix_q = []
@@ -203,7 +276,7 @@ def detect_hidden_dim(
         for _ in tqdm(range(n_queries)):
             prompt_length = np.random.randint(1, max_prompt_length)
             random_tokens = np.random.randint(0, VOCAB_SIZE, size=prompt_length)
-            input_ids = torch.tensor([random_tokens])
+            input_ids = torch.tensor(random_tokens).unsqueeze(0)
             logit_matrix_q.append(get_next_logits(input_ids).cpu().numpy())
 
         # 2. Stack into a matrix Q of shape (n_queries, vocab_size).
@@ -214,11 +287,7 @@ def detect_hidden_dim(
         print("Computing Singular Value Decomposition (SVD)...")
         singular_values = np.linalg.svd(Q, compute_uv=False)
 
-        # 4. The hidden dimension shows up as the largest drop in the
-        #    (log-scaled) spectrum. The biggest gap between consecutive
-        #    log-singular-values marks the transition from the h "real"
-        #    directions to the numerical-noise floor.
-        # The hidden dimension shows up as the largest drop in the (log-scaled)
+        # 4. The hidden dimension shows up as the largest drop in the (log-scaled)
         # spectrum: the transition from the h "real" directions to the
         # numerical-noise floor. The first singular value is a dominant
         # common-mode direction that creates a spurious gap at index 0, so we
@@ -239,7 +308,9 @@ def detect_hidden_dim(
             plt.ylabel("Magnitude (log scale)")
             plt.grid(True)
             plt.axvline(
-                x=detected_h, color="r", linestyle="--",
+                x=detected_h,
+                color="r",
+                linestyle="--",
                 label=f"Detected Hidden Dim: {detected_h}",
             )
             plt.legend()
@@ -247,16 +318,9 @@ def detect_hidden_dim(
 
         return detected_h
     else:
-        # TODO: Discover the model's hidden dimension using only black-box
-        # logit queries.
-        #   1. Send many random token sequences to get_next_logits.
-        #   2. Stack the results into a matrix Q (n_queries, vocab_size).
-        #   3. Compute its singular values (np.linalg.svd(..., compute_uv=False)).
-        #   4. Plot the spectrum on a log scale, and look at where there is a sharp drop: eyeball it and return it
-        #   5. (optional) The hidden dimension is the index of the sharp drop in the
-        #      spectrum, e.g. argmax of the gaps between consecutive
-        #      log-singular-values, plus one.
-        # Return the detected hidden dimension as an int (768 for GPT-2 small).
+        # TODO: Estimate the hidden dimension from black-box logit queries.
+        # Return an integer; use `plot` to control the singular-value plot.
+        # Hint: inspect the spectrum on a log scale to locate its noise floor.
         return 0
 
 
@@ -265,7 +329,8 @@ print(f"Using hidden dimension (h): {detected_h}")
 
 
 @report
-def test_detect_hidden_dim(h: int):
+def test_detect_hidden_dim(h: int) -> None:
+    """requires: GPU (checks the result of the GPT-2 logit-query attack)."""
     # Checks the dimension detected above rather than re-running the attack:
     # every run costs 1000 forward passes plus an SVD over the whole vocabulary.
     assert isinstance(h, int), f"detect_hidden_dim must return an int, got {type(h)}"
@@ -288,32 +353,34 @@ test_detect_hidden_dim(detected_h)
 Now use the hidden dimension `h` from exercise 3.5.2 to recover the model's output
 projection matrix, `lm_head.weight`, from black-box logit queries alone.
 
-**Why SVD gives us the weights.** Every logit vector the model returns is computed as:
+**Why SVD gives us the weights.** GPT-2's output projection has no bias, so
+each logit vector is computed as:
 
 ```
-logits = hidden_state @ W_out.T + bias
+logits = hidden_state @ W_out.T
 ```
 
-where `W_out` has shape `(vocab_size, h)`. Across many queries, the hidden states
-span an `h`-dimensional subspace of the full `vocab_size`-dimensional space. If we
-collect these logit vectors as columns of a matrix `Q` (shape `vocab_size × n_queries`),
-then `Q` has rank at most `h`. The thin SVD decomposes:
+where `W_out` has shape `(vocab_size, h)`. If we collect the logit vectors as
+columns of a matrix `Q` (shape `vocab_size × n_queries`), then `Q` has rank at
+most `h`. When the output projection has full column rank and the queries span
+the hidden space, `Q` has rank `h`. The truncated SVD gives:
 
 ```
 Q ≈ U_h · Σ_h · Vh
 ```
 
-where `U_h` has shape `(vocab_size, h)`. The columns of `U_h` form an orthonormal
-basis for the same column space as `W_out`. Therefore `U_h @ Σ_h` is `W_out` up
-to an unknown invertible linear transformation: we can reconstruct the direction
-and relative scaling of every output-projection row, but not the exact values
-(which would require knowing the hidden states too).
+where `U_h` has shape `(vocab_size, h)`. Under these rank assumptions, the columns
+of `U_h` form an orthonormal basis for the same column space as `W_out`.
+Therefore `U_h @ Σ_h` recovers an equivalent output projection up to an unknown
+invertible linear transformation of the hidden coordinates. It does not recover
+the original row directions or lengths in the model's hidden-state basis.
 
 This is the "up to a linear transform" claim: the extracted matrix and the true
 `lm_head.weight` are related by `W_extracted @ G ≈ W_true` for some matrix `G`.
 `compare_weights` solves for `G` via least squares and then measures how close
 the aligned matrices are.
 """
+
 
 def extract_weights(
     hidden_dim: int,
@@ -328,14 +395,16 @@ def extract_weights(
     returns U_h @ Sigma_h, the extracted weights, correct up to an unknown
     linear transform. Returns a NumPy array of shape (vocab_size, hidden_dim).
     """
+    import torch
+    from tqdm import tqdm
+
     if "SOLUTION":
         print(f"Querying model {n_queries}*{batch_size} times...")
         logit_vectors = []
         for _ in tqdm(range(n_queries)):
             prompt_length = np.random.randint(1, max_prompt_length)
             input_ids = torch.randint(0, VOCAB_SIZE, (batch_size, prompt_length))
-            next_token_logits = [l for l in get_next_logits(input_ids)]
-            logit_vectors.extend(next_token_logits)
+            logit_vectors.extend(get_next_logits(input_ids))
 
         # Columns are logit vectors -> Q has shape (vocab_size, n_samples).
         Q = torch.stack(logit_vectors).T
@@ -366,14 +435,14 @@ print(f"Extracted weight matrix shape: {W_extracted.shape}")
 
 # %%
 # Get the ground truth weights. The lm_head holds the final projection layer,
-# already in (vocab_size, hidden_size) shape. Wrapped in TEST_FIXTURE so the
-# comparison test can access it.
-if "TEST_FIXTURE":
-    true_weights = model.lm_head.weight.detach().cpu().numpy()
+# already in (vocab_size, hidden_size) shape. These are used only for validation.
+true_weights = model.lm_head.weight.detach().cpu().numpy()
 
 
 # %%
-def compare_weights(W_extracted: np.ndarray, W_true: np.ndarray) -> tuple[float, float, float]:
+def compare_weights(
+    W_extracted: np.ndarray, W_true: np.ndarray
+) -> tuple[float, float, float]:
     """
     Compares the extracted weight matrix with the ground truth matrix.
 
@@ -422,7 +491,9 @@ def compare_weights(W_extracted: np.ndarray, W_true: np.ndarray) -> tuple[float,
 
     # 5. Calculate a "Percentage Similarity" metric based on relative error
     # Frobenius norm is the square root of the sum of the absolute squares of its elements.
-    relative_error = np.linalg.norm(W_aligned - W_true, "fro") / np.linalg.norm(W_true, "fro")
+    relative_error = np.linalg.norm(W_aligned - W_true, "fro") / np.linalg.norm(
+        W_true, "fro"
+    )
     percentage_similarity = (1 - relative_error) * 100
 
     return rmse, avg_cosine_sim, percentage_similarity
@@ -438,17 +509,24 @@ print(f"Similarity Percentage: {percent_sim:.2f}%")
 
 print("\nInterpretation:")
 print("- RMSE: Lower is better. We expect values like 0.001.")
-print("- Cosine Similarity: Closer to 1.0 is better, indicating the vectors are pointing in the same direction.")
+print(
+    "- Cosine Similarity: Closer to 1.0 is better, indicating the vectors are pointing in the same direction."
+)
 print("- Similarity Percentage: Closer to 100% is better.")
 
 
 @report
-def test_compare_weights(W_hat: np.ndarray, compare_fn):
+def test_compare_weights(
+    solution: Callable[[np.ndarray, np.ndarray], tuple[float, float, float]],
+    extracted_weights: np.ndarray,
+    true_weights: np.ndarray,
+) -> None:
+    """requires: GPU (checks weights from the GPT-2 extraction run)."""
     # Reuses the weights extracted above instead of running the attack a second
     # time: another end-to-end run means 2000 more queries and another SVD of a
     # (vocab_size x n_samples) matrix. Checks that the recovered weights align
     # almost perfectly with the true lm_head weights (up to a linear transform).
-    _, avg_cosine_sim, _ = compare_fn(W_hat, true_weights)
+    _, avg_cosine_sim, _ = solution(extracted_weights, true_weights)
     assert avg_cosine_sim > 0.99, (
         f"Aligned extracted weights should match the true weights very "
         f"closely (cosine > 0.99), got {avg_cosine_sim:.4f}"
@@ -456,50 +534,22 @@ def test_compare_weights(W_hat: np.ndarray, compare_fn):
     print("  All tests passed!")
 
 
-test_compare_weights(W_extracted, compare_weights)
-
-"""
-### Extensions to try
-- What if you only have access to topk logits instead of the full logits?
-- What if you don't have access to the logits? (this is quiet expensive, so just extract one logit with the method listed in appendix F)
-"""
+test_compare_weights(compare_weights, W_extracted, true_weights)
 
 # %%
 """
-## Summary & Further Reading
+## Summary
 
-Today covered four layers of LLM inference security:
-
-**1. Tokenization & prompt construction**: tokenizers are not transparent:
-different models tokenize the same string differently, and chat templates
-assemble multi-turn prompts with special tokens. Edge cases in tokenization
-and prompt construction are where many prompt-injection attacks begin.
-
-**2. Guardrails: attacks and defences**: safety training alone is defeated
-by simple paraphrases. Keyword filters are defeated by synonyms. LLM-based
-input classifiers are defeated by creative reframing (fiction, research).
-Output classifiers share the same limitation. Linear probes on internal
-representations catch what text-based classifiers miss, because they operate
-on semantic intent rather than surface form.
-
-**3. Knowledge distillation attacks**: label filtering (masking forbidden
-tokens with `ignore_index=-100`) prevents a baseline student from learning
-the forbidden completion. But adding a KD loss (temperature-scaled KL
-divergence from the teacher) transfers the forbidden knowledge through the
-soft probability distribution. Label filtering is necessary but not
-sufficient for safe distillation.
-
-**4. Model weight extraction via SVD**: by collecting logits from random
-prompts and computing SVD, an attacker can recover the model's hidden
-dimension from the singular value spectrum, and reconstruct the output
-projection layer up to a linear transformation.
+- Logit vectors expose a low-rank projection of a model's hidden states.
+- A singular-value spectrum can reveal the hidden dimension when queries
+  span that space and numerical precision separates signal from noise.
+- SVD can recover the output projection up to an unknown invertible linear
+  transformation. This does not recover the rest of the model's weights.
+- Query budgets, truncated logits, rounding, and noise affect what an attacker
+  can infer from an API; full-precision logits reveal more than sampled text.
 
 ### Further reading
 
-- [Hinton, Vinyals & Dean (2015), *Distilling the Knowledge in a Neural Network*](https://arxiv.org/abs/1503.02531)
 - [Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634)
 - [Tramèr et al. (2016), *Stealing Machine Learning Models via Prediction APIs*](https://arxiv.org/abs/1609.02943)
-- [Burns et al. (2022), *Discovering Latent Knowledge*](https://arxiv.org/abs/2212.03827)
-- [Zou et al. (2023), *Representation Engineering*](https://arxiv.org/abs/2310.01405)
-- [Hubinger et al. (2024), *Sleeper Agents*](https://arxiv.org/abs/2401.05566)
 """
