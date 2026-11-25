@@ -34,7 +34,7 @@ Build a backdoor monitor, red-team it, then improve it using chain-of-thought in
 ### Environment
 
 Before you start, follow the
-[Day 0 setup guide](../day0-setup/README.md#connecting-to-your-day-2-machine) to connect to
+[Day 0 setup guide](../day0-setup/README.md) to connect to
 the Day 2 VM, and select the `.venv-day2` interpreter. The VM has Docker and `.venv-day2`
 already set up. Section [2.3](../2.3-control-protocols/section3_instructions.md) uses the
 same environment.

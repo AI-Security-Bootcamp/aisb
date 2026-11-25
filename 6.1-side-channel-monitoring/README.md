@@ -98,7 +98,6 @@ ssh aisb-gpu5-cf
 ```
 
 For more details, see the
-[Cloudflare guide](setup/CLOUDFLARE.md) and
 [client-side SSH documentation](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/use-cases/ssh/ssh-cloudflared-authentication/).
 </details>
 
@@ -151,5 +150,4 @@ copies it into the capture metadata. Always convert using that metadata. The
 second machine's clock alignment is initially uncalibrated; it does not inherit
 the first instrument's calibration.
 
-For provisioning and the real-hardware acceptance test, see [host setup](setup/README.md).
 The [portable viewer](viewer/README.md) runs separately from acquisition.
