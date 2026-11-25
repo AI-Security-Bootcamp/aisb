@@ -306,6 +306,25 @@ We'll implement:
 2. L∞ constraints to limit maximum change per pixel
 3. Comparison of different regularization strengths
 
+<details>
+<summary>Reference: normalized pixels and perturbation bounds</summary><blockquote>
+
+The processor returns a tensor of shape `(batch, channels, height, width)`.
+It rescales the image to `[0, 1]`, then normalizes each channel as
+`z = (pixel - mean) / std`. Valid normalized values therefore lie between
+`-mean / std` and `(1 - mean) / std`, using `processor.image_mean` and
+`processor.image_std`. For this ViT, both are `0.5`, so the valid range is
+`[-1, 1]`.
+
+This exercise measures both perturbation norms in **normalized input units**.
+A bound of `0.1` therefore permits a change of `0.05` in `[0, 1]` pixel units
+for this processor. Check the difference between the final model input and
+the clean normalized input, including any clipping. Reshape per-channel bounds
+to `(1, channels, 1, 1)` to broadcast over the image, and keep their device and
+dtype the same as the input tensor.
+
+</blockquote></details>
+
 
 ```python
 
@@ -358,11 +377,6 @@ You can just add `l2_reg * perturbation.norm()` to the loss
 <summary>Hint: L∞ constraint</summary><blockquote>
 
 L∞ constraint means that each pixel's perturbation should not exceed a certain threshold. You can use `torch.clamp` to limit the perturbation values.
-
-The bound is in normalized input units. Valid inputs range from `-mean / std`
-to `(1 - mean) / std` (`[-1, 1]` for this ViT), using `processor.image_mean`
-and `processor.image_std`. Reshape channel statistics to `(1, channels, 1, 1)`
-to broadcast over the image.
 </blockquote></details>
 
 
