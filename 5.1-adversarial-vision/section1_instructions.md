@@ -386,11 +386,9 @@ L∞ constraint means that each pixel's perturbation should not exceed a certain
 
 
 ```python
-from section1_test import test_constrained_attack_bounds
 
 
-test_constrained_attack_bounds(create_constrained_adversarial_attack)
-
+# %%
 # Test different regularization strengths
 regularization_strengths = [0.5, 2.0, 5.0]
 results = []
