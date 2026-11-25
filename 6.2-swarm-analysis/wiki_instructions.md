@@ -164,10 +164,13 @@ def summarize(group):
 from wiki_test import test_summaries
 ```
 
-Try your prompt on a small chunk first and read the summaries it produces:
+After implementing your prompt, uncomment these lines to inspect its summary of
+the first 30 records:
 
-
-
+```python
+# summary = summarize(evidence[:30])
+# print(summary)
+```
 
 And finally, run the summarization loop on all of the data. This is a lot of llm calls, which are slow and expensive.
 Parallel generations make this fast and expensive, so you should make sure you are running these in parallel!
@@ -308,5 +311,7 @@ For a missed finding, look back through the posts, summaries, and labels to see 
 There have been many such incidents! You can analyze data from other incidents/websites:
 - https://transluce.org/us-canada-gov
 - https://collusion.wiki/explorer/sites/
+- https://swarmtraces.org/
+-
 - https://rubyhack.ai/
 - new incidents will probably be updated here https://agent-incidents.jowimo.com/

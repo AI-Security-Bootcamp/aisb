@@ -189,11 +189,14 @@ def test_summaries(summaries=None, source=None):
     print("  All tests passed! Now check whether the cited text supports each claim.")
 
 """
-You can play around with your prompt and make sure it gives you reasonable summaries with the following:
-"""
+After implementing your prompt, uncomment these lines to inspect its summary of
+the first 30 records:
+
+```python
 # summary = summarize(source[:30])
 # print(summary)
-"""
+```
+
 And finally, run the summarization loop on all of the data. This is a lot of llm calls, which are slow and expensive.
 Parallel generations make this fast and expensive, so you should make sure you are running these in parallel! 
 """
@@ -210,7 +213,7 @@ else:
     # # You can (optionally) write the code for this, or just uncomment the lines below to use our helper function
     #
     # summaries = summarize_in_chunks(
-    #     evidence, summarize, max_records=100, max_chars=85000,
+    #     source, summarize, max_records=100, max_chars=85000,
     #     workers=12,
     # )
     # test_summaries(summaries, source)
@@ -415,7 +418,7 @@ else:
     # # You can (optionally) write the code for this, or just uncomment the lines below to use our helper functions
     #
     # records = classify_in_batches(
-    #     source, evidence, codebook, classify,
+    #     source, source, codebook, classify,
     #     batch_size=20, context_records=5, workers=32,
     # )
     # result = {"track": "transcript", "labels": codebook["labels"], "records": records}
