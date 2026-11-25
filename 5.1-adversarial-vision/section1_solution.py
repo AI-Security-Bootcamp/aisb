@@ -396,24 +396,24 @@ def create_constrained_adversarial_attack(
         perturbed_image: The adversarially perturbed image
         success: Whether the attack succeeded
     """
+    inputs = processor(images=image, return_tensors="pt")
+
+    # Convert valid pixel bounds to the processor's normalized coordinates.
+    pixels = inputs["pixel_values"]
+    mean = pixels.new_tensor(processor.image_mean).reshape(1, -1, 1, 1)
+    std = pixels.new_tensor(processor.image_std).reshape(1, -1, 1, 1)
+    lower_bound, upper_bound = -mean / std, (1 - mean) / std
+
+    # Initialize perturbation
+    perturbation = torch.zeros_like(inputs["pixel_values"])
+    perturbation.requires_grad = True
+
+    optimizer = torch.optim.Adam([perturbation], lr=lr)
+
+    history = {"loss": [], "predictions": []}
+    success = False
+
     if "SOLUTION":
-        inputs = processor(images=image, return_tensors="pt")
-
-        # Convert valid pixel bounds to the processor's normalized coordinates.
-        pixels = inputs["pixel_values"]
-        mean = pixels.new_tensor(processor.image_mean).reshape(1, -1, 1, 1)
-        std = pixels.new_tensor(processor.image_std).reshape(1, -1, 1, 1)
-        lower_bound, upper_bound = -mean / std, (1 - mean) / std
-
-        # Initialize perturbation
-        perturbation = torch.zeros_like(inputs["pixel_values"])
-        perturbation.requires_grad = True
-
-        optimizer = torch.optim.Adam([perturbation], lr=lr)
-
-        history = {"loss": [], "predictions": []}
-        success = False
-
         for step in range(steps):
             optimizer.zero_grad()
 
@@ -462,9 +462,9 @@ def create_constrained_adversarial_attack(
         # TODO: Implement constrained adversarial attack
         # - Add L2 regularization to the loss
         # - Clamp perturbation to respect L∞ bounds
-        # - Clip inputs to the normalized pixel range using the processor's mean/std
+        # - Clip model inputs to lower_bound and upper_bound
         # - Track loss and predictions over time
-        pass
+        return perturbation.detach(), pixels, False
 
 
 """
