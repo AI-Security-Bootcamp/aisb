@@ -440,7 +440,7 @@ useful baseline for asking what changes when a teacher-distribution loss is adde
 
 Now we add the standard knowledge distillation loss:
 
-$$\\mathcal{L}_{KD}(s, t) = T^2 \\cdot \\mathrm{KL}\\big(\\sigma(t/T)\\ \\|\\ \\sigma(s/T)\\big)$$
+$$\mathcal{L}_{KD}(s, t) = T^2 \cdot \mathrm{KL}\big(\sigma(t/T)\ \Vert\ \sigma(s/T)\big)$$
 
 where `s` is the student logits, `t` is the teacher logits, `σ` is softmax,
 and `T` is a **temperature** parameter that softens both distributions.
@@ -505,7 +505,7 @@ test_kd_loss(kd_loss)
 Combine the CE loss from exercise 3.4.1 with the KD loss from exercise 3.4.2.
 The total loss is:
 
-$$\\mathcal{L} = (1 - \\alpha) \\cdot \\mathcal{L}_{CE} + \\alpha \\cdot \\mathcal{L}_{KD}$$
+$$\mathcal{L} = (1 - \alpha) \cdot \mathcal{L}_{CE} + \alpha \cdot \mathcal{L}_{KD}$$
 
 where `α = KD_ALPHA` controls how much we trust the teacher's soft targets
 vs. the hard labels.
