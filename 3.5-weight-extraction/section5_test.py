@@ -52,8 +52,7 @@ def test_estimate_rank(
 @report
 def test_detect_hidden_dim(h: int) -> None:
     """requires: GPU (checks the result of the GPT-2 logit-query attack)."""
-    # Checks the dimension detected above rather than re-running the attack:
-    # every run costs 1000 forward passes plus an SVD over the whole vocabulary.
+    # Check the result from the existing attack run.
     assert isinstance(h, int), f"detect_hidden_dim must return an int, got {type(h)}"
     # GPT-2 small has hidden dimension 768. Allow a small tolerance because the
     # noise floor of the SVD can shift the detected gap by a few indices.
@@ -70,10 +69,7 @@ def test_compare_weights(
     true_weights: np.ndarray,
 ) -> None:
     """requires: GPU (checks weights from the GPT-2 extraction run)."""
-    # Reuses the weights extracted above instead of running the attack a second
-    # time: another end-to-end run means 2000 more queries and another SVD of a
-    # (vocab_size x n_samples) matrix. Checks that the recovered weights align
-    # almost perfectly with the true lm_head weights (up to a linear transform).
+    # Check alignment using the weights extracted above.
     _, avg_cosine_sim, _ = solution(extracted_weights, true_weights)
     assert avg_cosine_sim > 0.99, (
         f"Aligned extracted weights should match the true weights very "

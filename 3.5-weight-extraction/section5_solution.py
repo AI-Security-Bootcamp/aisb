@@ -12,11 +12,7 @@ an unknown linear transform.
 
 ### Model weight extraction via SVD
 
-Recover a model's hidden dimension and last projection layer from API
-access alone using the logits-matrix SVD attack.
-
 > **Learning Objectives**
-> - Optional: recover the hidden dimension of a toy matrix product from its singular values
 > - Build a logit query matrix and estimate its numerical rank
 > - Explain why low-rank logits reveal the model's hidden dimension
 > - Extract the output projection up to an unknown linear transform
@@ -32,10 +28,6 @@ Create a file named `day3_answers.py` in the `3.5-weight-extraction` directory. 
 If you see a code snippet here in the instruction file, copy-paste it into your answer file. Keep the `# %%` line to make it a Python code cell.
 
 **Start by pasting the code below in your day3_answers.py file.**
-
-Exercise 3.5.1 is an optional 10-minute warmup using NumPy. If you can already
-read a singular-value spectrum, skip it and continue with Exercise 3.5.2.
-The GPT-2 exercises load their model only when you reach that part of the lab.
 """
 
 import sys
@@ -67,19 +59,16 @@ import numpy as np
 >
 > You should spend up to 10 minutes on this exercise.
 
-Use the output of a matrix product to recover its intermediate dimension.
 Multiplying `A` of shape `(1000, d)` by `B` of shape `(d, 1000)` gives a
 matrix `C` of shape `(1000, 1000)` with rank **at most** `d`. When both factors
 have rank `d`, the product also has rank `d`. The random Gaussian factors in
 this exercise have full rank with probability one in exact arithmetic.
 
-Implement `estimate_rank` using only `C`. Return its numerical rank and its
-singular values in descending order. Treat values at or below `1e-10` times
-the largest singular value as numerical noise. Plot the spectrum and compare
-your estimate with the hidden dimension revealed by the harness.
+Implement `estimate_rank` to return the numerical rank of `C` and its descending
+singular values. Ignore values at or below `1e-10` times the largest. Plot the
+spectrum and compare your estimate with `hidden_dim`.
 
-Reference: NumPy's [`linalg.svd`](https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html),
-especially the `compute_uv=False` option when only singular values are needed.
+Reference: NumPy's [`linalg.svd`](https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html).
 """
 
 
@@ -172,8 +161,7 @@ Implement the model extraction attack from
 [Carlini et al. (2024), *Stealing Part of a Production Language Model*](https://arxiv.org/abs/2403.06634).
 Complete `detect_hidden_dim` using only the supplied logit-query function.
 Collect a query matrix, inspect its singular-value spectrum, and identify
-the transition to the numerical noise floor. Do not read the model's hidden
-dimension or weights to choose your answer.
+the transition to the numerical noise floor.
 
 <details>
 <summary>Reference: matrix rank and model logits</summary>
@@ -185,7 +173,7 @@ whose output projection has no bias. To recover `d`, the queries must span
 the hidden space and the returned precision must separate signal from noise.
 NumPy's [`linalg.svd`](https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html)
 returns singular values in descending order; values near zero contribute
-little to the numerical rank. Exercise 3.5.1 gives an optional toy example.
+little to the numerical rank.
 
 The supplied query helper accepts a PyTorch tensor of token IDs with shape
 `(batch, sequence_length)` and integer dtype, moves it to the model's device,
@@ -196,7 +184,7 @@ applying NumPy operations. No gradients are needed for this attack.
 
 
 <details>
-<summary>(spoiler) If everything goes well, this is what your graph should look like</summary>
+<summary>Example singular-value spectrum</summary>
 
 ![GPT-2 small](resources/gpt2-small.png)
 </details>
@@ -213,7 +201,7 @@ if TYPE_CHECKING:
 def load_model_and_tokenizer(
     model_name: str,
 ) -> tuple["GPT2LMHeadModel", "GPT2Tokenizer"]:
-    """Load GPT-2 once for the query interface used by the remaining exercises."""
+    """Load GPT-2 and its tokenizer."""
     import torch
     from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
@@ -331,8 +319,7 @@ print(f"Using hidden dimension (h): {detected_h}")
 @report
 def test_detect_hidden_dim(h: int) -> None:
     """requires: GPU (checks the result of the GPT-2 logit-query attack)."""
-    # Checks the dimension detected above rather than re-running the attack:
-    # every run costs 1000 forward passes plus an SVD over the whole vocabulary.
+    # Check the result from the existing attack run.
     assert isinstance(h, int), f"detect_hidden_dim must return an int, got {type(h)}"
     # GPT-2 small has hidden dimension 768. Allow a small tolerance because the
     # noise floor of the SVD can shift the detected gap by a few indices.
@@ -350,8 +337,7 @@ test_detect_hidden_dim(detected_h)
 >
 > You should spend up to ~60 minutes on this exercise.
 
-Now use the hidden dimension `h` from exercise 3.5.2 to recover the model's output
-projection matrix, `lm_head.weight`, from black-box logit queries alone.
+Use the hidden dimension from 3.5.2 to extract `lm_head.weight` from logit queries.
 
 **Why SVD gives us the weights.** GPT-2's output projection has no bias, so
 each logit vector is computed as:
@@ -369,16 +355,13 @@ the hidden space, `Q` has rank `h`. The truncated SVD gives:
 Q ≈ U_h · Σ_h · Vh
 ```
 
-where `U_h` has shape `(vocab_size, h)`. Under these rank assumptions, the columns
-of `U_h` form an orthonormal basis for the same column space as `W_out`.
+where `U_h` has shape `(vocab_size, h)`. Its columns form an orthonormal basis
+for the column space of `W_out`.
 Therefore `U_h @ Σ_h` recovers an equivalent output projection up to an unknown
-invertible linear transformation of the hidden coordinates. It does not recover
-the original row directions or lengths in the model's hidden-state basis.
+invertible linear transformation of the hidden coordinates.
 
-This is the "up to a linear transform" claim: the extracted matrix and the true
-`lm_head.weight` are related by `W_extracted @ G ≈ W_true` for some matrix `G`.
-`compare_weights` solves for `G` via least squares and then measures how close
-the aligned matrices are.
+The extracted and true weights satisfy `W_extracted @ G ≈ W_true`.
+`compare_weights` finds `G` by least squares and measures the alignment error.
 """
 
 
@@ -477,8 +460,7 @@ def compare_weights(
     norm_aligned = np.linalg.norm(W_aligned, axis=0, keepdims=True)
     norm_true = np.linalg.norm(W_true, axis=0, keepdims=True)
 
-    # Avoid division by zero for zero-norm vectors
-    # This is unlikely but good practice
+    # Avoid division by zero for zero-norm vectors.
     norm_aligned[norm_aligned == 0] = 1
     norm_true[norm_true == 0] = 1
 
@@ -522,10 +504,7 @@ def test_compare_weights(
     true_weights: np.ndarray,
 ) -> None:
     """requires: GPU (checks weights from the GPT-2 extraction run)."""
-    # Reuses the weights extracted above instead of running the attack a second
-    # time: another end-to-end run means 2000 more queries and another SVD of a
-    # (vocab_size x n_samples) matrix. Checks that the recovered weights align
-    # almost perfectly with the true lm_head weights (up to a linear transform).
+    # Check alignment using the weights extracted above.
     _, avg_cosine_sim, _ = solution(extracted_weights, true_weights)
     assert avg_cosine_sim > 0.99, (
         f"Aligned extracted weights should match the true weights very "
@@ -544,9 +523,8 @@ test_compare_weights(compare_weights, W_extracted, true_weights)
 - A singular-value spectrum can reveal the hidden dimension when queries
   span that space and numerical precision separates signal from noise.
 - SVD can recover the output projection up to an unknown invertible linear
-  transformation. This does not recover the rest of the model's weights.
-- Query budgets, truncated logits, rounding, and noise affect what an attacker
-  can infer from an API; full-precision logits reveal more than sampled text.
+  transformation.
+- Query budgets, logit truncation, rounding, and noise limit extraction.
 
 ### Further reading
 
