@@ -215,13 +215,12 @@ def test_summaries(summaries=None, source=None):
 
 
 """
-After implementing your prompt, uncomment these lines to inspect its summary of
-the first 30 records:
+Try your prompt on a small chunk first and read the summaries it produces:
 
-```python
+"""
 # summary = summarize(evidence[:30])
 # print(summary)
-```
+"""
 
 And finally, run the summarization loop on all of the data. This is a lot of llm calls, which are slow and expensive.
 Parallel generations make this fast and expensive, so you should make sure you are running these in parallel! 

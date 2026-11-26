@@ -189,14 +189,11 @@ def test_summaries(summaries=None, source=None):
     print("  All tests passed! Now check whether the cited text supports each claim.")
 
 """
-After implementing your prompt, uncomment these lines to inspect its summary of
-the first 30 records:
-
-```python
+You can play around with your prompt and make sure it gives you reasonable summaries with the following:
+"""
 # summary = summarize(source[:30])
 # print(summary)
-```
-
+"""
 And finally, run the summarization loop on all of the data. This is a lot of llm calls, which are slow and expensive.
 Parallel generations make this fast and expensive, so you should make sure you are running these in parallel! 
 """
