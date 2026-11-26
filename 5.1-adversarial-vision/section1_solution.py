@@ -346,6 +346,25 @@ We'll implement:
 1. L2 regularization to keep overall perturbation small
 2. L∞ constraints to limit maximum change per pixel
 3. Comparison of different regularization strengths
+
+<details>
+<summary>Reference: normalized pixels and perturbation bounds</summary>
+
+The processor returns a tensor of shape `(batch, channels, height, width)`.
+It rescales the image to `[0, 1]`, then normalizes each channel as
+`z = (pixel - mean) / std`. Valid normalized values therefore lie between
+`-mean / std` and `(1 - mean) / std`, using `processor.image_mean` and
+`processor.image_std`. For this ViT, both are `0.5`, so the valid range is
+`[-1, 1]`.
+
+This exercise measures both perturbation norms in **normalized input units**.
+A bound of `0.1` therefore permits a change of `0.05` in `[0, 1]` pixel units
+for this processor. Check the difference between the final model input and
+the clean normalized input, including any clipping. Reshape per-channel bounds
+to `(1, channels, 1, 1)` to broadcast over the image, and keep their device and
+dtype the same as the input tensor.
+
+</details>
 """
 
 
@@ -370,25 +389,31 @@ def create_constrained_adversarial_attack(
         steps: Number of optimization steps
         lr: Learning rate
         l2_reg: L2 regularization strength
-        l_inf_bound: Maximum allowed change per pixel (L∞ constraint)
+        l_inf_bound: Maximum change per normalized pixel (L∞ constraint)
 
     Returns:
         perturbation: The adversarial perturbation
         perturbed_image: The adversarially perturbed image
         success: Whether the attack succeeded
     """
+    inputs = processor(images=image, return_tensors="pt")
+
+    # Convert valid pixel bounds to the processor's normalized coordinates.
+    pixels = inputs["pixel_values"]
+    mean = pixels.new_tensor(processor.image_mean).reshape(1, -1, 1, 1)
+    std = pixels.new_tensor(processor.image_std).reshape(1, -1, 1, 1)
+    lower_bound, upper_bound = -mean / std, (1 - mean) / std
+
+    # Initialize perturbation
+    perturbation = torch.zeros_like(inputs["pixel_values"])
+    perturbation.requires_grad = True
+
+    optimizer = torch.optim.Adam([perturbation], lr=lr)
+
+    history = {"loss": [], "predictions": []}
+    success = False
+
     if "SOLUTION":
-        inputs = processor(images=image, return_tensors="pt")
-
-        # Initialize perturbation
-        perturbation = torch.zeros_like(inputs["pixel_values"])
-        perturbation.requires_grad = True
-
-        optimizer = torch.optim.Adam([perturbation], lr=lr)
-
-        history = {"loss": [], "predictions": []}
-        success = False
-
         for step in range(steps):
             optimizer.zero_grad()
 
@@ -396,8 +421,8 @@ def create_constrained_adversarial_attack(
             clamped_perturbation = torch.clamp(perturbation, -l_inf_bound, l_inf_bound)
             perturbed_inputs = inputs["pixel_values"] + clamped_perturbation
 
-            # Ensure pixel values stay in valid range [0, 1]
-            perturbed_inputs = torch.clamp(perturbed_inputs, 0, 1)
+            # Keep inputs within the valid normalized pixel range.
+            perturbed_inputs = torch.clamp(perturbed_inputs, lower_bound, upper_bound)
 
             # Get model predictions
             outputs = model(pixel_values=perturbed_inputs)
@@ -428,16 +453,18 @@ def create_constrained_adversarial_attack(
 
         # Final clamped perturbation
         final_perturbation = torch.clamp(perturbation, -l_inf_bound, l_inf_bound).detach()
-        final_perturbed = torch.clamp(inputs["pixel_values"] + final_perturbation, 0, 1)
+        final_perturbed = torch.clamp(
+            inputs["pixel_values"] + final_perturbation, lower_bound, upper_bound
+        )
 
         return final_perturbation, final_perturbed, success
     else:
         # TODO: Implement constrained adversarial attack
         # - Add L2 regularization to the loss
         # - Clamp perturbation to respect L∞ bounds
-        # - Ensure final pixel values stay in [0, 1]
+        # - Clip model inputs to lower_bound and upper_bound
         # - Track loss and predictions over time
-        pass
+        return perturbation.detach(), pixels, False
 
 
 """
@@ -483,9 +510,7 @@ for l2_reg in regularization_strengths:
 def test_constrained_adversarial_attack(solution, processor, model, image, target_class_id, target_class):
     """requires: GPU (runs a gradient-based attack against the ViT).
 
-    Checks two substantive properties rather than a tautology:
-      1. The attack actually flips the prediction to the *target* class.
-      2. The returned perturbation respects the stated L-infinity bound.
+    Check the target prediction and the actual change to the model input.
     """
     l_inf_bound = 0.1
     perturbation, perturbed_image, success = solution(
@@ -508,10 +533,11 @@ def test_constrained_adversarial_attack(solution, processor, model, image, targe
     )
     assert success, "Attack reported success=False despite predicting the target class"
 
-    # The perturbation must honour the L-infinity constraint (small numerical slack).
-    max_abs = perturbation.abs().max().item()
+    # Check the image difference, including any change introduced by clipping.
+    clean = processor(images=image, return_tensors="pt")["pixel_values"]
+    max_abs = (perturbed_image - clean).abs().max().item()
     assert max_abs <= l_inf_bound + 1e-4, (
-        f"Perturbation violates L-inf bound {l_inf_bound}: max |delta| = {max_abs:.4f}"
+        f"Actual image change violates L-inf bound {l_inf_bound}: max |delta| = {max_abs:.4f}"
     )
     print("  All tests passed!")
 
@@ -543,6 +569,10 @@ for i, result in enumerate(results):
 
     # Perturbed
     perturbed_vis = result["perturbed_image"].squeeze().permute(1, 2, 0).numpy()
+    # Undo normalization for display.
+    perturbed_vis = perturbed_vis * np.asarray(processor.image_std) + np.asarray(
+        processor.image_mean
+    )
     axes[i, 2].imshow(perturbed_vis)
 
     # Get final prediction

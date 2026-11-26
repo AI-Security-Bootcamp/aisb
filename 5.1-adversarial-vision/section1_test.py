@@ -33,9 +33,7 @@ def test_classify_image(solution, processor, model, image):
 def test_constrained_adversarial_attack(solution, processor, model, image, target_class_id, target_class):
     """requires: GPU (runs a gradient-based attack against the ViT).
 
-    Checks two substantive properties rather than a tautology:
-      1. The attack actually flips the prediction to the *target* class.
-      2. The returned perturbation respects the stated L-infinity bound.
+    Check the target prediction and the actual change to the model input.
     """
     l_inf_bound = 0.1
     perturbation, perturbed_image, success = solution(
@@ -58,9 +56,10 @@ def test_constrained_adversarial_attack(solution, processor, model, image, targe
     )
     assert success, "Attack reported success=False despite predicting the target class"
 
-    # The perturbation must honour the L-infinity constraint (small numerical slack).
-    max_abs = perturbation.abs().max().item()
+    # Check the image difference, including any change introduced by clipping.
+    clean = processor(images=image, return_tensors="pt")["pixel_values"]
+    max_abs = (perturbed_image - clean).abs().max().item()
     assert max_abs <= l_inf_bound + 1e-4, (
-        f"Perturbation violates L-inf bound {l_inf_bound}: max |delta| = {max_abs:.4f}"
+        f"Actual image change violates L-inf bound {l_inf_bound}: max |delta| = {max_abs:.4f}"
     )
     print("  All tests passed!")
