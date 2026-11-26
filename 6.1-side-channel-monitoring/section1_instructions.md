@@ -672,24 +672,13 @@ one visible gap using the CPU and GPU tracks.
 
 ## Combine the Measurements
 
-We now have two accounts of the same step: current samples from the scope and
-execution events from the profiler. The supplied `merge.py` puts them on a
-common timeline so we can compare them directly in Perfetto.
+Use `merge.py` to combine the scope recording and profiler trace in Perfetto.
 
-For saved examples, download the [baseline training trace](https://traces.aisb.dev/waveform-viewer/2026-10-10-rms-001/reference/trace.json.gz)
-or the [small Granite MoE trace](https://traces.aisb.dev/waveform-viewer/2026-10-10-rms-001/granite-moe/trace.json.gz), then open
-the `.json.gz` file in [Perfetto](https://ui.perfetto.dev/). Both include CPU/CUDA
-execution and both 0.01 and 0.1 ms RMS current. The US-hosted downloads need no server login.
-These older exports omit raw samples and the
-min/max envelope; use your own capture for the envelope comparison below.
-See the [download table and metadata](README.md#pre-captured-data).
-For the sample-by-sample waveform and min/max envelope, the same table also links
-full raw bundles. [Import one into the local viewer](viewer/README.md#import-a-raw-recording)
-to explore it without reserving the GPU or scope.
+[Saved traces](README.md#pre-captured-data) include RMS current. For raw samples
+and min/max envelopes, [import a raw recording](viewer/README.md#import-a-raw-recording).
 
-The RMS curve makes sustained activity visible, but averages over short
-excursions. To retain those, we also show a **min/max envelope**: the lowest
-and highest current in each short interval.
+RMS smooths brief peaks. The **min/max envelope** preserves the lowest and
+highest current in each interval.
 
 | View | What each point means |
 | --- | --- |
@@ -697,13 +686,8 @@ and highest current in each short interval.
 | Minimum/maximum envelope | Smallest/largest raw sample in each nonoverlapping 0.1 ms bin, timestamped at its center. |
 | Raw `scope.npy` | Every ADC sample at 0.4 ns. Inspect a short slice in Matplotlib. This track is too big for Perfetto to render. |
 
-The recordings also have different clocks. On the original instrument, the merger
-uses a host timestamp and a previously measured offset, with 100 µs timing
-uncertainty for matching settings. The second instrument initially has no transferred
-calibration: its recordings are explicitly marked **uncalibrated**, rather than
-reusing the first scope's offset. This limits how precisely we can associate a current
-feature with a kernel. Shifting the waveform until its peaks match the labels
-would assume the very correspondence we are trying to test.
+Timing uncertainty is 100 µs for the first instrument's calibrated settings.
+The second instrument's recordings are marked **uncalibrated**.
 
 ### Exercise 6.1.5: Count Layers from Current Activity
 

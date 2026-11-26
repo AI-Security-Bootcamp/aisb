@@ -732,13 +732,13 @@ one visible gap using the CPU and GPU tracks.
 
 ## Combine the Measurements
 
-We now have two accounts of the same step: current samples from the scope and
-execution events from the profiler. The supplied `merge.py` puts them on a
-common timeline so we can compare them directly in Perfetto.
+Use `merge.py` to combine the scope recording and profiler trace in Perfetto.
 
-The RMS curve makes sustained activity visible, but averages over short
-excursions. To retain those, we also show a **min/max envelope**: the lowest
-and highest current in each short interval.
+[Saved traces](README.md#pre-captured-data) include RMS current. For raw samples
+and min/max envelopes, [import a raw recording](viewer/README.md#import-a-raw-recording).
+
+RMS smooths brief peaks. The **min/max envelope** preserves the lowest and
+highest current in each interval.
 
 | View | What each point means |
 | --- | --- |
@@ -746,11 +746,8 @@ and highest current in each short interval.
 | Minimum/maximum envelope | Smallest/largest raw sample in each nonoverlapping 0.1 ms bin, timestamped at its center. |
 | Raw `scope.npy` | Every ADC sample at 0.4 ns. Inspect a short slice in Matplotlib. This track is too big for Perfetto to render. |
 
-The recordings also have different clocks. The merger uses a host timestamp
-and a previously measured offset, with 100 µs timing uncertainty for these
-instrument settings. This limits how precisely we can associate a current
-feature with a kernel. Shifting the waveform until its peaks match the labels
-would assume the very correspondence we are trying to test.
+Timing uncertainty is 100 µs for the first instrument's calibrated settings.
+The second instrument's recordings are marked **uncalibrated**.
 
 ### Exercise 6.1.5: Count Layers from Current Activity
 
