@@ -8,9 +8,10 @@ an unknown linear transform.
 
 <!-- toc -->
 
-## Content & Learning Objectives
+## Model weight extraction via SVD
 
-### Model weight extraction via SVD
+Recover a model's hidden dimension and last projection layer from API
+access alone using the logits-matrix SVD attack.
 
 > **Learning Objectives**
 > - Build a logit query matrix and estimate its numerical rank
@@ -48,11 +49,7 @@ import numpy as np
 
 # %%
 """
-## Model weight extraction via SVD
-"""
-
-"""
-### Exercise 3.5.1 (Optional): Find the hidden dimension of a toy black box
+### Exercise 3.5.1 (Optional): Find the hidden dimension of a toy black box matrix multiplication
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
@@ -184,7 +181,7 @@ applying NumPy operations. No gradients are needed for this attack.
 
 
 <details>
-<summary>Example singular-value spectrum</summary>
+<summary>(spoiler) If everything goes well, this is what your graph should look like</summary>
 
 ![GPT-2 small](resources/gpt2-small.png)
 </details>
@@ -264,7 +261,7 @@ def detect_hidden_dim(
         for _ in tqdm(range(n_queries)):
             prompt_length = np.random.randint(1, max_prompt_length)
             random_tokens = np.random.randint(0, VOCAB_SIZE, size=prompt_length)
-            input_ids = torch.tensor(random_tokens).unsqueeze(0)
+            input_ids = torch.tensor([random_tokens])
             logit_matrix_q.append(get_next_logits(input_ids).cpu().numpy())
 
         # 2. Stack into a matrix Q of shape (n_queries, vocab_size).
@@ -306,9 +303,16 @@ def detect_hidden_dim(
 
         return detected_h
     else:
-        # TODO: Estimate the hidden dimension from black-box logit queries.
-        # Return an integer; use `plot` to control the singular-value plot.
-        # Hint: inspect the spectrum on a log scale to locate its noise floor.
+        # TODO: Discover the model's hidden dimension using only black-box
+        # logit queries.
+        #   1. Send many random token sequences to get_next_logits.
+        #   2. Stack the results into a matrix Q (n_queries, vocab_size).
+        #   3. Compute its singular values (np.linalg.svd(..., compute_uv=False)).
+        #   4. Plot the spectrum on a log scale, and look at where there is a sharp drop: eyeball it and return it
+        #   5. (optional) The hidden dimension is the index of the sharp drop in the
+        #      spectrum, e.g. argmax of the gaps between consecutive
+        #      log-singular-values, plus one.
+        # Return the detected hidden dimension as an int (768 for GPT-2 small).
         return 0
 
 
@@ -317,9 +321,9 @@ print(f"Using hidden dimension (h): {detected_h}")
 
 
 @report
-def test_detect_hidden_dim(h: int) -> None:
-    """requires: GPU (checks the result of the GPT-2 logit-query attack)."""
-    # Check the result from the existing attack run.
+def test_detect_hidden_dim(h: int):
+    # Checks the dimension detected above rather than re-running the attack:
+    # every run costs 1000 forward passes plus an SVD over the whole vocabulary.
     assert isinstance(h, int), f"detect_hidden_dim must return an int, got {type(h)}"
     # GPT-2 small has hidden dimension 768. Allow a small tolerance because the
     # noise floor of the SVD can shift the detected gap by a few indices.

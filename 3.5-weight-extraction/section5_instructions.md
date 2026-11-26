@@ -7,19 +7,18 @@ an unknown linear transform.
 
 ## Table of Contents
 
-- [Content & Learning Objectives](#content--learning-objectives)
-    - [Model weight extraction via SVD](#model-weight-extraction-via-svd)
+- [Model weight extraction via SVD](#model-weight-extraction-via-svd)
 - [Setup](#setup)
-- [Model weight extraction via SVD](#model-weight-extraction-via-svd-1)
-    - [Exercise 3.5.1 (Optional): Find the hidden dimension of a toy black box](#exercise-351-optional-find-the-hidden-dimension-of-a-toy-black-box)
+    - [Exercise 3.5.1 (Optional): Find the hidden dimension of a toy black box matrix multiplication](#exercise-351-optional-find-the-hidden-dimension-of-a-toy-black-box-matrix-multiplication)
     - [Exercise 3.5.2: Complete Model Dimension Extraction](#exercise-352-complete-model-dimension-extraction)
     - [Exercise 3.5.3: Extracting Model Weights](#exercise-353-extracting-model-weights)
 - [Summary](#summary)
     - [Further reading](#further-reading)
 
-## Content & Learning Objectives
+## Model weight extraction via SVD
 
-### Model weight extraction via SVD
+Recover a model's hidden dimension and last projection layer from API
+access alone using the logits-matrix SVD attack.
 
 > **Learning Objectives**
 > - Build a logit query matrix and estimate its numerical rank
@@ -57,10 +56,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 ```
 
-## Model weight extraction via SVD
-
-
-### Exercise 3.5.1 (Optional): Find the hidden dimension of a toy black box
+### Exercise 3.5.1 (Optional): Find the hidden dimension of a toy black box matrix multiplication
 
 > **Difficulty**: 1/5
 > **Importance**: 3/5
@@ -154,7 +150,7 @@ applying NumPy operations. No gradients are needed for this attack.
 
 
 <details>
-<summary>Example singular-value spectrum</summary><blockquote>
+<summary>(spoiler) If everything goes well, this is what your graph should look like</summary><blockquote>
 
 ![GPT-2 small](resources/gpt2-small.png)
 </blockquote></details>
@@ -228,9 +224,16 @@ def detect_hidden_dim(
     """
     import torch
     from tqdm import tqdm
-    # TODO: Estimate the hidden dimension from black-box logit queries.
-    # Return an integer; use `plot` to control the singular-value plot.
-    # Hint: inspect the spectrum on a log scale to locate its noise floor.
+    # TODO: Discover the model's hidden dimension using only black-box
+    # logit queries.
+    #   1. Send many random token sequences to get_next_logits.
+    #   2. Stack the results into a matrix Q (n_queries, vocab_size).
+    #   3. Compute its singular values (np.linalg.svd(..., compute_uv=False)).
+    #   4. Plot the spectrum on a log scale, and look at where there is a sharp drop: eyeball it and return it
+    #   5. (optional) The hidden dimension is the index of the sharp drop in the
+    #      spectrum, e.g. argmax of the gaps between consecutive
+    #      log-singular-values, plus one.
+    # Return the detected hidden dimension as an int (768 for GPT-2 small).
     return 0
 
 
