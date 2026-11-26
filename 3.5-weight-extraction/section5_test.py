@@ -6,62 +6,49 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import sys
 from pathlib import Path
 from aisb_utils import report
-import torch
-import numpy as np
+from typing import TYPE_CHECKING, Callable
 import matplotlib.pyplot as plt
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
-from tqdm import tqdm
-
-model_name = "openai-community/gpt2"
-
-# The attack below is thousands of forward passes plus a large SVD, so run
-# it on the GPU when there is one (minutes on GPU, far longer on CPU).
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-print(f"Loading model: {model_name} on {device}...")
-
-tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-
-model = GPT2LMHeadModel.from_pretrained(model_name).to(device)
-
-model.eval()
+import numpy as np
 
 
-def get_next_logits(input_ids: torch.Tensor) -> torch.Tensor:
-    """
-        Get the logits for the next token given input_ids.
-        """
-    assert input_ids.ndim == 2, "Input IDs should be a 2D tensor (batch_size, sequence_length)"
-    with torch.no_grad():
-        # Callers build their query tensors on the CPU, so move them to the
-        # model's device here; the logits come back on `device`, ready for
-        # an SVD that then also runs there.
-        outputs = model(input_ids.to(device))
-        return outputs.logits[:, -1, :]
 
+@report
+def test_estimate_rank(
+    solution: Callable[[np.ndarray], tuple[int, np.ndarray]],
+) -> None:
+    """Check rank recovery, scale invariance, and the zero-matrix edge case."""
+    rng = np.random.default_rng(0)
+    for d in (3, 12, 40):
+        matrix = rng.standard_normal((80, d)) @ rng.standard_normal((d, 60))
+        rank, singular_values = solution(matrix)
+        assert rank == d, f"Expected rank {d}, got {rank}"
+        assert singular_values.shape == (
+            60,
+        ), f"Expected 60 singular values for an 80 x 60 matrix, got {singular_values.shape}"
+        assert np.all(
+            singular_values[:-1] >= singular_values[1:]
+        ), "Return singular values in descending order"
 
-# Set pad token if it's not set
-if tokenizer.pad_token is None:
-    tokenizer.pad_token = tokenizer.eos_token
+    for scale in (1e-6, 1.0, 1e6):
+        matrix = scale * np.diag([1.0, 1e-8, 1e-12, 0.0])
+        rank, singular_values = solution(matrix)
+        assert rank == 2, f"Expected rank 2 at scale {scale}, got {rank}"
+        np.testing.assert_allclose(
+            singular_values,
+            scale * np.array([1.0, 1e-8, 1e-12, 0.0]),
+            err_msg=f"Incorrect singular values at scale {scale}",
+        )
 
-
-# Shared attack parameters, used by Exercises 3.5.1 and 3.5.2.
-N_QUERIES = 1000
-
-MAX_PROMPT_LENGTH = 10
-
-VOCAB_SIZE = tokenizer.vocab_size
-
-print(f"Vocabulary size (l): {VOCAB_SIZE}")
-
-print(f"Number of queries (n): {N_QUERIES}")
-
-true_weights = model.lm_head.weight.detach().cpu().numpy()
+    rank, singular_values = solution(np.zeros((4, 7)))
+    assert rank == 0, f"Expected rank 0 for a zero matrix, got {rank}"
+    assert np.array_equal(
+        singular_values, np.zeros(4)
+    ), f"Expected four zero singular values, got {singular_values}"
+    print("  All tests passed!")
 
 
 
 
-# requires: GPU (checks the attack run above, which needs the GPU).
 @report
 def test_detect_hidden_dim(h: int):
     # Checks the dimension detected above rather than re-running the attack:
@@ -75,14 +62,15 @@ def test_detect_hidden_dim(h: int):
 
 
 
-# requires: GPU (checks the attack run above, which needs the GPU).
 @report
-def test_compare_weights(W_hat: np.ndarray, compare_fn):
-    # Reuses the weights extracted above instead of running the attack a second
-    # time: another end-to-end run means 2000 more queries and another SVD of a
-    # (vocab_size x n_samples) matrix. Checks that the recovered weights align
-    # almost perfectly with the true lm_head weights (up to a linear transform).
-    _, avg_cosine_sim, _ = compare_fn(W_hat, true_weights)
+def test_compare_weights(
+    solution: Callable[[np.ndarray, np.ndarray], tuple[float, float, float]],
+    extracted_weights: np.ndarray,
+    true_weights: np.ndarray,
+) -> None:
+    """requires: GPU (checks weights from the GPT-2 extraction run)."""
+    # Check alignment using the weights extracted above.
+    _, avg_cosine_sim, _ = solution(extracted_weights, true_weights)
     assert avg_cosine_sim > 0.99, (
         f"Aligned extracted weights should match the true weights very "
         f"closely (cosine > 0.99), got {avg_cosine_sim:.4f}"
