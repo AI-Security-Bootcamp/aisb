@@ -210,7 +210,7 @@ else:
     # # You can (optionally) write the code for this, or just uncomment the lines below to use our helper function
     #
     # summaries = summarize_in_chunks(
-    #     evidence, summarize, max_records=100, max_chars=85000,
+    #     source, summarize, max_records=100, max_chars=85000,
     #     workers=12,
     # )
     # test_summaries(summaries, source)
@@ -415,7 +415,7 @@ else:
     # # You can (optionally) write the code for this, or just uncomment the lines below to use our helper functions
     #
     # records = classify_in_batches(
-    #     source, evidence, codebook, classify,
+    #     source, source, codebook, classify,
     #     batch_size=20, context_records=5, workers=32,
     # )
     # result = {"track": "transcript", "labels": codebook["labels"], "records": records}
