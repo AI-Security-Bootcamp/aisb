@@ -14,7 +14,7 @@ safety–usefulness trade-offs.
 | --- | --- | --- |
 | Engineering | `async`/`await` | Implement stateful control-policy decisions and analyze evaluation logs |
 | ML | Decision thresholds and stochastic sampling | Explain how thresholds, replacement models, and repeated samples change system behavior |
-| Security | Audit budgets, escalation policies, and residual risk | Design a protocol around attacker behavior; measure residual risk from successful attacks that escape intervention or audit |
+| Security | Audit budgets, escalation policies, and residual risk | Design a protocol around attacker behavior rather than treating monitoring as the final control |
 | Theory | AI-control trust models and safety–usefulness trade-offs | Reason about the safety–usefulness frontier and the assumptions under which each protocol helps |
 
 ### Background
