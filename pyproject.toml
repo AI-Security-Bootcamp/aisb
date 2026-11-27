@@ -1,0 +1,43 @@
+[project]
+name = "aisb"
+version = "0.1.0"
+description = "AI Security Bootcamp exercises"
+# NOTE: torch 2.4.0 (needed by the GPU sections) publishes no wheels for 3.13+.
+requires-python = ">=3.11,<3.13"
+dependencies = []
+
+
+[dependency-groups]
+# Shared by every section: the test harness (aisb_utils) and notebook cells.
+core = ["termcolor~=3.1.0", "python-dotenv", "ipykernel", "ipytest", "pytest"]
+
+# Toolchain for ./build-instructions.sh, not needed to solve exercises.
+build = ["libcst~=1.8.0", "black~=25.1.0"]
+
+day0 = [{ include-group = "core" }, "requests"]
+
+# API-only: OpenRouter via the OpenAI client. No torch, no GPU.
+day1 = [
+    { include-group = "core" },
+    "openai",
+    # transformers 5.x eagerly imports torchaudio and dropped
+    # convert_ids_to_tokens, which Exercise 1.1.2 relies on.
+    "transformers>=4.57,<5",
+]
+
+day2 = [
+    { include-group = "core" },
+    "control-arena==17.1.1",
+    "inspect-ai==0.3.244",
+    "click",
+    "matplotlib",
+    "nest-asyncio",
+    "numpy>=1.26,<3",
+    "pydantic",
+]
+
+[tool.uv]
+# NOTE: we don't want to build this repo.
+package = false
+
+default-groups = ["day0", "day1", "day2"]
